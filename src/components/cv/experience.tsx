@@ -6,9 +6,11 @@ import { Briefcase, MapPin, Calendar, ChevronRight } from "lucide-react"
 import { SectionHeader } from "./section-header"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
-import { experiences } from "@/lib/cv/data"
+import { useSiteData } from "@/components/cv/site-data-context"
+import { ExternalLink } from "lucide-react"
 
 export function Experience() {
+  const { experiences } = useSiteData()
   return (
     <section id="experience" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-6xl px-4">
@@ -70,9 +72,21 @@ export function Experience() {
                           (isLeft ? "sm:justify-end" : "")
                         }
                       >
-                        <span className="flex items-center gap-1 text-primary font-medium">
-                          <Briefcase className="h-3.5 w-3.5" /> {exp.company}
-                        </span>
+                        {exp.companyUrl ? (
+                          <a
+                            href={exp.companyUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-primary font-medium hover:underline"
+                          >
+                            <Briefcase className="h-3.5 w-3.5" /> {exp.company}
+                            <ExternalLink className="h-3 w-3 opacity-70" />
+                          </a>
+                        ) : (
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <Briefcase className="h-3.5 w-3.5" /> {exp.company}
+                          </span>
+                        )}
                         <span className="flex items-center gap-1">
                           <MapPin className="h-3.5 w-3.5" /> {exp.location}
                         </span>

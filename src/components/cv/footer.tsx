@@ -2,9 +2,11 @@
 
 import * as React from "react"
 import { Cpu, Github, Linkedin, Mail, ArrowUp } from "lucide-react"
-import { profile, navLinks } from "@/lib/cv/data"
+import { navLinks } from "@/lib/cv/data"
+import { useSiteData } from "@/components/cv/site-data-context"
 
 export function Footer() {
+  const { profile } = useSiteData()
   const year = new Date().getFullYear()
 
   return (

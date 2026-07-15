@@ -6,7 +6,7 @@ import { motion } from "framer-motion"
 import { MapPin, Mail, Github, Linkedin, ArrowDown, Cpu, Radio } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { profile } from "@/lib/cv/data"
+import { useSiteData } from "@/components/cv/site-data-context"
 
 const roles = [
   "Embedded Software Engineer",
@@ -16,6 +16,7 @@ const roles = [
 ]
 
 export function Hero() {
+  const { profile } = useSiteData()
   const [roleIdx, setRoleIdx] = React.useState(0)
 
   React.useEffect(() => {

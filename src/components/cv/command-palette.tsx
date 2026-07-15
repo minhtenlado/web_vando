@@ -15,7 +15,8 @@ import {
 } from "@/components/ui/command"
 import { useTheme } from "next-themes"
 import { Moon, Sun, FileDown, Github, Linkedin, Mail, Phone, Globe } from "lucide-react"
-import { navLinks, profile, codeSnippets, projects } from "@/lib/cv/data"
+import { navLinks, codeSnippets } from "@/lib/cv/data"
+import { useSiteData } from "@/components/cv/site-data-context"
 
 type CommandAction = {
   label: string
@@ -27,6 +28,7 @@ type CommandAction = {
 }
 
 export function CommandPalette() {
+  const { profile, projects } = useSiteData()
   const [open, setOpen] = React.useState(false)
   const { theme, setTheme } = useTheme()
 

@@ -20,11 +20,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { profile } from "@/lib/cv/data"
+import { useSiteData } from "@/components/cv/site-data-context"
 
 type FieldErrors = Record<string, string>
 
 export function Contact() {
+  const { profile } = useSiteData()
   const { toast } = useToast()
   const [submitting, setSubmitting] = React.useState(false)
   const [errors, setErrors] = React.useState<FieldErrors>({})
@@ -92,7 +93,7 @@ export function Contact() {
     <section id="contact" className="relative py-20 sm:py-28 bg-muted/20">
       <div className="container mx-auto max-w-6xl px-4">
         <SectionHeader
-          index="06 / contact"
+          index="09 / contact"
           title="Liên hệ với tôi"
           subtitle="Đang tìm kiếm một kỹ sư nhúng cho dự án của bạn, hoặc đơn giản muốn trao đổi về vi điều khiển, RTOS và IoT? Hãy gửi vài dòng nhé."
         />

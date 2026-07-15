@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,20 +10,64 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
+// --- CMS models for the CV site (editable from /admin) ---
+
+// Singleton row (id = "profile") holding the owner's personal info.
+model Profile {
+  id        String   @id @default("profile")
+  name      String   @default("Nguyễn Minh Anh")
+  role      String   @default("Embedded Software Engineer")
+  tagline   String   @default("Lập trình viên nhúng · RTOS · ARM Cortex · IoT")
+  location  String   @default("TP. Hồ Chí Minh, Việt Nam")
+  email     String   @default("minhanh.embedded@gmail.com")
+  phone     String   @default("+84 912 345 678")
+  website   String   @default("minhanh-embedded.dev")
+  github    String   @default("github.com/minhanh-embedded")
+  linkedin  String   @default("linkedin.com/in/minhanh-embedded")
+  summary   String   @default("")
+  avatar    String   @default("/avatar.png")
   updatedAt DateTime @updatedAt
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  category    String   @default("")
+  description String   @default("")
+  // JSON-encoded string[] for SQLite (no native array type)
+  features    String   @default("[]")
+  tech        String   @default("[]")
+  image       String   @default("")
+  youtubeUrl  String?  // optional YouTube watch/embed URL
+  link        String?
+  repo        String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Post {
   id        String   @id @default(cuid())
   title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
+  slug      String   @unique
+  excerpt   String   @default("")
+  content   String   @default("") // markdown
+  published Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Experience {
+  id          String   @id @default(cuid())
+  role        String
+  company     String
+  companyUrl  String?  // link to company website
+  period      String
+  location    String   @default("")
+  description String   @default("")
+  highlights  String   @default("[]") // JSON string[]
+  stack       String   @default("[]") // JSON string[]
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

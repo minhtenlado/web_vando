@@ -5,7 +5,8 @@ import { motion } from "framer-motion"
 import { Terminal, Zap, ShieldCheck, Layers } from "lucide-react"
 import { SectionHeader } from "./section-header"
 import { Card, CardContent } from "@/components/ui/card"
-import { profile, stats } from "@/lib/cv/data"
+import { stats } from "@/lib/cv/data"
+import { useSiteData } from "@/components/cv/site-data-context"
 
 const principles = [
   {
@@ -31,6 +32,7 @@ const principles = [
 ]
 
 export function About() {
+  const { profile } = useSiteData()
   return (
     <section id="about" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-6xl px-4">

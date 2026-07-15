@@ -13,7 +13,7 @@ export function Education() {
     <section id="education" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-6xl px-4">
         <SectionHeader
-          index="05 / education"
+          index="08 / education"
           title="Học vấn & Chứng chỉ"
           subtitle="Nền tảng học thuật và các chứng chỉ chuyên môn đã đạt được trong hành trình trở thành kỹ sư nhúng."
         />

@@ -105,8 +105,10 @@ export const skillGroups: SkillGroup[] = [
 ]
 
 export type Experience = {
+  id?: string
   role: string
   company: string
+  companyUrl?: string
   period: string
   location: string
   description: string
@@ -175,6 +177,7 @@ export const experiences: Experience[] = [
 ]
 
 export type Project = {
+  id?: string
   title: string
   category: string
   image: string
@@ -183,6 +186,7 @@ export type Project = {
   tech: string[]
   link?: string
   repo?: string
+  youtubeUrl?: string
 }
 
 export const projects: Project[] = [
@@ -452,6 +456,7 @@ export const navLinks = [
   { href: "#projects", label: "Dự án" },
   { href: "#code", label: "Code" },
   { href: "#testimonials", label: "Đánh giá" },
+  { href: "#posts", label: "Bài viết" },
   { href: "#education", label: "Học vấn" },
   { href: "#contact", label: "Liên hệ" },
 ]

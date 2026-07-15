@@ -6,10 +6,12 @@ import { useTheme } from "next-themes"
 import { Moon, Sun, Menu, X, Cpu, Download, Search, FileDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet"
-import { navLinks, profile } from "@/lib/cv/data"
+import { navLinks } from "@/lib/cv/data"
+import { useSiteData } from "@/components/cv/site-data-context"
 import { cn } from "@/lib/utils"
 
 export function Navbar() {
+  const { profile } = useSiteData()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
   const [scrolled, setScrolled] = React.useState(false)
