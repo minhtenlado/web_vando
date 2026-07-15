@@ -39,3 +39,33 @@ Stage Summary:
 - Site is fully interactive and visually verified end-to-end.
 - All 7 sections render, contact form works, theme toggle works, nav works, responsive on mobile.
 - Task complete.
+
+---
+Task ID: 2
+Agent: main
+Task: Continue perfecting the CV site — add advanced features
+
+Work Log:
+- Extended src/lib/cv/data.ts: added codeSnippets (3 real embedded C: FreeRTOS blink, BME280 I2C driver, OTA dual-bank bootloader), testimonials (4), and 2 new nav links (#code, #testimonials)
+- Created src/components/cv/scroll-progress.tsx: framer-motion useScroll + useSpring top progress bar
+- Created src/components/cv/code-showcase.tsx: file list + VS Code-style window with react-syntax-highlighter (vscDarkPlus), copy-to-clipboard with toast, file switching
+- Created src/components/cv/testimonials.tsx: auto-rotating carousel (6s), star rating, avatar initials, dots + prev/next controls, pause on hover
+- Created src/components/cv/command-palette.tsx: cmdk dialog (Cmd/Ctrl+K), grouped actions (nav, projects, code, theme toggle, print CV, social links), fuzzy search
+- Updated navbar: added "Tải CV" button (lg), "⌘K" trigger button (sm+) using CustomEvent, mobile menu "Tải CV" button, no-print classes
+- Added print styles to globals.css (@media print): force light colors, hide header/footer/chrome, page-break-avoid sections, friendly @page margins — enables "Save as PDF"
+- Wired everything into src/app/page.tsx: ScrollProgress + CommandPalette + 9 sections
+
+Verification (Agent Browser + VLM):
+- lint passed (0 errors)
+- no console/runtime errors
+- Cmd+K (both keyboard + navbar button) opens palette, search filters correctly, Enter navigates + updates URL hash
+- Code Showcase: file switching works, copy button shows toast
+- Testimonials: heading visible, carousel renders
+- Scroll progress bar: confirmed scaleX updates with scroll
+- Mobile 390px: single column, no overflow
+- VLM full-page check: all 10 sections (Hero, About, Skills, Experience, Projects, Code, Testimonials, Education, Contact, Footer) rendered correctly
+
+Stage Summary:
+- Added 4 major features: scroll progress, code showcase, testimonials, command palette + CV PDF export (print).
+- Site now has 9 sections + sticky footer, all interactive, fully responsive, print-ready.
+- Perfection pass complete.

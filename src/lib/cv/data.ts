@@ -294,11 +294,164 @@ export const certifications: Certification[] = [
   { name: "Embedded Linux Engineer", issuer: "Embedded Systems Academy", year: "2020" },
 ]
 
+export type CodeSnippet = {
+  id: string
+  filename: string
+  language: string
+  title: string
+  description: string
+  code: string
+}
+
+export const codeSnippets: CodeSnippet[] = [
+  {
+    id: "blink-rtos",
+    filename: "main.c",
+    language: "c",
+    title: "FreeRTOS Blink với Power Management",
+    description:
+      "Task nháy LED dùng FreeRTOS với chế độ Tickless Idle để tối ưu tiêu thụ năng lượng trên STM32L4.",
+    code: `#include "stm32l4xx_hal.h"
+#include "FreeRTOS.h"
+#include "task.h"
+
+/* Task nháy LED chu kỳ 1Hz, sleep giữa các lần chuyển trạng thái */
+static void vLedTask(void *pvParameters) {
+    (void)pvParameters;
+    TickType_t last = xTaskGetTickCount();
+
+    for (;;) {
+        HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+        /* Tickless idle cho phép MCU vào Stop mode ở đây */
+        vTaskDelayUntil(&last, pdMS_TO_TICKS(1000));
+    }
+}
+
+int main(void) {
+    HAL_Init();
+    SystemClock_Config();
+    MX_GPIO_Init();
+
+    xTaskCreate(vLedTask, "LED", 128, NULL, tskIDLE_PRIORITY + 1, NULL);
+    vTaskStartScheduler();   /* Không bao giờ trả về */
+    for (;;) {}
+}`,
+  },
+  {
+    id: "i2c-driver",
+    filename: "bme280_drv.c",
+    language: "c",
+    title: "Driver cảm biến BME280 qua I2C",
+    description:
+      "Driver portable tách biệt HAL, đọc nhiệt độ/độ ẩm/áp suất từ BME280 với hiệu chuẩn nhà sản xuất.",
+    code: `#include "bme280.h"
+
+/* Đọc thanh ghi dùng callback HAL — portable giữa các MCU */
+static int8_t bme_read(uint8_t reg, uint8_t *buf, uint32_t len, void *intf) {
+    const bme_intf_t *i = (const bme_intf_t *)intf;
+    if (HAL_I2C_Mem_Read(i->hi2c, i->addr, reg,
+                         I2C_MEMADD_SIZE_8BIT,
+                         buf, len, 100) != HAL_OK) {
+        return -1;
+    }
+    return 0;   /* BME280_OK */
+}
+
+int8_t bme280_measure(bme280_data_t *out) {
+    uint8_t raw[8];
+    if (bme_read(0xF7, raw, sizeof(raw), &g_intf) != 0)
+        return -1;
+
+    /* Bù hiệu chuẩn theo datasheet Rev 1.6 */
+    out->temp  = bme280_compensate_T(raw[3] << 12 | raw[4] << 4 | raw[5] >> 4);
+    out->press = bme280_compensate_P(raw[0] << 12 | raw[1] << 4 | raw[2] >> 4);
+    out->hum   = bme280_compensate_H(raw[6] << 8  | raw[7]);
+    return 0;
+}`,
+  },
+  {
+    id: "ota-update",
+    filename: "ota_bootloader.c",
+    language: "c",
+    title: "OTA Dual-Bank Bootloader",
+    description:
+      "Bootloader kiểm tra chữ ký firmware ở bank dự phòng trước khi chuyển đổi — an toàn cho OTA từ xa.",
+    code: `#define BANK_A  0x08000000U
+#define BANK_B  0x08040000U
+
+typedef enum { BANK_A_ACTIVE, BANK_B_PENDING } bank_state_t;
+
+static int ota_verify_signature(uint32_t addr, size_t len) {
+    /* ECDSA-P256 trên 64 byte SHA-256 của firmware */
+    uint8_t digest[32];
+    sha256_flash(addr, len, digest);
+    return ecdsa_verify(digest, (const uint8_t*)addr + len, g_pubkey);
+}
+
+void boot_check_and_swap(void) {
+    bank_state_t st = flash_read_state();
+
+    if (st == BANK_B_PENDING) {
+        size_t len = flash_read_image_len(BANK_B);
+        if (ota_verify_signature(BANK_B, len) == 0) {
+            flash_set_active_bank(BANK_B);     /* commit */
+            log_info("OTA: switched to BANK_B");
+        } else {
+            log_err("OTA: signature invalid, rollback");
+            flash_set_active_bank(BANK_A);     /* rollback */
+        }
+    }
+    jump_to_app(flash_active_bank() == BANK_A ? BANK_A : BANK_B);
+}`,
+  },
+]
+
+export type Testimonial = {
+  quote: string
+  name: string
+  title: string
+  company: string
+  avatar?: string
+}
+
+export const testimonials: Testimonial[] = [
+  {
+    quote:
+      "Minh Anh là một trong những kỹ sư firmware xuất sắc nhất tôi từng làm việc. Anh ấy đã đưa dòng smart meter của chúng tôi vào sản xuất đúng tiến độ, với mức tiêu thụ pin thấp hơn spec 35%.",
+    name: "Trần Hoàng Long",
+    title: "Engineering Manager",
+    company: "SmartIoT Solutions JSC",
+  },
+  {
+    quote:
+      "Khả năng debug ở mức hardware của Minh Anh rất ấn tượng. Khi hệ thống gặp lỗi race condition hiếm gặp, anh ấy tìm ra nguyên nhân chỉ trong vài giờ dùng logic analyzer.",
+    name: "Lê Thu Hà",
+    title: "Senior Hardware Engineer",
+    company: "AutoTech Industry Co.",
+  },
+  {
+    quote:
+      "Code của anh ấy luôn sạch, có tài liệu đầy đủ và tuân thủ MISRA. Onboard một dự án mới với thư viện driver anh ấy viết nhanh hơn rất nhiều so với trước đây.",
+    name: "Phạm Quốc Bảo",
+    title: "Firmware Team Lead",
+    company: "MedDevice Lab",
+  },
+  {
+    quote:
+      "Minh Anh hiểu sâu về cả firmware và phần cứng. Anh ấy góp ý trực tiếp vào schematic và giúp tối ưu layout cho tín hiệu cao tốc — điều hiếm thấy ở một lập trình viên.",
+    name: "Võ Minh Tuấn",
+    title: "PCB Design Lead",
+    company: "SmartIoT Solutions JSC",
+  },
+]
+
 export const navLinks = [
   { href: "#about", label: "Giới thiệu" },
   { href: "#skills", label: "Kỹ năng" },
   { href: "#experience", label: "Kinh nghiệm" },
   { href: "#projects", label: "Dự án" },
+  { href: "#code", label: "Code" },
+  { href: "#testimonials", label: "Đánh giá" },
   { href: "#education", label: "Học vấn" },
   { href: "#contact", label: "Liên hệ" },
 ]

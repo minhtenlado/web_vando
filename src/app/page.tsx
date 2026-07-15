@@ -1,11 +1,15 @@
 'use client'
 
 import { Navbar } from "@/components/cv/navbar"
+import { ScrollProgress } from "@/components/cv/scroll-progress"
+import { CommandPalette } from "@/components/cv/command-palette"
 import { Hero } from "@/components/cv/hero"
 import { About } from "@/components/cv/about"
 import { Skills } from "@/components/cv/skills"
 import { Experience } from "@/components/cv/experience"
 import { Projects } from "@/components/cv/projects"
+import { CodeShowcase } from "@/components/cv/code-showcase"
+import { Testimonials } from "@/components/cv/testimonials"
 import { Education } from "@/components/cv/education"
 import { Contact } from "@/components/cv/contact"
 import { Footer } from "@/components/cv/footer"
@@ -13,6 +17,8 @@ import { Footer } from "@/components/cv/footer"
 export default function Home() {
   return (
     <div className="relative min-h-screen flex flex-col bg-background">
+      <ScrollProgress />
+      <CommandPalette />
       <Navbar />
       <main className="flex-1">
         <Hero />
@@ -20,6 +26,8 @@ export default function Home() {
         <Skills />
         <Experience />
         <Projects />
+        <CodeShowcase />
+        <Testimonials />
         <Education />
         <Contact />
       </main>

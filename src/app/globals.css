@@ -216,3 +216,72 @@
 .pulse-ring {
   animation: pulse-ring 2s infinite;
 }
+
+/* ===== Print styles (Save as PDF) ===== */
+@media print {
+  /* Force light theme colors for print */
+  :root {
+    --background: oklch(1 0 0) !important;
+    --foreground: oklch(0.1 0 0) !important;
+    --card: oklch(1 0 0) !important;
+    --card-foreground: oklch(0.1 0 0) !important;
+    --muted: oklch(0.95 0 0) !important;
+    --muted-foreground: oklch(0.35 0 0) !important;
+    --border: oklch(0.85 0 0) !important;
+    --primary: oklch(0.45 0.15 162) !important;
+    --accent: oklch(0.55 0.16 70) !important;
+  }
+
+  html, body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+
+  /* Hide chrome that doesn't belong in a PDF CV */
+  header,
+  footer,
+  .no-print,
+  [data-no-print] {
+    display: none !important;
+  }
+
+  /* Reset decorative background layers */
+  .bg-grid,
+  .bg-dots {
+    background-image: none !important;
+  }
+
+  main {
+    padding-top: 0 !important;
+  }
+
+  section {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Make code blocks print-friendly */
+  pre, code {
+    white-space: pre-wrap !important;
+    word-break: break-word;
+    background: #f6f6f6 !important;
+    color: #111 !important;
+    font-size: 9pt !important;
+  }
+
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+
+  /* Ensure cards don't overflow pages */
+  .print-full {
+    max-width: 100% !important;
+  }
+
+  @page {
+    margin: 14mm;
+  }
+}

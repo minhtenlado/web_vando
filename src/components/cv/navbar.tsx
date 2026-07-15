@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
-import { Moon, Sun, Menu, X, Cpu, Download } from "lucide-react"
+import { Moon, Sun, Menu, X, Cpu, Download, Search, FileDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet"
 import { navLinks, profile } from "@/lib/cv/data"
@@ -82,7 +82,28 @@ export function Navbar() {
           ))}
         </ul>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 no-print">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => window.print()}
+            aria-label="Tải CV dạng PDF"
+            className="hidden lg:inline-flex gap-1.5"
+          >
+            <FileDown className="h-4 w-4" /> Tải CV
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
+            aria-label="Mở bảng lệnh (Cmd+K)"
+            className="hidden sm:inline-flex gap-2 text-muted-foreground"
+          >
+            <Search className="h-3.5 w-3.5" />
+            <kbd className="font-mono text-[10px] rounded border border-border bg-muted px-1 py-0.5">⌘K</kbd>
+          </Button>
+
           <Button
             variant="ghost"
             size="icon"
@@ -148,7 +169,16 @@ export function Navbar() {
                   </li>
                 ))}
               </ul>
-              <div className="mt-6 pt-6 border-t border-border">
+              <div className="mt-6 pt-6 border-t border-border flex flex-col gap-2 no-print">
+                <SheetClose asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setTimeout(() => window.print(), 250)}
+                  >
+                    <FileDown className="h-4 w-4 mr-1.5" /> Tải CV (PDF)
+                  </Button>
+                </SheetClose>
                 <Button asChild className="w-full">
                   <a href="#contact">
                     <Download className="h-4 w-4 mr-1.5" /> Liên hệ ngay
