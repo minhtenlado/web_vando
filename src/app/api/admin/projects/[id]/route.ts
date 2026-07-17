@@ -17,8 +17,12 @@ type ProjectInput = {
 
 function normUrl(v: unknown): string | null {
   if (typeof v !== "string") return null;
-  const s = v.trim();
+  let s = v.trim();
   if (!s) return null;
+  if (/^[\w-]{11}$/.test(s)) return s; // bare YouTube ID
+  if (!s.startsWith("http://") && !s.startsWith("https://") && !s.startsWith("/") && !s.startsWith("#")) {
+    s = "https://" + s;
+  }
   return s.slice(0, 500);
 }
 

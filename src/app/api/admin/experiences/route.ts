@@ -3,8 +3,9 @@ import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getSiteData } from "@/lib/cv/site-data-server";
 
-export async function GET() {
-  const data = await getSiteData();
+export async function GET(req: NextRequest) {
+  const locale = req.nextUrl.searchParams.get("locale") ?? "vi";
+  const data = await getSiteData(locale);
   return NextResponse.json({ ok: true, experiences: data.experiences });
 }
 
@@ -18,6 +19,7 @@ type ExpInput = {
   highlights?: string[];
   stack?: string[];
   order?: number;
+  locale?: string;
 };
 
 function normUrl(v: unknown): string | null {
@@ -45,9 +47,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const count = await db.experience.count();
+  const locale = body.locale === "en" ? "en" : "vi";
+  const count = await db.experience.count({ where: { locale } });
+  
   const created = await db.experience.create({
     data: {
+      locale,
       role: body.role.trim().slice(0, 300),
       company: body.company.trim().slice(0, 300),
       companyUrl: normUrl(body.companyUrl),

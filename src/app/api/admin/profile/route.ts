@@ -14,6 +14,7 @@ type ProfileInput = {
   linkedin?: string;
   summary?: string;
   avatar?: string;
+  locale?: string;
 };
 
 export async function PUT(req: NextRequest) {
@@ -27,13 +28,15 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ ok: false, message: "Body không hợp lệ." }, { status: 400 });
   }
 
-  const data: ProfileInput = {};
+  const locale = body.locale === "en" ? "en" : "vi";
+  const profileId = `profile-${locale}`;
+
+  const data: Record<string, string> = {};
   for (const key of [
     "name", "role", "tagline", "location", "email",
     "phone", "website", "github", "linkedin", "summary", "avatar",
   ] as const) {
     if (typeof body[key] === "string") {
-      // @ts-expect-error assign string field
       data[key] = (body[key] as string).slice(0, 2000);
     }
   }
@@ -43,9 +46,9 @@ export async function PUT(req: NextRequest) {
   }
 
   const updated = await db.profile.upsert({
-    where: { id: "profile" },
+    where: { id: profileId },
     update: data,
-    create: { id: "profile", ...data },
+    create: { id: profileId, locale, ...data },
   });
 
   return NextResponse.json({ ok: true, profile: updated });

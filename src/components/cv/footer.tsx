@@ -1,98 +1,121 @@
-'use client'
-
 import * as React from "react"
 import { Cpu, Github, Linkedin, Mail, ArrowUp } from "lucide-react"
 import { navLinks } from "@/lib/cv/data"
 import { useSiteData } from "@/components/cv/site-data-context"
+import { useLocale } from "@/components/cv/locale-context"
 
 export function Footer() {
   const { profile } = useSiteData()
+  const { t, locale } = useLocale()
   const year = new Date().getFullYear()
 
-  return (
-    <footer className="relative mt-auto border-t border-border bg-background/60 backdrop-blur">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+  const handleScrollTop = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    window.scrollTo({ top: 0, behavior: "smooth" })
+    history.pushState(null, "", "#top")
+  }
 
-      <div className="container mx-auto max-w-6xl px-4 py-12">
-        <div className="grid gap-8 md:grid-cols-[1.5fr_1fr_1fr]">
-          {/* Brand */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <span className="grid place-items-center h-9 w-9 rounded-md bg-primary/10 text-primary border border-primary/30">
-                <Cpu className="h-5 w-5" />
+  return (
+    <footer className="relative border-t border-border/60 bg-muted/20">
+      <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12 py-12 lg:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
+          <div className="md:col-span-2 space-y-4">
+            <a
+              href="#top"
+              onClick={handleScrollTop}
+              className="inline-flex items-center gap-2 group"
+              aria-label={t("Về đầu trang", "Back to top")}
+            >
+              <span className="grid place-items-center h-8 w-8 rounded bg-primary/10 text-primary border border-primary/30 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <Cpu className="h-4 w-4" />
               </span>
-              <span className="font-mono text-sm font-semibold">
-                <span className="text-primary">{"<"}</span>
-                {profile.name.split(" ").slice(-1)[0].toLowerCase()}.dev
-                <span className="text-primary">{"/>"}</span>
+              <span className="font-semibold text-lg tracking-tight">
+                {profile.name}
               </span>
-            </div>
+            </a>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
-              {profile.role} — {profile.tagline}. Luôn sẵn sàng cho những dự án
-              phần cứng thông minh và hệ thống nhúng hiệu năng cao.
+              {profile.tagline}
             </p>
+            <div className="flex gap-3 pt-2">
+              <a
+                href={`mailto:${profile.email}`}
+                className="grid place-items-center h-9 w-9 rounded-md bg-background border border-border hover:bg-primary hover:text-primary-foreground transition-colors"
+                aria-label="Email"
+              >
+                <Mail className="h-4 w-4" />
+              </a>
+              <a
+                href={`https://${profile.github}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="grid place-items-center h-9 w-9 rounded-md bg-background border border-border hover:bg-primary hover:text-primary-foreground transition-colors"
+                aria-label="GitHub"
+              >
+                <Github className="h-4 w-4" />
+              </a>
+              <a
+                href={`https://${profile.linkedin}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="grid place-items-center h-9 w-9 rounded-md bg-background border border-border hover:bg-primary hover:text-primary-foreground transition-colors"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="h-4 w-4" />
+              </a>
+            </div>
           </div>
 
-          {/* Quick links */}
           <div>
-            <p className="text-xs font-mono text-muted-foreground mb-3">{"//"} navigation</p>
-            <ul className="grid grid-cols-2 gap-x-4 gap-y-2">
-              {navLinks.map((l) => (
-                <li key={l.href}>
+            <h4 className="font-semibold mb-4">{t("Liên kết", "Links")}</h4>
+            <ul className="space-y-2.5">
+              {navLinks.slice(0, 4).map((link) => (
+                <li key={link.href}>
                   <a
-                    href={l.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {l.label}
+                    {link[locale]}
                   </a>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Social */}
           <div>
-            <p className="text-xs font-mono text-muted-foreground mb-3">{"//"} connect</p>
-            <div className="flex flex-col gap-2">
-              <a
-                href={`mailto:${profile.email}`}
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Mail className="h-4 w-4" /> Email
-              </a>
-              <a
-                href={`https://${profile.github}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Github className="h-4 w-4" /> GitHub
-              </a>
-              <a
-                href={`https://${profile.linkedin}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Linkedin className="h-4 w-4" /> LinkedIn
-              </a>
-            </div>
+            <h4 className="font-semibold mb-4">{t("Khác", "Other")}</h4>
+            <ul className="space-y-2.5">
+              {navLinks.slice(4).map((link) => (
+                <li key={link.href}>
+                  <a
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link[locale]}
+                  </a>
+                </li>
+              ))}
+              <li>
+                <button
+                  onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {t("Bảng lệnh (Cmd+K)", "Command Palette (Cmd+K)")}
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground font-mono text-center sm:text-left">
-            © {year} {profile.name}. Built with Next.js, TypeScript & shadcn/ui.
+        <div className="mt-12 md:mt-16 pt-8 border-t border-border/60 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+          <p>
+            &copy; {year} {profile.name}. {t("Tất cả các quyền được bảo lưu.", "All rights reserved.")}
           </p>
           <a
             href="#top"
-            className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-primary transition-colors"
-            aria-label="Về đầu trang"
+            onClick={handleScrollTop}
+            className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors"
           >
-            <span className="grid place-items-center h-7 w-7 rounded-md border border-border hover:border-primary/40 transition-colors">
-              <ArrowUp className="h-3.5 w-3.5" />
-            </span>
-            back_to_top()
+            {t("Về đầu trang", "Back to top")} <ArrowUp className="h-3.5 w-3.5" />
           </a>
         </div>
       </div>

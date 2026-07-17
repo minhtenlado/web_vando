@@ -37,7 +37,7 @@ const EMPTY: ProfileState = {
   summary: "",
 };
 
-export function ProfileTab({ initial }: { initial?: SiteProfile | null }) {
+export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, locale: string }) {
   const { toast } = useToast();
   const [loading, setLoading] = React.useState(!initial);
   const [saving, setSaving] = React.useState(false);
@@ -78,7 +78,36 @@ export function ProfileTab({ initial }: { initial?: SiteProfile | null }) {
         summary: initial.summary ?? "",
       });
     }
-  }, [initial]);
+    // If not first load, or locale changed, re-fetch profile.
+    let cancelled = false;
+    setLoading(true);
+    fetch(`/api/site-data?locale=${locale}`, { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled && data.profile) {
+          const p = data.profile;
+          setForm({
+            name: p.name ?? "",
+            role: p.role ?? "",
+            tagline: p.tagline ?? "",
+            location: p.location ?? "",
+            email: p.email ?? "",
+            phone: p.phone ?? "",
+            website: p.website ?? "",
+            github: p.github ?? "",
+            linkedin: p.linkedin ?? "",
+            summary: p.summary ?? "",
+          });
+          setAvatar(p.avatar ?? "");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [locale]);
 
   function update<K extends keyof ProfileState>(key: K, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -122,7 +151,7 @@ export function ProfileTab({ initial }: { initial?: SiteProfile | null }) {
       const res = await fetch("/api/admin/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, avatar }),
+        body: JSON.stringify({ ...form, avatar, locale }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) {

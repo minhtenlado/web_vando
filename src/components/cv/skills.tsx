@@ -14,6 +14,7 @@ import {
 import { SectionHeader } from "./section-header"
 import { Card } from "@/components/ui/card"
 import { skillGroups } from "@/lib/cv/data"
+import { useLocale } from "@/components/cv/locale-context"
 
 const iconMap: Record<string, LucideIcon> = {
   code: Code2,
@@ -53,13 +54,17 @@ function SkillBar({
 }
 
 export function Skills() {
+  const { t, locale } = useLocale()
   return (
     <section id="skills" className="relative py-20 sm:py-28 bg-muted/20">
-      <div className="container mx-auto max-w-6xl px-4">
+      <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
         <SectionHeader
           index="02 / skills"
-          title="Kỹ năng & Công nghệ"
-          subtitle="Từ lập trình bare-metal đến RTOS, từ vi điều khiển 8-bit đến SoC đa lõi — đây là bộ công cụ tôi dùng mỗi ngày."
+          title={t("Kỹ năng & Công nghệ", "Skills & Technologies")}
+          subtitle={t(
+            "Từ lập trình bare-metal đến RTOS, từ vi điều khiển 8-bit đến SoC đa lõi — đây là bộ công cụ tôi dùng mỗi ngày.",
+            "From bare-metal programming to RTOS, from 8-bit MCUs to multi-core SoCs — this is my daily toolkit."
+          )}
         />
 
         <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -79,7 +84,7 @@ export function Skills() {
                       <Icon className="h-5 w-5" />
                     </span>
                     <div>
-                      <h3 className="text-sm font-semibold">{group.title}</h3>
+                      <h3 className="text-sm font-semibold">{group.title[locale]}</h3>
                       <p className="font-mono text-[10px] text-muted-foreground">
                         {group.skills.length} modules
                       </p>

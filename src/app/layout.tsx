@@ -20,9 +20,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nguyễn Minh Anh — Embedded Software Engineer",
+  title: "Phan Huỳnh Văn Đô — Embedded Software Engineer",
   description:
-    "Portfolio CV của Nguyễn Minh Anh, kỹ sư phần mềm nhúng chuyên về hệ thống RTOS, vi điều khiển ARM/STM32/ESP32 và phát triển firmware hiệu năng cao.",
+    "Portfolio CV của Phan Huỳnh Văn Đô, kỹ sư phần mềm nhúng chuyên về hệ thống RTOS, vi điều khiển ARM/STM32/ESP32 và phát triển firmware hiệu năng cao.",
   keywords: [
     "Embedded Engineer",
     "Firmware Developer",
@@ -35,19 +35,19 @@ export const metadata: Metadata = {
     "Kỹ sư nhúng",
     "Lập trình nhúng",
   ],
-  authors: [{ name: "Nguyễn Minh Anh" }],
+  authors: [{ name: "Phan Huỳnh Văn Đô" }],
   icons: {
-    icon: "/avatar.png",
+    icon: "/uploads/avatar.jpg",
   },
   openGraph: {
-    title: "Nguyễn Minh Anh — Embedded Software Engineer",
+    title: "Phan Huỳnh Văn Đô — Embedded Software Engineer",
     description:
       "Kỹ sư phần mềm nhúng · RTOS · ARM Cortex · IoT · Firmware Engineering",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Nguyễn Minh Anh — Embedded Software Engineer",
+    title: "Phan Huỳnh Văn Đô — Embedded Software Engineer",
     description:
       "Kỹ sư phần mềm nhúng · RTOS · ARM Cortex · IoT · Firmware Engineering",
   },

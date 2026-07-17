@@ -7,17 +7,22 @@ import { SectionHeader } from "./section-header"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { useSiteData } from "@/components/cv/site-data-context"
+import { useLocale } from "@/components/cv/locale-context"
 import { ExternalLink } from "lucide-react"
 
 export function Experience() {
   const { experiences } = useSiteData()
+  const { t } = useLocale()
   return (
     <section id="experience" className="relative py-20 sm:py-28">
-      <div className="container mx-auto max-w-6xl px-4">
+      <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
         <SectionHeader
           index="03 / experience"
-          title="Kinh nghiệm làm việc"
-          subtitle="Hơn 6 năm xây dựng sản phẩm nhúng thương mại — từ nguyên mẫu nghiên cứu đến triển khai hàng chục nghìn thiết bị ngoài thực địa."
+          title={t("Kinh nghiệm làm việc", "Work Experience")}
+          subtitle={t(
+            "Hơn 6 năm xây dựng sản phẩm nhúng thương mại — từ nguyên mẫu nghiên cứu đến triển khai hàng chục nghìn thiết bị ngoài thực địa.",
+            "Over 6 years of building commercial embedded products — from research prototypes to deploying tens of thousands of devices in the field."
+          )}
         />
 
         <div className="mt-12 relative">

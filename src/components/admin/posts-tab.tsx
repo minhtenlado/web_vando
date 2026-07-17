@@ -80,7 +80,7 @@ function formatDate(iso: string): string {
   }
 }
 
-export function PostsTab() {
+export function PostsTab({ locale }: { locale: string }) {
   const { toast } = useToast();
   const [items, setItems] = React.useState<SitePost[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -95,7 +95,7 @@ export function PostsTab() {
   async function fetchItems() {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/posts", { cache: "no-store" });
+      const res = await fetch(`/api/admin/posts?locale=${locale}`, { cache: "no-store" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) throw new Error(data?.message || "Tải thất bại.");
       setItems(data.posts ?? []);
@@ -112,7 +112,7 @@ export function PostsTab() {
 
   React.useEffect(() => {
     fetchItems();
-  }, []);
+  }, [locale]);
 
   function openCreate() {
     setEditing(null);
@@ -154,6 +154,7 @@ export function PostsTab() {
       excerpt: form.excerpt,
       content: form.content,
       published: form.published,
+      locale,
     };
     try {
       const url = editing ? `/api/admin/posts/${editing.id}` : "/api/admin/posts";

@@ -37,7 +37,7 @@ export function CodeShowcase() {
 
   return (
     <section id="code" className="relative py-20 sm:py-28">
-      <div className="container mx-auto max-w-6xl px-4">
+      <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
         <SectionHeader
           index="05 / code"
           title="Sản phẩm code"

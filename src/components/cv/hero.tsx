@@ -7,6 +7,7 @@ import { MapPin, Mail, Github, Linkedin, ArrowDown, Cpu, Radio } from "lucide-re
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useSiteData } from "@/components/cv/site-data-context"
+import { useLocale } from "@/components/cv/locale-context"
 
 const roles = [
   "Embedded Software Engineer",
@@ -17,6 +18,7 @@ const roles = [
 
 export function Hero() {
   const { profile } = useSiteData()
+  const { t } = useLocale()
   const [roleIdx, setRoleIdx] = React.useState(0)
 
   React.useEffect(() => {
@@ -34,7 +36,7 @@ export function Hero() {
       <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
       <div className="absolute top-1/3 -right-32 h-96 w-96 rounded-full bg-accent/20 blur-3xl pointer-events-none" />
 
-      <div className="container mx-auto max-w-6xl px-4 py-12 md:py-20 relative">
+      <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12 py-12 md:py-20 relative">
         <div className="grid lg:grid-cols-[1.4fr_1fr] gap-10 lg:gap-16 items-center">
           {/* Left: text */}
           <motion.div
@@ -49,7 +51,7 @@ export function Hero() {
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
               </span>
               <span className="text-sm font-mono text-muted-foreground">
-                {profile.available ? "Sẵn sàng cho cơ hội mới" : "Đang bận"}
+                {profile.available ? t("Sẵn sàng cho cơ hội mới", "Available for new opportunities") : t("Đang bận", "Currently busy")}
               </span>
             </div>
 
@@ -87,12 +89,12 @@ export function Hero() {
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <Button asChild size="lg">
                 <a href="#projects">
-                  Xem dự án <ArrowDown className="h-4 w-4 ml-1.5" />
+                  {t("Xem dự án", "View projects")} <ArrowDown className="h-4 w-4 ml-1.5" />
                 </a>
               </Button>
               <Button asChild size="lg" variant="outline">
                 <a href={`mailto:${profile.email}`}>
-                  <Mail className="h-4 w-4 mr-1.5" /> Liên hệ
+                  <Mail className="h-4 w-4 mr-1.5" /> {t("Liên hệ", "Contact")}
                 </a>
               </Button>
             </div>
@@ -131,7 +133,7 @@ export function Hero() {
               <div className="relative aspect-square overflow-hidden rounded-xl">
                 <Image
                   src={profile.avatar}
-                  alt={`Ảnh đại diện của ${profile.name}`}
+                  alt={t(`Ảnh đại diện của ${profile.name}`, `Avatar of ${profile.name}`)}
                   fill
                   priority
                   sizes="(max-width: 768px) 80vw, 400px"

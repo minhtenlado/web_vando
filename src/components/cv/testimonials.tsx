@@ -37,7 +37,7 @@ export function Testimonials() {
         <Quote className="h-64 w-64 rotate-180" />
       </div>
 
-      <div className="container mx-auto max-w-6xl px-4 relative">
+      <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12 relative">
         <SectionHeader
           index="06 / testimonials"
           title="Đánh giá từ đồng nghiệp"

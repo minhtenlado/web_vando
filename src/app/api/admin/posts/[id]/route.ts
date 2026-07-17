@@ -36,11 +36,18 @@ export async function PUT(
     return NextResponse.json({ ok: false, message: "Body không hợp lệ." }, { status: 400 });
   }
 
+  const existingPost = await db.post.findUnique({ where: { id } });
+  if (!existingPost) {
+    return NextResponse.json({ ok: false, message: "Không tìm thấy bài viết." }, { status: 404 });
+  }
+
   const data: Record<string, unknown> = {};
   if (typeof body.title === "string") data.title = body.title.trim().slice(0, 300);
   if (typeof body.slug === "string") {
     const slug = slugify(body.slug) || `post-${Date.now()}`;
-    const existing = await db.post.findUnique({ where: { slug } });
+    const existing = await db.post.findUnique({ 
+      where: { slug_locale: { slug, locale: existingPost.locale } } 
+    });
     if (existing && existing.id !== id) {
       return NextResponse.json({ ok: false, message: "Slug đã tồn tại." }, { status: 422 });
     }
@@ -54,7 +61,7 @@ export async function PUT(
     const updated = await db.post.update({ where: { id }, data });
     return NextResponse.json({ ok: true, post: updated });
   } catch {
-    return NextResponse.json({ ok: false, message: "Không tìm thấy bài viết." }, { status: 404 });
+    return NextResponse.json({ ok: false, message: "Lỗi cập nhật bài viết." }, { status: 500 });
   }
 }
 

@@ -16,10 +16,11 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { useSiteData, type SitePost } from "@/components/cv/site-data-context"
+import { useLocale } from "@/components/cv/locale-context"
 
-function formatDate(iso: string): string {
+function formatDate(iso: string, locale: string): string {
   try {
-    return new Date(iso).toLocaleDateString("vi-VN", {
+    return new Date(iso).toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", {
       day: "2-digit",
       month: "long",
       year: "numeric",
@@ -31,18 +32,40 @@ function formatDate(iso: string): string {
 
 export function Posts() {
   const { posts } = useSiteData()
+  const { t, locale } = useLocale()
   const [active, setActive] = React.useState<SitePost | null>(null)
   const published = posts.filter((p) => p.published)
 
-  if (published.length === 0) return null
+  if (published.length === 0) {
+    return (
+      <section id="posts" className="relative py-20 sm:py-28">
+        <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
+          <SectionHeader
+            index="07 / posts"
+            title={t("Bài viết", "Posts")}
+            subtitle={t(
+              "Chia sẻ kỹ thuật và bài học từ thực chiến với hệ thống nhúng, RTOS và IoT.",
+              "Technical sharing and lessons from real-world embedded systems, RTOS, and IoT."
+            )}
+          />
+          <div className="mt-10 text-center text-muted-foreground p-12 border border-dashed rounded-xl border-border/60">
+            {t("Chưa có bài viết nào được xuất bản.", "No posts published yet.")}
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section id="posts" className="relative py-20 sm:py-28">
-      <div className="container mx-auto max-w-6xl px-4">
+      <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
         <SectionHeader
           index="07 / posts"
-          title="Bài viết"
-          subtitle="Chia sẻ kỹ thuật và bài học từ thực chiến với hệ thống nhúng, RTOS và IoT."
+          title={t("Bài viết", "Posts")}
+          subtitle={t(
+            "Chia sẻ kỹ thuật và bài học từ thực chiến với hệ thống nhúng, RTOS và IoT.",
+            "Technical sharing and lessons from real-world embedded systems, RTOS, and IoT."
+          )}
         />
 
         <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -62,7 +85,7 @@ export function Posts() {
                     <FileText className="h-4 w-4" />
                   </span>
                   <Badge variant="outline" className="gap-1 font-mono text-[10px]">
-                    <Calendar className="h-3 w-3" /> {formatDate(post.createdAt)}
+                    <Calendar className="h-3 w-3" /> {formatDate(post.createdAt, locale)}
                   </Badge>
                 </div>
                 <h3 className="text-base font-semibold leading-tight group-hover:text-primary transition-colors">
@@ -72,7 +95,7 @@ export function Posts() {
                   {post.excerpt}
                 </p>
                 <div className="mt-4 flex items-center gap-1.5 text-sm text-primary font-medium">
-                  Đọc tiếp <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                  {t("Đọc tiếp", "Read more")} <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
                 </div>
               </Card>
             </motion.button>
@@ -86,7 +109,7 @@ export function Posts() {
           <DialogHeader>
             <div className="flex items-center gap-2 mb-1">
               <Badge variant="outline" className="gap-1 font-mono text-[10px]">
-                <Clock className="h-3 w-3" /> {active && formatDate(active.createdAt)}
+                <Clock className="h-3 w-3" /> {active && formatDate(active.createdAt, locale)}
               </Badge>
             </div>
             <DialogTitle className="text-2xl">{active?.title}</DialogTitle>

@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from "react"
+import type { SiteData, SiteProfile, SiteProject, SiteExperience, SitePost } from "@/lib/cv/site-data-server"
 import {
   profile as defaultProfile,
   projects as defaultProjects,
@@ -8,38 +9,17 @@ import {
   type Project,
   type Experience,
 } from "@/lib/cv/data"
-
-export type SiteProfile = typeof defaultProfile
-export type SiteProject = Project
-export type SiteExperience = Experience
-export type SitePost = {
-  id: string
-  title: string
-  slug: string
-  excerpt: string
-  content: string
-  published: boolean
-  createdAt: string
-  updatedAt: string
-}
-
-type SiteData = {
-  profile: SiteProfile
-  projects: SiteProject[]
-  experiences: SiteExperience[]
-  posts: SitePost[]
-}
+import { useLocale } from "./locale-context"
 
 type Ctx = SiteData & {
   loading: boolean
-  /** Re-fetch site data from the server (e.g. after admin edits). */
   refresh: () => Promise<void>
 }
 
 const defaultData: SiteData = {
-  profile: defaultProfile,
-  projects: defaultProjects,
-  experiences: defaultExperiences,
+  profile: defaultProfile as unknown as SiteProfile,
+  projects: defaultProjects as unknown as SiteProject[],
+  experiences: defaultExperiences as unknown as SiteExperience[],
   posts: [],
 }
 
@@ -52,10 +32,11 @@ const SiteDataContext = React.createContext<Ctx>({
 export function SiteDataProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = React.useState<SiteData>(defaultData)
   const [loading, setLoading] = React.useState(true)
+  const { locale } = useLocale()
 
   const refresh = React.useCallback(async () => {
     try {
-      const res = await fetch("/api/site-data", { cache: "no-store" })
+      const res = await fetch(`/api/site-data?locale=${locale}`, { cache: "no-store" })
       if (res.ok) {
         const json = await res.json()
         setData({
@@ -70,13 +51,13 @@ export function SiteDataProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [locale])
 
   React.useEffect(() => {
     refresh()
   }, [refresh])
 
-  const value = React.useMemo<Ctx>(
+  const value = React.useMemo(
     () => ({ ...data, loading, refresh }),
     [data, loading, refresh]
   )

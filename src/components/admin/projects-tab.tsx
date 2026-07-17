@@ -92,7 +92,7 @@ function splitCommaOrLines(s: string): string[] {
     .filter(Boolean);
 }
 
-export function ProjectsTab() {
+export function ProjectsTab({ locale }: { locale: string }) {
   const { toast } = useToast();
   const [items, setItems] = React.useState<SiteProject[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -106,7 +106,7 @@ export function ProjectsTab() {
   async function fetchItems() {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/projects", { cache: "no-store" });
+      const res = await fetch(`/api/admin/projects?locale=${locale}`, { cache: "no-store" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) throw new Error(data?.message || "Tải danh sách thất bại.");
       setItems(data.projects ?? []);
@@ -123,7 +123,7 @@ export function ProjectsTab() {
 
   React.useEffect(() => {
     fetchItems();
-  }, []);
+  }, [locale]);
 
   function openCreate() {
     setEditing(null);
@@ -154,6 +154,7 @@ export function ProjectsTab() {
       youtubeUrl: form.youtubeUrl.trim(),
       link: form.link.trim(),
       repo: form.repo.trim(),
+      locale,
     };
     try {
       const url = editing ? `/api/admin/projects/${editing.id}` : "/api/admin/projects";

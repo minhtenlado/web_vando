@@ -8,10 +8,13 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet"
 import { navLinks } from "@/lib/cv/data"
 import { useSiteData } from "@/components/cv/site-data-context"
+import { useLocale } from "@/components/cv/locale-context"
+import { LocaleToggle } from "@/components/cv/locale-toggle"
 import { cn } from "@/lib/utils"
 
 export function Navbar() {
   const { profile } = useSiteData()
+  const { t, locale } = useLocale()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
   const [scrolled, setScrolled] = React.useState(false)
@@ -51,9 +54,9 @@ export function Navbar() {
           : "bg-transparent border-b border-transparent"
       )}
     >
-      <nav className="container mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
+      <nav className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="#top" className="flex items-center gap-2 group" aria-label="Về đầu trang">
+        <Link href="#top" className="flex items-center gap-2 group" aria-label={t("Về đầu trang", "Back to top")}>
           <span className="relative grid place-items-center h-9 w-9 rounded-md bg-primary/10 text-primary border border-primary/30">
             <Cpu className="h-5 w-5" />
             <span className="absolute inset-0 rounded-md pulse-ring opacity-0 group-hover:opacity-100" />
@@ -78,39 +81,32 @@ export function Navbar() {
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                {link.label}
+                {link[locale]}
               </Link>
             </li>
           ))}
         </ul>
 
-        <div className="flex items-center gap-2 no-print">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => window.print()}
-            aria-label="Tải CV dạng PDF"
-            className="hidden lg:inline-flex gap-1.5"
-          >
-            <FileDown className="h-4 w-4" /> Tải CV
-          </Button>
+        <div className="flex items-center gap-4 no-print">
 
           <Button
             variant="ghost"
             size="sm"
             onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
-            aria-label="Mở bảng lệnh (Cmd+K)"
+            aria-label={t("Mở bảng lệnh (Cmd+K)", "Open command palette (Cmd+K)")}
             className="hidden sm:inline-flex gap-2 text-muted-foreground"
           >
             <Search className="h-3.5 w-3.5" />
             <kbd className="font-mono text-[10px] rounded border border-border bg-muted px-1 py-0.5">⌘K</kbd>
           </Button>
 
+          <LocaleToggle />
+
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            aria-label="Đổi giao diện sáng/tối"
+            aria-label={t("Đổi giao diện sáng/tối", "Toggle theme")}
             className="h-9 w-9"
           >
             {mounted ? (
@@ -126,7 +122,7 @@ export function Navbar() {
 
           <Button asChild size="sm" className="hidden sm:inline-flex">
             <a href="#contact">
-              <Download className="h-4 w-4 mr-1.5" /> Liên hệ
+              <Download className="h-4 w-4 mr-1.5" /> {t("Liên hệ", "Contact")}
             </a>
           </Button>
 
@@ -137,13 +133,13 @@ export function Navbar() {
                 variant="ghost"
                 size="icon"
                 className="md:hidden h-9 w-9"
-                aria-label="Mở menu"
+                aria-label={t("Mở menu", "Open menu")}
               >
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-72">
-              <SheetTitle className="sr-only">Menu điều hướng</SheetTitle>
+              <SheetTitle className="sr-only">{t("Menu điều hướng", "Navigation menu")}</SheetTitle>
               <div className="flex items-center justify-between mt-2">
                 <span className="font-mono text-sm text-primary">menu()</span>
                 <SheetClose asChild>
@@ -165,25 +161,17 @@ export function Navbar() {
                             : "text-muted-foreground hover:text-foreground hover:bg-muted"
                         )}
                       >
-                        {link.label}
+                        {link[locale]}
                       </Link>
                     </SheetClose>
                   </li>
                 ))}
               </ul>
               <div className="mt-6 pt-6 border-t border-border flex flex-col gap-2 no-print">
-                <SheetClose asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => setTimeout(() => window.print(), 250)}
-                  >
-                    <FileDown className="h-4 w-4 mr-1.5" /> Tải CV (PDF)
-                  </Button>
-                </SheetClose>
+
                 <Button asChild className="w-full">
                   <a href="#contact">
-                    <Download className="h-4 w-4 mr-1.5" /> Liên hệ ngay
+                    <Download className="h-4 w-4 mr-1.5" /> {t("Liên hệ ngay", "Contact now")}
                   </a>
                 </Button>
               </div>

@@ -7,15 +7,20 @@ import { SectionHeader } from "./section-header"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { educations, certifications } from "@/lib/cv/data"
+import { useLocale } from "@/components/cv/locale-context"
 
 export function Education() {
+  const { t, locale } = useLocale()
   return (
     <section id="education" className="relative py-20 sm:py-28">
-      <div className="container mx-auto max-w-6xl px-4">
+      <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
         <SectionHeader
           index="08 / education"
-          title="Học vấn & Chứng chỉ"
-          subtitle="Nền tảng học thuật và các chứng chỉ chuyên môn đã đạt được trong hành trình trở thành kỹ sư nhúng."
+          title={t("Học vấn & Chứng chỉ", "Education & Certifications")}
+          subtitle={t(
+            "Nền tảng học thuật và các chứng chỉ chuyên môn đã đạt được trong hành trình trở thành kỹ sư nhúng.",
+            "Academic background and professional certifications acquired during the journey to become an embedded engineer."
+          )}
         />
 
         <div className="mt-10 grid lg:grid-cols-2 gap-8">
@@ -23,7 +28,7 @@ export function Education() {
           <div>
             <div className="flex items-center gap-2 mb-5">
               <GraduationCap className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold">Học vấn</h3>
+              <h3 className="text-lg font-semibold">{t("Học vấn", "Education")}</h3>
             </div>
             <div className="space-y-4">
               {educations.map((edu, i) => (
@@ -38,10 +43,10 @@ export function Education() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
                         <h4 className="font-semibold leading-tight">
-                          {edu.degree}
+                          {edu.degree[locale]}
                         </h4>
                         <p className="mt-1 text-sm text-primary flex items-center gap-1.5">
-                          <BookOpen className="h-3.5 w-3.5" /> {edu.school}
+                          <BookOpen className="h-3.5 w-3.5" /> {edu.school[locale]}
                         </p>
                       </div>
                       <Badge variant="secondary" className="gap-1 font-mono shrink-0">
@@ -49,7 +54,7 @@ export function Education() {
                       </Badge>
                     </div>
                     <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-                      {edu.detail}
+                      {edu.detail[locale]}
                     </p>
                   </Card>
                 </motion.div>
@@ -61,7 +66,7 @@ export function Education() {
           <div>
             <div className="flex items-center gap-2 mb-5">
               <Award className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold">Chứng chỉ</h3>
+              <h3 className="text-lg font-semibold">{t("Chứng chỉ", "Certifications")}</h3>
             </div>
             <motion.div
               initial={{ opacity: 0, y: 16 }}
@@ -107,17 +112,17 @@ export function Education() {
               className="mt-4"
             >
               <Card className="p-5 border-border/60 bg-card/40 backdrop-blur">
-                <h4 className="text-sm font-semibold mb-3">Ngôn ngữ</h4>
+                <h4 className="text-sm font-semibold mb-3">{t("Ngôn ngữ", "Languages")}</h4>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-lg border border-border/60 p-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Tiếng Việt</span>
-                      <Badge variant="outline" className="font-mono text-[10px]">Bản ngữ</Badge>
+                      <span className="text-sm font-medium">{t("Tiếng Việt", "Vietnamese")}</span>
+                      <Badge variant="outline" className="font-mono text-[10px]">{t("Bản ngữ", "Native")}</Badge>
                     </div>
                   </div>
                   <div className="rounded-lg border border-border/60 p-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Tiếng Anh</span>
+                      <span className="text-sm font-medium">{t("Tiếng Anh", "English")}</span>
                       <Badge variant="outline" className="font-mono text-[10px]">IELTS 7.0</Badge>
                     </div>
                   </div>

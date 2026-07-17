@@ -21,11 +21,13 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { useSiteData } from "@/components/cv/site-data-context"
+import { useLocale } from "@/components/cv/locale-context"
 
 type FieldErrors = Record<string, string>
 
 export function Contact() {
   const { profile } = useSiteData()
+  const { t, locale } = useLocale()
   const { toast } = useToast()
   const [submitting, setSubmitting] = React.useState(false)
   const [errors, setErrors] = React.useState<FieldErrors>({})
@@ -54,22 +56,22 @@ export function Contact() {
       if (!res.ok || !json.ok) {
         if (json.errors) setErrors(json.errors as FieldErrors)
         toast({
-          title: "Gửi không thành công",
-          description: json.message ?? "Vui lòng kiểm tra lại thông tin.",
+          title: t("Gửi không thành công", "Failed to send"),
+          description: json.message ?? t("Vui lòng kiểm tra lại thông tin.", "Please check your information."),
           variant: "destructive",
         })
         return
       }
 
       toast({
-        title: "Đã gửi tin nhắn ✓",
+        title: t("Đã gửi tin nhắn ✓", "Message sent ✓"),
         description: json.message,
       })
       form.reset()
     } catch {
       toast({
-        title: "Lỗi mạng",
-        description: "Không thể kết nối tới máy chủ, vui lòng thử lại.",
+        title: t("Lỗi mạng", "Network error"),
+        description: t("Không thể kết nối tới máy chủ, vui lòng thử lại.", "Could not connect to the server, please try again."),
         variant: "destructive",
       })
     } finally {
@@ -79,8 +81,8 @@ export function Contact() {
 
   const channels = [
     { icon: Mail, label: "Email", value: profile.email, href: `mailto:${profile.email}` },
-    { icon: Phone, label: "Điện thoại", value: profile.phone, href: `tel:${profile.phone.replace(/\s/g, "")}` },
-    { icon: MapPin, label: "Vị trí", value: profile.location, href: undefined },
+    { icon: Phone, label: t("Điện thoại", "Phone"), value: profile.phone, href: `tel:${profile.phone.replace(/\s/g, "")}` },
+    { icon: MapPin, label: t("Vị trí", "Location"), value: profile.location, href: undefined },
     { icon: Globe, label: "Website", value: profile.website, href: `https://${profile.website}` },
   ]
 
@@ -91,11 +93,14 @@ export function Contact() {
 
   return (
     <section id="contact" className="relative py-20 sm:py-28 bg-muted/20">
-      <div className="container mx-auto max-w-6xl px-4">
+      <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
         <SectionHeader
           index="09 / contact"
-          title="Liên hệ với tôi"
-          subtitle="Đang tìm kiếm một kỹ sư nhúng cho dự án của bạn, hoặc đơn giản muốn trao đổi về vi điều khiển, RTOS và IoT? Hãy gửi vài dòng nhé."
+          title={t("Liên hệ với tôi", "Contact Me")}
+          subtitle={t(
+            "Đang tìm kiếm một kỹ sư nhúng cho dự án của bạn, hoặc đơn giản muốn trao đổi về vi điều khiển, RTOS và IoT? Hãy gửi vài dòng nhé.",
+            "Looking for an embedded engineer for your project, or just want to chat about microcontrollers, RTOS, and IoT? Drop me a line."
+          )}
         />
 
         <div className="mt-10 grid lg:grid-cols-[1fr_1.2fr] gap-6">
@@ -116,7 +121,7 @@ export function Contact() {
                   <p className="font-mono text-xs text-muted-foreground">
                     {"$"} ping --me
                   </p>
-                  <p className="text-sm font-semibold">Kênh liên lạc</p>
+                  <p className="text-sm font-semibold">{t("Kênh liên lạc", "Channels")}</p>
                 </div>
               </div>
               <ul className="space-y-3">
@@ -148,7 +153,7 @@ export function Contact() {
               </ul>
 
               <div className="mt-5 pt-5 border-t border-border/60">
-                <p className="text-xs text-muted-foreground mb-2">Mạng xã hội</p>
+                <p className="text-xs text-muted-foreground mb-2">{t("Mạng xã hội", "Socials")}</p>
                 <div className="flex gap-2">
                   {socials.map((s) => {
                     const Icon = s.icon
@@ -178,8 +183,10 @@ export function Contact() {
                 <p className="font-mono text-xs text-primary">status: available</p>
               </div>
               <p className="text-sm leading-relaxed">
-                Tôi hiện đang mở cho các cơ hội freelance, hợp đồng dự án hoặc
-                vị trí toàn thời gian liên quan đến firmware, IoT và hệ thống nhúng.
+                {t(
+                  "Tôi hiện đang mở cho các cơ hội freelance, hợp đồng dự án hoặc vị trí toàn thời gian liên quan đến firmware, IoT và hệ thống nhúng.",
+                  "I am currently open to freelance opportunities, project contracts, or full-time positions related to firmware, IoT, and embedded systems."
+                )}
               </p>
             </Card>
           </motion.div>
@@ -206,12 +213,12 @@ export function Contact() {
               <form onSubmit={handleSubmit} className="p-6 space-y-5" noValidate>
                 <div className="space-y-1.5">
                   <Label htmlFor="name" className="text-sm">
-                    Họ và tên <span className="text-destructive">*</span>
+                    {t("Họ và tên", "Full Name")} <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="name"
                     name="name"
-                    placeholder="Nguyễn Văn A"
+                    placeholder={t("Nguyễn Văn A", "John Doe")}
                     autoComplete="name"
                     aria-invalid={!!errors.name}
                     aria-describedby={errors.name ? "name-error" : undefined}
@@ -245,13 +252,13 @@ export function Contact() {
 
                 <div className="space-y-1.5">
                   <Label htmlFor="message" className="text-sm">
-                    Tin nhắn <span className="text-destructive">*</span>
+                    {t("Tin nhắn", "Message")} <span className="text-destructive">*</span>
                   </Label>
                   <Textarea
                     id="message"
                     name="message"
                     rows={5}
-                    placeholder="Mô tả ngắn gọn về dự án hoặc câu hỏi của bạn..."
+                    placeholder={t("Mô tả ngắn gọn về dự án hoặc câu hỏi của bạn...", "Brief description of your project or your question...")}
                     aria-invalid={!!errors.message}
                     aria-describedby={errors.message ? "message-error" : undefined}
                   />
@@ -265,17 +272,17 @@ export function Contact() {
                 <Button type="submit" size="lg" className="w-full" disabled={submitting}>
                   {submitting ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Đang gửi...
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" /> {t("Đang gửi...", "Sending...")}
                     </>
                   ) : (
                     <>
-                      <Send className="h-4 w-4 mr-2" /> Gửi tin nhắn
+                      <Send className="h-4 w-4 mr-2" /> {t("Gửi tin nhắn", "Send Message")}
                     </>
                   )}
                 </Button>
 
                 <p className="text-center text-xs text-muted-foreground">
-                  Bằng việc gửi form, bạn đồng ý tôi có thể liên hệ lại qua email.
+                  {t("Bằng việc gửi form, bạn đồng ý tôi có thể liên hệ lại qua email.", "By submitting this form, you agree that I can contact you back via email.")}
                 </p>
               </form>
             </Card>

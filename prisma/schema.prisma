@@ -6,16 +6,17 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 // --- CMS models for the CV site (editable from /admin) ---
 
-// Singleton row (id = "profile") holding the owner's personal info.
+// Profile row per locale (id = "profile-vi" / "profile-en").
 model Profile {
   id        String   @id @default("profile")
-  name      String   @default("Nguyễn Minh Anh")
+  locale    String   @default("vi")
+  name      String   @default("Phan Huỳnh Văn Đô")
   role      String   @default("Embedded Software Engineer")
   tagline   String   @default("Lập trình viên nhúng · RTOS · ARM Cortex · IoT")
   location  String   @default("TP. Hồ Chí Minh, Việt Nam")
@@ -25,12 +26,13 @@ model Profile {
   github    String   @default("github.com/minhanh-embedded")
   linkedin  String   @default("linkedin.com/in/minhanh-embedded")
   summary   String   @default("")
-  avatar    String   @default("/avatar.png")
+  avatar    String   @default("/uploads/avatar.jpg")
   updatedAt DateTime @updatedAt
 }
 
 model Project {
   id          String   @id @default(cuid())
+  locale      String   @default("vi")
   title       String
   category    String   @default("")
   description String   @default("")
@@ -48,17 +50,21 @@ model Project {
 
 model Post {
   id        String   @id @default(cuid())
+  locale    String   @default("vi")
   title     String
-  slug      String   @unique
+  slug      String
   excerpt   String   @default("")
   content   String   @default("") // markdown
   published Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([slug, locale])
 }
 
 model Experience {
   id          String   @id @default(cuid())
+  locale      String   @default("vi")
   role        String
   company     String
   companyUrl  String?  // link to company website

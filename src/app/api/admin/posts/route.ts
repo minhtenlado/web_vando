@@ -3,9 +3,10 @@ import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getSiteData } from "@/lib/cv/site-data-server";
 
-export async function GET() {
-  const data = await getSiteData();
-  // Admin sees all (including unpublished)
+export async function GET(req: NextRequest) {
+  const locale = req.nextUrl.searchParams.get("locale") ?? "vi";
+  const data = await getSiteData(locale);
+  // Admin sees all (including unpublished), but already filtered by locale in getSiteData
   return NextResponse.json({ ok: true, posts: data.posts });
 }
 
@@ -15,6 +16,7 @@ type PostInput = {
   excerpt?: string;
   content?: string;
   published?: boolean;
+  locale?: string;
 };
 
 function slugify(s: string): string {
@@ -44,15 +46,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, message: "Tiêu đề là bắt buộc." }, { status: 422 });
   }
 
+  const locale = body.locale === "en" ? "en" : "vi";
   let slug = slugify((body.slug ?? title));
   if (!slug) slug = `post-${Date.now()}`;
 
-  // ensure unique slug
-  const existing = await db.post.findUnique({ where: { slug } });
+  // ensure unique slug per locale
+  const existing = await db.post.findUnique({ 
+    where: { slug_locale: { slug, locale } } 
+  });
   if (existing) slug = `${slug}-${Date.now().toString(36)}`;
 
   const created = await db.post.create({
     data: {
+      locale,
       title,
       slug,
       excerpt: (body.excerpt ?? "").slice(0, 600),

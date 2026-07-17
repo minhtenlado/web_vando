@@ -73,7 +73,7 @@ function splitCommaOrLines(s: string): string[] {
   return s.split(/[\n,]+/).map((l) => l.trim()).filter(Boolean);
 }
 
-export function ExperiencesTab() {
+export function ExperiencesTab({ locale }: { locale: string }) {
   const { toast } = useToast();
   const [items, setItems] = React.useState<SiteExperience[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -87,7 +87,7 @@ export function ExperiencesTab() {
   async function fetchItems() {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/experiences", { cache: "no-store" });
+      const res = await fetch(`/api/admin/experiences?locale=${locale}`, { cache: "no-store" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) throw new Error(data?.message || "Tải thất bại.");
       setItems(data.experiences ?? []);
@@ -104,7 +104,7 @@ export function ExperiencesTab() {
 
   React.useEffect(() => {
     fetchItems();
-  }, []);
+  }, [locale]);
 
   function openCreate() {
     setEditing(null);
@@ -138,6 +138,7 @@ export function ExperiencesTab() {
       description: form.description,
       highlights: splitLines(form.highlights),
       stack: splitCommaOrLines(form.stack),
+      locale,
     };
     try {
       const url = editing ? `/api/admin/experiences/${editing.id}` : "/api/admin/experiences";

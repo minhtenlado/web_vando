@@ -1,11 +1,5 @@
 import { db } from "@/lib/db";
-import {
-  profile as defaultProfile,
-  projects as defaultProjects,
-  experiences as defaultExperiences,
-  type Project,
-  type Experience,
-} from "@/lib/cv/data";
+import { type Project, type Experience } from "@/lib/cv/data";
 
 export type SiteProfile = {
   name: string
@@ -49,26 +43,24 @@ export type SiteData = {
   posts: SitePost[]
 }
 
-export async function getSiteData(): Promise<SiteData> {
-  let profile: SiteProfile = { ...defaultProfile }
-  let projects: SiteProject[] = defaultProjects.map((p, i) => ({
-    ...p,
-    id: `default-${i}`,
-    youtubeUrl: "",
-  }))
-  let experiences: SiteExperience[] = defaultExperiences.map((e, i) => ({
-    ...e,
-    id: `default-${i}`,
-    companyUrl: "",
-  }))
+export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
+  const loc = locale === "en" ? "en" : "vi"
+  const profileId = `profile-${loc}`
+
+  let profile: SiteProfile = {
+    name: "", role: "", tagline: "", location: "", email: "",
+    phone: "", website: "", github: "", linkedin: "", summary: "", avatar: ""
+  }
+  let projects: SiteProject[] = []
+  let experiences: SiteExperience[] = []
   let posts: SitePost[] = []
 
   try {
     const [pRow, pRows, eRows, postRows] = await Promise.all([
-      db.profile.findUnique({ where: { id: "profile" } }),
-      db.project.findMany({ orderBy: { order: "asc" } }),
-      db.experience.findMany({ orderBy: { order: "asc" } }),
-      db.post.findMany({ orderBy: { createdAt: "desc" } }),
+      db.profile.findUnique({ where: { id: profileId } }),
+      db.project.findMany({ where: { locale: loc }, orderBy: { order: "asc" } }),
+      db.experience.findMany({ where: { locale: loc }, orderBy: { order: "asc" } }),
+      db.post.findMany({ where: { locale: loc }, orderBy: { createdAt: "desc" } }),
     ])
 
     if (pRow) {
@@ -127,8 +119,7 @@ export async function getSiteData(): Promise<SiteData> {
       updatedAt: po.updatedAt.toISOString(),
     }))
   } catch (e) {
-    // DB not available — fall back to static defaults.
-    console.error("[site-data] falling back to static defaults:", e)
+    console.error("[site-data] Database error:", e)
   }
 
   return { profile, projects, experiences, posts }

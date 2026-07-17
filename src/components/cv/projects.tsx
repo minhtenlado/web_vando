@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useSiteData } from "@/components/cv/site-data-context"
+import { useLocale } from "@/components/cv/locale-context"
 import { profile } from "@/lib/cv/data"
 
 /** Extract a YouTube video id from various URL forms. */
@@ -31,16 +32,20 @@ function youtubeId(url: string): string | null {
 
 export function Projects() {
   const { projects } = useSiteData()
+  const { t } = useLocale()
   const [activeVideo, setActiveVideo] = React.useState<string | null>(null)
   const activeId = activeVideo ? youtubeId(activeVideo) : null
 
   return (
     <section id="projects" className="relative py-20 sm:py-28 bg-muted/20">
-      <div className="container mx-auto max-w-6xl px-4">
+      <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
         <SectionHeader
           index="04 / projects"
-          title="Dự án tiêu biểu"
-          subtitle="Một vài dự án tôi tự hào nhất — từ sản phẩm thương mại đến dự án mã nguồn mở cộng đồng. Nhấn nút video để xem demo."
+          title={t("Dự án tiêu biểu", "Featured Projects")}
+          subtitle={t(
+            "Một vài dự án tôi tự hào nhất — từ sản phẩm thương mại đến dự án mã nguồn mở cộng đồng. Nhấn nút video để xem demo.",
+            "A few projects I'm most proud of — from commercial products to community open-source projects. Click the video button for a demo."
+          )}
         />
 
         <div className="mt-10 grid md:grid-cols-2 gap-6">
@@ -59,7 +64,7 @@ export function Projects() {
                   <div className="relative aspect-[16/9] overflow-hidden bg-muted">
                     <Image
                       src={p.image}
-                      alt={`Ảnh minh họa dự án ${p.title}`}
+                      alt={t(`Ảnh minh họa dự án ${p.title}`, `Project image for ${p.title}`)}
                       fill
                       sizes="(max-width: 768px) 100vw, 600px"
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -75,7 +80,7 @@ export function Projects() {
                     {ytId && (
                       <button
                         onClick={() => setActiveVideo(p.youtubeUrl!)}
-                        aria-label={`Xem video demo ${p.title}`}
+                        aria-label={t(`Xem video demo ${p.title}`, `Watch demo video for ${p.title}`)}
                         className="absolute inset-0 grid place-items-center group/play"
                       >
                         <span className="relative grid place-items-center h-16 w-16 rounded-full bg-background/80 backdrop-blur border border-border shadow-lg transition-transform group-hover/play:scale-110">
@@ -91,7 +96,7 @@ export function Projects() {
                           href={p.repo}
                           target="_blank"
                           rel="noopener noreferrer"
-                          aria-label={`Xem mã nguồn ${p.title} trên GitHub`}
+                          aria-label={t(`Xem mã nguồn ${p.title} trên GitHub`, `View source code for ${p.title} on GitHub`)}
                           className="grid place-items-center h-8 w-8 rounded-md bg-background/80 backdrop-blur border border-border hover:bg-primary hover:text-primary-foreground transition-colors"
                         >
                           <Github className="h-4 w-4" />
@@ -102,7 +107,7 @@ export function Projects() {
                           href={p.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          aria-label={`Mở demo dự án ${p.title}`}
+                          aria-label={t(`Mở demo dự án ${p.title}`, `Open demo for project ${p.title}`)}
                           className="grid place-items-center h-8 w-8 rounded-md bg-background/80 backdrop-blur border border-border hover:bg-primary hover:text-primary-foreground transition-colors"
                         >
                           <ExternalLink className="h-4 w-4" />
@@ -160,7 +165,7 @@ export function Projects() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Github className="h-4 w-4 mr-2" /> Xem thêm trên GitHub
+              <Github className="h-4 w-4 mr-2" /> {t("Xem thêm trên GitHub", "View more on GitHub")}
             </a>
           </Button>
         </div>
@@ -185,7 +190,7 @@ export function Projects() {
             >
               <button
                 onClick={() => setActiveVideo(null)}
-                aria-label="Đóng video"
+                aria-label={t("Đóng video", "Close video")}
                 className="absolute -top-12 right-0 grid place-items-center h-9 w-9 rounded-md bg-card border border-border hover:bg-muted transition-colors"
               >
                 <X className="h-4 w-4" />
