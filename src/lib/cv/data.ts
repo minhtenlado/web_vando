@@ -184,6 +184,101 @@ export type Project = {
 }
 
 export const projects: Project[] = [];
+
+export type EducationItem = {
+  degree: Record<"vi" | "en", string>
+  school: Record<"vi" | "en", string>
+  period: string
+  detail: Record<"vi" | "en", string>
+}
+
+export const educations: EducationItem[] = [
+  {
+    degree: { vi: "Kỹ sư Internet of Things và Trí tuệ nhân tạo ứng dụng", en: "Bachelor of Engineering in Internet of Things and Applied Artificial Intelligence" },
+    school: { vi: "Trường Đại học Công nghiệp Thành phố Hồ Chí Minh", en: "Industrial University of Ho Chi Minh City" },
+    period: "2022 – 2027",
+    detail: { vi: "Khoa Công nghệ Điện tử. Chuyên ngành đào tạo chuyên sâu về hệ thống nhúng, lập trình vi điều khiển, mạng kết nối IoT, thiết kế mạch phần cứng và ứng dụng mô hình AI vào thực tế.", en: "Faculty of Electronics Technology. Major in IoT and Applied AI, focusing on embedded systems, edge AI networking, hardware circuit design, and intelligent automation solutions." }
+  }
+]
+
+export type Certification = {
+  name: string
+  issuer: string
+  year: string
+}
+
+export const certifications: Certification[] = [
+  { name: "FreeRTOS Certified Engineer", issuer: "Real Time Engineers Ltd.", year: "2021" },
+  { name: "LoRaWAN Academy Certificate", issuer: "Semtech", year: "2022" },
+  { name: "Zephyr RTOS Training", issuer: "The Linux Foundation", year: "2023" },
+  { name: "Embedded Linux Engineer", issuer: "Embedded Systems Academy", year: "2020" },
+]
+
+export type CodeSnippet = {
+  id: string
+  filename: string
+  language: string
+  title: string
+  description: string
+  code: string
+}
+
+export const codeSnippets: CodeSnippet[] = [
+  {
+    id: "blink-rtos",
+    filename: "main.c",
+    language: "c",
+    title: "FreeRTOS Blink với Power Management",
+    description:
+      "Task nháy LED dùng FreeRTOS với chế độ Tickless Idle để tối ưu tiêu thụ năng lượng trên STM32L4.",
+    code: `#include "stm32l4xx_hal.h"
+#include "FreeRTOS.h"
+#include "task.h"
+
+/* Task nháy LED chu kỳ 1Hz, sleep giữa các lần chuyển trạng thái */
+static void vLedTask(void *pvParameters) {
+    (void)pvParameters;
+    TickType_t last = xTaskGetTickCount();
+
+    for (;;) {
+        HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+        /* Tickless idle cho phép MCU vào Stop mode ở đây */
+        vTaskDelayUntil(&last, pdMS_TO_TICKS(1000));
+    }
+}
+
+int main(void) {
+    HAL_Init();
+    SystemClock_Config();
+    MX_GPIO_Init();
+
+    xTaskCreate(vLedTask, "LED", 128, NULL, tskIDLE_PRIORITY + 1, NULL);
+    vTaskStartScheduler();   /* Không bao giờ trả về */
+    for (;;) {}
+}`,
+  },
+  {
+    id: "i2c-driver",
+    filename: "bme280_drv.c",
+    language: "c",
+    title: "Driver cảm biến BME280 qua I2C",
+    description:
+      "Driver portable tách biệt HAL, đọc nhiệt độ/độ ẩm/áp suất từ BME280 với hiệu chuẩn nhà sản xuất.",
+    code: `#include "bme280.h"
+
+/* Đọc thanh ghi dùng callback HAL — portable giữa các MCU */
+static int8_t bme_read(uint8_t reg, uint8_t *buf, uint32_t len, void *intf) {
+    const bme_intf_t *i = (const bme_intf_t *)intf;
+    if (HAL_I2C_Mem_Read(i->hi2c, i->addr, reg,
+                         I2C_MEMADD_SIZE_8BIT,
+                         buf, len, 100) != HAL_OK) {
+        return -1;
+    }
+    return 0;   /* BME280_OK */
+}
+
+int8_t bme280_measure(bme280_data_t *out) {
+    uint8_t raw[8];
     if (bme_read(0xF7, raw, sizeof(raw), &g_intf) != 0)
         return -1;
 
