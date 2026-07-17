@@ -125,9 +125,6 @@ export const experiences: Experience[] = [
     description: "Tham gia nghiên cứu và phát triển các giải pháp chiếu sáng thông minh và thiết kế hệ thống IoT ứng dụng cho đô thị, công nghiệp. Tham gia lập trình firmware cho các thiết bị ngoại vi, tối ưu hóa giao thức kết nối và tích hợp hệ thống phần cứng điều khiển thông minh cục bộ.",
     highlights: [],
     stack: ["IoT", "Embedded Systems", "Smart Lighting", "Firmware", "Modbus", "Wi-Fi/Zigbee"]
-  }
-],
-    stack: ["STM32L4", "FreeRTOS", "LoRaWAN", "BLE", "MQTT", "C"],
   },
   {
     role: "Embedded Software Engineer",
