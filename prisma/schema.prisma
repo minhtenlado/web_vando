@@ -40,6 +40,7 @@ model Project {
   features    String   @default("[]")
   tech        String   @default("[]")
   image       String   @default("")
+  images      String   @default("[]") // JSON string[] gallery
   youtubeUrl  String?  // optional YouTube watch/embed URL
   link        String?
   repo        String?
@@ -73,6 +74,7 @@ model Experience {
   description String   @default("")
   highlights  String   @default("[]") // JSON string[]
   stack       String   @default("[]") // JSON string[]
+  images      String   @default("[]") // JSON string[] gallery
   order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

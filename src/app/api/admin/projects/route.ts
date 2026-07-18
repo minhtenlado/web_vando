@@ -17,6 +17,7 @@ type ProjectInput = {
   features?: string[];
   tech?: string[];
   image?: string;
+  images?: string[];
   youtubeUrl?: string;
   link?: string;
   repo?: string;
@@ -51,6 +52,7 @@ export async function POST(req: NextRequest) {
       features: JSON.stringify(Array.isArray(body.features) ? body.features : []),
       tech: JSON.stringify(Array.isArray(body.tech) ? body.tech : []),
       image: (body.image ?? "").slice(0, 500),
+      images: JSON.stringify(Array.isArray(body.images) ? body.images : []),
       youtubeUrl: normUrl(body.youtubeUrl),
       link: normUrl(body.link),
       repo: normUrl(body.repo),

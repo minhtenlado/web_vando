@@ -9,6 +9,7 @@ type ProjectInput = {
   features?: string[];
   tech?: string[];
   image?: string;
+  images?: string[];
   youtubeUrl?: string;
   link?: string;
   repo?: string;
@@ -48,6 +49,7 @@ export async function PUT(
   if (Array.isArray(body.features)) data.features = JSON.stringify(body.features);
   if (Array.isArray(body.tech)) data.tech = JSON.stringify(body.tech);
   if (typeof body.image === "string") data.image = body.image.slice(0, 500);
+  if (Array.isArray(body.images)) data.images = JSON.stringify(body.images);
   if (typeof body.youtubeUrl === "string") data.youtubeUrl = normUrl(body.youtubeUrl);
   if (typeof body.link === "string") data.link = normUrl(body.link);
   if (typeof body.repo === "string") data.repo = normUrl(body.repo);

@@ -33,6 +33,7 @@ export function Projects() {
   const { projects } = useSiteData()
   const { t } = useLocale()
   const [activeVideo, setActiveVideo] = React.useState<string | null>(null)
+  const [activeImage, setActiveImage] = React.useState<string | null>(null)
   const activeId = activeVideo ? youtubeId(activeVideo) : null
 
   return (
@@ -143,6 +144,23 @@ export function Projects() {
                       ))}
                     </ul>
 
+                    {p.images && p.images.length > 0 && (
+                      <div className="mt-4">
+                        <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-mono mb-2">Minh chứng / Gallery</p>
+                        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+                          {p.images.map((img, imgIdx) => (
+                            <button
+                              key={imgIdx}
+                              onClick={() => setActiveImage(img)}
+                              className="relative h-16 w-24 shrink-0 rounded-md overflow-hidden border border-border/50 hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+                            >
+                              <img src={img} alt={`Gallery ${imgIdx}`} className="absolute inset-0 h-full w-full object-cover" />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     <div className="mt-4 flex flex-wrap gap-1.5">
                       {p.tech.map((t, ti) => (
                         <Badge
@@ -205,6 +223,42 @@ export function Projects() {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
                   className="absolute inset-0 h-full w-full"
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Image lightbox */}
+      <AnimatePresence>
+        {activeImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setActiveImage(null)}
+            className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm grid place-items-center p-4 sm:p-8"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-6xl max-h-full w-full h-full flex flex-col items-center justify-center"
+            >
+              <button
+                onClick={() => setActiveImage(null)}
+                aria-label={t("Đóng ảnh", "Close image")}
+                className="absolute top-0 right-0 z-10 grid place-items-center h-10 w-10 rounded-full bg-background/50 backdrop-blur border border-border hover:bg-muted transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <div className="relative w-full h-full p-4 flex items-center justify-center">
+                <img
+                  src={activeImage}
+                  alt="Gallery full size"
+                  className="max-w-full max-h-full object-contain rounded-md shadow-2xl border border-border/20"
                 />
               </div>
             </motion.div>

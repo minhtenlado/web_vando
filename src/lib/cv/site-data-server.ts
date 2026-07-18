@@ -18,11 +18,13 @@ export type SiteProfile = {
 export type SiteProject = Project & {
   id: string
   youtubeUrl?: string
+  images?: string[]
 }
 
 export type SiteExperience = Experience & {
   id: string
   companyUrl?: string
+  images?: string[]
 }
 
 export type SitePost = {
@@ -91,6 +93,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         link: p.link ?? undefined,
         repo: p.repo ?? undefined,
         youtubeUrl: p.youtubeUrl ?? undefined,
+        images: safeParseArr(p.images),
       }))
     }
 
@@ -105,6 +108,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         description: e.description,
         highlights: safeParseArr(e.highlights),
         stack: safeParseArr(e.stack),
+        images: safeParseArr(e.images),
       }))
     }
 

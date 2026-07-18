@@ -18,6 +18,7 @@ type ExpInput = {
   description?: string;
   highlights?: string[];
   stack?: string[];
+  images?: string[];
   order?: number;
   locale?: string;
 };
@@ -61,6 +62,7 @@ export async function POST(req: NextRequest) {
       description: (body.description ?? "").slice(0, 4000),
       highlights: JSON.stringify(Array.isArray(body.highlights) ? body.highlights : []),
       stack: JSON.stringify(Array.isArray(body.stack) ? body.stack : []),
+      images: JSON.stringify(Array.isArray(body.images) ? body.images : []),
       order: typeof body.order === "number" ? body.order : count,
     },
   });

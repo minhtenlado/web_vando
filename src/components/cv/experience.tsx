@@ -8,11 +8,13 @@ import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { useSiteData } from "@/components/cv/site-data-context"
 import { useLocale } from "@/components/cv/locale-context"
-import { ExternalLink } from "lucide-react"
+import { ExternalLink, X } from "lucide-react"
+import { AnimatePresence } from "framer-motion"
 
 export function Experience() {
   const { experiences } = useSiteData()
   const { t } = useLocale()
+  const [activeImage, setActiveImage] = React.useState<string | null>(null)
   return (
     <section id="experience" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
@@ -139,6 +141,25 @@ export function Experience() {
                           </Badge>
                         ))}
                       </div>
+                      
+                      {exp.images && exp.images.length > 0 && (
+                        <div className="mt-4">
+                          <p className={"text-[11px] uppercase tracking-wider text-muted-foreground font-mono mb-2 " + (isLeft ? "sm:text-right" : "")}>
+                            Minh chứng / Gallery
+                          </p>
+                          <div className={"flex gap-2 overflow-x-auto pb-2 scrollbar-none " + (isLeft ? "sm:justify-end" : "")}>
+                            {exp.images.map((img, imgIdx) => (
+                              <button
+                                key={imgIdx}
+                                onClick={() => setActiveImage(img)}
+                                className="relative h-16 w-24 shrink-0 rounded-md overflow-hidden border border-border/50 hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+                              >
+                                <img src={img} alt={`Gallery ${imgIdx}`} className="absolute inset-0 h-full w-full object-cover" />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </Card>
                   </div>
                 </motion.li>
@@ -147,6 +168,42 @@ export function Experience() {
           </ol>
         </div>
       </div>
+      
+      {/* Image lightbox */}
+      <AnimatePresence>
+        {activeImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setActiveImage(null)}
+            className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm grid place-items-center p-4 sm:p-8"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-6xl max-h-full w-full h-full flex flex-col items-center justify-center"
+            >
+              <button
+                onClick={() => setActiveImage(null)}
+                aria-label={t("Đóng ảnh", "Close image")}
+                className="absolute top-0 right-0 z-10 grid place-items-center h-10 w-10 rounded-full bg-background/50 backdrop-blur border border-border hover:bg-muted transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <div className="relative w-full h-full p-4 flex items-center justify-center">
+                <img
+                  src={activeImage}
+                  alt="Gallery full size"
+                  className="max-w-full max-h-full object-contain rounded-md shadow-2xl border border-border/20"
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }

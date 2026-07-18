@@ -11,6 +11,7 @@ type ExpInput = {
   description?: string;
   highlights?: string[];
   stack?: string[];
+  images?: string[];
   order?: number;
 };
 
@@ -45,6 +46,7 @@ export async function PUT(
   if (typeof body.description === "string") data.description = body.description.slice(0, 4000);
   if (Array.isArray(body.highlights)) data.highlights = JSON.stringify(body.highlights);
   if (Array.isArray(body.stack)) data.stack = JSON.stringify(body.stack);
+  if (Array.isArray(body.images)) data.images = JSON.stringify(body.images);
   if (typeof body.order === "number") data.order = body.order;
 
   try {

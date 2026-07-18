@@ -52,6 +52,7 @@ type ProjectForm = {
   youtubeUrl: string;
   link: string;
   repo: string;
+  images: string[];
 };
 
 function toForm(p: SiteProject): ProjectForm {
@@ -65,6 +66,7 @@ function toForm(p: SiteProject): ProjectForm {
     youtubeUrl: p.youtubeUrl ?? "",
     link: p.link ?? "",
     repo: p.repo ?? "",
+    images: p.images ?? [],
   };
 }
 
@@ -78,6 +80,7 @@ const EMPTY: ProjectForm = {
   youtubeUrl: "",
   link: "",
   repo: "",
+  images: [],
 };
 
 function splitLines(s: string): string[] {
@@ -158,6 +161,7 @@ export function ProjectsTab({ locale }: { locale: string }) {
       youtubeUrl: form.youtubeUrl.trim(),
       link: form.link.trim(),
       repo: form.repo.trim(),
+      images: form.images,
       locale,
     };
     try {
@@ -345,7 +349,7 @@ export function ProjectsTab({ locale }: { locale: string }) {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="font-mono text-xs">Ảnh dự án</Label>
+              <Label className="font-mono text-xs">Ảnh bìa (chính)</Label>
               {form.image && (
                 <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted/30">
                   <img src={form.image} alt="Preview" className="h-full w-full object-cover" />
@@ -395,22 +399,86 @@ export function ProjectsTab({ locale }: { locale: string }) {
                   disabled={uploadingImage}
                 >
                   {uploadingImage ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
-                  {uploadingImage ? "Đang tải…" : "Tải ảnh lên"}
+                  {uploadingImage ? "Đang tải…" : "Tải ảnh bìa"}
                 </Button>
                 {form.image && (
                   <Button type="button" variant="ghost" size="sm" onClick={() => setForm((f) => ({ ...f, image: "" }))}>
-                    Xoá ảnh
+                    Xoá ảnh bìa
                   </Button>
                 )}
               </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Hoặc dán URL ảnh trực tiếp:</p>
-                <Input
-                  value={form.image}
-                  onChange={(e) => setForm({ ...form, image: e.target.value })}
-                  placeholder="https://... hoặc /project-1.png"
-                  className="text-xs"
+            </div>
+
+            <div className="space-y-1.5 border-t pt-4">
+              <Label className="font-mono text-xs flex items-center justify-between">
+                <span>Ảnh minh chứng (Gallery)</span>
+                <span className="text-[10px] text-muted-foreground font-normal">{form.images.length} ảnh</span>
+              </Label>
+              
+              {form.images.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+                  {form.images.map((img, i) => (
+                    <div key={i} className="group relative aspect-video rounded-md overflow-hidden border bg-muted/30">
+                      <img src={img} alt={`Gallery ${i}`} className="h-full w-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setForm((f) => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }))}
+                        className="absolute top-1 right-1 h-6 w-6 rounded-full bg-background/80 backdrop-blur border text-destructive opacity-0 group-hover:opacity-100 transition-opacity grid place-items-center hover:bg-destructive hover:text-white"
+                      >
+                        <Trash2 className="size-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <div className="mt-2">
+                <input
+                  id="gallery-upload"
+                  type="file"
+                  multiple
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const files = Array.from(e.target.files || []);
+                    if (!files.length) return;
+                    
+                    toast({ title: "Đang tải lên...", description: `Đang tải lên ${files.length} ảnh.` });
+                    const newUrls: string[] = [];
+                    
+                    for (const file of files) {
+                      if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) continue;
+                      try {
+                        const fd = new FormData();
+                        fd.append("file", file);
+                        const res = await fetch("/api/admin/upload-image", { method: "POST", body: fd });
+                        const data = await res.json().catch(() => ({}));
+                        if (res.ok && data.ok) newUrls.push(data.url);
+                      } catch (err) {
+                        console.error(err);
+                      }
+                    }
+                    
+                    if (newUrls.length > 0) {
+                      setForm((f) => ({ ...f, images: [...f.images, ...newUrls] }));
+                      toast({ title: "Hoàn tất", description: `Đã tải lên ${newUrls.length} ảnh minh chứng.` });
+                    } else {
+                      toast({ title: "Lỗi", description: "Không thể tải lên ảnh nào.", variant: "destructive" });
+                    }
+                    
+                    // Reset input
+                    e.target.value = "";
+                  }}
                 />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full border-dashed"
+                  onClick={() => document.getElementById("gallery-upload")?.click()}
+                >
+                  <Plus className="size-4 mr-1" /> Thêm ảnh minh chứng
+                </Button>
               </div>
             </div>
 

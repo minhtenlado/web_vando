@@ -39,6 +39,7 @@ type ExpForm = {
   description: string;
   highlights: string;
   stack: string;
+  images: string[];
 };
 
 const EMPTY: ExpForm = {
@@ -50,6 +51,7 @@ const EMPTY: ExpForm = {
   description: "",
   highlights: "",
   stack: "",
+  images: [],
 };
 
 function toForm(e: SiteExperience): ExpForm {
@@ -62,6 +64,7 @@ function toForm(e: SiteExperience): ExpForm {
     description: e.description ?? "",
     highlights: (e.highlights ?? []).join("\n"),
     stack: (e.stack ?? []).join("\n"),
+    images: e.images ?? [],
   };
 }
 
@@ -138,6 +141,7 @@ export function ExperiencesTab({ locale }: { locale: string }) {
       description: form.description,
       highlights: splitLines(form.highlights),
       stack: splitCommaOrLines(form.stack),
+      images: form.images,
       locale,
     };
     try {
@@ -372,6 +376,79 @@ export function ExperiencesTab({ locale }: { locale: string }) {
                   placeholder={"STM32, FreeRTOS\nC, CAN, I2C"}
                   className="font-mono text-xs"
                 />
+              </div>
+            </div>
+
+            <div className="space-y-1.5 border-t pt-4">
+              <Label className="font-mono text-xs flex items-center justify-between">
+                <span>Ảnh minh chứng (Gallery)</span>
+                <span className="text-[10px] text-muted-foreground font-normal">{form.images.length} ảnh</span>
+              </Label>
+              
+              {form.images.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+                  {form.images.map((img, i) => (
+                    <div key={i} className="group relative aspect-video rounded-md overflow-hidden border bg-muted/30">
+                      <img src={img} alt={`Gallery ${i}`} className="h-full w-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setForm((f) => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }))}
+                        className="absolute top-1 right-1 h-6 w-6 rounded-full bg-background/80 backdrop-blur border text-destructive opacity-0 group-hover:opacity-100 transition-opacity grid place-items-center hover:bg-destructive hover:text-white"
+                      >
+                        <Trash2 className="size-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <div className="mt-2">
+                <input
+                  id="exp-gallery-upload"
+                  type="file"
+                  multiple
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const files = Array.from(e.target.files || []);
+                    if (!files.length) return;
+                    
+                    toast({ title: "Đang tải lên...", description: `Đang tải lên ${files.length} ảnh.` });
+                    const newUrls: string[] = [];
+                    
+                    for (const file of files) {
+                      if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) continue;
+                      try {
+                        const fd = new FormData();
+                        fd.append("file", file);
+                        const res = await fetch("/api/admin/upload-image", { method: "POST", body: fd });
+                        const data = await res.json().catch(() => ({}));
+                        if (res.ok && data.ok) newUrls.push(data.url);
+                      } catch (err) {
+                        console.error(err);
+                      }
+                    }
+                    
+                    if (newUrls.length > 0) {
+                      setForm((f) => ({ ...f, images: [...f.images, ...newUrls] }));
+                      toast({ title: "Hoàn tất", description: `Đã tải lên ${newUrls.length} ảnh minh chứng.` });
+                    } else {
+                      toast({ title: "Lỗi", description: "Không thể tải lên ảnh nào.", variant: "destructive" });
+                    }
+                    
+                    // Reset input
+                    e.target.value = "";
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full border-dashed"
+                  onClick={() => document.getElementById("exp-gallery-upload")?.click()}
+                >
+                  <Plus className="size-4 mr-1" /> Thêm ảnh minh chứng
+                </Button>
               </div>
             </div>
 
