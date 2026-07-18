@@ -111,7 +111,7 @@ export function Projects() {
                     </div>
                     <div 
                       className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-3 ql-editor-display prose prose-sm dark:prose-invert max-w-none"
-                      dangerouslySetInnerHTML={{ __html: p.description }}
+                      dangerouslySetInnerHTML={{ __html: (p.description || "").replace(/&nbsp;/g, ' ') }}
                     />
                     <div className="mt-4 pt-4 border-t border-border/50">
                       <Button 
@@ -198,7 +198,7 @@ export function Projects() {
                       </h3>
                       <div 
                         className="text-base text-foreground/90 leading-relaxed whitespace-pre-wrap ql-editor-display prose prose-sm dark:prose-invert max-w-none"
-                        dangerouslySetInnerHTML={{ __html: activeProject.description }}
+                        dangerouslySetInnerHTML={{ __html: (activeProject.description || "").replace(/&nbsp;/g, ' ') }}
                       />
                     </div>
 

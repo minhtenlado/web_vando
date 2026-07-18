@@ -116,7 +116,7 @@ export function Experience() {
 
                       <div 
                         className="mt-3 text-sm text-muted-foreground leading-relaxed ql-editor-display prose prose-sm dark:prose-invert max-w-none"
-                        dangerouslySetInnerHTML={{ __html: exp.description }}
+                        dangerouslySetInnerHTML={{ __html: (exp.description || "").replace(/&nbsp;/g, ' ') }}
                       />
 
                       <ul

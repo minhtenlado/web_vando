@@ -57,7 +57,7 @@ export function About() {
                 </pre>
                 <div 
                   className="text-sm leading-relaxed text-foreground/90 my-4 prose prose-sm dark:prose-invert max-w-none ql-editor-display"
-                  dangerouslySetInnerHTML={{ __html: profile.summary }} 
+                  dangerouslySetInnerHTML={{ __html: (profile.summary || "").replace(/&nbsp;/g, ' ') }} 
                 />
                 <pre className="font-mono text-sm leading-relaxed whitespace-pre-wrap text-foreground/90">
 <span className="text-primary">{"#"}</span> {t("Triết lý làm việc", "Working principles")}{"\n"}
@@ -118,7 +118,7 @@ export function About() {
                 <p className="font-mono text-xs text-primary mb-2">{">_ now"}</p>
                 <div 
                   className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none ql-editor-display" 
-                  dangerouslySetInnerHTML={{ __html: profile.nowText }} 
+                  dangerouslySetInnerHTML={{ __html: (profile.nowText || "").replace(/&nbsp;/g, ' ') }} 
                 />
               </div>
             )}

@@ -121,7 +121,7 @@ export function Posts() {
             {active && (
               <div 
                 className="ql-editor-display text-foreground/90 my-2.5 text-sm"
-                dangerouslySetInnerHTML={{ __html: active.content }}
+                dangerouslySetInnerHTML={{ __html: (active.content || "").replace(/&nbsp;/g, ' ') }}
               />
             )}
           </article>
