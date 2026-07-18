@@ -54,7 +54,7 @@ export async function PUT(
     data.slug = slug;
   }
   if (typeof body.excerpt === "string") data.excerpt = body.excerpt.slice(0, 600);
-  if (typeof body.content === "string") data.content = body.content.slice(0, 50000);
+  if (typeof body.content === "string") data.content = body.content.slice(0, 5000000);
   if (typeof body.published === "boolean") data.published = body.published;
 
   try {

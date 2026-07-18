@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
       title,
       slug,
       excerpt: (body.excerpt ?? "").slice(0, 600),
-      content: (body.content ?? "").slice(0, 50000),
+      content: (body.content ?? "").slice(0, 5000000),
       published: !!body.published,
     },
   });
