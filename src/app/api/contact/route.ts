@@ -28,16 +28,44 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // In a real app we would persist to DB / send email here.
-    // For demo we simulate async processing and echo back a sanitized copy.
-    await new Promise((r) => setTimeout(r, 400));
+    const accessKey = process.env.WEB3FORMS_ACCESS_KEY;
+    if (!accessKey) {
+      return NextResponse.json(
+        { ok: false, message: "Hệ thống chưa được cấu hình Access Key gửi mail." },
+        { status: 500 }
+      );
+    }
+
+    const response = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        access_key: accessKey,
+        name: name,
+        email: email,
+        message: message,
+        subject: `[Portfolio] Tin nhắn mới từ ${name}`,
+      }),
+    });
+
+    const result = await response.json();
+    if (!result.success) {
+      console.error("[Web3Forms Error]", result);
+      return NextResponse.json(
+        { ok: false, message: "Gửi tin nhắn thất bại, vui lòng thử lại sau." },
+        { status: 500 }
+      );
+    }
 
     const ticket = `CV-${Date.now().toString(36).toUpperCase()}`;
 
     return NextResponse.json({
       ok: true,
       ticket,
-      message: `Cảm ơn ${name}! Tôi đã nhận được tin nhắn của bạn (mã ${ticket}) và sẽ phản hồi trong vòng 24h.`,
+      message: `Cảm ơn ${name}! Tôi đã nhận được tin nhắn của bạn (mã ${ticket}) và sẽ phản hồi sớm nhất có thể.`,
       received: { name, email, messageLength: message.length },
     });
   } catch {
