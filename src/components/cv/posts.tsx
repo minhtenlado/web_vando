@@ -105,7 +105,7 @@ export function Posts() {
 
       {/* Post detail dialog */}
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
-        <DialogContent className="max-w-4xl p-0 overflow-hidden bg-muted/30 border-none shadow-2xl">
+        <DialogContent className="max-w-4xl sm:max-w-3xl md:max-w-4xl lg:max-w-5xl p-0 overflow-hidden bg-muted/30 border-none shadow-2xl">
           <ScrollArea className="max-h-[90vh] w-full">
             <div className="p-4 sm:p-8 md:p-12">
               <div className="mx-auto max-w-3xl bg-background border rounded-lg shadow-sm">
