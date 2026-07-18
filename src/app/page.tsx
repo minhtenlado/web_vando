@@ -10,7 +10,6 @@ import { Skills } from "@/components/cv/skills"
 import { Experience } from "@/components/cv/experience"
 import { Projects } from "@/components/cv/projects"
 import { CodeShowcase } from "@/components/cv/code-showcase"
-import { Testimonials } from "@/components/cv/testimonials"
 import { Posts } from "@/components/cv/posts"
 import { Education } from "@/components/cv/education"
 import { Contact } from "@/components/cv/contact"
@@ -33,7 +32,6 @@ export default function Home() {
             <Experience />
             <Projects />
             <CodeShowcase />
-            <Testimonials />
             <Posts />
             <Education />
             <Contact />
