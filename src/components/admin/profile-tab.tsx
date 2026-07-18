@@ -13,6 +13,8 @@ import type { SiteProfile } from "@/lib/cv/site-data-server";
 
 type StatItem = { value: string; label: { vi: string; en: string } };
 type PrincipleItem = { icon: string; title: { vi: string; en: string }; desc: { vi: string; en: string } };
+type SkillItem = { name: string; level: number };
+type SkillGroupItem = { title: { vi: string; en: string }; icon: string; skills: SkillItem[] };
 
 type ProfileState = {
   name: string;
@@ -28,6 +30,7 @@ type ProfileState = {
   nowText: string;
   principles: PrincipleItem[];
   stats: StatItem[];
+  skillGroups: SkillGroupItem[];
 };
 
 const EMPTY: ProfileState = {
@@ -44,6 +47,7 @@ const EMPTY: ProfileState = {
   nowText: "",
   principles: [],
   stats: [],
+  skillGroups: [],
 };
 
 export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, locale: string }) {
@@ -68,6 +72,7 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
           nowText: initial.nowText ?? "",
           principles: initial.principles ?? [],
           stats: initial.stats ?? [],
+          skillGroups: initial.skillGroups ?? [],
         }
       : EMPTY
   );
@@ -91,6 +96,7 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
         nowText: initial.nowText ?? "",
         principles: initial.principles ?? [],
         stats: initial.stats ?? [],
+        skillGroups: initial.skillGroups ?? [],
       });
     }
     // If not first load, or locale changed, re-fetch profile.
@@ -115,6 +121,7 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
             nowText: p.nowText ?? "",
             principles: p.principles ?? [],
             stats: p.stats ?? [],
+            skillGroups: p.skillGroups ?? [],
           });
           setAvatar(p.avatar ?? "");
         }
@@ -372,6 +379,64 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
               </div>
             ))}
             <Button type="button" variant="outline" size="sm" onClick={() => update("principles", [...form.principles, { icon: "", title: { vi: "", en: "" }, desc: { vi: "", en: "" } }])}>+ Thêm Triết lý</Button>
+          </div>
+
+          <div className="space-y-4 pt-4 border-t">
+            <h3 className="font-semibold text-sm">Các nhóm kỹ năng (Skill Groups)</h3>
+            {form.skillGroups.map((group, gi) => (
+              <div key={gi} className="grid gap-2 p-3 border rounded-md relative bg-muted/20">
+                <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2 text-destructive" onClick={() => {
+                  const newG = [...form.skillGroups];
+                  newG.splice(gi, 1);
+                  update("skillGroups", newG);
+                }}><Trash className="size-4" /></Button>
+                <div className="grid grid-cols-2 gap-2 pr-8">
+                  <Input value={group.title.vi} onChange={(e) => {
+                    const newG = [...form.skillGroups];
+                    newG[gi].title.vi = e.target.value;
+                    update("skillGroups", newG);
+                  }} placeholder="Tên nhóm (VI)" />
+                  <Input value={group.title.en} onChange={(e) => {
+                    const newG = [...form.skillGroups];
+                    newG[gi].title.en = e.target.value;
+                    update("skillGroups", newG);
+                  }} placeholder="Tên nhóm (EN)" />
+                  <Input value={group.icon} onChange={(e) => {
+                    const newG = [...form.skillGroups];
+                    newG[gi].icon = e.target.value;
+                    update("skillGroups", newG);
+                  }} placeholder="Icon (code, cpu, layers, radio, wrench, circuit-board)" className="col-span-2" />
+                </div>
+                <div className="pl-4 border-l-2 mt-2 space-y-2">
+                  <h4 className="text-xs font-semibold text-muted-foreground">Kỹ năng con</h4>
+                  {group.skills.map((skill, si) => (
+                    <div key={si} className="flex gap-2 items-center">
+                      <Input value={skill.name} onChange={(e) => {
+                        const newG = [...form.skillGroups];
+                        newG[gi].skills[si].name = e.target.value;
+                        update("skillGroups", newG);
+                      }} placeholder="Tên kỹ năng (VD: C++)" className="flex-1" />
+                      <Input type="number" min="0" max="100" value={skill.level} onChange={(e) => {
+                        const newG = [...form.skillGroups];
+                        newG[gi].skills[si].level = parseInt(e.target.value) || 0;
+                        update("skillGroups", newG);
+                      }} placeholder="%" className="w-20" />
+                      <Button type="button" variant="outline" size="icon" onClick={() => {
+                        const newG = [...form.skillGroups];
+                        newG[gi].skills.splice(si, 1);
+                        update("skillGroups", newG);
+                      }}><Trash className="size-4 text-destructive" /></Button>
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" size="sm" className="w-full" onClick={() => {
+                    const newG = [...form.skillGroups];
+                    newG[gi].skills.push({ name: "", level: 50 });
+                    update("skillGroups", newG);
+                  }}>+ Thêm kỹ năng con</Button>
+                </div>
+              </div>
+            ))}
+            <Button type="button" variant="outline" size="sm" onClick={() => update("skillGroups", [...form.skillGroups, { title: { vi: "", en: "" }, icon: "", skills: [] }])}>+ Thêm Nhóm Kỹ Năng</Button>
           </div>
 
           <div className="flex justify-end pt-4 border-t">

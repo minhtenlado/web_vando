@@ -9,11 +9,16 @@ import {
   Radio,
   Wrench,
   CircuitBoard,
+  Terminal,
+  Server,
+  Database,
+  Globe,
+  HelpCircle,
   type LucideIcon,
 } from "lucide-react"
 import { SectionHeader } from "./section-header"
 import { Card } from "@/components/ui/card"
-import { skillGroups } from "@/lib/cv/data"
+import { useSiteData } from "@/components/cv/site-data-context"
 import { useLocale } from "@/components/cv/locale-context"
 
 const iconMap: Record<string, LucideIcon> = {
@@ -23,6 +28,10 @@ const iconMap: Record<string, LucideIcon> = {
   radio: Radio,
   wrench: Wrench,
   "circuit-board": CircuitBoard,
+  terminal: Terminal,
+  server: Server,
+  database: Database,
+  globe: Globe,
 }
 
 function SkillBar({
@@ -54,7 +63,11 @@ function SkillBar({
 }
 
 export function Skills() {
+  const { profile } = useSiteData()
   const { t, locale } = useLocale()
+  
+  const skillGroups = profile.skillGroups || []
+
   return (
     <section id="skills" className="relative py-20 sm:py-28 bg-muted/20">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
@@ -69,10 +82,10 @@ export function Skills() {
 
         <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {skillGroups.map((group, gi) => {
-            const Icon = iconMap[group.icon] ?? Code2
+            const Icon = iconMap[group.icon] ?? HelpCircle
             return (
               <motion.div
-                key={group.title}
+                key={gi}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
@@ -91,9 +104,9 @@ export function Skills() {
                     </div>
                   </div>
                   <div className="flex flex-col gap-3.5">
-                    {group.skills.map((s, si) => (
+                    {group.skills.map((s: any, si: number) => (
                       <SkillBar
-                        key={s.name}
+                        key={si}
                         name={s.name}
                         level={s.level}
                         delay={si * 0.06}

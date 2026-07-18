@@ -30,6 +30,7 @@ model Profile {
   principles String  @default("[]") // JSON string of { icon, title, desc }
   stats      String  @default("[]") // JSON string of { value, label }
   nowText    String  @default("")
+  skillGroups String @default("[]") // JSON string of { title, icon, skills }
   updatedAt DateTime @updatedAt
 }
 
