@@ -83,7 +83,8 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         linkedin: pRow.linkedin,
         summary: pRow.summary,
         avatar: pRow.avatar,
-      }
+        available: true,
+      } as SiteProfile
     }
 
     if (pRows.length) {
