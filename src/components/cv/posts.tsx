@@ -12,8 +12,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSiteData } from "@/components/cv/site-data-context"
 import type { SitePost } from "@/lib/cv/site-data-server"
 import { useLocale } from "@/components/cv/locale-context"
@@ -105,26 +105,44 @@ export function Posts() {
 
       {/* Post detail dialog */}
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <div className="flex items-center gap-2 mb-1">
-              <Badge variant="outline" className="gap-1 font-mono text-[10px]">
-                <Clock className="h-3 w-3" /> {active && formatDate(active.createdAt, locale)}
-              </Badge>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden bg-muted/30 border-none shadow-2xl">
+          <ScrollArea className="max-h-[90vh] w-full">
+            <div className="p-4 sm:p-8 md:p-12">
+              <div className="mx-auto max-w-3xl bg-background border rounded-lg shadow-sm">
+                <article className="p-6 sm:p-10 md:p-14">
+                  {/* Document Header */}
+                  <header className="mb-10 text-center border-b pb-8">
+                    <Badge variant="outline" className="gap-1 mb-6 font-mono text-[10px] mx-auto bg-muted/50">
+                      <Clock className="h-3 w-3" /> {active && formatDate(active.createdAt, locale)}
+                    </Badge>
+                    <DialogTitle className="text-3xl sm:text-4xl font-bold leading-tight tracking-tight mb-4 font-serif">
+                      {active?.title}
+                    </DialogTitle>
+                    {active?.excerpt && (
+                      <p className="text-muted-foreground text-base sm:text-lg italic max-w-2xl mx-auto">
+                        {active.excerpt}
+                      </p>
+                    )}
+                  </header>
+
+                  {/* Document Content */}
+                  <div className="prose prose-slate dark:prose-invert prose-base sm:prose-lg max-w-none 
+                    prose-headings:font-serif prose-headings:font-semibold 
+                    prose-p:leading-relaxed prose-p:text-foreground/90
+                    prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+                    prose-img:rounded-xl prose-img:shadow-md prose-img:mx-auto
+                    [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-xl [&_iframe]:shadow-md">
+                    {active && (
+                      <div 
+                        className="ql-editor-display"
+                        dangerouslySetInnerHTML={{ __html: (active.content || "").replace(/&nbsp;/g, ' ') }}
+                      />
+                    )}
+                  </div>
+                </article>
+              </div>
             </div>
-            <DialogTitle className="text-2xl">{active?.title}</DialogTitle>
-            <DialogDescription className="text-base">
-              {active?.excerpt}
-            </DialogDescription>
-          </DialogHeader>
-          <article className="prose prose-sm dark:prose-invert max-w-none mt-2">
-            {active && (
-              <div 
-                className="ql-editor-display text-foreground/90 my-2.5 text-sm"
-                dangerouslySetInnerHTML={{ __html: (active.content || "").replace(/&nbsp;/g, ' ') }}
-              />
-            )}
-          </article>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </section>

@@ -28,7 +28,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
         [{ align: [] }],
         [{ list: "ordered" }, { list: "bullet" }],
         [{ color: [] }, { background: [] }],
-        ["link", "image"],
+        ["link", "image", "video"],
         ["clean"],
       ],
     }),
@@ -50,6 +50,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
     "background",
     "link",
     "image",
+    "video",
   ];
 
   return (
