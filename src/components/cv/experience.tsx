@@ -8,13 +8,13 @@ import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { useSiteData } from "@/components/cv/site-data-context"
 import { useLocale } from "@/components/cv/locale-context"
-import { ExternalLink, X } from "lucide-react"
+import { ExternalLink, X, ChevronLeft } from "lucide-react"
 import { AnimatePresence } from "framer-motion"
 
 export function Experience() {
   const { experiences } = useSiteData()
   const { t } = useLocale()
-  const [activeImage, setActiveImage] = React.useState<string | null>(null)
+  const [lightbox, setLightbox] = React.useState<{ list: string[], index: number } | null>(null)
   return (
     <section id="experience" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
@@ -151,7 +151,7 @@ export function Experience() {
                             {exp.images.map((img, imgIdx) => (
                               <button
                                 key={imgIdx}
-                                onClick={() => setActiveImage(img)}
+                                onClick={() => setLightbox({ list: exp.images!, index: imgIdx })}
                                 className="relative h-16 w-24 shrink-0 rounded-md overflow-hidden border border-border/50 hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
                               >
                                 <img src={img} alt={`Gallery ${imgIdx}`} className="absolute inset-0 h-full w-full object-cover" />
@@ -171,12 +171,12 @@ export function Experience() {
       
       {/* Image lightbox */}
       <AnimatePresence>
-        {activeImage && (
+        {lightbox && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setActiveImage(null)}
+            onClick={() => setLightbox(null)}
             className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm grid place-items-center p-4 sm:p-8"
           >
             <motion.div
@@ -187,18 +187,42 @@ export function Experience() {
               className="relative max-w-6xl max-h-full w-full h-full flex flex-col items-center justify-center"
             >
               <button
-                onClick={() => setActiveImage(null)}
+                onClick={() => setLightbox(null)}
                 aria-label={t("Đóng ảnh", "Close image")}
-                className="absolute top-0 right-0 z-10 grid place-items-center h-10 w-10 rounded-full bg-background/50 backdrop-blur border border-border hover:bg-muted transition-colors"
+                className="absolute top-0 right-0 z-20 grid place-items-center h-10 w-10 rounded-full bg-background/50 backdrop-blur border border-border hover:bg-muted transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
-              <div className="relative w-full h-full p-4 flex items-center justify-center">
+              
+              <div className="relative w-full h-full p-4 flex items-center justify-center group/lb">
                 <img
-                  src={activeImage}
+                  key={lightbox.index}
+                  src={lightbox.list[lightbox.index]}
                   alt="Gallery full size"
-                  className="max-w-full max-h-full object-contain rounded-md shadow-2xl border border-border/20"
+                  className="max-w-full max-h-full object-contain rounded-md shadow-2xl border border-border/20 animate-in fade-in zoom-in-95 duration-200"
                 />
+                
+                {lightbox.index > 0 && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setLightbox({ ...lightbox, index: lightbox.index - 1 }) }}
+                    className="absolute left-0 sm:left-4 z-20 grid place-items-center h-12 w-12 rounded-full bg-background/50 backdrop-blur border border-border hover:bg-muted transition-all opacity-0 group-hover/lb:opacity-100"
+                  >
+                    <ChevronLeft className="h-6 w-6" />
+                  </button>
+                )}
+                
+                {lightbox.index < lightbox.list.length - 1 && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setLightbox({ ...lightbox, index: lightbox.index + 1 }) }}
+                    className="absolute right-0 sm:right-4 z-20 grid place-items-center h-12 w-12 rounded-full bg-background/50 backdrop-blur border border-border hover:bg-muted transition-all opacity-0 group-hover/lb:opacity-100"
+                  >
+                    <ChevronRight className="h-6 w-6" />
+                  </button>
+                )}
+                
+                <div className="absolute bottom-0 inset-x-0 p-4 text-center text-sm font-mono text-muted-foreground opacity-0 group-hover/lb:opacity-100 transition-opacity">
+                  {lightbox.index + 1} / {lightbox.list.length}
+                </div>
               </div>
             </motion.div>
           </motion.div>
