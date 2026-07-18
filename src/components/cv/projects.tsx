@@ -109,9 +109,10 @@ export function Projects() {
                         {p.title}
                       </h3>
                     </div>
-                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-3">
-                      {p.description}
-                    </p>
+                    <div 
+                      className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-3 ql-editor-display prose prose-sm dark:prose-invert max-w-none"
+                      dangerouslySetInnerHTML={{ __html: p.description }}
+                    />
                     <div className="mt-4 pt-4 border-t border-border/50">
                       <Button 
                         className="w-full justify-between hover:bg-primary hover:text-primary-foreground transition-colors" 
@@ -195,9 +196,10 @@ export function Projects() {
                       <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
                         Tổng quan
                       </h3>
-                      <p className="text-base text-foreground/90 leading-relaxed whitespace-pre-wrap">
-                        {activeProject.description}
-                      </p>
+                      <div 
+                        className="text-base text-foreground/90 leading-relaxed whitespace-pre-wrap ql-editor-display prose prose-sm dark:prose-invert max-w-none"
+                        dangerouslySetInnerHTML={{ __html: activeProject.description }}
+                      />
                     </div>
 
                     {/* Features */}

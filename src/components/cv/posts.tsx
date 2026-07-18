@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import ReactMarkdown from "react-markdown"
 import { FileText, Clock, ArrowRight, X, Calendar } from "lucide-react"
 import { SectionHeader } from "./section-header"
 import { Card } from "@/components/ui/card"
@@ -120,48 +119,10 @@ export function Posts() {
           </DialogHeader>
           <article className="prose prose-sm dark:prose-invert max-w-none mt-2">
             {active && (
-              <ReactMarkdown
-                components={{
-                  h1: ({ children }) => (
-                    <h1 className="text-xl font-bold mt-5 mb-2">{children}</h1>
-                  ),
-                  h2: ({ children }) => (
-                    <h2 className="text-lg font-bold mt-5 mb-2 text-primary">{children}</h2>
-                  ),
-                  h3: ({ children }) => (
-                    <h3 className="text-base font-semibold mt-4 mb-1.5">{children}</h3>
-                  ),
-                  p: ({ children }) => (
-                    <p className="text-sm leading-relaxed my-2.5 text-foreground/90">{children}</p>
-                  ),
-                  ul: ({ children }) => (
-                    <ul className="list-disc pl-5 my-2.5 space-y-1 text-sm">{children}</ul>
-                  ),
-                  ol: ({ children }) => (
-                    <ol className="list-decimal pl-5 my-2.5 space-y-1 text-sm">{children}</ol>
-                  ),
-                  code: ({ children, className }) => {
-                    const isBlock = className?.includes("language-")
-                    if (isBlock) {
-                      return (
-                        <pre className="bg-muted rounded-md p-3 my-3 overflow-x-auto">
-                          <code className="font-mono text-xs text-foreground">{children}</code>
-                        </pre>
-                      )
-                    }
-                    return (
-                      <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{children}</code>
-                    )
-                  },
-                  a: ({ children, href }) => (
-                    <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary underline">
-                      {children}
-                    </a>
-                  ),
-                }}
-              >
-                {active.content}
-              </ReactMarkdown>
+              <div 
+                className="ql-editor-display text-foreground/90 my-2.5 text-sm"
+                dangerouslySetInnerHTML={{ __html: active.content }}
+              />
             )}
           </article>
         </DialogContent>

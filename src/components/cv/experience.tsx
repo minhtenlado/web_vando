@@ -114,9 +114,10 @@ export function Experience() {
                         </span>
                       </div>
 
-                      <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-                        {exp.description}
-                      </p>
+                      <div 
+                        className="mt-3 text-sm text-muted-foreground leading-relaxed ql-editor-display prose prose-sm dark:prose-invert max-w-none"
+                        dangerouslySetInnerHTML={{ __html: exp.description }}
+                      />
 
                       <ul
                         className={

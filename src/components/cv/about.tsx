@@ -54,7 +54,12 @@ export function About() {
                 <pre className="font-mono text-sm leading-relaxed whitespace-pre-wrap text-foreground/90">
 <span className="text-primary">{"#"}</span> {t("Sơ lược về tôi", "A bit about me")}{"\n"}
 <span className="text-muted-foreground">{"$"}</span> cat profile.md{"\n\n"}
-{profile.summary}{"\n\n"}
+                </pre>
+                <div 
+                  className="text-sm leading-relaxed text-foreground/90 my-4 prose prose-sm dark:prose-invert max-w-none ql-editor-display"
+                  dangerouslySetInnerHTML={{ __html: profile.summary }} 
+                />
+                <pre className="font-mono text-sm leading-relaxed whitespace-pre-wrap text-foreground/90">
 <span className="text-primary">{"#"}</span> {t("Triết lý làm việc", "Working principles")}{"\n"}
 <span className="text-muted-foreground">{"$"}</span> ./run --principles
                 </pre>
@@ -111,9 +116,10 @@ export function About() {
             {profile.nowText && (
               <div className="col-span-2 rounded-xl border border-border/60 bg-primary/5 p-5">
                 <p className="font-mono text-xs text-primary mb-2">{">_ now"}</p>
-                <p className="text-sm leading-relaxed">
-                  {profile.nowText}
-                </p>
+                <div 
+                  className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none ql-editor-display" 
+                  dangerouslySetInnerHTML={{ __html: profile.nowText }} 
+                />
               </div>
             )}
           </motion.div>

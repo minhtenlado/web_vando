@@ -218,6 +218,27 @@
   animation: pulse-ring 2s infinite;
 }
 
+/* Quill Editor Display Classes */
+.ql-editor-display .ql-align-center {
+  text-align: center;
+}
+.ql-editor-display .ql-align-right {
+  text-align: right;
+}
+.ql-editor-display .ql-align-justify {
+  text-align: justify;
+}
+.ql-editor-display .ql-size-small {
+  font-size: 0.75em;
+}
+.ql-editor-display .ql-size-large {
+  font-size: 1.5em;
+}
+.ql-editor-display .ql-size-huge {
+  font-size: 2.5em;
+}
+
+
 /* ===== Print styles (Save as PDF) ===== */
 @media print {
   /* Force light theme colors for print */
