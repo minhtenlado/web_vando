@@ -31,12 +31,12 @@ export function Navbar() {
 
   React.useEffect(() => {
     const sections = navLinks
-      .map((l) => document.querySelector(l.href))
+      .map((l) => document.querySelector(l.href.replace("/", "")))
       .filter(Boolean) as Element[]
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) setActive(`#${entry.target.id}`)
+          if (entry.isIntersecting) setActive(`/#${entry.target.id}`)
         })
       },
       { rootMargin: "-45% 0px -50% 0px", threshold: 0 }

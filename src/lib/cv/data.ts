@@ -366,13 +366,13 @@ export const testimonials: Testimonial[] = [
 ]
 
 export const navLinks = [
-  { href: "#about", vi: "Giới thiệu", en: "About" },
-  { href: "#skills", vi: "Kỹ năng", en: "Skills" },
-  { href: "#experience", vi: "Kinh nghiệm", en: "Experience" },
-  { href: "#projects", vi: "Dự án", en: "Projects" },
-  { href: "#posts", vi: "Bài viết", en: "Posts" },
-  { href: "#education", vi: "Học vấn", en: "Education" },
-  { href: "#contact", vi: "Liên hệ", en: "Contact" },
+  { href: "/#about", vi: "Giới thiệu", en: "About" },
+  { href: "/#skills", vi: "Kỹ năng", en: "Skills" },
+  { href: "/#experience", vi: "Kinh nghiệm", en: "Experience" },
+  { href: "/#projects", vi: "Dự án", en: "Projects" },
+  { href: "/#posts", vi: "Bài viết", en: "Posts" },
+  { href: "/#education", vi: "Học vấn", en: "Education" },
+  { href: "/#contact", vi: "Liên hệ", en: "Contact" },
 ]
 
 export type NavLink = (typeof navLinks)[number]
