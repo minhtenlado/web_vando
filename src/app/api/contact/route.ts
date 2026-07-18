@@ -29,9 +29,9 @@ export async function POST(req: NextRequest) {
     }
 
     const accessKey = process.env.WEB3FORMS_ACCESS_KEY;
-    if (!accessKey) {
+    if (!accessKey || accessKey.trim() === "") {
       return NextResponse.json(
-        { ok: false, message: `Hệ thống chưa được cấu hình Access Key gửi mail. Debug: Type is ${typeof accessKey}, keys: ${Object.keys(process.env).filter(k => k.includes('WEB3')).join(',')}` },
+        { ok: false, message: `Hệ thống chưa được cấu hình Access Key gửi mail. Debug: Type is ${typeof accessKey}, length: ${accessKey?.length}, val: '${accessKey}'` },
         { status: 500 }
       );
     }
