@@ -73,7 +73,11 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
 
     let pRow = pRowInitial;
     if (!pRow) {
-      pRow = await db.profile.findUnique({ where: { id: "profile" } });
+      // Fallback to profile-vi, then profile (legacy)
+      pRow = await db.profile.findUnique({ where: { id: "profile-vi" } });
+      if (!pRow) {
+        pRow = await db.profile.findUnique({ where: { id: "profile" } });
+      }
     }
 
     if (pRow) {
@@ -97,8 +101,13 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
       } as SiteProfile
     }
 
-    if (pRows.length) {
-      projects = pRows.map((p) => ({
+    let finalProjects = pRows;
+    if (loc !== "vi" && finalProjects.length === 0) {
+      finalProjects = await db.project.findMany({ where: { locale: "vi" }, orderBy: { order: "asc" } });
+    }
+
+    if (finalProjects.length) {
+      projects = finalProjects.map((p) => ({
         id: p.id,
         title: p.title,
         category: p.category,
@@ -113,8 +122,13 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
       }))
     }
 
-    if (eRows.length) {
-      experiences = eRows.map((e) => ({
+    let finalExperiences = eRows;
+    if (loc !== "vi" && finalExperiences.length === 0) {
+      finalExperiences = await db.experience.findMany({ where: { locale: "vi" }, orderBy: { order: "asc" } });
+    }
+
+    if (finalExperiences.length) {
+      experiences = finalExperiences.map((e) => ({
         id: e.id,
         role: e.role,
         company: e.company,
