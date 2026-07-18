@@ -15,7 +15,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
-import { useSiteData, type SitePost } from "@/components/cv/site-data-context"
+import { useSiteData } from "@/components/cv/site-data-context"
+import type { SitePost } from "@/lib/cv/site-data-server"
 import { useLocale } from "@/components/cv/locale-context"
 
 function formatDate(iso: string, locale: string): string {
