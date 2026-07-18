@@ -56,9 +56,7 @@ export function Hero() {
             </div>
 
             <div className="space-y-3">
-              <p className="font-mono text-sm text-primary">
-                <span className="text-muted-foreground">$</span> whoami
-              </p>
+
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05]">
                 {profile.name}
               </h1>

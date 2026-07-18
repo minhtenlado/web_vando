@@ -51,18 +51,16 @@ export function About() {
                 </span>
               </div>
               <CardContent className="p-6">
-                <pre className="font-mono text-sm leading-relaxed whitespace-pre-wrap text-foreground/90">
-<span className="text-primary">{"#"}</span> {t("Sơ lược về tôi", "A bit about me")}{"\n"}
-<span className="text-muted-foreground">{"$"}</span> cat profile.md{"\n\n"}
-                </pre>
+                <h3 className="text-lg font-semibold text-primary mb-2">
+                  {t("Sơ lược về tôi", "A bit about me")}
+                </h3>
                 <div 
                   className="text-sm leading-relaxed text-foreground/90 my-4 prose prose-sm dark:prose-invert max-w-none ql-editor-display"
                   dangerouslySetInnerHTML={{ __html: (profile.summary || "").replace(/&nbsp;/g, ' ') }} 
                 />
-                <pre className="font-mono text-sm leading-relaxed whitespace-pre-wrap text-foreground/90">
-<span className="text-primary">{"#"}</span> {t("Triết lý làm việc", "Working principles")}{"\n"}
-<span className="text-muted-foreground">{"$"}</span> ./run --principles
-                </pre>
+                <h3 className="text-lg font-semibold text-primary mt-8 mb-4">
+                  {t("Triết lý làm việc", "Working principles")}
+                </h3>
 
                 <div className="grid sm:grid-cols-2 gap-3 mt-6">
                   {principles.map((p, idx) => {
@@ -115,7 +113,9 @@ export function About() {
 
             {profile.nowText && (
               <div className="col-span-2 rounded-xl border border-border/60 bg-primary/5 p-5">
-                <p className="font-mono text-xs text-primary mb-2">{">_ now"}</p>
+                <h3 className="text-sm font-bold text-primary mb-2 tracking-wide uppercase">
+                  {t("Hiện tại", "Now")}
+                </h3>
                 <div 
                   className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none ql-editor-display" 
                   dangerouslySetInnerHTML={{ __html: (profile.nowText || "").replace(/&nbsp;/g, ' ') }} 
