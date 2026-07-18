@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "./rich-text-editor";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -276,7 +277,7 @@ export function ProjectsTab({ locale }: { locale: string }) {
               </CardHeader>
               <CardContent className="space-y-2">
                 {p.description && (
-                  <p className="line-clamp-2 text-sm text-muted-foreground">{p.description}</p>
+                  <div className="line-clamp-2 text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: p.description }} />
                 )}
                 {p.tech && p.tech.length > 0 && (
                   <div className="flex flex-wrap gap-1">

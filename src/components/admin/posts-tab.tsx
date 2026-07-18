@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "./rich-text-editor";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -330,18 +331,16 @@ export function PostsTab({ locale }: { locale: string }) {
               />
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="font-mono text-xs">Nội dung (Markdown)</Label>
-              <Textarea
-                value={form.content}
-                onChange={(e) => setForm({ ...form, content: e.target.value })}
-                rows={14}
-                placeholder={"## Mở đầu\n\nNội dung bài viết ở đây. **Bold**, *italic*.\n\n```c\nint main(void) { ... }\n```"}
-                className="font-mono text-xs"
-              />
-              <p className="text-xs text-muted-foreground">
-                Hỗ trợ Markdown cơ bản. Sẽ được render khi hiển thị trên trang web.
-              </p>
+            <div className="space-y-1.5 flex-1 flex flex-col min-h-0">
+              <Label className="font-mono text-xs flex items-center justify-between">
+                <span>Nội dung bài viết *</span>
+              </Label>
+              <div className="flex-1 min-h-[300px]">
+                <RichTextEditor
+                  value={form.content}
+                  onChange={(val) => setForm({ ...form, content: val })}
+                />
+              </div>
             </div>
 
             <div className="flex items-center justify-between rounded-lg border p-3">

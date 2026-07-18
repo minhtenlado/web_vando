@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "./rich-text-editor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
@@ -293,23 +294,27 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
             <Input value={form.linkedin} onChange={(e) => update("linkedin", e.target.value)} placeholder="linkedin.com/in/you" />
           </Field>
 
-          <Field label="Giới thiệu (summary)" icon={<Link2 className="size-3.5" />}>
-            <Textarea
+          <div className="space-y-1 mt-4">
+            <Label className="text-xs uppercase font-semibold text-muted-foreground tracking-wider flex items-center gap-2">
+              <Link2 className="w-4 h-4" /> GIỚI THIỆU (SUMMARY)
+            </Label>
+            <RichTextEditor
               value={form.summary}
-              onChange={(e) => update("summary", e.target.value)}
-              rows={5}
-              placeholder="Mô tả ngắn về kinh nghiệm và định hướng…"
+              onChange={(val) => update("summary", val)}
+              placeholder="Giới thiệu bản thân..."
             />
-          </Field>
+          </div>
 
-          <Field label="Trạng thái hiện tại (>_ now)" icon={<Terminal className="size-3.5" />}>
-            <Textarea
+          <div className="space-y-1 mt-4">
+            <Label className="text-xs uppercase font-semibold text-muted-foreground tracking-wider flex items-center gap-2">
+              <Terminal className="w-4 h-4" /> TRẠNG THÁI HIỆN TẠI (›_ NOW)
+            </Label>
+            <RichTextEditor
               value={form.nowText}
-              onChange={(e) => update("nowText", e.target.value)}
-              rows={3}
-              placeholder="Hiện đang xây dựng nền tảng firmware..."
+              onChange={(val) => update("nowText", val)}
+              placeholder="Bạn đang làm gì hiện tại?"
             />
-          </Field>
+          </div>
 
           <div className="space-y-4 pt-4 border-t">
             <h3 className="font-semibold text-sm">Thống kê (Stats)</h3>

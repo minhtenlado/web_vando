@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "./rich-text-editor";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -269,18 +270,18 @@ export function ExperiencesTab({ locale }: { locale: string }) {
                   </div>
                 </div>
               </CardHeader>
-              {e.description && (
-                <CardContent className="text-sm text-muted-foreground">
-                  <p className="line-clamp-3">{e.description}</p>
-                  {e.stack && e.stack.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-1">
-                      {e.stack.map((s, i) => (
-                        <Badge key={i} variant="outline" className="font-mono text-[10px]">{s}</Badge>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              )}
+              <CardContent className="space-y-1">
+                {e.description && (
+                  <div className="text-sm text-muted-foreground whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: e.description }} />
+                )}
+                {e.stack && e.stack.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-1">
+                    {e.stack.map((s, i) => (
+                      <Badge key={i} variant="outline" className="font-mono text-[10px]">{s}</Badge>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
             </Card>
           ))}
         </div>
@@ -347,12 +348,10 @@ export function ExperiencesTab({ locale }: { locale: string }) {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="font-mono text-xs">Mô tả</Label>
-              <Textarea
+              <Label className="font-mono text-xs">Mô tả tổng quan</Label>
+              <RichTextEditor
                 value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                rows={4}
-                placeholder="Mô tả ngắn về vai trò và trách nhiệm…"
+                onChange={(val) => setForm({ ...form, description: val })}
               />
             </div>
 
