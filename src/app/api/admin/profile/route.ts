@@ -45,6 +45,16 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ ok: false, message: "Không có trường nào để cập nhật." }, { status: 422 });
   }
 
+  // Find existing profile to check if avatar changed
+  let existing = await db.profile.findUnique({ where: { id: profileId } });
+  if (!existing) {
+    existing = await db.profile.findUnique({ where: { id: "profile" } });
+  }
+  if (existing && existing.avatar && data.avatar && existing.avatar !== data.avatar) {
+    const { deleteVercelBlob } = await import("@/lib/cv/blob");
+    await deleteVercelBlob(existing.avatar);
+  }
+
   const updated = await db.profile.upsert({
     where: { id: profileId },
     update: data,

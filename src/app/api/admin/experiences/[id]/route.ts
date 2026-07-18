@@ -50,10 +50,35 @@ export async function PUT(
   if (typeof body.order === "number") data.order = body.order;
 
   try {
+    const existing = await db.experience.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ ok: false, message: "Không tìm thấy kinh nghiệm." }, { status: 404 });
+    }
+
+    const oldImages: string[] = [];
+    try {
+      const existingImages = (existing as any).images;
+      if (existingImages) {
+        const arr = JSON.parse(existingImages);
+        if (Array.isArray(arr)) oldImages.push(...arr);
+      }
+    } catch {}
+
+    const newImages = new Set<string>();
+    if (body.images) {
+      body.images.forEach(img => newImages.add(img));
+    }
+
+    const toDelete = oldImages.filter(img => !newImages.has(img));
+    if (toDelete.length > 0) {
+      const { deleteVercelBlob } = await import("@/lib/cv/blob");
+      await deleteVercelBlob(toDelete);
+    }
+
     const updated = await db.experience.update({ where: { id }, data });
     return NextResponse.json({ ok: true, experience: updated });
   } catch {
-    return NextResponse.json({ ok: false, message: "Không tìm thấy kinh nghiệm." }, { status: 404 });
+    return NextResponse.json({ ok: false, message: "Đã có lỗi xảy ra." }, { status: 500 });
   }
 }
 
@@ -66,9 +91,28 @@ export async function DELETE(
 
   const { id } = await params;
   try {
+    const existing = await db.experience.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ ok: false, message: "Không tìm thấy kinh nghiệm." }, { status: 404 });
+    }
+
+    const toDelete: string[] = [];
+    try {
+      const existingImages = (existing as any).images;
+      if (existingImages) {
+        const arr = JSON.parse(existingImages);
+        if (Array.isArray(arr)) toDelete.push(...arr);
+      }
+    } catch {}
+
+    if (toDelete.length > 0) {
+      const { deleteVercelBlob } = await import("@/lib/cv/blob");
+      await deleteVercelBlob(toDelete);
+    }
+
     await db.experience.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   } catch {
-    return NextResponse.json({ ok: false, message: "Không tìm thấy kinh nghiệm." }, { status: 404 });
+    return NextResponse.json({ ok: false, message: "Đã có lỗi xảy ra." }, { status: 500 });
   }
 }
