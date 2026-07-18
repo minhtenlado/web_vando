@@ -27,6 +27,9 @@ model Profile {
   linkedin  String   @default("linkedin.com/in/minhanh-embedded")
   summary   String   @default("")
   avatar    String   @default("/uploads/avatar.jpg")
+  principles String  @default("[]") // JSON string of { icon, title, desc }
+  stats      String  @default("[]") // JSON string of { value, label }
+  nowText    String  @default("")
   updatedAt DateTime @updatedAt
 }
 

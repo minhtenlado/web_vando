@@ -15,6 +15,9 @@ type ProfileInput = {
   summary?: string;
   avatar?: string;
   locale?: string;
+  principles?: any[];
+  stats?: any[];
+  nowText?: string;
 };
 
 export async function PUT(req: NextRequest) {
@@ -34,11 +37,18 @@ export async function PUT(req: NextRequest) {
   const data: Record<string, string> = {};
   for (const key of [
     "name", "role", "tagline", "location", "email",
-    "phone", "website", "github", "linkedin", "summary", "avatar",
+    "phone", "website", "github", "linkedin", "summary", "avatar", "nowText"
   ] as const) {
     if (typeof body[key] === "string") {
       data[key] = (body[key] as string).slice(0, 2000);
     }
+  }
+
+  if (Array.isArray(body.principles)) {
+    data.principles = JSON.stringify(body.principles);
+  }
+  if (Array.isArray(body.stats)) {
+    data.stats = JSON.stringify(body.stats);
   }
 
   if (Object.keys(data).length === 0) {

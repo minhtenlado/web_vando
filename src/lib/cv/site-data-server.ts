@@ -13,6 +13,9 @@ export type SiteProfile = {
   linkedin: string
   summary: string
   avatar: string
+  principles: any[]
+  stats: any[]
+  nowText: string
 }
 
 export type SiteProject = Project & {
@@ -51,7 +54,8 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
 
   let profile: SiteProfile = {
     name: "", role: "", tagline: "", location: "", email: "",
-    phone: "", website: "", github: "", linkedin: "", summary: "", avatar: ""
+    phone: "", website: "", github: "", linkedin: "", summary: "", avatar: "",
+    principles: [], stats: [], nowText: ""
   }
   let projects: SiteProject[] = []
   let experiences: SiteExperience[] = []
@@ -83,6 +87,9 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         linkedin: pRow.linkedin,
         summary: pRow.summary,
         avatar: pRow.avatar,
+        principles: safeParseJsonObjArr(pRow.principles),
+        stats: safeParseJsonObjArr(pRow.stats),
+        nowText: pRow.nowText,
         available: true,
       } as SiteProfile
     }
@@ -139,6 +146,15 @@ function safeParseArr(s: string): string[] {
   try {
     const v = JSON.parse(s)
     return Array.isArray(v) ? v.map((x) => String(x)) : []
+  } catch {
+    return []
+  }
+}
+
+function safeParseJsonObjArr(s: string): any[] {
+  try {
+    const v = JSON.parse(s)
+    return Array.isArray(v) ? v : []
   } catch {
     return []
   }

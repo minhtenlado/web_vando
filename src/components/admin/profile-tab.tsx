@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, Save, Upload, User, Link2, Mail, Phone, MapPin, Globe, Github, Linkedin } from "lucide-react";
+import { Loader2, Save, Upload, User, Link2, Mail, Phone, MapPin, Globe, Github, Linkedin, Terminal, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import type { SiteProfile } from "@/lib/cv/site-data-server";
+
+type StatItem = { value: string; label: { vi: string; en: string } };
+type PrincipleItem = { icon: string; title: { vi: string; en: string }; desc: { vi: string; en: string } };
 
 type ProfileState = {
   name: string;
@@ -22,6 +25,9 @@ type ProfileState = {
   github: string;
   linkedin: string;
   summary: string;
+  nowText: string;
+  principles: PrincipleItem[];
+  stats: StatItem[];
 };
 
 const EMPTY: ProfileState = {
@@ -35,6 +41,9 @@ const EMPTY: ProfileState = {
   github: "",
   linkedin: "",
   summary: "",
+  nowText: "",
+  principles: [],
+  stats: [],
 };
 
 export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, locale: string }) {
@@ -56,6 +65,9 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
           github: initial.github ?? "",
           linkedin: initial.linkedin ?? "",
           summary: initial.summary ?? "",
+          nowText: initial.nowText ?? "",
+          principles: initial.principles ?? [],
+          stats: initial.stats ?? [],
         }
       : EMPTY
   );
@@ -76,6 +88,9 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
         github: initial.github ?? "",
         linkedin: initial.linkedin ?? "",
         summary: initial.summary ?? "",
+        nowText: initial.nowText ?? "",
+        principles: initial.principles ?? [],
+        stats: initial.stats ?? [],
       });
     }
     // If not first load, or locale changed, re-fetch profile.
@@ -97,6 +112,9 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
             github: p.github ?? "",
             linkedin: p.linkedin ?? "",
             summary: p.summary ?? "",
+            nowText: p.nowText ?? "",
+            principles: p.principles ?? [],
+            stats: p.stats ?? [],
           });
           setAvatar(p.avatar ?? "");
         }
@@ -109,7 +127,7 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
     };
   }, [locale]);
 
-  function update<K extends keyof ProfileState>(key: K, value: string) {
+  function update<K extends keyof ProfileState>(key: K, value: ProfileState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
@@ -277,7 +295,86 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
             />
           </Field>
 
-          <div className="flex justify-end pt-2">
+          <Field label="Trạng thái hiện tại (>_ now)" icon={<Terminal className="size-3.5" />}>
+            <Textarea
+              value={form.nowText}
+              onChange={(e) => update("nowText", e.target.value)}
+              rows={3}
+              placeholder="Hiện đang xây dựng nền tảng firmware..."
+            />
+          </Field>
+
+          <div className="space-y-4 pt-4 border-t">
+            <h3 className="font-semibold text-sm">Thống kê (Stats)</h3>
+            {form.stats.map((stat, i) => (
+              <div key={i} className="flex gap-2 items-start">
+                <Input value={stat.value} onChange={(e) => {
+                  const newStats = [...form.stats];
+                  newStats[i].value = e.target.value;
+                  update("stats", newStats);
+                }} placeholder="6+" className="w-24" />
+                <Input value={stat.label.vi} onChange={(e) => {
+                  const newStats = [...form.stats];
+                  newStats[i].label.vi = e.target.value;
+                  update("stats", newStats);
+                }} placeholder="Label (VI)" />
+                <Input value={stat.label.en} onChange={(e) => {
+                  const newStats = [...form.stats];
+                  newStats[i].label.en = e.target.value;
+                  update("stats", newStats);
+                }} placeholder="Label (EN)" />
+                <Button type="button" variant="outline" size="icon" onClick={() => {
+                  const newStats = [...form.stats];
+                  newStats.splice(i, 1);
+                  update("stats", newStats);
+                }}><Trash className="size-4" /></Button>
+              </div>
+            ))}
+            <Button type="button" variant="outline" size="sm" onClick={() => update("stats", [...form.stats, { value: "", label: { vi: "", en: "" } }])}>+ Thêm</Button>
+          </div>
+
+          <div className="space-y-4 pt-4 border-t">
+            <h3 className="font-semibold text-sm">Triết lý làm việc (Principles)</h3>
+            {form.principles.map((p, i) => (
+              <div key={i} className="grid gap-2 p-3 border rounded-md">
+                <div className="flex gap-2">
+                  <Input value={p.icon} onChange={(e) => {
+                    const newP = [...form.principles];
+                    newP[i].icon = e.target.value;
+                    update("principles", newP);
+                  }} placeholder="Icon (Terminal, Zap, ShieldCheck, Layers)" className="w-1/2" />
+                  <Button type="button" variant="outline" size="icon" onClick={() => {
+                    const newP = [...form.principles];
+                    newP.splice(i, 1);
+                    update("principles", newP);
+                  }}><Trash className="size-4 text-destructive" /></Button>
+                </div>
+                <Input value={p.title.vi} onChange={(e) => {
+                  const newP = [...form.principles];
+                  newP[i].title.vi = e.target.value;
+                  update("principles", newP);
+                }} placeholder="Tiêu đề (VI)" />
+                <Input value={p.title.en} onChange={(e) => {
+                  const newP = [...form.principles];
+                  newP[i].title.en = e.target.value;
+                  update("principles", newP);
+                }} placeholder="Tiêu đề (EN)" />
+                <Textarea value={p.desc.vi} onChange={(e) => {
+                  const newP = [...form.principles];
+                  newP[i].desc.vi = e.target.value;
+                  update("principles", newP);
+                }} placeholder="Mô tả (VI)" rows={2} />
+                <Textarea value={p.desc.en} onChange={(e) => {
+                  const newP = [...form.principles];
+                  newP[i].desc.en = e.target.value;
+                  update("principles", newP);
+                }} placeholder="Mô tả (EN)" rows={2} />
+              </div>
+            ))}
+            <Button type="button" variant="outline" size="sm" onClick={() => update("principles", [...form.principles, { icon: "", title: { vi: "", en: "" }, desc: { vi: "", en: "" } }])}>+ Thêm Triết lý</Button>
+          </div>
+
+          <div className="flex justify-end pt-4 border-t">
             <Button type="submit" disabled={saving}>
               {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
               {saving ? "Đang lưu…" : "Lưu thay đổi"}

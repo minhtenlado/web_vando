@@ -2,51 +2,22 @@
 
 import * as React from "react"
 import { motion } from "framer-motion"
-import { Terminal, Zap, ShieldCheck, Layers } from "lucide-react"
+import { Terminal, Zap, ShieldCheck, Layers, Code, Cpu, Server, Database, Globe, Smartphone, HelpCircle } from "lucide-react"
 import { SectionHeader } from "./section-header"
 import { Card, CardContent } from "@/components/ui/card"
-import { stats } from "@/lib/cv/data"
 import { useSiteData } from "@/components/cv/site-data-context"
 import { useLocale } from "@/components/cv/locale-context"
+
+const iconMap: Record<string, React.ElementType> = {
+  Terminal, Zap, ShieldCheck, Layers, Code, Cpu, Server, Database, Globe, Smartphone
+}
 
 export function About() {
   const { profile } = useSiteData()
   const { t, locale } = useLocale()
 
-  const principles = [
-    {
-      icon: Terminal,
-      title: { vi: "Code Sạch & Dễ Bảo Trì", en: "Clean & Maintainable Code" },
-      desc: { 
-        vi: "Tuân thủ MISRA C và các chuẩn lập trình an toàn. Thiết kế kiến trúc phần mềm modular để dễ dàng tái sử dụng và mở rộng.",
-        en: "Adhere to MISRA C and secure coding standards. Design modular software architecture for easy reuse and scalability."
-      },
-    },
-    {
-      icon: Zap,
-      title: { vi: "Tối Ưu Hiệu Năng", en: "Performance Optimization" },
-      desc: {
-        vi: "Viết firmware chạy mượt mà với tài nguyên RAM/Flash tối thiểu. Sử dụng hiệu quả các chế độ Low Power để kéo dài tuổi thọ pin.",
-        en: "Write firmware that runs smoothly with minimal RAM/Flash footprint. Effectively utilize Low Power modes to extend battery life."
-      },
-    },
-    {
-      icon: ShieldCheck,
-      title: { vi: "An Toàn & Đáng Tin Cậy", en: "Safety & Reliability" },
-      desc: {
-        vi: "Thiết kế hệ thống có khả năng chịu lỗi (fault-tolerant) với Watchdog, brown-out reset và các cơ chế xử lý lỗi chặt chẽ.",
-        en: "Design fault-tolerant systems with Watchdog, brown-out reset, and robust error handling mechanisms."
-      },
-    },
-    {
-      icon: Layers,
-      title: { vi: "Tích Hợp Toàn Diện", en: "Full-Stack Integration" },
-      desc: {
-        vi: "Từ vi điều khiển lên tới Cloud. Đảm bảo dữ liệu từ cảm biến được xử lý và truyền tải chính xác đến server và dashboard.",
-        en: "From microcontrollers to the Cloud. Ensure sensor data is processed and transmitted accurately to servers and dashboards."
-      },
-    },
-  ]
+  const principles = profile.principles || []
+  const stats = profile.stats || []
 
   return (
     <section id="about" className="relative py-20 sm:py-28">
@@ -89,11 +60,11 @@ export function About() {
                 </pre>
 
                 <div className="grid sm:grid-cols-2 gap-3 mt-6">
-                  {principles.map((p) => {
-                    const Icon = p.icon
+                  {principles.map((p, idx) => {
+                    const Icon = iconMap[p.icon] || HelpCircle
                     return (
                       <div
-                        key={p.title.vi}
+                        key={idx}
                         className="rounded-lg border border-border/60 bg-background/40 p-4 hover:border-primary/40 transition-colors"
                       >
                         <Icon className="h-5 w-5 text-primary mb-2" />
@@ -119,7 +90,7 @@ export function About() {
           >
             {stats.map((s, i) => (
               <div
-                key={s.label}
+                key={i}
                 className="relative rounded-xl border border-border/60 bg-card/40 backdrop-blur p-5 overflow-hidden group"
               >
                 <div className="absolute inset-0 bg-dots opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -137,15 +108,14 @@ export function About() {
               </div>
             ))}
 
-            <div className="col-span-2 rounded-xl border border-border/60 bg-primary/5 p-5">
-              <p className="font-mono text-xs text-primary mb-2">{">_ now"}</p>
-              <p className="text-sm leading-relaxed">
-                {t(
-                  "Hiện đang xây dựng nền tảng firmware thế hệ thứ 3 cho dòng smart meter, với mục tiêu đạt chứng nhận DLMS/COSEM trong quý tới.",
-                  "Currently building the 3rd generation firmware platform for smart meters, aiming for DLMS/COSEM certification next quarter."
-                )}
-              </p>
-            </div>
+            {profile.nowText && (
+              <div className="col-span-2 rounded-xl border border-border/60 bg-primary/5 p-5">
+                <p className="font-mono text-xs text-primary mb-2">{">_ now"}</p>
+                <p className="text-sm leading-relaxed">
+                  {profile.nowText}
+                </p>
+              </div>
+            )}
           </motion.div>
         </div>
       </div>
