@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
 import { put } from "@vercel/blob";
 import crypto from "crypto";
 
 const ALLOWED = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
-const MAX_SIZE = 4 * 1024 * 1024; // 4MB
+const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
 export async function POST(req: NextRequest) {
   const guard = await requireAuth();
@@ -31,27 +30,18 @@ export async function POST(req: NextRequest) {
   }
   if (file.size > MAX_SIZE) {
     return NextResponse.json(
-      { ok: false, message: "File quá lớn (tối đa 4MB)." },
+      { ok: false, message: "File quá lớn (tối đa 5MB)." },
       { status: 422 }
     );
   }
 
   const ext = (file.name.split(".").pop() || "png").toLowerCase().slice(0, 5);
-  const name = `avatar-${Date.now()}-${crypto.randomBytes(4).toString("hex")}.${ext}`;
+  const name = `img_${Date.now()}_${crypto.randomBytes(3).toString("hex")}.${ext}`;
 
   const blob = await put(name, file, {
     access: "public",
     addRandomSuffix: false,
   });
 
-  const url = blob.url;
-
-  // Persist to profile so the public site picks it up.
-  await db.profile.upsert({
-    where: { id: "profile" },
-    update: { avatar: url },
-    create: { id: "profile", avatar: url },
-  });
-
-  return NextResponse.json({ ok: true, url });
+  return NextResponse.json({ ok: true, url: blob.url });
 }

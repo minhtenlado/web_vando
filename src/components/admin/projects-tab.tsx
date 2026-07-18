@@ -11,6 +11,8 @@ import {
   Github,
   Folder,
   RefreshCw,
+  Upload,
+  ImageIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -102,6 +104,8 @@ export function ProjectsTab({ locale }: { locale: string }) {
   const [submitting, setSubmitting] = React.useState(false);
   const [deleteId, setDeleteId] = React.useState<string | null>(null);
   const [deleting, setDeleting] = React.useState(false);
+  const [uploadingImage, setUploadingImage] = React.useState(false);
+  const imageInputRef = React.useRef<HTMLInputElement>(null);
 
   async function fetchItems() {
     setLoading(true);
@@ -341,12 +345,73 @@ export function ProjectsTab({ locale }: { locale: string }) {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="font-mono text-xs">URL ảnh</Label>
-              <Input
-                value={form.image}
-                onChange={(e) => setForm({ ...form, image: e.target.value })}
-                placeholder="/project-1.png hoặc https://..."
+              <Label className="font-mono text-xs">Ảnh dự án</Label>
+              {form.image && (
+                <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted/30">
+                  <img src={form.image} alt="Preview" className="h-full w-full object-cover" />
+                </div>
+              )}
+              <input
+                ref={imageInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                className="hidden"
+                disabled={uploadingImage}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  if (!file.type.startsWith("image/")) {
+                    toast({ title: "File không hợp lệ", description: "Vui lòng chọn file ảnh.", variant: "destructive" });
+                    return;
+                  }
+                  if (file.size > 5 * 1024 * 1024) {
+                    toast({ title: "File quá lớn", description: "Tối đa 5MB.", variant: "destructive" });
+                    return;
+                  }
+                  setUploadingImage(true);
+                  try {
+                    const fd = new FormData();
+                    fd.append("file", file);
+                    const res = await fetch("/api/admin/upload-image", { method: "POST", body: fd });
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok || !data.ok) throw new Error(data?.message || "Upload thất bại.");
+                    setForm((f) => ({ ...f, image: data.url }));
+                    toast({ title: "Đã tải ảnh lên", description: "Ảnh đã được lưu thành công." });
+                  } catch (err) {
+                    toast({ title: "Lỗi tải ảnh", description: err instanceof Error ? err.message : "Upload thất bại.", variant: "destructive" });
+                  } finally {
+                    setUploadingImage(false);
+                    if (imageInputRef.current) imageInputRef.current.value = "";
+                  }
+                }}
               />
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => imageInputRef.current?.click()}
+                  disabled={uploadingImage}
+                >
+                  {uploadingImage ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+                  {uploadingImage ? "Đang tải…" : "Tải ảnh lên"}
+                </Button>
+                {form.image && (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setForm((f) => ({ ...f, image: "" }))}>
+                    Xoá ảnh
+                  </Button>
+                )}
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Hoặc dán URL ảnh trực tiếp:</p>
+                <Input
+                  value={form.image}
+                  onChange={(e) => setForm({ ...form, image: e.target.value })}
+                  placeholder="https://... hoặc /project-1.png"
+                  className="text-xs"
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">

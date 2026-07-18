@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from "react"
-import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { Github, ExternalLink, CheckCircle2, FolderGit2, Play, X } from "lucide-react"
 import { SectionHeader } from "./section-header"
@@ -62,13 +61,17 @@ export function Projects() {
                 <Card className="group h-full overflow-hidden border-border/60 bg-card/40 backdrop-blur hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
                   {/* Image / video thumb */}
                   <div className="relative aspect-[16/9] overflow-hidden bg-muted">
-                    <Image
-                      src={p.image}
-                      alt={t(`Ảnh minh họa dự án ${p.title}`, `Project image for ${p.title}`)}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 600px"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                    {p.image ? (
+                      <img
+                        src={p.image}
+                        alt={t(`Ảnh minh họa dự án ${p.title}`, `Project image for ${p.title}`)}
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                        <FolderGit2 className="h-12 w-12" />
+                      </div>
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent" />
                     <div className="absolute top-3 left-3">
                       <Badge className="gap-1 bg-background/80 backdrop-blur text-foreground border-border">
