@@ -58,12 +58,17 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
   let posts: SitePost[] = []
 
   try {
-    const [pRow, pRows, eRows, postRows] = await Promise.all([
+    const [pRowInitial, pRows, eRows, postRows] = await Promise.all([
       db.profile.findUnique({ where: { id: profileId } }),
       db.project.findMany({ where: { locale: loc }, orderBy: { order: "asc" } }),
       db.experience.findMany({ where: { locale: loc }, orderBy: { order: "asc" } }),
       db.post.findMany({ where: { locale: loc }, orderBy: { createdAt: "desc" } }),
     ])
+
+    let pRow = pRowInitial;
+    if (!pRow) {
+      pRow = await db.profile.findUnique({ where: { id: "profile" } });
+    }
 
     if (pRow) {
       profile = {
