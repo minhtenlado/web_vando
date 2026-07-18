@@ -1,3 +1,5 @@
+'use client'
+
 import * as React from "react"
 import { Cpu, Github, Linkedin, Mail, ArrowUp } from "lucide-react"
 import { navLinks } from "@/lib/cv/data"

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { put } from "@vercel/blob";
+import { put, del } from "@vercel/blob";
 import crypto from "crypto";
 
 const ALLOWED = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
@@ -36,6 +36,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const locale = (formData.get("locale") as string) || "vi";
+  const profileId = `profile-${locale}`;
+
   const ext = (file.name.split(".").pop() || "png").toLowerCase().slice(0, 5);
   const name = `avatar-${Date.now()}-${crypto.randomBytes(4).toString("hex")}.${ext}`;
 
@@ -46,11 +49,21 @@ export async function POST(req: NextRequest) {
 
   const url = blob.url;
 
+  // Clean up old avatar blob if it exists in Vercel storage.
+  try {
+    const existing = await db.profile.findUnique({ where: { id: profileId } });
+    if (existing?.avatar && existing.avatar.includes("vercel-storage.com")) {
+      await del(existing.avatar);
+    }
+  } catch {
+    // Non-critical: old blob cleanup failed, continue with upload.
+  }
+
   // Persist to profile so the public site picks it up.
   await db.profile.upsert({
-    where: { id: "profile" },
+    where: { id: profileId },
     update: { avatar: url },
-    create: { id: "profile", avatar: url },
+    create: { id: profileId, avatar: url },
   });
 
   return NextResponse.json({ ok: true, url });

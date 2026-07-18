@@ -68,7 +68,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
       db.profile.findUnique({ where: { id: profileId } }),
       db.project.findMany({ where: { locale: loc }, orderBy: { order: "asc" } }),
       db.experience.findMany({ where: { locale: loc }, orderBy: { order: "asc" } }),
-      db.post.findMany({ where: { locale: loc }, orderBy: { createdAt: "desc" } }),
+      db.post.findMany({ where: { locale: loc, published: true }, orderBy: { createdAt: "desc" } }),
     ])
 
     let pRow = pRowInitial;

@@ -1,20 +1,35 @@
 'use client'
 
 import * as React from "react"
-import { motion } from "framer-motion"
-import { Briefcase, MapPin, Calendar, ChevronRight } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Briefcase, MapPin, Calendar, ChevronRight, ExternalLink, X, ChevronLeft } from "lucide-react"
 import { SectionHeader } from "./section-header"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { useSiteData } from "@/components/cv/site-data-context"
 import { useLocale } from "@/components/cv/locale-context"
-import { ExternalLink, X, ChevronLeft } from "lucide-react"
-import { AnimatePresence } from "framer-motion"
 
 export function Experience() {
   const { experiences } = useSiteData()
   const { t } = useLocale()
   const [lightbox, setLightbox] = React.useState<{ list: string[], index: number } | null>(null)
+
+  // Keyboard navigation for lightbox
+  React.useEffect(() => {
+    if (!lightbox) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightbox(null)
+      if (e.key === 'ArrowLeft' && lightbox.index > 0) {
+        setLightbox({ ...lightbox, index: lightbox.index - 1 })
+      }
+      if (e.key === 'ArrowRight' && lightbox.index < lightbox.list.length - 1) {
+        setLightbox({ ...lightbox, index: lightbox.index + 1 })
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [lightbox])
+
   return (
     <section id="experience" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
@@ -131,13 +146,13 @@ export function Experience() {
                           (isLeft ? "sm:justify-end" : "")
                         }
                       >
-                        {exp.stack.map((t) => (
+                        {exp.stack.map((tech) => (
                           <Badge
-                            key={t}
+                            key={tech}
                             variant="outline"
                             className="font-mono text-[10px] py-0.5"
                           >
-                            {t}
+                            {tech}
                           </Badge>
                         ))}
                       </div>
@@ -145,7 +160,7 @@ export function Experience() {
                       {exp.images && exp.images.length > 0 && (
                         <div className="mt-4">
                           <p className={"text-[11px] uppercase tracking-wider text-muted-foreground font-mono mb-2 " + (isLeft ? "sm:text-right" : "")}>
-                            Minh chứng / Gallery
+                            {t("Minh chứng / Gallery", "Evidence / Gallery")}
                           </p>
                           <div className={"flex gap-2 overflow-x-auto pb-2 scrollbar-none " + (isLeft ? "sm:justify-end" : "")}>
                             {exp.images.map((img, imgIdx) => (

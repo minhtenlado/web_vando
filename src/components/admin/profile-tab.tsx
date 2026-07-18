@@ -316,23 +316,19 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
             {form.stats.map((stat, i) => (
               <div key={i} className="flex gap-2 items-start">
                 <Input value={stat.value} onChange={(e) => {
-                  const newStats = [...form.stats];
-                  newStats[i].value = e.target.value;
+                  const newStats = form.stats.map((s, idx) => idx === i ? { ...s, value: e.target.value } : s);
                   update("stats", newStats);
                 }} placeholder="6+" className="w-24" />
                 <Input value={stat.label.vi} onChange={(e) => {
-                  const newStats = [...form.stats];
-                  newStats[i].label.vi = e.target.value;
+                  const newStats = form.stats.map((s, idx) => idx === i ? { ...s, label: { ...s.label, vi: e.target.value } } : s);
                   update("stats", newStats);
                 }} placeholder="Label (VI)" />
                 <Input value={stat.label.en} onChange={(e) => {
-                  const newStats = [...form.stats];
-                  newStats[i].label.en = e.target.value;
+                  const newStats = form.stats.map((s, idx) => idx === i ? { ...s, label: { ...s.label, en: e.target.value } } : s);
                   update("stats", newStats);
                 }} placeholder="Label (EN)" />
                 <Button type="button" variant="outline" size="icon" onClick={() => {
-                  const newStats = [...form.stats];
-                  newStats.splice(i, 1);
+                  const newStats = form.stats.filter((_, idx) => idx !== i);
                   update("stats", newStats);
                 }}><Trash className="size-4" /></Button>
               </div>
@@ -346,8 +342,7 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
               <div key={i} className="grid gap-2 p-3 border rounded-md">
                 <div className="flex gap-2">
                   <Input value={p.icon} onChange={(e) => {
-                    const newP = [...form.principles];
-                    newP[i].icon = e.target.value;
+                    const newP = form.principles.map((pItem, idx) => idx === i ? { ...pItem, icon: e.target.value } : pItem);
                     update("principles", newP);
                   }} placeholder="Icon (Terminal, Zap, ShieldCheck, Layers)" className="w-1/2" />
                   <Button type="button" variant="outline" size="icon" onClick={() => {
@@ -357,23 +352,19 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
                   }}><Trash className="size-4 text-destructive" /></Button>
                 </div>
                 <Input value={p.title.vi} onChange={(e) => {
-                  const newP = [...form.principles];
-                  newP[i].title.vi = e.target.value;
+                  const newP = form.principles.map((pItem, idx) => idx === i ? { ...pItem, title: { ...pItem.title, vi: e.target.value } } : pItem);
                   update("principles", newP);
                 }} placeholder="Tiêu đề (VI)" />
                 <Input value={p.title.en} onChange={(e) => {
-                  const newP = [...form.principles];
-                  newP[i].title.en = e.target.value;
+                  const newP = form.principles.map((pItem, idx) => idx === i ? { ...pItem, title: { ...pItem.title, en: e.target.value } } : pItem);
                   update("principles", newP);
                 }} placeholder="Tiêu đề (EN)" />
                 <Textarea value={p.desc.vi} onChange={(e) => {
-                  const newP = [...form.principles];
-                  newP[i].desc.vi = e.target.value;
+                  const newP = form.principles.map((pItem, idx) => idx === i ? { ...pItem, desc: { ...pItem.desc, vi: e.target.value } } : pItem);
                   update("principles", newP);
                 }} placeholder="Mô tả (VI)" rows={2} />
                 <Textarea value={p.desc.en} onChange={(e) => {
-                  const newP = [...form.principles];
-                  newP[i].desc.en = e.target.value;
+                  const newP = form.principles.map((pItem, idx) => idx === i ? { ...pItem, desc: { ...pItem.desc, en: e.target.value } } : pItem);
                   update("principles", newP);
                 }} placeholder="Mô tả (EN)" rows={2} />
               </div>
@@ -386,24 +377,20 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
             {form.skillGroups.map((group, gi) => (
               <div key={gi} className="grid gap-2 p-3 border rounded-md relative bg-muted/20">
                 <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2 text-destructive" onClick={() => {
-                  const newG = [...form.skillGroups];
-                  newG.splice(gi, 1);
+                  const newG = form.skillGroups.filter((_, idx) => idx !== gi);
                   update("skillGroups", newG);
                 }}><Trash className="size-4" /></Button>
                 <div className="grid grid-cols-2 gap-2 pr-8">
                   <Input value={group.title.vi} onChange={(e) => {
-                    const newG = [...form.skillGroups];
-                    newG[gi].title.vi = e.target.value;
+                    const newG = form.skillGroups.map((g, idx) => idx === gi ? { ...g, title: { ...g.title, vi: e.target.value } } : g);
                     update("skillGroups", newG);
                   }} placeholder="Tên nhóm (VI)" />
                   <Input value={group.title.en} onChange={(e) => {
-                    const newG = [...form.skillGroups];
-                    newG[gi].title.en = e.target.value;
+                    const newG = form.skillGroups.map((g, idx) => idx === gi ? { ...g, title: { ...g.title, en: e.target.value } } : g);
                     update("skillGroups", newG);
                   }} placeholder="Tên nhóm (EN)" />
                   <Input value={group.icon} onChange={(e) => {
-                    const newG = [...form.skillGroups];
-                    newG[gi].icon = e.target.value;
+                    const newG = form.skillGroups.map((g, idx) => idx === gi ? { ...g, icon: e.target.value } : g);
                     update("skillGroups", newG);
                   }} placeholder="Icon (code, cpu, layers, radio, wrench, circuit-board)" className="col-span-2" />
                 </div>
@@ -412,25 +399,21 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
                   {group.skills.map((skill, si) => (
                     <div key={si} className="flex gap-2 items-center">
                       <Input value={skill.name} onChange={(e) => {
-                        const newG = [...form.skillGroups];
-                        newG[gi].skills[si].name = e.target.value;
+                        const newG = form.skillGroups.map((g, idx) => idx === gi ? { ...g, skills: g.skills.map((s, sidx) => sidx === si ? { ...s, name: e.target.value } : s) } : g);
                         update("skillGroups", newG);
                       }} placeholder="Tên kỹ năng (VD: C++)" className="flex-1" />
                       <Input type="number" min="0" max="100" value={skill.level} onChange={(e) => {
-                        const newG = [...form.skillGroups];
-                        newG[gi].skills[si].level = parseInt(e.target.value) || 0;
+                        const newG = form.skillGroups.map((g, idx) => idx === gi ? { ...g, skills: g.skills.map((s, sidx) => sidx === si ? { ...s, level: parseInt(e.target.value) || 0 } : s) } : g);
                         update("skillGroups", newG);
                       }} placeholder="%" className="w-20" />
                       <Button type="button" variant="outline" size="icon" onClick={() => {
-                        const newG = [...form.skillGroups];
-                        newG[gi].skills.splice(si, 1);
+                        const newG = form.skillGroups.map((g, idx) => idx === gi ? { ...g, skills: g.skills.filter((_, skIdx) => skIdx !== si) } : g);
                         update("skillGroups", newG);
                       }}><Trash className="size-4 text-destructive" /></Button>
                     </div>
                   ))}
                   <Button type="button" variant="outline" size="sm" className="w-full" onClick={() => {
-                    const newG = [...form.skillGroups];
-                    newG[gi].skills.push({ name: "", level: 50 });
+                    const newG = form.skillGroups.map((g, idx) => idx === gi ? { ...g, skills: [...g.skills, { name: "", level: 50 }] } : g);
                     update("skillGroups", newG);
                   }}>+ Thêm kỹ năng con</Button>
                 </div>

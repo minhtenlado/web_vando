@@ -22,8 +22,8 @@ export function Hero() {
   const [roleIdx, setRoleIdx] = React.useState(0)
 
   React.useEffect(() => {
-    const t = setInterval(() => setRoleIdx((i) => (i + 1) % roles.length), 2400)
-    return () => clearInterval(t)
+    const timer = setInterval(() => setRoleIdx((i) => (i + 1) % roles.length), 2400)
+    return () => clearInterval(timer)
   }, [])
 
   return (

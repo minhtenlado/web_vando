@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Github, ExternalLink, CheckCircle2, FolderGit2, Play, X, ChevronLeft, ChevronRight } from "lucide-react"
+import { Github, ExternalLink, CheckCircle2, FolderGit2, X, ChevronLeft, ChevronRight } from "lucide-react"
 import { SectionHeader } from "./section-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { useSiteData } from "@/components/cv/site-data-context"
 import type { SiteProject } from "@/lib/cv/site-data-server"
 import { useLocale } from "@/components/cv/locale-context"
-import { profile } from "@/lib/cv/data"
+
 
 /** Extract a YouTube video id from various URL forms. */
 function youtubeId(url: string): string | null {
@@ -31,12 +31,32 @@ function youtubeId(url: string): string | null {
 }
 
 export function Projects() {
-  const { projects } = useSiteData()
+  const { projects, profile } = useSiteData()
   const { t } = useLocale()
-  const [activeVideo, setActiveVideo] = React.useState<string | null>(null)
   const [lightbox, setLightbox] = React.useState<{ list: string[], index: number } | null>(null)
   const [activeProject, setActiveProject] = React.useState<SiteProject | null>(null)
-  const activeId = activeVideo ? youtubeId(activeVideo) : null
+
+  // Keyboard navigation for lightbox & modal
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (lightbox) setLightbox(null)
+        else if (activeProject) setActiveProject(null)
+      }
+      if (lightbox) {
+        if (e.key === 'ArrowLeft' && lightbox.index > 0) {
+          setLightbox({ ...lightbox, index: lightbox.index - 1 })
+        }
+        if (e.key === 'ArrowRight' && lightbox.index < lightbox.list.length - 1) {
+          setLightbox({ ...lightbox, index: lightbox.index + 1 })
+        }
+      }
+    }
+    if (lightbox || activeProject) {
+      window.addEventListener('keydown', handleKeyDown)
+      return () => window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [lightbox, activeProject])
 
   return (
     <section id="projects" className="relative py-20 sm:py-28 bg-muted/20">
@@ -265,9 +285,9 @@ export function Projects() {
                           Công nghệ sử dụng
                         </h3>
                         <div className="flex flex-wrap gap-2">
-                          {activeProject.tech.map((t, ti) => (
+                          {activeProject.tech.map((item, ti) => (
                             <Badge key={ti} variant="secondary" className="px-2.5 py-1 text-xs">
-                              {t}
+                              {item}
                             </Badge>
                           ))}
                         </div>

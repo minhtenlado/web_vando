@@ -5,14 +5,23 @@ const COOKIE_NAME = "admin_session";
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
 function getSecret(): string {
-  return (
-    process.env.SESSION_SECRET ||
-    "dev-only-insecure-secret-please-set-SESSION_SECRET"
-  );
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) {
+    throw new Error(
+      "[auth] SESSION_SECRET is not set. Please add it to your .env file."
+    );
+  }
+  return secret;
 }
 
 function getPassword(): string {
-  return process.env.ADMIN_PASSWORD || "admin123";
+  const password = process.env.ADMIN_PASSWORD;
+  if (!password) {
+    throw new Error(
+      "[auth] ADMIN_PASSWORD is not set. Please add it to your .env file."
+    );
+  }
+  return password;
 }
 
 /**

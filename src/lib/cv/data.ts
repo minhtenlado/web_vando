@@ -337,14 +337,14 @@ export type Testimonial = {
 export const testimonials: Testimonial[] = [
   {
     quote:
-      "Minh Anh là một trong những kỹ sư firmware xuất sắc nhất tôi từng làm việc. Anh ấy đã đưa dòng smart meter của chúng tôi vào sản xuất đúng tiến độ, với mức tiêu thụ pin thấp hơn spec 35%.",
+      "Văn Đô là một trong những kỹ sư firmware xuất sắc nhất tôi từng làm việc. Anh ấy đã đưa dòng smart meter của chúng tôi vào sản xuất đúng tiến độ, với mức tiêu thụ pin thấp hơn spec 35%.",
     name: "Trần Hoàng Long",
     title: "Engineering Manager",
     company: "SmartIoT Solutions JSC",
   },
   {
     quote:
-      "Khả năng debug ở mức hardware của Minh Anh rất ấn tượng. Khi hệ thống gặp lỗi race condition hiếm gặp, anh ấy tìm ra nguyên nhân chỉ trong vài giờ dùng logic analyzer.",
+      "Khả năng debug ở mức hardware của Văn Đô rất ấn tượng. Khi hệ thống gặp lỗi race condition hiếm gặp, anh ấy tìm ra nguyên nhân chỉ trong vài giờ dùng logic analyzer.",
     name: "Lê Thu Hà",
     title: "Senior Hardware Engineer",
     company: "AutoTech Industry Co.",
@@ -358,7 +358,7 @@ export const testimonials: Testimonial[] = [
   },
   {
     quote:
-      "Minh Anh hiểu sâu về cả firmware và phần cứng. Anh ấy góp ý trực tiếp vào schematic và giúp tối ưu layout cho tín hiệu cao tốc — điều hiếm thấy ở một lập trình viên.",
+      "Văn Đô hiểu sâu về cả firmware và phần cứng. Anh ấy góp ý trực tiếp vào schematic và giúp tối ưu layout cho tín hiệu cao tốc — điều hiếm thấy ở một lập trình viên.",
     name: "Võ Minh Tuấn",
     title: "PCB Design Lead",
     company: "SmartIoT Solutions JSC",
