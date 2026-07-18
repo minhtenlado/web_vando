@@ -162,9 +162,7 @@ export function Projects() {
 
               {/* Scrollable Content */}
               <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar">
-                <div className="grid lg:grid-cols-3 gap-8">
-                  {/* Left Col: Details */}
-                  <div className="lg:col-span-2 space-y-8">
+                <div className="max-w-3xl mx-auto space-y-8">
                     {/* Hero Image */}
                     {activeProject.image && (
                       <div className="relative aspect-video rounded-xl overflow-hidden border border-border/50 shadow-sm">
@@ -237,10 +235,6 @@ export function Projects() {
                         </div>
                       </div>
                     )}
-                  </div>
-
-                  {/* Right Col: Meta & Links */}
-                  <div className="space-y-8">
                     {/* Links */}
                     <div className="p-5 rounded-xl border border-border bg-muted/10 space-y-3">
                       {activeProject.link ? (
@@ -279,7 +273,6 @@ export function Projects() {
                         </div>
                       </div>
                     )}
-                  </div>
                 </div>
               </div>
             </motion.div>
