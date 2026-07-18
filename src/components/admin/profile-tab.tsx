@@ -58,7 +58,8 @@ const EMPTY: ProfileState = {
     { platform: "threads", url: "", enabled: false },
     { platform: "zalo", url: "", enabled: false },
     { platform: "linkedin", url: "", enabled: false },
-    { platform: "github", url: "", enabled: false }
+    { platform: "github", url: "", enabled: false },
+    { platform: "youtube", url: "", enabled: false }
   ],
 };
 

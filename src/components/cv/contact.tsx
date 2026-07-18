@@ -11,6 +11,7 @@ import {
   Globe,
   Facebook,
   Instagram,
+  Youtube,
 } from "lucide-react"
 import { SectionHeader } from "./section-header"
 import { Card } from "@/components/ui/card"
@@ -38,6 +39,8 @@ export function Contact() {
         return <Linkedin className={className} />
       case "github":
         return <Github className={className} />
+      case "youtube":
+        return <Youtube className={className} />
       case "threads":
         return (
           <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
