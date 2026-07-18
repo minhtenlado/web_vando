@@ -16,6 +16,7 @@ export type SiteProfile = {
   principles: any[]
   stats: any[]
   nowText: string
+  available: boolean
 }
 
 export type SiteProject = Project & {
@@ -55,7 +56,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
   let profile: SiteProfile = {
     name: "", role: "", tagline: "", location: "", email: "",
     phone: "", website: "", github: "", linkedin: "", summary: "", avatar: "",
-    principles: [], stats: [], nowText: ""
+    principles: [], stats: [], nowText: "", available: true
   }
   let projects: SiteProject[] = []
   let experiences: SiteExperience[] = []

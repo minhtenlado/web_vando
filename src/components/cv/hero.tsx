@@ -71,7 +71,7 @@ export function Hero() {
             </div>
 
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl">
-              {profile.summary}
+              {profile.tagline}
             </p>
 
             <div className="flex flex-wrap items-center gap-2">
