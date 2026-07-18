@@ -83,6 +83,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml }: PostRea
               prose-img:rounded-xl prose-img:shadow-md prose-img:mx-auto
               [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-xl [&_iframe]:shadow-md
               ql-editor-display"
+            style={{ fontSize: '1em' }}
             dangerouslySetInnerHTML={{ __html: contentHtml }}
           />
         </div>
