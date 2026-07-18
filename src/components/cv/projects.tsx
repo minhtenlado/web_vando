@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useSiteData } from "@/components/cv/site-data-context"
+import type { SiteProject } from "@/lib/cv/site-data-server"
 import { useLocale } from "@/components/cv/locale-context"
 import { profile } from "@/lib/cv/data"
 
@@ -34,6 +35,7 @@ export function Projects() {
   const { t } = useLocale()
   const [activeVideo, setActiveVideo] = React.useState<string | null>(null)
   const [activeImage, setActiveImage] = React.useState<string | null>(null)
+  const [activeProject, setActiveProject] = React.useState<SiteProject | null>(null)
   const activeId = activeVideo ? youtubeId(activeVideo) : null
 
   return (
@@ -74,103 +76,31 @@ export function Projects() {
                       </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent" />
-                    <div className="absolute top-3 left-3">
-                      <Badge className="gap-1 bg-background/80 backdrop-blur text-foreground border-border">
-                        <FolderGit2 className="h-3 w-3" /> {p.category}
-                      </Badge>
-                    </div>
-
-                    {/* Play button if YouTube */}
-                    {ytId && (
-                      <button
-                        onClick={() => setActiveVideo(p.youtubeUrl!)}
-                        aria-label={t(`Xem video demo ${p.title}`, `Watch demo video for ${p.title}`)}
-                        className="absolute inset-0 grid place-items-center group/play"
-                      >
-                        <span className="relative grid place-items-center h-16 w-16 rounded-full bg-background/80 backdrop-blur border border-border shadow-lg transition-transform group-hover/play:scale-110">
-                          <span className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
-                          <Play className="h-7 w-7 text-primary fill-primary translate-x-0.5" />
-                        </span>
-                      </button>
-                    )}
-
                     <div className="absolute bottom-3 right-3 flex gap-2">
-                      {p.repo && (
-                        <a
-                          href={p.repo}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={t(`Xem mã nguồn ${p.title} trên GitHub`, `View source code for ${p.title} on GitHub`)}
-                          className="grid place-items-center h-8 w-8 rounded-md bg-background/80 backdrop-blur border border-border hover:bg-primary hover:text-primary-foreground transition-colors"
-                        >
-                          <Github className="h-4 w-4" />
-                        </a>
-                      )}
-                      {p.link && (
-                        <a
-                          href={p.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={t(`Mở demo dự án ${p.title}`, `Open demo for project ${p.title}`)}
-                          className="grid place-items-center h-8 w-8 rounded-md bg-background/80 backdrop-blur border border-border hover:bg-primary hover:text-primary-foreground transition-colors"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
-                      )}
+                      <Badge variant="secondary" className="bg-background/80 backdrop-blur border-border/50">
+                        {p.category}
+                      </Badge>
                     </div>
                   </div>
 
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-lg font-semibold leading-tight">
+                      <h3 className="text-lg font-semibold leading-tight line-clamp-1">
                         {p.title}
                       </h3>
-                      {ytId && (
-                        <Badge variant="secondary" className="gap-1 shrink-0">
-                          <Play className="h-3 w-3" /> Demo
-                        </Badge>
-                      )}
                     </div>
-                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-3">
                       {p.description}
                     </p>
-
-                    <ul className="mt-4 space-y-1.5">
-                      {p.features.map((f, fi) => (
-                        <li key={fi} className="flex gap-2 text-sm">
-                          <CheckCircle2 className="h-4 w-4 mt-0.5 text-primary shrink-0" />
-                          <span>{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    {p.images && p.images.length > 0 && (
-                      <div className="mt-4">
-                        <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-mono mb-2">Minh chứng / Gallery</p>
-                        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-                          {p.images.map((img, imgIdx) => (
-                            <button
-                              key={imgIdx}
-                              onClick={() => setActiveImage(img)}
-                              className="relative h-16 w-24 shrink-0 rounded-md overflow-hidden border border-border/50 hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
-                            >
-                              <img src={img} alt={`Gallery ${imgIdx}`} className="absolute inset-0 h-full w-full object-cover" />
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="mt-4 flex flex-wrap gap-1.5">
-                      {p.tech.map((t, ti) => (
-                        <Badge
-                          key={ti}
-                          variant="outline"
-                          className="font-mono text-[10px] py-0.5"
-                        >
-                          {t}
-                        </Badge>
-                      ))}
+                    <div className="mt-4 pt-4 border-t border-border/50">
+                      <Button 
+                        className="w-full justify-between hover:bg-primary hover:text-primary-foreground transition-colors" 
+                        variant="secondary" 
+                        onClick={() => setActiveProject(p)}
+                      >
+                        {t("Xem chi tiết", "View Details")}
+                        <ExternalLink className="size-4 ml-2 opacity-50" />
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -192,38 +122,165 @@ export function Projects() {
         </div>
       </div>
 
-      {/* YouTube lightbox */}
+      {/* Project Detail Modal */}
       <AnimatePresence>
-        {activeId && (
+        {activeProject && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setActiveVideo(null)}
-            className="fixed inset-0 z-[100] bg-background/90 backdrop-blur-sm grid place-items-center p-4"
+            onClick={() => setActiveProject(null)}
+            className="fixed inset-0 z-[60] bg-background/95 backdrop-blur-md grid place-items-center p-4 sm:p-6 lg:p-12"
           >
             <motion.div
-              initial={{ scale: 0.92, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.92, opacity: 0 }}
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-4xl"
+              className="relative w-full max-w-5xl h-full max-h-[90vh] bg-card border border-border shadow-2xl rounded-xl overflow-hidden flex flex-col"
             >
-              <button
-                onClick={() => setActiveVideo(null)}
-                aria-label={t("Đóng video", "Close video")}
-                className="absolute -top-12 right-0 grid place-items-center h-9 w-9 rounded-md bg-card border border-border hover:bg-muted transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
-              <div className="relative aspect-video rounded-xl overflow-hidden border border-border shadow-2xl bg-black">
-                <iframe
-                  src={`https://www.youtube.com/embed/${activeId}?autoplay=1&rel=0`}
-                  title="YouTube video demo"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                  className="absolute inset-0 h-full w-full"
-                />
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border/50 bg-muted/20">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge variant="secondary" className="font-mono text-[10px]">
+                      <FolderGit2 className="size-3 mr-1" />
+                      {activeProject.category}
+                    </Badge>
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-bold leading-tight">{activeProject.title}</h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setActiveProject(null)}
+                    className="grid place-items-center h-10 w-10 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="size-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Scrollable Content */}
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar">
+                <div className="grid lg:grid-cols-3 gap-8">
+                  {/* Left Col: Details */}
+                  <div className="lg:col-span-2 space-y-8">
+                    {/* Hero Image */}
+                    {activeProject.image && (
+                      <div className="relative aspect-video rounded-xl overflow-hidden border border-border/50 shadow-sm">
+                        <img src={activeProject.image} alt={activeProject.title} className="absolute inset-0 w-full h-full object-cover" />
+                      </div>
+                    )}
+
+                    {/* Description */}
+                    <div>
+                      <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+                        Tổng quan
+                      </h3>
+                      <p className="text-base text-foreground/90 leading-relaxed whitespace-pre-wrap">
+                        {activeProject.description}
+                      </p>
+                    </div>
+
+                    {/* Features */}
+                    {activeProject.features && activeProject.features.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+                          Tính năng chính
+                        </h3>
+                        <ul className="grid sm:grid-cols-2 gap-3">
+                          {activeProject.features.map((f, fi) => (
+                            <li key={fi} className="flex gap-2 text-sm bg-muted/30 p-3 rounded-lg border border-border/50">
+                              <CheckCircle2 className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+                              <span className="leading-relaxed">{f}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Gallery */}
+                    {activeProject.images && activeProject.images.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+                          Ảnh minh chứng
+                        </h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                          {activeProject.images.map((img, imgIdx) => (
+                            <button
+                              key={imgIdx}
+                              onClick={() => setActiveImage(img)}
+                              className="group relative aspect-video rounded-lg overflow-hidden border border-border/50 hover:border-primary/50 transition-all shadow-sm hover:shadow-md"
+                            >
+                              <img src={img} alt={`Gallery ${imgIdx}`} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Video */}
+                    {activeProject.youtubeUrl && youtubeId(activeProject.youtubeUrl) && (
+                      <div>
+                        <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+                          Video Demo
+                        </h3>
+                        <div className="relative aspect-video rounded-xl overflow-hidden border border-border shadow-sm bg-black">
+                          <iframe
+                            src={`https://www.youtube.com/embed/${youtubeId(activeProject.youtubeUrl)}?rel=0`}
+                            title="YouTube video demo"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="absolute inset-0 h-full w-full"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right Col: Meta & Links */}
+                  <div className="space-y-8">
+                    {/* Links */}
+                    <div className="p-5 rounded-xl border border-border bg-muted/10 space-y-3">
+                      {activeProject.link ? (
+                        <Button asChild className="w-full" size="lg">
+                          <a href={activeProject.link} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="mr-2 size-4" /> Mở dự án trực tiếp
+                          </a>
+                        </Button>
+                      ) : (
+                        <Button className="w-full" size="lg" disabled>
+                          Chưa có link trực tiếp
+                        </Button>
+                      )}
+                      
+                      {activeProject.repo && (
+                        <Button asChild variant="outline" className="w-full" size="lg">
+                          <a href={activeProject.repo} target="_blank" rel="noopener noreferrer">
+                            <Github className="mr-2 size-4" /> Xem mã nguồn (GitHub)
+                          </a>
+                        </Button>
+                      )}
+                    </div>
+
+                    {/* Tech Stack */}
+                    {activeProject.tech && activeProject.tech.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3">
+                          Công nghệ sử dụng
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {activeProject.tech.map((t, ti) => (
+                            <Badge key={ti} variant="secondary" className="px-2.5 py-1 text-xs">
+                              {t}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </motion.div>
           </motion.div>
