@@ -33,7 +33,7 @@ export function Education() {
             <div className="space-y-4">
               {educations.map((edu, i) => (
                 <motion.div
-                  key={edu.degree}
+                  key={i}
                   initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
