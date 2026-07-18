@@ -19,6 +19,7 @@ type ProfileInput = {
   stats?: any[];
   nowText?: string;
   skillGroups?: any[];
+  socials?: any[];
 };
 
 export async function PUT(req: NextRequest) {
@@ -53,6 +54,9 @@ export async function PUT(req: NextRequest) {
   }
   if (Array.isArray(body.skillGroups)) {
     data.skillGroups = JSON.stringify(body.skillGroups);
+  }
+  if (Array.isArray(body.socials)) {
+    data.socials = JSON.stringify(body.socials);
   }
 
   if (Object.keys(data).length === 0) {

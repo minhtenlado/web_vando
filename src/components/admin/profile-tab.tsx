@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RichTextEditor } from "./rich-text-editor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import type { SiteProfile } from "@/lib/cv/site-data-server";
 
@@ -16,6 +17,7 @@ type StatItem = { value: string; label: { vi: string; en: string } };
 type PrincipleItem = { icon: string; title: { vi: string; en: string }; desc: { vi: string; en: string } };
 type SkillItem = { name: string; level: number };
 type SkillGroupItem = { title: { vi: string; en: string }; icon: string; skills: SkillItem[] };
+type SocialItem = { platform: string; url: string; enabled: boolean };
 
 type ProfileState = {
   name: string;
@@ -32,6 +34,7 @@ type ProfileState = {
   principles: PrincipleItem[];
   stats: StatItem[];
   skillGroups: SkillGroupItem[];
+  socials: SocialItem[];
 };
 
 const EMPTY: ProfileState = {
@@ -49,6 +52,14 @@ const EMPTY: ProfileState = {
   principles: [],
   stats: [],
   skillGroups: [],
+  socials: [
+    { platform: "facebook", url: "", enabled: false },
+    { platform: "instagram", url: "", enabled: false },
+    { platform: "threads", url: "", enabled: false },
+    { platform: "zalo", url: "", enabled: false },
+    { platform: "linkedin", url: "", enabled: false },
+    { platform: "github", url: "", enabled: false }
+  ],
 };
 
 export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, locale: string }) {
@@ -74,6 +85,7 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
           principles: initial.principles ?? [],
           stats: initial.stats ?? [],
           skillGroups: initial.skillGroups ?? [],
+          socials: (initial.socials && initial.socials.length > 0) ? initial.socials : EMPTY.socials,
         }
       : EMPTY
   );
@@ -98,6 +110,7 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
         principles: initial.principles ?? [],
         stats: initial.stats ?? [],
         skillGroups: initial.skillGroups ?? [],
+        socials: (initial.socials && initial.socials.length > 0) ? initial.socials : EMPTY.socials,
       });
     }
     // If not first load, or locale changed, re-fetch profile.
@@ -123,6 +136,7 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
             principles: p.principles ?? [],
             stats: p.stats ?? [],
             skillGroups: p.skillGroups ?? [],
+            socials: (p.socials && p.socials.length > 0) ? p.socials : EMPTY.socials,
           });
           setAvatar(p.avatar ?? "");
         }
@@ -425,6 +439,37 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
               </div>
             ))}
             <Button type="button" variant="outline" size="sm" onClick={() => update("skillGroups", [...form.skillGroups, { title: { vi: "", en: "" }, icon: "", skills: [] }])}>+ Thêm Nhóm Kỹ Năng</Button>
+          </div>
+
+          <div className="space-y-4 pt-4 border-t">
+            <h3 className="font-semibold text-sm flex items-center gap-2"><Link2 className="size-4"/> Mạng xã hội (Social Links)</h3>
+            <p className="text-xs text-muted-foreground">Bật tắt và điền link cho các mạng xã hội bạn muốn hiển thị ở phần Liên hệ.</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {form.socials.map((social, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 border rounded-md bg-muted/20">
+                  <Switch
+                    checked={social.enabled}
+                    onCheckedChange={(checked) => {
+                      const newS = form.socials.map((s, idx) => idx === i ? { ...s, enabled: checked } : s);
+                      update("socials", newS);
+                    }}
+                  />
+                  <div className="flex-1 space-y-1.5">
+                    <Label className="text-xs font-semibold capitalize">{social.platform}</Label>
+                    <Input 
+                      value={social.url} 
+                      onChange={(e) => {
+                        const newS = form.socials.map((s, idx) => idx === i ? { ...s, url: e.target.value } : s);
+                        update("socials", newS);
+                      }} 
+                      placeholder={`Link ${social.platform}...`} 
+                      className="h-8 text-xs"
+                      disabled={!social.enabled}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="flex justify-end pt-4 border-t">

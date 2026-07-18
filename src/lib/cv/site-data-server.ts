@@ -17,6 +17,7 @@ export type SiteProfile = {
   stats: any[]
   nowText: string
   skillGroups: any[]
+  socials: any[]
   available: boolean
 }
 
@@ -57,7 +58,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
   let profile: SiteProfile = {
     name: "", role: "", tagline: "", location: "", email: "",
     phone: "", website: "", github: "", linkedin: "", summary: "", avatar: "",
-    principles: [], stats: [], nowText: "", skillGroups: [], available: true
+    principles: [], stats: [], nowText: "", skillGroups: [], socials: [], available: true
   }
   let projects: SiteProject[] = []
   let experiences: SiteExperience[] = []
@@ -97,6 +98,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         stats: safeParseJsonObjArr(pRow.stats),
         nowText: pRow.nowText,
         skillGroups: safeParseJsonObjArr(pRow.skillGroups),
+        socials: safeParseJsonObjArr(pRow.socials),
         available: true,
       } as SiteProfile
     }

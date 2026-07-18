@@ -9,6 +9,8 @@ import {
   Github,
   Linkedin,
   Globe,
+  Facebook,
+  Instagram,
 } from "lucide-react"
 import { SectionHeader } from "./section-header"
 import { Card } from "@/components/ui/card"
@@ -26,10 +28,37 @@ export function Contact() {
     { icon: Globe, label: "Website", value: profile.website, href: `https://${profile.website}` },
   ]
 
-  const socials = [
-    { icon: Github, label: "GitHub", href: `https://${profile.github}` },
-    { icon: Linkedin, label: "LinkedIn", href: `https://${profile.linkedin}` },
-  ]
+  const SocialIcon = ({ platform, className }: { platform: string, className?: string }) => {
+    switch (platform.toLowerCase()) {
+      case "facebook":
+        return <Facebook className={className} />
+      case "instagram":
+        return <Instagram className={className} />
+      case "linkedin":
+        return <Linkedin className={className} />
+      case "github":
+        return <Github className={className} />
+      case "threads":
+        return (
+          <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12a9 9 0 0 0 3 6.83" />
+            <path d="M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+            <path d="M16 12v1.5a2.5 2.5 0 0 1-5 0V12" />
+          </svg>
+        )
+      case "zalo":
+        return (
+          <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+            <text x="12" y="15.5" textAnchor="middle" fontSize="11" fontWeight="bold" stroke="none" fill="currentColor">Z</text>
+          </svg>
+        )
+      default:
+        return <Globe className={className} />
+    }
+  }
+
+  const enabledSocials = profile.socials?.filter((s: any) => s.enabled) || []
 
   return (
     <section id="contact" className="relative py-20 sm:py-28 bg-muted/20">
@@ -105,22 +134,24 @@ export function Contact() {
 
               <Card className="p-6 sm:p-8 border-border/60 bg-card/40 backdrop-blur">
                 <h3 className="text-lg font-bold mb-4">{t("Mạng xã hội", "Socials")}</h3>
-                <div className="flex gap-4">
-                  {socials.map((s) => {
-                    const Icon = s.icon
-                    return (
+                <div className="flex flex-wrap gap-4">
+                  {enabledSocials.map((s: any) => (
                       <a
-                        key={s.label}
-                        href={s.href}
+                        key={s.platform}
+                        href={s.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        aria-label={s.label}
-                        className="flex-1 grid place-items-center h-12 rounded-xl bg-background border border-border hover:border-primary/40 hover:text-primary transition-colors shadow-sm"
+                        aria-label={s.platform}
+                        className="flex-1 min-w-[3rem] grid place-items-center h-12 rounded-xl bg-background border border-border hover:border-primary/40 hover:text-primary transition-colors shadow-sm"
                       >
-                        <Icon className="h-5 w-5" />
+                        <SocialIcon platform={s.platform} className="h-5 w-5" />
                       </a>
-                    )
-                  })}
+                  ))}
+                  {enabledSocials.length === 0 && (
+                    <p className="text-sm text-muted-foreground w-full text-center py-2">
+                      {t("Chưa có mạng xã hội nào được bật.", "No social links enabled yet.")}
+                    </p>
+                  )}
                 </div>
               </Card>
             </div>

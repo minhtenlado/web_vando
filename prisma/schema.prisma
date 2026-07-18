@@ -31,6 +31,7 @@ model Profile {
   stats      String  @default("[]") // JSON string of { value, label }
   nowText    String  @default("")
   skillGroups String @default("[]") // JSON string of { title, icon, skills }
+  socials    String  @default("[]") // JSON string of { platform, url, enabled }
   updatedAt DateTime @updatedAt
 }
 
