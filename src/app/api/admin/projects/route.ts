@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
       locale,
       title: body.title.trim(),
       category: (body.category ?? "").slice(0, 200),
-      description: (body.description ?? "").slice(0, 4000),
+      description: (body.description ?? "").slice(0, 5000000),
       features: JSON.stringify(Array.isArray(body.features) ? body.features : []),
       tech: JSON.stringify(Array.isArray(body.tech) ? body.tech : []),
       image: (body.image ?? "").slice(0, 500),

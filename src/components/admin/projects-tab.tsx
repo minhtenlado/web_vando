@@ -485,11 +485,10 @@ export function ProjectsTab({ locale }: { locale: string }) {
 
             <div className="space-y-1.5">
               <Label className="font-mono text-xs">Mô tả</Label>
-              <Textarea
+              <RichTextEditor
                 value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                rows={4}
-                placeholder="Mô tả ngắn về dự án…"
+                onChange={(val) => setForm({ ...form, description: val })}
+                placeholder="Mô tả chi tiết về dự án..."
               />
             </div>
 

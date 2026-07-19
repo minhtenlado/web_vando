@@ -45,7 +45,7 @@ export async function PUT(
   const data: Record<string, unknown> = {};
   if (typeof body.title === "string") data.title = body.title.trim();
   if (typeof body.category === "string") data.category = body.category.slice(0, 200);
-  if (typeof body.description === "string") data.description = body.description.slice(0, 4000);
+  if (typeof body.description === "string") data.description = body.description.slice(0, 5000000);
   if (Array.isArray(body.features)) data.features = JSON.stringify(body.features);
   if (Array.isArray(body.tech)) data.tech = JSON.stringify(body.tech);
   if (typeof body.image === "string") data.image = body.image.slice(0, 500);
