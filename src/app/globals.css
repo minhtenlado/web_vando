@@ -250,12 +250,7 @@
   max-width: 100%;
   height: auto;
 }
-.ql-editor-display table {
-  display: block;
-  max-width: 100%;
-  overflow-x: auto;
-  white-space: nowrap;
-}
+
 
 /* ===== Print styles (Save as PDF) ===== */
 @media print {

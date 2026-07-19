@@ -122,7 +122,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
               [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-xl [&_iframe]:shadow-md
               ql-editor-display"
             style={{ fontSize: '1em' }}
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(contentHtml, { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(contentHtml.replace(/<table/g, '<div class="w-full overflow-x-auto my-6"><table').replace(/<\/table>/g, '</table></div>'), { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }}
           />
         </div>
       </div>
