@@ -307,7 +307,7 @@ export function PostsTab({ locale }: { locale: string }) {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={(o) => !submitting && setDialogOpen(o)}>
-        <DialogContent className="max-w-[95vw] w-full h-[95vh] flex flex-col overflow-hidden p-0 sm:rounded-xl">
+        <DialogContent className="max-w-[95vw] sm:max-w-[95vw] w-full h-[95vh] flex flex-col overflow-hidden p-0 sm:rounded-xl">
           <div className="flex-1 overflow-y-auto p-6 flex flex-col">
           <DialogHeader>
             <DialogTitle>{editing ? "Sửa bài viết" : "Viết bài mới"}</DialogTitle>
