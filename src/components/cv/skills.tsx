@@ -74,7 +74,7 @@ export function Skills() {
         <SectionHeader
           index="02 / skills"
           title={t("Kỹ năng & Công nghệ", "Skills & Technologies")}
-          subtitle={t(
+          subtitle={profile.skillsSubtitle || t(
             "Từ lập trình bare-metal đến RTOS, từ vi điều khiển 8-bit đến SoC đa lõi — đây là bộ công cụ tôi dùng mỗi ngày.",
             "From bare-metal programming to RTOS, from 8-bit MCUs to multi-core SoCs — this is my daily toolkit."
           )}

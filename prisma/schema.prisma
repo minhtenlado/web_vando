@@ -32,6 +32,9 @@ model Profile {
   nowText    String  @default("")
   skillGroups String @default("[]") // JSON string of { title, icon, skills }
   socials    String  @default("[]") // JSON string of { platform, url, enabled }
+  aboutSubtitle      String @default("")
+  skillsSubtitle     String @default("")
+  experienceSubtitle String @default("")
   updatedAt DateTime @updatedAt
 }
 

@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { LoginForm } from "@/components/admin/login-form";
 import { ProfileTab } from "@/components/admin/profile-tab";
+import { PageConfigTab } from "@/components/admin/page-config-tab";
 import { ProjectsTab } from "@/components/admin/projects-tab";
 import { ExperiencesTab } from "@/components/admin/experiences-tab";
 import { PostsTab } from "@/components/admin/posts-tab";
@@ -67,12 +68,16 @@ function Dashboard({
         <Tabs defaultValue="profile" className="gap-4">
           <TabsList className="h-auto flex-wrap">
             <TabsTrigger value="profile">Hồ sơ</TabsTrigger>
+            <TabsTrigger value="config">Cấu hình trang</TabsTrigger>
             <TabsTrigger value="projects">Dự án</TabsTrigger>
             <TabsTrigger value="experiences">Kinh nghiệm</TabsTrigger>
             <TabsTrigger value="posts">Bài viết</TabsTrigger>
           </TabsList>
           <TabsContent value="profile" className="mt-4">
             <ProfileTab initial={initialProfile} locale={locale} />
+          </TabsContent>
+          <TabsContent value="config" className="mt-4">
+            <PageConfigTab initial={initialProfile} locale={locale} />
           </TabsContent>
           <TabsContent value="projects" className="mt-4">
             <ProjectsTab locale={locale} />

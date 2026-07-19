@@ -20,6 +20,9 @@ type ProfileInput = {
   nowText?: string;
   skillGroups?: any[];
   socials?: any[];
+  aboutSubtitle?: string;
+  skillsSubtitle?: string;
+  experienceSubtitle?: string;
 };
 
 export async function PUT(req: NextRequest) {
@@ -39,7 +42,8 @@ export async function PUT(req: NextRequest) {
   const data: Record<string, string> = {};
   for (const key of [
     "name", "role", "tagline", "location", "email",
-    "phone", "website", "github", "linkedin", "summary", "avatar", "nowText"
+    "phone", "website", "github", "linkedin", "summary", "avatar", "nowText",
+    "aboutSubtitle", "skillsSubtitle", "experienceSubtitle"
   ] as const) {
     if (typeof body[key] === "string") {
       data[key] = (body[key] as string).slice(0, 2000);

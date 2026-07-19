@@ -26,7 +26,7 @@ export function About() {
         <SectionHeader
           index="01 / about"
           title={t("Giới thiệu", "About")}
-          subtitle={t(
+          subtitle={profile.aboutSubtitle || t(
             "Hành trình của một kỹ sư nhúng — từ dòng code đầu tiên trên AVR đến những hệ thống IoT quy mô hàng chục nghìn thiết bị.",
             "The journey of an embedded engineer — from the first line of code on AVR to IoT systems scaling tens of thousands of devices."
           )}
