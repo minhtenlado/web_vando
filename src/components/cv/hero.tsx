@@ -82,9 +82,7 @@ export function Hero() {
                 { icon: "radio", text: "FreeRTOS · Zephyr" },
                 { icon: "", text: "C / C++ / Python" }
               ]).map((badge, idx) => {
-                let IconComponent = null;
-                if (badge.icon === "cpu") IconComponent = Cpu;
-                else if (badge.icon === "radio") IconComponent = Radio;
+                const IconComponent = badge.icon === "cpu" ? Cpu : badge.icon === "radio" ? Radio : null;
 
                 return (
                   <Badge key={idx} variant="secondary" className="gap-1.5 py-1.5">
