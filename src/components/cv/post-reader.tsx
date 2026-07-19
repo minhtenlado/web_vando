@@ -9,9 +9,10 @@ type PostReaderProps = {
   pubDate: string
   readingTime: number
   contentHtml: string
+  children?: React.ReactNode
 }
 
-export function PostReader({ title, pubDate, readingTime, contentHtml }: PostReaderProps) {
+export function PostReader({ title, pubDate, readingTime, contentHtml, children }: PostReaderProps) {
   const [zoom, setZoom] = React.useState(100)
 
   // Minimum and maximum zoom levels
@@ -88,6 +89,12 @@ export function PostReader({ title, pubDate, readingTime, contentHtml }: PostRea
           />
         </div>
       </div>
+
+      {children && (
+        <div className="w-full">
+          {children}
+        </div>
+      )}
     </article>
   )
 }

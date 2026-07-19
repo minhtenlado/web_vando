@@ -23,6 +23,16 @@ export default async function PostPage({ params }: { params: { slug: string } })
     notFound()
   }
 
+  const relatedPosts = await db.post.findMany({
+    where: {
+      published: true,
+      id: { not: post.id },
+      locale: post.locale,
+    },
+    take: 3,
+    orderBy: { createdAt: "desc" }
+  })
+
   // Format dates
   const pubDate = new Date(post.createdAt).toLocaleDateString("vi-VN", {
     year: "numeric",
@@ -66,7 +76,21 @@ export default async function PostPage({ params }: { params: { slug: string } })
             pubDate={pubDate} 
             readingTime={readingTime} 
             contentHtml={post.content} 
-          />
+          >
+            {relatedPosts.length > 0 && (
+              <div className="mt-16 pt-10 border-t border-border">
+                <h3 className="text-xl font-bold font-serif mb-6 text-foreground">Đọc thêm bài viết khác</h3>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {relatedPosts.map(rp => (
+                    <Link key={rp.id} href={`/posts/${rp.slug}`} className="group block bg-card border border-border/50 hover:border-primary/50 p-5 rounded-xl transition-all hover:shadow-md">
+                      <h4 className="font-semibold text-card-foreground group-hover:text-primary line-clamp-2 mb-2 transition-colors leading-snug">{rp.title}</h4>
+                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{rp.excerpt}</p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </PostReader>
           
         </div>
       </main>
