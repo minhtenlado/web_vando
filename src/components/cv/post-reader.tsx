@@ -118,6 +118,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
               prose-img:rounded-xl prose-img:shadow-md prose-img:mx-auto
               prose-pre:bg-zinc-950 prose-pre:text-zinc-50 prose-pre:border prose-pre:border-zinc-800 prose-pre:shadow-sm
               prose-code:text-pink-500 prose-code:bg-pink-500/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none
+              prose-table:w-full prose-td:border prose-td:border-border prose-th:border prose-th:border-border prose-td:p-3 prose-th:p-3 prose-th:bg-muted/50
               [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-xl [&_iframe]:shadow-md
               ql-editor-display"
             style={{ fontSize: '1em' }}

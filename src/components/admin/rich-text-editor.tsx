@@ -1,9 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import "react-quill-new/dist/quill.snow.css";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Table } from "lucide-react";
 
 // Import Quill dynamically to avoid SSR issues
 const ReactQuill = dynamic(() => import("react-quill-new"), {
@@ -19,6 +21,20 @@ interface RichTextEditorProps {
 }
 
 export function RichTextEditor({ value, onChange, placeholder, className }: RichTextEditorProps) {
+  const reactQuillRef = useRef<any>(null);
+
+  const insertTable = () => {
+    if (reactQuillRef.current) {
+      const quill = reactQuillRef.current.getEditor();
+      const tableModule = quill.getModule("table");
+      if (tableModule) {
+        tableModule.insertTable(3, 3);
+      } else {
+        console.error("Table module not found in Quill.");
+      }
+    }
+  };
+
   const modules = useMemo(
     () => ({
       toolbar: [
@@ -32,6 +48,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
         ["link", "image", "video"],
         ["clean"],
       ],
+      table: true,
     }),
     []
   );
@@ -54,11 +71,24 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
     "link",
     "image",
     "video",
+    "table",
   ];
 
   return (
     <div className={`rich-text-editor ${className || ""}`}>
+      <div className="flex justify-end mb-2">
+        <Button 
+          type="button" 
+          variant="outline" 
+          size="sm" 
+          onClick={insertTable}
+          className="text-xs h-7 px-2"
+        >
+          <Table className="h-3.5 w-3.5 mr-1" /> Chèn Bảng 3x3
+        </Button>
+      </div>
       <ReactQuill
+        ref={reactQuillRef}
         theme="snow"
         value={value || ""}
         onChange={onChange}
@@ -99,6 +129,17 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
         .rich-text-editor .ql-container {
           border-bottom-left-radius: 0.5rem;
           border-bottom-right-radius: 0.5rem;
+        }
+        .rich-text-editor table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        .rich-text-editor td, .rich-text-editor th {
+          border: 1px solid #cbd5e1;
+          padding: 8px;
+        }
+        html.dark .rich-text-editor td, html.dark .rich-text-editor th {
+          border-color: #334155;
         }
       `}</style>
     </div>
