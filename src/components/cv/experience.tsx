@@ -163,7 +163,7 @@ export function Experience() {
                       {exp.images && exp.images.length > 0 && (
                         <div className="mt-4">
                           <p className={"text-[11px] uppercase tracking-wider text-muted-foreground font-mono mb-2 " + (isLeft ? "sm:text-right" : "")}>
-                            {t("Minh chứng / Gallery", "Evidence / Gallery")}
+                            {t("Ảnh / Gallery", "Gallery")}
                           </p>
                           <div className={"flex gap-2 overflow-x-auto pb-2 scrollbar-none " + (isLeft ? "sm:justify-end" : "")}>
                             {exp.images.map((img, imgIdx) => (
