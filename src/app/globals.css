@@ -121,7 +121,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground break-words;
+    @apply bg-background text-foreground;
   }
   html {
     scroll-behavior: smooth;
@@ -239,7 +239,6 @@
   font-size: 2.5em;
 }
 .ql-editor-display {
-  word-break: break-word;
   overflow-wrap: break-word;
 }
 .ql-editor-display pre {
