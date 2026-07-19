@@ -27,6 +27,7 @@ type ConfigState = {
   skillsSubtitle: string;
   experienceSubtitle: string;
   animatedRoles: string[];
+  techBadges: { icon: string; text: string }[];
 };
 
 const EMPTY: ConfigState = {
@@ -39,6 +40,7 @@ const EMPTY: ConfigState = {
   skillsSubtitle: "",
   experienceSubtitle: "",
   animatedRoles: [],
+  techBadges: [],
 };
 
 export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | null, locale: string }) {
@@ -57,6 +59,7 @@ export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | nul
           skillsSubtitle: initial.skillsSubtitle ?? "",
           experienceSubtitle: initial.experienceSubtitle ?? "",
           animatedRoles: initial.animatedRoles ?? [],
+          techBadges: initial.techBadges ?? [],
         }
       : EMPTY
   );
@@ -74,6 +77,7 @@ export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | nul
         skillsSubtitle: initial.skillsSubtitle ?? "",
         experienceSubtitle: initial.experienceSubtitle ?? "",
         animatedRoles: initial.animatedRoles ?? [],
+        techBadges: initial.techBadges ?? [],
       });
     }
     let cancelled = false;
@@ -93,6 +97,7 @@ export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | nul
             skillsSubtitle: p.skillsSubtitle ?? "",
             experienceSubtitle: p.experienceSubtitle ?? "",
             animatedRoles: p.animatedRoles ?? [],
+            techBadges: p.techBadges ?? [],
           });
         }
       })
@@ -171,6 +176,28 @@ export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | nul
               </div>
             ))}
             <Button type="button" variant="outline" size="sm" onClick={() => update("animatedRoles", [...form.animatedRoles, ""])}>+ Thêm Chức Danh</Button>
+          </div>
+
+          <div className="space-y-4 border-t pt-4">
+            <h3 className="font-semibold text-sm">Nhãn công nghệ chính (Tech Badges)</h3>
+            <p className="text-xs text-muted-foreground">Các nhãn công nghệ hiển thị dưới dạng tag ở màn hình chính (VD: STM32 · ESP32 · nRF52...). Hỗ trợ nhập tên icon (như cpu, radio, hoặc để trống).</p>
+            {form.techBadges.map((badge, i) => (
+              <div key={i} className="flex gap-2 items-start">
+                <Input value={badge.icon} onChange={(e) => {
+                  const newBadges = form.techBadges.map((b, idx) => idx === i ? { ...b, icon: e.target.value } : b);
+                  update("techBadges", newBadges);
+                }} placeholder="Icon (cpu, radio...)" className="w-40" />
+                <Input value={badge.text} onChange={(e) => {
+                  const newBadges = form.techBadges.map((b, idx) => idx === i ? { ...b, text: e.target.value } : b);
+                  update("techBadges", newBadges);
+                }} placeholder="Nội dung nhãn..." className="flex-1" />
+                <Button type="button" variant="outline" size="icon" onClick={() => {
+                  const newBadges = form.techBadges.filter((_, idx) => idx !== i);
+                  update("techBadges", newBadges);
+                }}><Trash className="size-4" /></Button>
+              </div>
+            ))}
+            <Button type="button" variant="outline" size="sm" onClick={() => update("techBadges", [...form.techBadges, { icon: "", text: "" }])}>+ Thêm Nhãn</Button>
           </div>
 
           <div className="space-y-2 border-t pt-4">

@@ -24,6 +24,7 @@ type ProfileInput = {
   skillsSubtitle?: string;
   experienceSubtitle?: string;
   animatedRoles?: string[];
+  techBadges?: { icon: string; text: string }[];
 };
 
 export async function PUT(req: NextRequest) {
@@ -65,6 +66,9 @@ export async function PUT(req: NextRequest) {
   }
   if (Array.isArray(body.animatedRoles)) {
     data.animatedRoles = JSON.stringify(body.animatedRoles);
+  }
+  if (Array.isArray(body.techBadges)) {
+    data.techBadges = JSON.stringify(body.techBadges);
   }
 
   if (Object.keys(data).length === 0) {

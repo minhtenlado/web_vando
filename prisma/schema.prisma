@@ -36,6 +36,7 @@ model Profile {
   skillsSubtitle     String @default("")
   experienceSubtitle String @default("")
   animatedRoles      String @default("[]") // JSON string[]
+  techBadges         String @default("[]") // JSON string of { icon, text }
   updatedAt DateTime @updatedAt
 }
 

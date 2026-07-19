@@ -77,15 +77,22 @@ export function Hero() {
             </p>
 
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="secondary" className="gap-1.5 py-1.5">
-                <Cpu className="h-3.5 w-3.5 text-primary" /> STM32 · ESP32 · nRF52
-              </Badge>
-              <Badge variant="secondary" className="gap-1.5 py-1.5">
-                <Radio className="h-3.5 w-3.5 text-primary" /> FreeRTOS · Zephyr
-              </Badge>
-              <Badge variant="secondary" className="gap-1.5 py-1.5">
-                C / C++ / Python
-              </Badge>
+              {((profile.techBadges && profile.techBadges.length > 0) ? profile.techBadges : [
+                { icon: "cpu", text: "STM32 · ESP32 · nRF52" },
+                { icon: "radio", text: "FreeRTOS · Zephyr" },
+                { icon: "", text: "C / C++ / Python" }
+              ]).map((badge, idx) => {
+                let IconComponent = null;
+                if (badge.icon === "cpu") IconComponent = Cpu;
+                else if (badge.icon === "radio") IconComponent = Radio;
+
+                return (
+                  <Badge key={idx} variant="secondary" className="gap-1.5 py-1.5">
+                    {IconComponent && <IconComponent className="h-3.5 w-3.5 text-primary" />}
+                    {badge.text}
+                  </Badge>
+                );
+              })}
             </div>
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
