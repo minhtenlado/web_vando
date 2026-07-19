@@ -21,6 +21,37 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
 
   // Handle Ctrl+Scroll
   React.useEffect(() => {
+    // 1. Load highlight.js for code syntax highlighting
+    const link = document.createElement("link")
+    link.rel = "stylesheet"
+    link.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
+    document.head.appendChild(link)
+
+    const highlightBlocks = () => {
+      // @ts-ignore
+      if (window.hljs) {
+        document.querySelectorAll('pre.ql-syntax').forEach((block) => {
+          // @ts-ignore
+          window.hljs.highlightElement(block);
+        });
+      }
+    }
+
+    // @ts-ignore
+    let scriptElement = null;
+
+    // @ts-ignore
+    if (window.hljs) {
+      highlightBlocks();
+    } else {
+      const script = document.createElement("script")
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"
+      script.onload = highlightBlocks
+      document.body.appendChild(script)
+      scriptElement = script;
+    }
+
+    // 2. Zoom handling
     const handleWheel = (e: WheelEvent) => {
       if (e.ctrlKey) {
         e.preventDefault()
@@ -29,10 +60,13 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
       }
     }
 
-    // Must use non-passive event listener to allow e.preventDefault()
     window.addEventListener("wheel", handleWheel, { passive: false })
-    return () => window.removeEventListener("wheel", handleWheel)
-  }, [])
+    return () => {
+      window.removeEventListener("wheel", handleWheel)
+      if (document.head.contains(link)) document.head.removeChild(link)
+      if (scriptElement && document.body.contains(scriptElement)) document.body.removeChild(scriptElement)
+    }
+  }, [contentHtml])
 
   return (
     <article className="flex-1 w-full max-w-7xl mx-auto flex flex-col relative">
@@ -82,6 +116,8 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
               prose-p:leading-relaxed prose-p:text-foreground/90
               prose-a:text-primary hover:prose-a:text-primary/80
               prose-img:rounded-xl prose-img:shadow-md prose-img:mx-auto
+              prose-pre:bg-zinc-950 prose-pre:text-zinc-50 prose-pre:border prose-pre:border-zinc-800 prose-pre:shadow-sm
+              prose-code:text-pink-500 prose-code:bg-pink-500/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none
               [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-xl [&_iframe]:shadow-md
               ql-editor-display"
             style={{ fontSize: '1em' }}
