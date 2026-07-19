@@ -8,10 +8,18 @@ import { Button } from "@/components/ui/button";
 import { Table } from "lucide-react";
 
 // Import Quill dynamically to avoid SSR issues
-const ReactQuill = dynamic(() => import("react-quill-new"), {
-  ssr: false,
-  loading: () => <Skeleton className="h-64 w-full" />,
-});
+const ReactQuill = dynamic(
+  async () => {
+    const { default: RQ } = await import("react-quill-new");
+    return function ForwardedQuill({ forwardedRef, ...props }: any) {
+      return <RQ ref={forwardedRef} {...props} />;
+    };
+  },
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-64 w-full" />,
+  }
+);
 
 interface RichTextEditorProps {
   value: string;
@@ -88,7 +96,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
         </Button>
       </div>
       <ReactQuill
-        ref={reactQuillRef}
+        forwardedRef={reactQuillRef}
         theme="snow"
         value={value || ""}
         onChange={onChange}
