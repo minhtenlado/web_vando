@@ -121,7 +121,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground break-words;
   }
   html {
     scroll-behavior: smooth;
@@ -238,7 +238,25 @@
 .ql-editor-display .ql-size-huge {
   font-size: 2.5em;
 }
-
+.ql-editor-display {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+.ql-editor-display pre {
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+.ql-editor-display img, .ql-editor-display video, .ql-editor-display iframe {
+  max-width: 100%;
+  height: auto;
+}
+.ql-editor-display table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+}
 
 /* ===== Print styles (Save as PDF) ===== */
 @media print {

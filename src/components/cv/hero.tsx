@@ -57,7 +57,7 @@ export function Hero() {
 
             <div className="space-y-3">
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05]">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] break-words">
                 {profile.name}
               </h1>
               <div className="h-9 sm:h-10 flex items-center">
