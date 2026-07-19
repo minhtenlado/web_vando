@@ -223,7 +223,7 @@ export function Projects() {
                     {activeProject.images && activeProject.images.length > 0 && (
                       <div>
                         <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                          Ảnh minh chứng
+                          Ảnh
                         </h3>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                           {activeProject.images.map((img, imgIdx) => (
@@ -244,7 +244,7 @@ export function Projects() {
                     {activeProject.youtubeUrl && youtubeId(activeProject.youtubeUrl) && (
                       <div>
                         <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                          Video Demo
+                          Video
                         </h3>
                         <div className="relative aspect-video rounded-xl overflow-hidden border border-border shadow-sm bg-black">
                           <iframe

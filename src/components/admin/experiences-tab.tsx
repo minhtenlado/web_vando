@@ -380,7 +380,7 @@ export function ExperiencesTab({ locale }: { locale: string }) {
 
             <div className="space-y-1.5 border-t pt-4">
               <Label className="font-mono text-xs flex items-center justify-between">
-                <span>Ảnh minh chứng (Gallery)</span>
+                <span>Ảnh (Gallery)</span>
                 <span className="text-[10px] text-muted-foreground font-normal">{form.images.length} ảnh</span>
               </Label>
               
@@ -430,7 +430,7 @@ export function ExperiencesTab({ locale }: { locale: string }) {
                     
                     if (newUrls.length > 0) {
                       setForm((f) => ({ ...f, images: [...f.images, ...newUrls] }));
-                      toast({ title: "Hoàn tất", description: `Đã tải lên ${newUrls.length} ảnh minh chứng.` });
+                      toast({ title: "Hoàn tất", description: `Đã tải lên ${newUrls.length} ảnh.` });
                     } else {
                       toast({ title: "Lỗi", description: "Không thể tải lên ảnh nào.", variant: "destructive" });
                     }
@@ -446,7 +446,7 @@ export function ExperiencesTab({ locale }: { locale: string }) {
                   className="w-full border-dashed"
                   onClick={() => document.getElementById("exp-gallery-upload")?.click()}
                 >
-                  <Plus className="size-4 mr-1" /> Thêm ảnh minh chứng
+                  <Plus className="size-4 mr-1" /> Thêm ảnh
                 </Button>
               </div>
             </div>
