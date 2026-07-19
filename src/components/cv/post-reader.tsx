@@ -30,7 +30,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
     const highlightBlocks = () => {
       // @ts-ignore
       if (window.hljs) {
-        document.querySelectorAll('pre.ql-syntax').forEach((block) => {
+        document.querySelectorAll('.ql-editor-display pre').forEach((block) => {
           // @ts-ignore
           window.hljs.highlightElement(block);
         });
