@@ -37,8 +37,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
       }
     }
 
-    // @ts-ignore
-    let scriptElement = null;
+    let scriptElement: HTMLScriptElement | null = null;
 
     // @ts-ignore
     if (window.hljs) {
