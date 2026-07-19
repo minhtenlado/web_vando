@@ -24,6 +24,9 @@ type PostInput = {
   published?: boolean;
   locale?: string;
   createdAt?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
 };
 
 function slugify(s: string): string {
@@ -71,6 +74,9 @@ export async function POST(req: NextRequest) {
       excerpt: (body.excerpt ?? "").slice(0, 600),
       content: (body.content ?? "").slice(0, 5000000),
       published: !!body.published,
+      seoTitle: body.seoTitle,
+      seoDescription: body.seoDescription,
+      seoKeywords: body.seoKeywords,
       ...(body.createdAt ? { createdAt: new Date(body.createdAt) } : {}),
     },
   });

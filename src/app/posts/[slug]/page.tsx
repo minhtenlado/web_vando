@@ -12,8 +12,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const post = await db.post.findFirst({ where: { slug, published: true } })
   if (!post) return { title: "Post Not Found" }
   return {
-    title: `${post.title} — Phan Huỳnh Văn Đô`,
-    description: post.excerpt,
+    title: (post.seoTitle || post.title) + " — Phan Huỳnh Văn Đô",
+    description: post.seoDescription || post.excerpt,
+    ...(post.seoKeywords ? { keywords: post.seoKeywords } : {}),
   }
 }
 

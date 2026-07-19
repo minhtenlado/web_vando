@@ -62,6 +62,9 @@ model Post {
   excerpt   String   @default("")
   content   String   @default("") // markdown
   published Boolean  @default(true)
+  seoTitle  String?
+  seoDescription String?
+  seoKeywords String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

@@ -39,6 +39,9 @@ type PostForm = {
   content: string;
   published: boolean;
   createdAt: string;
+  seoTitle: string;
+  seoDescription: string;
+  seoKeywords: string;
 };
 
 function getEmptyForm(): PostForm {
@@ -49,6 +52,9 @@ function getEmptyForm(): PostForm {
     content: "",
     published: false,
     createdAt: new Date().toISOString().slice(0, 10),
+    seoTitle: "",
+    seoDescription: "",
+    seoKeywords: "",
   };
 }
 
@@ -71,6 +77,9 @@ function toForm(p: SitePost): PostForm {
     content: p.content ?? "",
     published: !!p.published,
     createdAt: p.createdAt ? new Date(p.createdAt).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
+    seoTitle: p.seoTitle ?? "",
+    seoDescription: p.seoDescription ?? "",
+    seoKeywords: p.seoKeywords ?? "",
   };
 }
 
@@ -162,6 +171,9 @@ export function PostsTab({ locale }: { locale: string }) {
       published: form.published,
       locale,
       createdAt: form.createdAt ? new Date(form.createdAt).toISOString() : undefined,
+      seoTitle: form.seoTitle.trim(),
+      seoDescription: form.seoDescription.trim(),
+      seoKeywords: form.seoKeywords.trim(),
     };
     try {
       const url = editing ? `/api/admin/posts/${editing.id}` : "/api/admin/posts";
@@ -295,7 +307,8 @@ export function PostsTab({ locale }: { locale: string }) {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={(o) => !submitting && setDialogOpen(o)}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+        <DialogContent className="max-w-[95vw] w-full h-[95vh] flex flex-col overflow-hidden p-0 sm:rounded-xl">
+          <div className="flex-1 overflow-y-auto p-6 flex flex-col">
           <DialogHeader>
             <DialogTitle>{editing ? "Sửa bài viết" : "Viết bài mới"}</DialogTitle>
             <DialogDescription>
@@ -359,6 +372,35 @@ export function PostsTab({ locale }: { locale: string }) {
               </div>
             </div>
 
+            <div className="space-y-4 border rounded-xl p-4 bg-muted/20 mt-4">
+              <h3 className="font-semibold text-sm">Cấu hình SEO</h3>
+              <div className="space-y-1.5">
+                <Label className="font-mono text-xs">Tiêu đề SEO (tùy chọn)</Label>
+                <Input
+                  value={form.seoTitle}
+                  onChange={(e) => setForm({ ...form, seoTitle: e.target.value })}
+                  placeholder="Tiêu đề hiển thị trên Google..."
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="font-mono text-xs">Mô tả SEO (Meta Description)</Label>
+                <Textarea
+                  value={form.seoDescription}
+                  onChange={(e) => setForm({ ...form, seoDescription: e.target.value })}
+                  rows={2}
+                  placeholder="Mô tả ngắn gọn về bài viết để hiển thị trên công cụ tìm kiếm..."
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="font-mono text-xs">Từ khóa SEO (Keywords)</Label>
+                <Input
+                  value={form.seoKeywords}
+                  onChange={(e) => setForm({ ...form, seoKeywords: e.target.value })}
+                  placeholder="c, c++, vi điều khiển, stm32..."
+                />
+              </div>
+            </div>
+
             <div className="flex items-center justify-between rounded-lg border p-3">
               <div className="space-y-0.5">
                 <Label className="text-sm">Đăng ngay</Label>
@@ -382,6 +424,7 @@ export function PostsTab({ locale }: { locale: string }) {
               </Button>
             </DialogFooter>
           </form>
+          </div>
         </DialogContent>
       </Dialog>
 
