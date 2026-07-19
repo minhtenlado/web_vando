@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import DOMPurify from "isomorphic-dompurify";
 import { Loader2, Plus, Pencil, Trash2, Briefcase, Building2, ExternalLink, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -272,7 +273,7 @@ export function ExperiencesTab({ locale }: { locale: string }) {
               </CardHeader>
               <CardContent className="space-y-1">
                 {e.description && (
-                  <div className="text-sm text-muted-foreground whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: e.description }} />
+                  <div className="text-sm text-muted-foreground whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(e.description, { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }} />
                 )}
                 {e.stack && e.stack.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-1">

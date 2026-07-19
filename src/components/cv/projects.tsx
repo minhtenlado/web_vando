@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { useSiteData } from "@/components/cv/site-data-context"
 import type { SiteProject } from "@/lib/cv/site-data-server"
 import { useLocale } from "@/components/cv/locale-context"
+import DOMPurify from "isomorphic-dompurify"
 
 
 /** Extract a YouTube video id from various URL forms. */
@@ -111,7 +112,7 @@ export function Projects() {
                     </div>
                     <div 
                       className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-3 ql-editor-display prose prose-sm dark:prose-invert max-w-none"
-                      dangerouslySetInnerHTML={{ __html: (p.description || "").replace(/&nbsp;/g, ' ') }}
+                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((p.description || "").replace(/&nbsp;/g, ' '), { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }}
                     />
                     <div className="mt-4 pt-4 border-t border-border/50">
                       <Button 
@@ -198,7 +199,7 @@ export function Projects() {
                       </h3>
                       <div 
                         className="text-base text-foreground/90 leading-relaxed whitespace-pre-wrap ql-editor-display prose prose-sm dark:prose-invert max-w-none"
-                        dangerouslySetInnerHTML={{ __html: (activeProject.description || "").replace(/&nbsp;/g, ' ') }}
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((activeProject.description || "").replace(/&nbsp;/g, ' '), { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }}
                       />
                     </div>
 

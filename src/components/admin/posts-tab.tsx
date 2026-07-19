@@ -41,14 +41,16 @@ type PostForm = {
   createdAt: string;
 };
 
-const EMPTY: PostForm = {
-  title: "",
-  slug: "",
-  excerpt: "",
-  content: "",
-  published: false,
-  createdAt: new Date().toISOString().slice(0, 10),
-};
+function getEmptyForm(): PostForm {
+  return {
+    title: "",
+    slug: "",
+    excerpt: "",
+    content: "",
+    published: false,
+    createdAt: new Date().toISOString().slice(0, 10),
+  };
+}
 
 function slugify(s: string): string {
   return s
@@ -90,7 +92,7 @@ export function PostsTab({ locale }: { locale: string }) {
   const [loading, setLoading] = React.useState(true);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<SitePost | null>(null);
-  const [form, setForm] = React.useState<PostForm>(EMPTY);
+  const [form, setForm] = React.useState<PostForm>(getEmptyForm);
   const [submitting, setSubmitting] = React.useState(false);
   const [deleteId, setDeleteId] = React.useState<string | null>(null);
   const [deleting, setDeleting] = React.useState(false);
@@ -120,7 +122,7 @@ export function PostsTab({ locale }: { locale: string }) {
 
   function openCreate() {
     setEditing(null);
-    setForm(EMPTY);
+    setForm(getEmptyForm());
     setSlugTouched(false);
     setDialogOpen(true);
   }

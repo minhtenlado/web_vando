@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import { db } from "@/lib/db"
 import { Metadata } from "next"
-import { ArrowLeft, Clock, CalendarDays } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { TableOfContents } from "@/components/cv/table-of-contents"
 import { PostReader } from "@/components/cv/post-reader"
@@ -9,7 +9,7 @@ import { PostThemeToggle } from "@/components/cv/post-theme-toggle"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  const post = await db.post.findFirst({ where: { slug } })
+  const post = await db.post.findFirst({ where: { slug, published: true } })
   if (!post) return { title: "Post Not Found" }
   return {
     title: `${post.title} — Phan Huỳnh Văn Đô`,
@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const post = await db.post.findFirst({ where: { slug } })
+  const post = await db.post.findFirst({ where: { slug, published: true } })
   
   if (!post) {
     notFound()
@@ -84,10 +84,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                 <h3 className="text-xl font-bold font-serif mb-6 text-foreground">Đọc thêm bài viết khác</h3>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {relatedPosts.map(rp => (
-                    <Link key={rp.id} href={`/posts/${rp.slug}`} className="group block bg-card border border-border/50 hover:border-primary/50 p-5 rounded-xl transition-all hover:shadow-md">
+                    <a key={rp.id} href={`/posts/${rp.slug}`} target="_blank" rel="noopener noreferrer" className="group block bg-card border border-border/50 hover:border-primary/50 p-5 rounded-xl transition-all hover:shadow-md">
                       <h4 className="font-semibold text-card-foreground group-hover:text-primary line-clamp-2 mb-2 transition-colors leading-snug">{rp.title}</h4>
                       <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{rp.excerpt}</p>
-                    </Link>
+                    </a>
                   ))}
                 </div>
               </div>

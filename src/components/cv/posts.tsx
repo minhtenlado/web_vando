@@ -70,7 +70,7 @@ export function Posts() {
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.4, delay: (i % 3) * 0.06 }}
             >
-              <Link href={`/posts/${post.slug}`} target="_blank" className="block h-full text-left">
+              <a href={`/posts/${post.slug}`} target="_blank" rel="noopener noreferrer" className="block h-full text-left">
                 <Card className="group h-full p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 flex flex-col">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="grid place-items-center h-9 w-9 rounded-lg bg-primary/10 text-primary border border-primary/20">
@@ -90,7 +90,7 @@ export function Posts() {
                     {t("Đọc tiếp", "Read more")} <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </Card>
-              </Link>
+              </a>
             </motion.div>
           ))}
         </div>

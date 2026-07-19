@@ -4,9 +4,17 @@ import { db } from "@/lib/db";
 import { getSiteData } from "@/lib/cv/site-data-server";
 
 export async function GET(req: NextRequest) {
+  const guard = await requireAuth();
+  if (guard instanceof Response) return guard;
+
   const locale = req.nextUrl.searchParams.get("locale") ?? "vi";
-  const data = await getSiteData(locale);
-  return NextResponse.json({ ok: true, experiences: data.experiences });
+  try {
+    const data = await getSiteData(locale);
+    return NextResponse.json({ ok: true, experiences: data.experiences });
+  } catch (error) {
+    console.error("[EXPERIENCES_GET]", error);
+    return NextResponse.json({ ok: false, message: "Lỗi máy chủ nội bộ." }, { status: 500 });
+  }
 }
 
 type ExpInput = {
@@ -27,6 +35,7 @@ function normUrl(v: unknown): string | null {
   if (typeof v !== "string") return null;
   const s = v.trim();
   if (!s) return null;
+  if (/^(javascript|data|vbscript):/i.test(s)) return null;
   return s.slice(0, 500);
 }
 
@@ -51,21 +60,25 @@ export async function POST(req: NextRequest) {
   const locale = body.locale === "en" ? "en" : "vi";
   const count = await db.experience.count({ where: { locale } });
   
-  const created = await db.experience.create({
-    data: {
-      locale,
-      role: body.role.trim().slice(0, 300),
-      company: body.company.trim().slice(0, 300),
-      companyUrl: normUrl(body.companyUrl),
-      period: (body.period ?? "").slice(0, 100),
-      location: (body.location ?? "").slice(0, 200),
-      description: (body.description ?? "").slice(0, 4000),
-      highlights: JSON.stringify(Array.isArray(body.highlights) ? body.highlights : []),
-      stack: JSON.stringify(Array.isArray(body.stack) ? body.stack : []),
-      images: JSON.stringify(Array.isArray(body.images) ? body.images : []),
-      order: typeof body.order === "number" ? body.order : count,
-    },
-  });
-
-  return NextResponse.json({ ok: true, experience: created });
+  try {
+    const created = await db.experience.create({
+      data: {
+        locale,
+        role: body.role.trim().slice(0, 300),
+        company: body.company.trim().slice(0, 300),
+        companyUrl: normUrl(body.companyUrl),
+        period: (body.period ?? "").slice(0, 100),
+        location: (body.location ?? "").slice(0, 200),
+        description: (body.description ?? "").slice(0, 4000),
+        highlights: JSON.stringify(Array.isArray(body.highlights) ? body.highlights : []),
+        stack: JSON.stringify(Array.isArray(body.stack) ? body.stack : []),
+        images: JSON.stringify(Array.isArray(body.images) ? body.images : []),
+        order: typeof body.order === "number" ? body.order : count,
+      },
+    });
+    return NextResponse.json({ ok: true, experience: created });
+  } catch (error) {
+    console.error("[EXPERIENCES_POST]", error);
+    return NextResponse.json({ ok: false, message: "Lỗi máy chủ nội bộ." }, { status: 500 });
+  }
 }

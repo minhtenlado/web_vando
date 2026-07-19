@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import DOMPurify from "isomorphic-dompurify";
 import {
   Loader2,
   Plus,
@@ -277,7 +278,7 @@ export function ProjectsTab({ locale }: { locale: string }) {
               </CardHeader>
               <CardContent className="space-y-2">
                 {p.description && (
-                  <div className="line-clamp-2 text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: p.description }} />
+                  <div className="line-clamp-2 text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(p.description, { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }} />
                 )}
                 {p.tech && p.tech.length > 0 && (
                   <div className="flex flex-wrap gap-1">

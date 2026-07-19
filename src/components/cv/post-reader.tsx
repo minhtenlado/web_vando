@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { CalendarDays, Clock, ZoomIn, ZoomOut, RotateCcw } from "lucide-react"
+import DOMPurify from "isomorphic-dompurify"
 import { Button } from "@/components/ui/button"
 
 type PostReaderProps = {
@@ -121,7 +122,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
               [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-xl [&_iframe]:shadow-md
               ql-editor-display"
             style={{ fontSize: '1em' }}
-            dangerouslySetInnerHTML={{ __html: contentHtml }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(contentHtml, { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }}
           />
         </div>
       </div>

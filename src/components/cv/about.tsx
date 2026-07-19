@@ -5,7 +5,8 @@ import { motion } from "framer-motion"
 import { Terminal, Zap, ShieldCheck, Layers, Code, Cpu, Server, Database, Globe, Smartphone, HelpCircle } from "lucide-react"
 import { SectionHeader } from "./section-header"
 import { Card, CardContent } from "@/components/ui/card"
-import { useSiteData } from "@/components/cv/site-data-context"
+import { useSiteData } from "@/lib/cv/site-data-context"
+import DOMPurify from "isomorphic-dompurify"
 import { useLocale } from "@/components/cv/locale-context"
 
 const iconMap: Record<string, React.ElementType> = {
@@ -56,7 +57,7 @@ export function About() {
                 </h3>
                 <div 
                   className="text-sm leading-relaxed text-foreground/90 my-4 prose prose-sm dark:prose-invert max-w-none ql-editor-display"
-                  dangerouslySetInnerHTML={{ __html: (profile.summary || "").replace(/&nbsp;/g, ' ') }} 
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((profile.summary || "").replace(/&nbsp;/g, ' '), { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }} 
                 />
                 <h3 className="text-lg font-semibold text-primary mt-8 mb-4">
                   {t("Triết lý làm việc", "Working principles")}
@@ -118,7 +119,7 @@ export function About() {
                 </h3>
                 <div 
                   className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none ql-editor-display" 
-                  dangerouslySetInnerHTML={{ __html: (profile.nowText || "").replace(/&nbsp;/g, ' ') }} 
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((profile.nowText || "").replace(/&nbsp;/g, ' '), { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }} 
                 />
               </div>
             )}

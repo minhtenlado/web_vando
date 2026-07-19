@@ -4,10 +4,16 @@ import { db } from "@/lib/db";
 import { getSiteData } from "@/lib/cv/site-data-server";
 
 export async function GET(req: NextRequest) {
+  const guard = await requireAuth();
+  if (guard instanceof Response) return guard;
+
   const locale = req.nextUrl.searchParams.get("locale") ?? "vi";
-  const data = await getSiteData(locale);
-  // Admin sees all (including unpublished), but already filtered by locale in getSiteData
-  return NextResponse.json({ ok: true, posts: data.posts });
+  const posts = await db.post.findMany({
+    where: { locale },
+    orderBy: { createdAt: "desc" },
+  });
+  
+  return NextResponse.json({ ok: true, posts });
 }
 
 type PostInput = {

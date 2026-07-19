@@ -16,6 +16,8 @@ export function TableOfContents({ selector = ".prose" }: { selector?: string }) 
   const { t } = useLocale()
 
   React.useEffect(() => {
+    let observer: IntersectionObserver | null = null;
+
     // Wait a bit for the content to render
     const timer = setTimeout(() => {
       const content = document.querySelector(selector)
@@ -44,7 +46,7 @@ export function TableOfContents({ selector = ".prose" }: { selector?: string }) 
       setItems(toc)
 
       // Setup IntersectionObserver
-      const observer = new IntersectionObserver(
+      observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
@@ -55,14 +57,15 @@ export function TableOfContents({ selector = ".prose" }: { selector?: string }) 
         { rootMargin: "-10% 0px -80% 0px" }
       )
 
-      headings.forEach((h) => observer.observe(h))
-
-      return () => {
-        observer.disconnect()
-      }
+      headings.forEach((h) => observer?.observe(h))
     }, 100)
 
-    return () => clearTimeout(timer)
+    return () => {
+      clearTimeout(timer)
+      if (observer) {
+        observer.disconnect()
+      }
+    }
   }, [selector])
 
   if (items.length === 0) return null
