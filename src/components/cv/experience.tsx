@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card"
 import { useSiteData } from "@/components/cv/site-data-context"
 import { useLocale } from "@/components/cv/locale-context"
 import DOMPurify from "isomorphic-dompurify"
+import Image from "next/image"
 
 export function Experience() {
   const { experiences } = useSiteData()
@@ -171,7 +172,7 @@ export function Experience() {
                                 onClick={() => setLightbox({ list: exp.images!, index: imgIdx })}
                                 className="relative h-16 w-24 shrink-0 rounded-md overflow-hidden border border-border/50 hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
                               >
-                                <img src={img} alt={`Gallery ${imgIdx}`} className="absolute inset-0 h-full w-full object-cover" />
+                                <Image fill src={img} alt={`Gallery ${imgIdx}`} className="object-cover" />
                               </button>
                             ))}
                           </div>
@@ -190,6 +191,8 @@ export function Experience() {
       <AnimatePresence>
         {lightbox && (
           <motion.div
+            role="dialog"
+            aria-modal="true"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -212,11 +215,12 @@ export function Experience() {
               </button>
               
               <div className="relative w-full h-full p-4 flex items-center justify-center group/lb">
-                <img
+                <Image
+                  fill
                   key={lightbox.index}
                   src={lightbox.list[lightbox.index]}
                   alt="Gallery full size"
-                  className="max-w-full max-h-full object-contain rounded-md shadow-2xl border border-border/20 animate-in fade-in zoom-in-95 duration-200"
+                  className="object-contain rounded-md shadow-2xl border border-border/20 animate-in fade-in zoom-in-95 duration-200"
                 />
                 
                 {lightbox.index > 0 && (

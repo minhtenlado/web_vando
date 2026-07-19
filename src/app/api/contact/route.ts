@@ -8,8 +8,32 @@ type ContactPayload = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// In-memory rate limiting (best-effort for serverless environments)
+const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const MAX_REQUESTS = 3;
+
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? "unknown";
+    const now = Date.now();
+    const rateData = rateLimitMap.get(ip) ?? { count: 0, lastReset: now };
+
+    if (now - rateData.lastReset > RATE_LIMIT_WINDOW) {
+      rateData.count = 1;
+      rateData.lastReset = now;
+    } else {
+      rateData.count += 1;
+    }
+    rateLimitMap.set(ip, rateData);
+
+    if (rateData.count > MAX_REQUESTS) {
+      return NextResponse.json(
+        { ok: false, message: "Bạn thao tác quá nhanh. Vui lòng thử lại sau 1 phút." },
+        { status: 429 }
+      );
+    }
+
     const body = (await req.json()) as ContactPayload;
     const name = (body.name ?? "").trim();
     const email = (body.email ?? "").trim();

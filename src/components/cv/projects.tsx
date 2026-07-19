@@ -11,6 +11,7 @@ import { useSiteData } from "@/components/cv/site-data-context"
 import type { SiteProject } from "@/lib/cv/site-data-server"
 import { useLocale } from "@/components/cv/locale-context"
 import DOMPurify from "isomorphic-dompurify"
+import Image from "next/image"
 
 
 /** Extract a YouTube video id from various URL forms. */
@@ -86,10 +87,11 @@ export function Projects() {
                   {/* Image / video thumb */}
                   <div className="relative aspect-[16/9] overflow-hidden bg-muted">
                     {p.image ? (
-                      <img
+                      <Image
+                        fill
                         src={p.image}
                         alt={t(`Ảnh minh họa dự án ${p.title}`, `Project image for ${p.title}`)}
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
@@ -147,13 +149,15 @@ export function Projects() {
       {/* Project Detail Modal */}
       <AnimatePresence>
         {activeProject && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setActiveProject(null)}
-            className="fixed inset-0 z-[60] bg-background/95 backdrop-blur-md grid place-items-center p-0 sm:p-6 lg:p-12"
-          >
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setActiveProject(null)}
+              className="fixed inset-0 z-[60] bg-background/95 backdrop-blur-md grid place-items-center p-0 sm:p-6 lg:p-12"
+            >
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -188,7 +192,7 @@ export function Projects() {
                     {/* Hero Image */}
                     {activeProject.image && (
                       <div className="relative aspect-video rounded-xl overflow-hidden border border-border/50 shadow-sm">
-                        <img src={activeProject.image} alt={activeProject.title} className="absolute inset-0 w-full h-full object-cover" />
+                        <Image fill src={activeProject.image} alt={activeProject.title} className="object-cover" />
                       </div>
                     )}
 
@@ -233,7 +237,7 @@ export function Projects() {
                               onClick={() => setLightbox({ list: activeProject.images!, index: imgIdx })}
                               className="group relative aspect-video rounded-lg overflow-hidden border border-border/50 hover:border-primary/50 transition-all shadow-sm hover:shadow-md"
                             >
-                              <img src={img} alt={`Gallery ${imgIdx}`} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                              <Image fill src={img} alt={`Gallery ${imgIdx}`} className="object-cover transition-transform duration-500 group-hover:scale-105" />
                               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                             </button>
                           ))}
@@ -307,6 +311,8 @@ export function Projects() {
       <AnimatePresence>
         {lightbox && (
           <motion.div
+            role="dialog"
+            aria-modal="true"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -329,11 +335,12 @@ export function Projects() {
               </button>
               
               <div className="relative w-full h-full p-4 flex items-center justify-center group/lb">
-                <img
+                <Image
+                  fill
                   key={lightbox.index}
                   src={lightbox.list[lightbox.index]}
                   alt="Gallery full size"
-                  className="max-w-full max-h-full object-contain rounded-md shadow-2xl border border-border/20 animate-in fade-in zoom-in-95 duration-200"
+                  className="object-contain rounded-md shadow-2xl border border-border/20 animate-in fade-in zoom-in-95 duration-200"
                 />
                 
                 {lightbox.index > 0 && (

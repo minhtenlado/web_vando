@@ -72,7 +72,22 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
       db.profile.findUnique({ where: { id: profileId } }),
       db.project.findMany({ where: { locale: loc }, orderBy: { order: "asc" } }),
       db.experience.findMany({ where: { locale: loc }, orderBy: { order: "asc" } }),
-      db.post.findMany({ where: { locale: loc, published: true }, orderBy: { createdAt: "desc" } }),
+      db.post.findMany({ 
+        where: { locale: loc, published: true }, 
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          excerpt: true,
+          published: true,
+          createdAt: true,
+          updatedAt: true,
+          seoTitle: true,
+          seoDescription: true,
+          seoKeywords: true,
+        }
+      }),
     ])
 
     let pRow = pRowInitial;
@@ -152,7 +167,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
       title: po.title,
       slug: po.slug,
       excerpt: po.excerpt,
-      content: po.content,
+      content: "",
       published: po.published,
       createdAt: po.createdAt.toISOString(),
       updatedAt: po.updatedAt.toISOString(),

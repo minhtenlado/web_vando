@@ -69,8 +69,12 @@ export async function PUT(req: NextRequest) {
     existing = await db.profile.findUnique({ where: { id: "profile" } });
   }
   if (existing && existing.avatar && data.avatar && existing.avatar !== data.avatar) {
-    const { deleteVercelBlob } = await import("@/lib/cv/blob");
-    await deleteVercelBlob(existing.avatar);
+    try {
+      const { deleteVercelBlob } = await import("@/lib/cv/blob");
+      await deleteVercelBlob(existing.avatar);
+    } catch (error) {
+      console.error("Failed to delete old avatar from Vercel Blob:", error);
+    }
   }
 
   const updated = await db.profile.upsert({
