@@ -38,6 +38,7 @@ type PostForm = {
   excerpt: string;
   content: string;
   published: boolean;
+  createdAt: string;
 };
 
 const EMPTY: PostForm = {
@@ -46,6 +47,7 @@ const EMPTY: PostForm = {
   excerpt: "",
   content: "",
   published: false,
+  createdAt: new Date().toISOString().slice(0, 10),
 };
 
 function slugify(s: string): string {
@@ -66,6 +68,7 @@ function toForm(p: SitePost): PostForm {
     excerpt: p.excerpt ?? "",
     content: p.content ?? "",
     published: !!p.published,
+    createdAt: p.createdAt ? new Date(p.createdAt).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
   };
 }
 
@@ -156,6 +159,7 @@ export function PostsTab({ locale }: { locale: string }) {
       content: form.content,
       published: form.published,
       locale,
+      createdAt: form.createdAt ? new Date(form.createdAt).toISOString() : undefined,
     };
     try {
       const url = editing ? `/api/admin/posts/${editing.id}` : "/api/admin/posts";
@@ -319,6 +323,16 @@ export function PostsTab({ locale }: { locale: string }) {
                   {form.slug ? `Sẽ lưu: /${slugify(form.slug)}` : "Sinh tự động từ tiêu đề (bỏ dấu, đ→d)."}
                 </p>
               </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="font-mono text-xs">Ngày đăng bài</Label>
+              <Input
+                type="date"
+                value={form.createdAt}
+                onChange={(e) => setForm({ ...form, createdAt: e.target.value })}
+                className="w-full sm:w-[200px]"
+              />
             </div>
 
             <div className="space-y-1.5">

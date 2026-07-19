@@ -8,6 +8,7 @@ type PostInput = {
   excerpt?: string;
   content?: string;
   published?: boolean;
+  createdAt?: string;
 };
 
 function slugify(s: string): string {
@@ -56,6 +57,7 @@ export async function PUT(
   if (typeof body.excerpt === "string") data.excerpt = body.excerpt.slice(0, 600);
   if (typeof body.content === "string") data.content = body.content.slice(0, 5000000);
   if (typeof body.published === "boolean") data.published = body.published;
+  if (typeof body.createdAt === "string") data.createdAt = new Date(body.createdAt);
 
   try {
     const updated = await db.post.update({ where: { id }, data });

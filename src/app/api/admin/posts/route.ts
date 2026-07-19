@@ -17,6 +17,7 @@ type PostInput = {
   content?: string;
   published?: boolean;
   locale?: string;
+  createdAt?: string;
 };
 
 function slugify(s: string): string {
@@ -64,6 +65,7 @@ export async function POST(req: NextRequest) {
       excerpt: (body.excerpt ?? "").slice(0, 600),
       content: (body.content ?? "").slice(0, 5000000),
       published: !!body.published,
+      ...(body.createdAt ? { createdAt: new Date(body.createdAt) } : {}),
     },
   });
 
