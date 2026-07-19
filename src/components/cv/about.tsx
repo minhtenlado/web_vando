@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import { Terminal, Zap, ShieldCheck, Layers, Code, Cpu, Server, Database, Globe, Smartphone, HelpCircle } from "lucide-react"
 import { SectionHeader } from "./section-header"
 import { Card, CardContent } from "@/components/ui/card"
-import { useSiteData } from "@/lib/cv/site-data-context"
+import { useSiteData } from "@/components/cv/site-data-context"
 import DOMPurify from "isomorphic-dompurify"
 import { useLocale } from "@/components/cv/locale-context"
 

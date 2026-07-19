@@ -6,7 +6,7 @@ import { Briefcase, MapPin, Calendar, ChevronRight, ExternalLink, X, ChevronLeft
 import { SectionHeader } from "./section-header"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
-import { useSiteData } from "@/lib/cv/site-data-context"
+import { useSiteData } from "@/components/cv/site-data-context"
 import { useLocale } from "@/components/cv/locale-context"
 import DOMPurify from "isomorphic-dompurify"
 
