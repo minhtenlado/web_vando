@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { useSiteData } from "@/components/cv/site-data-context"
 import { useLocale } from "@/components/cv/locale-context"
 
-const roles = [
+const defaultRoles = [
   "Embedded Software Engineer",
   "Firmware Developer",
   "RTOS Specialist",
@@ -19,12 +19,16 @@ const roles = [
 export function Hero() {
   const { profile } = useSiteData()
   const { t } = useLocale()
+  const displayRoles = profile.animatedRoles && profile.animatedRoles.length > 0 
+    ? profile.animatedRoles 
+    : defaultRoles;
+
   const [roleIdx, setRoleIdx] = React.useState(0)
 
   React.useEffect(() => {
-    const timer = setInterval(() => setRoleIdx((i) => (i + 1) % roles.length), 2400)
+    const timer = setInterval(() => setRoleIdx((i) => (i + 1) % displayRoles.length), 2400)
     return () => clearInterval(timer)
-  }, [])
+  }, [displayRoles.length])
 
   return (
     <section
@@ -62,7 +66,7 @@ export function Hero() {
               </h1>
               <div className="h-9 sm:h-10 flex items-center">
                 <span className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gradient-emerald font-mono">
-                  {roles[roleIdx]}
+                  {displayRoles[roleIdx]}
                   <span className="cursor-blink" />
                 </span>
               </div>

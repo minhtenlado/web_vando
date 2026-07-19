@@ -26,6 +26,7 @@ type ConfigState = {
   aboutSubtitle: string;
   skillsSubtitle: string;
   experienceSubtitle: string;
+  animatedRoles: string[];
 };
 
 const EMPTY: ConfigState = {
@@ -37,6 +38,7 @@ const EMPTY: ConfigState = {
   aboutSubtitle: "",
   skillsSubtitle: "",
   experienceSubtitle: "",
+  animatedRoles: [],
 };
 
 export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | null, locale: string }) {
@@ -54,6 +56,7 @@ export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | nul
           aboutSubtitle: initial.aboutSubtitle ?? "",
           skillsSubtitle: initial.skillsSubtitle ?? "",
           experienceSubtitle: initial.experienceSubtitle ?? "",
+          animatedRoles: initial.animatedRoles ?? [],
         }
       : EMPTY
   );
@@ -70,6 +73,7 @@ export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | nul
         aboutSubtitle: initial.aboutSubtitle ?? "",
         skillsSubtitle: initial.skillsSubtitle ?? "",
         experienceSubtitle: initial.experienceSubtitle ?? "",
+        animatedRoles: initial.animatedRoles ?? [],
       });
     }
     let cancelled = false;
@@ -88,6 +92,7 @@ export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | nul
             aboutSubtitle: p.aboutSubtitle ?? "",
             skillsSubtitle: p.skillsSubtitle ?? "",
             experienceSubtitle: p.experienceSubtitle ?? "",
+            animatedRoles: p.animatedRoles ?? [],
           });
         }
       })
@@ -149,7 +154,26 @@ export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | nul
             <p className="text-xs text-muted-foreground">Nếu để trống, hệ thống sẽ hiển thị nội dung mặc định.</p>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-4 border-t pt-4">
+            <h3 className="font-semibold text-sm">Vai trò chuyển động (Animated Roles)</h3>
+            <p className="text-xs text-muted-foreground">Các chức danh sẽ hiển thị thay phiên nhau ở màn hình chính (VD: RTOS Specialist, Firmware Developer...). Nếu để trống sẽ dùng mặc định.</p>
+            {form.animatedRoles.map((role, i) => (
+              <div key={i} className="flex gap-2 items-start">
+                <Input value={role} onChange={(e) => {
+                  const newRoles = [...form.animatedRoles];
+                  newRoles[i] = e.target.value;
+                  update("animatedRoles", newRoles);
+                }} placeholder="Tên chức danh..." className="flex-1" />
+                <Button type="button" variant="outline" size="icon" onClick={() => {
+                  const newRoles = form.animatedRoles.filter((_, idx) => idx !== i);
+                  update("animatedRoles", newRoles);
+                }}><Trash className="size-4" /></Button>
+              </div>
+            ))}
+            <Button type="button" variant="outline" size="sm" onClick={() => update("animatedRoles", [...form.animatedRoles, ""])}>+ Thêm Chức Danh</Button>
+          </div>
+
+          <div className="space-y-2 border-t pt-4">
             <Label className="text-xs uppercase font-semibold text-muted-foreground tracking-wider flex items-center gap-2">
               <Link2 className="w-4 h-4" /> GIỚI THIỆU (SUMMARY)
             </Label>

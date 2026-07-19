@@ -23,6 +23,7 @@ type ProfileInput = {
   aboutSubtitle?: string;
   skillsSubtitle?: string;
   experienceSubtitle?: string;
+  animatedRoles?: string[];
 };
 
 export async function PUT(req: NextRequest) {
@@ -61,6 +62,9 @@ export async function PUT(req: NextRequest) {
   }
   if (Array.isArray(body.socials)) {
     data.socials = JSON.stringify(body.socials);
+  }
+  if (Array.isArray(body.animatedRoles)) {
+    data.animatedRoles = JSON.stringify(body.animatedRoles);
   }
 
   if (Object.keys(data).length === 0) {

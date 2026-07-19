@@ -21,6 +21,7 @@ export type SiteProfile = {
   aboutSubtitle: string
   skillsSubtitle: string
   experienceSubtitle: string
+  animatedRoles: string[]
   available: boolean
 }
 
@@ -65,7 +66,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
     name: "", role: "", tagline: "", location: "", email: "",
     phone: "", website: "", github: "", linkedin: "", summary: "", avatar: "",
     principles: [], stats: [], nowText: "", skillGroups: [], socials: [], 
-    aboutSubtitle: "", skillsSubtitle: "", experienceSubtitle: "", available: true
+    aboutSubtitle: "", skillsSubtitle: "", experienceSubtitle: "", animatedRoles: [], available: true
   }
   let projects: SiteProject[] = []
   let experiences: SiteExperience[] = []
@@ -124,6 +125,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         aboutSubtitle: pRow.aboutSubtitle,
         skillsSubtitle: pRow.skillsSubtitle,
         experienceSubtitle: pRow.experienceSubtitle,
+        animatedRoles: safeParseJsonObjArr(pRow.animatedRoles).map((i: any) => String(i)),
         available: true,
       } as SiteProfile
     }
