@@ -152,14 +152,14 @@ export function Projects() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setActiveProject(null)}
-            className="fixed inset-0 z-[60] bg-background/95 backdrop-blur-md grid place-items-center p-4 sm:p-6 lg:p-12"
+            className="fixed inset-0 z-[60] bg-background/95 backdrop-blur-md grid place-items-center p-0 sm:p-6 lg:p-12"
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-5xl h-full max-h-[90vh] bg-card border border-border shadow-2xl rounded-xl overflow-hidden flex flex-col"
+              className="relative w-full max-w-5xl h-full max-h-screen sm:max-h-[90vh] bg-card border-0 sm:border border-border shadow-2xl rounded-none sm:rounded-xl overflow-hidden flex flex-col"
             >
               {/* Header */}
               <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border/50 bg-muted/20">

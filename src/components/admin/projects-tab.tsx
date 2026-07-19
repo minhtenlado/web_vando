@@ -322,7 +322,8 @@ export function ProjectsTab({ locale }: { locale: string }) {
 
       {/* Create / Edit dialog */}
       <Dialog open={dialogOpen} onOpenChange={(o) => !submitting && setDialogOpen(o)}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogContent className="w-full h-full max-w-full lg:max-w-2xl lg:h-auto lg:max-h-[90vh] flex flex-col overflow-hidden p-0 rounded-none lg:rounded-xl">
+          <div className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col">
           <DialogHeader>
             <DialogTitle>{editing ? "Sửa dự án" : "Thêm dự án mới"}</DialogTitle>
             <DialogDescription>
@@ -563,6 +564,7 @@ export function ProjectsTab({ locale }: { locale: string }) {
               </Button>
             </DialogFooter>
           </form>
+          </div>
         </DialogContent>
       </Dialog>
 
