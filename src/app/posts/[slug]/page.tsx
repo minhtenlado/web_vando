@@ -7,8 +7,9 @@ import { TableOfContents } from "@/components/cv/table-of-contents"
 import { PostReader } from "@/components/cv/post-reader"
 import { PostThemeToggle } from "@/components/cv/post-theme-toggle"
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const post = await db.post.findFirst({ where: { slug: params.slug } })
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const post = await db.post.findFirst({ where: { slug } })
   if (!post) return { title: "Post Not Found" }
   return {
     title: `${post.title} — Phan Huỳnh Văn Đô`,
@@ -16,8 +17,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-export default async function PostPage({ params }: { params: { slug: string } }) {
-  const post = await db.post.findFirst({ where: { slug: params.slug } })
+export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const post = await db.post.findFirst({ where: { slug } })
   
   if (!post) {
     notFound()
