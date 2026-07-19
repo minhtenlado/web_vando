@@ -86,6 +86,10 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
           border-bottom-right-radius: 0.5rem;
         }
         .rich-text-editor .ql-toolbar {
+          position: sticky;
+          top: 0;
+          z-index: 40;
+          background-color: #ffffff;
           border-top-left-radius: 0.5rem;
           border-top-right-radius: 0.5rem;
         }
