@@ -90,8 +90,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto max-w-[1600px] px-4 md:px-8 py-8 lg:py-12">
-        <div className={`flex flex-col lg:flex-row gap-8 lg:gap-16 items-start ${isPdfMode ? "justify-center" : ""}`}>
+      <main className={`flex-1 container mx-auto max-w-[1600px] ${isPdfMode ? "px-0 py-0 sm:px-4 md:px-8 sm:py-8 lg:py-12 flex flex-col" : "px-4 md:px-8 py-8 lg:py-12"}`}>
+        <div className={`flex flex-col lg:flex-row gap-8 lg:gap-16 items-start ${isPdfMode ? "justify-center flex-1" : ""}`}>
           
           {/* Left Sidebar: TOC (Sticky pinned when scrolling) */}
           {!isPdfMode && (
@@ -101,7 +101,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           )}
 
           {/* Right Content: Article */}
-          <div className={isPdfMode ? "w-full max-w-5xl mx-auto" : "flex-1 w-full"}>
+          <div className={isPdfMode ? "w-full max-w-7xl mx-auto flex-1 flex flex-col" : "flex-1 w-full"}>
             <PostReader 
               title={post.title} 
               pubDate={pubDate} 

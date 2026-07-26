@@ -115,11 +115,12 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, i
 
       {/* The "Paper" Document */}
       <div 
-        className="bg-card text-card-foreground border rounded-xl shadow-2xl min-h-[80vh] overflow-hidden"
+        className={`bg-card text-card-foreground overflow-hidden ${isPdfMode ? "w-full h-[calc(100vh-4rem)] sm:h-[85vh] min-h-[600px] border-0 sm:border sm:rounded-xl sm:shadow-2xl" : "border rounded-xl shadow-2xl min-h-[80vh]"}`}
         style={isPdfMode ? {} : { fontSize: `${zoom}%`, transition: "font-size 0.15s ease-out" }}
       >
-        <div className={`mx-auto w-full max-w-5xl ${isPdfMode ? "p-4 sm:p-8" : "p-4 sm:p-12 md:p-16 lg:p-20"}`}>
-          <header className={`border-b ${isPdfMode ? "mb-6 pb-6" : "mb-10 md:mb-14 pb-8"}`}>
+        <div className={`mx-auto w-full ${isPdfMode ? "max-w-7xl p-0 h-full flex flex-col" : "max-w-5xl p-4 sm:p-12 md:p-16 lg:p-20"}`}>
+          {!isPdfMode && (
+            <header className="mb-10 md:mb-14 border-b pb-8">
             <h1 className="text-[2.25em] leading-[1.2] font-bold font-serif mb-6">
               {title}
             </h1>
@@ -132,11 +133,11 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, i
                 <Clock className="h-[1.2em] w-[1.2em]" />
                 <span>{readingTime} phút đọc</span>
               </div>
-            </div>
-          </header>
+            </header>
+          )}
 
           {isPdfMode ? (
-            <div className="w-full h-[85vh] min-h-[800px] border rounded-xl overflow-hidden mt-6 shadow-inner bg-zinc-100 dark:bg-zinc-900 flex flex-col">
+            <div className="w-full flex-1 bg-zinc-100 dark:bg-zinc-900 flex flex-col overflow-hidden sm:rounded-b-xl">
               <iframe
                 src={pdfUrl}
                 className="w-full flex-1 border-0"
