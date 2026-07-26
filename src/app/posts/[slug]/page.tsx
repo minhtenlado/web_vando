@@ -59,6 +59,52 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
   const isPdfMode = !!(post.pdfUrl && (!post.content || post.content.trim() === "<p><br></p>" || post.content.trim() === ""))
 
+  if (isPdfMode) {
+    return (
+      <div className="h-screen w-screen flex flex-col overflow-hidden bg-zinc-100 dark:bg-zinc-900">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BlogPosting",
+              "headline": post.title,
+              "datePublished": post.createdAt,
+              "description": post.excerpt,
+              "author": { "@type": "Person", "name": "Phan Huỳnh Văn Đô" }
+            })
+          }}
+        />
+        <header className="flex-none h-14 bg-white dark:bg-zinc-950 border-b px-4 md:px-6 flex items-center justify-between z-50 shadow-sm">
+          <div className="flex items-center gap-3 sm:gap-4 truncate">
+            <Link href="/#posts" className="text-muted-foreground hover:text-foreground transition-colors shrink-0 flex items-center gap-2 group" title="Trở về">
+              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+              <span className="text-sm font-medium hidden sm:block">Trở về</span>
+            </Link>
+            <div className="w-px h-4 bg-border shrink-0"></div>
+            <h1 className="text-sm md:text-base font-semibold text-primary truncate" title={post.title}>
+              {post.title}
+            </h1>
+          </div>
+          <div className="flex items-center gap-4 shrink-0 pl-4">
+            <a href={post.pdfUrl!} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline shrink-0">
+              Tải PDF
+            </a>
+            <div className="w-px h-4 bg-border shrink-0"></div>
+            <PostThemeToggle />
+          </div>
+        </header>
+        <main className="flex-1 w-full h-full relative">
+          <iframe
+            src={post.pdfUrl!}
+            className="absolute inset-0 w-full h-full border-0"
+            title={post.title}
+          />
+        </main>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col">
       <script
@@ -94,21 +140,17 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         <div className={`flex flex-col lg:flex-row gap-8 lg:gap-16 items-start ${isPdfMode ? "justify-center flex-1" : ""}`}>
           
           {/* Left Sidebar: TOC (Sticky pinned when scrolling) */}
-          {!isPdfMode && (
-            <aside className="lg:w-64 lg:shrink-0 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto hidden lg:block">
-              <TableOfContents selector=".prose" />
-            </aside>
-          )}
+          <aside className="lg:w-64 lg:shrink-0 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto hidden lg:block">
+            <TableOfContents selector=".prose" />
+          </aside>
 
           {/* Right Content: Article */}
-          <div className={isPdfMode ? "w-full max-w-7xl mx-auto flex-1 flex flex-col" : "flex-1 w-full"}>
+          <div className="flex-1 w-full">
             <PostReader 
               title={post.title} 
               pubDate={pubDate} 
               readingTime={readingTime} 
               contentHtml={post.content} 
-              pdfUrl={post.pdfUrl || undefined}
-              isPdfMode={isPdfMode}
             >
             {relatedPosts.length > 0 && (
               <div className="mt-16 pt-10 border-t border-border">
