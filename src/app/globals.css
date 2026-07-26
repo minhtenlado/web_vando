@@ -238,13 +238,43 @@
 .ql-editor-display .ql-size-huge {
   font-size: 2.5em;
 }
-.ql-editor-display {
-  overflow-wrap: break-word;
+.ql-editor-display,
+.prose {
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  hyphens: manual !important;
 }
+
+.ql-editor-display p,
+.ql-editor-display span,
+.ql-editor-display li,
+.ql-editor-display h1,
+.ql-editor-display h2,
+.ql-editor-display h3,
+.ql-editor-display h4,
+.ql-editor-display h5,
+.ql-editor-display h6,
+.prose p,
+.prose span,
+.prose li,
+.prose h1,
+.prose h2,
+.prose h3 {
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  hyphens: manual !important;
+}
+
+.ql-editor-display a,
+.prose a {
+  word-break: break-all;
+}
+
 .ql-editor-display pre {
   max-width: 100%;
   overflow-x: auto;
   white-space: pre-wrap;
+  word-break: break-all;
 }
 .ql-editor-display img, .ql-editor-display video, .ql-editor-display iframe {
   max-width: 100%;
