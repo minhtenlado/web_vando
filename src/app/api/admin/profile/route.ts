@@ -104,6 +104,11 @@ export async function PUT(req: NextRequest) {
   if (data.skillGroups) sharedData.skillGroups = data.skillGroups;
   if (data.techBadges) sharedData.techBadges = data.techBadges;
   if (data.animatedRoles) sharedData.animatedRoles = data.animatedRoles;
+  if (data.summary) sharedData.summary = data.summary;
+  if (data.nowText) sharedData.nowText = data.nowText;
+  if (data.aboutSubtitle) sharedData.aboutSubtitle = data.aboutSubtitle;
+  if (data.skillsSubtitle) sharedData.skillsSubtitle = data.skillsSubtitle;
+  if (data.experienceSubtitle) sharedData.experienceSubtitle = data.experienceSubtitle;
 
   if (Object.keys(sharedData).length > 0) {
     try {

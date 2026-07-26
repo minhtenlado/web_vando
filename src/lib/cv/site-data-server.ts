@@ -96,38 +96,50 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
       }),
     ])
 
-    let pRow = pRowInitial;
-    if (!pRow) {
-      // Fallback to profile-vi, then profile (legacy)
-      pRow = await db.profile.findUnique({ where: { id: "profile-vi" } });
-      if (!pRow) {
-        pRow = await db.profile.findUnique({ where: { id: "profile" } });
-      }
-    }
+    const [pRowEn, pRowVi, pRowLegacy] = await Promise.all([
+      db.profile.findUnique({ where: { id: "profile-en" } }),
+      db.profile.findUnique({ where: { id: "profile-vi" } }),
+      db.profile.findUnique({ where: { id: "profile" } }),
+    ]);
 
-    if (pRow) {
+    const primary = (loc === "en" ? pRowEn : pRowVi) || pRowVi || pRowEn || pRowLegacy;
+    const secondary = (loc === "en" ? pRowVi : pRowEn) || pRowLegacy;
+
+    if (primary || secondary) {
+      const getVal = (key: string): any => {
+        const pVal = primary ? (primary as any)[key] : null;
+        if (pVal !== null && pVal !== undefined && pVal !== "") {
+          if (typeof pVal === "string" && (pVal === "[]" || pVal === "{}")) {
+            const sVal = secondary ? (secondary as any)[key] : null;
+            if (sVal && sVal !== "[]" && sVal !== "{}") return sVal;
+          }
+          return pVal;
+        }
+        return secondary ? (secondary as any)[key] : null;
+      };
+
       profile = {
-        name: pRow.name,
-        role: pRow.role,
-        tagline: pRow.tagline,
-        location: pRow.location,
-        email: pRow.email,
-        phone: pRow.phone,
-        website: pRow.website,
-        github: pRow.github,
-        linkedin: pRow.linkedin,
-        summary: pRow.summary,
-        avatar: pRow.avatar,
-        principles: safeParseJsonObjArr(pRow.principles),
-        stats: safeParseJsonObjArr(pRow.stats),
-        nowText: pRow.nowText,
-        skillGroups: safeParseJsonObjArr(pRow.skillGroups),
-        socials: safeParseJsonObjArr(pRow.socials),
-        aboutSubtitle: pRow.aboutSubtitle,
-        skillsSubtitle: pRow.skillsSubtitle,
-        experienceSubtitle: pRow.experienceSubtitle,
-        animatedRoles: safeParseJsonObjArr(pRow.animatedRoles).map((i: any) => String(i)),
-        techBadges: safeParseJsonObjArr(pRow.techBadges).map((i: any) => ({
+        name: getVal("name") || "",
+        role: getVal("role") || "",
+        tagline: getVal("tagline") || "",
+        location: getVal("location") || "",
+        email: getVal("email") || "",
+        phone: getVal("phone") || "",
+        website: getVal("website") || "",
+        github: getVal("github") || "",
+        linkedin: getVal("linkedin") || "",
+        summary: getVal("summary") || "",
+        avatar: getVal("avatar") || "",
+        principles: safeParseJsonObjArr(getVal("principles")),
+        stats: safeParseJsonObjArr(getVal("stats")),
+        nowText: getVal("nowText") || "",
+        skillGroups: safeParseJsonObjArr(getVal("skillGroups")),
+        socials: safeParseJsonObjArr(getVal("socials")),
+        aboutSubtitle: getVal("aboutSubtitle") || "",
+        skillsSubtitle: getVal("skillsSubtitle") || "",
+        experienceSubtitle: getVal("experienceSubtitle") || "",
+        animatedRoles: safeParseJsonObjArr(getVal("animatedRoles")).map((i: any) => String(i)),
+        techBadges: safeParseJsonObjArr(getVal("techBadges")).map((i: any) => ({
           icon: String(i?.icon ?? ""),
           text: String(i?.text ?? "")
         })),
