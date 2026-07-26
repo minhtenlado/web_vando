@@ -65,7 +65,7 @@ export function Experience() {
                 >
                   {/* Node */}
                   <span className="absolute left-4 sm:left-1/2 top-2 -translate-x-1/2 z-10 grid place-items-center">
-                    <span className="h-3.5 w-3.5 rounded-full bg-primary border-4 border-background ring-1 ring-primary/30" />
+                    <span className="h-3.5 w-3.5 rounded-full bg-primary border-4 border-background ring-1 ring-primary/30 group-hover:ring-primary/60 group-hover:scale-125 transition-all duration-300" />
                   </span>
 
                   <div
@@ -76,7 +76,7 @@ export function Experience() {
                         : "sm:ml-auto sm:pl-10 sm:pr-0")
                     }
                   >
-                    <Card className="p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/40 transition-colors">
+                    <Card className="p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/40 hover:-translate-y-1 hover:shadow-md transition-all duration-300 group">
                       <div
                         className={
                           "flex flex-wrap items-center gap-2 mb-2 " +
@@ -165,12 +165,12 @@ export function Experience() {
                           <p className={"text-[11px] uppercase tracking-wider text-muted-foreground font-mono mb-2 " + (isLeft ? "sm:text-right" : "")}>
                             {t("Ảnh / Gallery", "Gallery")}
                           </p>
-                          <div className={"flex gap-2 overflow-x-auto pb-2 scrollbar-none " + (isLeft ? "sm:justify-end" : "")}>
+                          <div className={"flex gap-2 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory " + (isLeft ? "sm:justify-end" : "")}>
                             {exp.images.map((img, imgIdx) => (
                               <button
                                 key={imgIdx}
                                 onClick={() => setLightbox({ list: exp.images!, index: imgIdx })}
-                                className="relative h-16 w-24 shrink-0 rounded-md overflow-hidden border border-border/50 hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                className="relative h-16 w-24 shrink-0 rounded-md overflow-hidden border border-border/50 hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 snap-center"
                               >
                                 <Image fill src={img} alt={`Gallery ${imgIdx}`} className="object-cover" />
                               </button>

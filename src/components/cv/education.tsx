@@ -30,16 +30,18 @@ export function Education() {
               <GraduationCap className="h-5 w-5 text-primary" />
               <h3 className="text-lg font-semibold">{t("Học vấn", "Education")}</h3>
             </div>
-            <div className="space-y-4">
+            <div className="relative border-l-2 border-border/60 pl-6 space-y-6 ml-2 mt-4">
               {educations.map((edu, i) => (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, x: -16 }}
+                  whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 0.45, delay: i * 0.06 }}
+                  className="relative"
                 >
-                  <Card className="p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/40 transition-colors">
+                  <span className="absolute -left-[31px] top-4 grid place-items-center h-3.5 w-3.5 rounded-full bg-background border-2 border-primary ring-4 ring-background" />
+                  <Card className="p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/40 transition-colors hover:shadow-md">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
                         <h4 className="font-semibold leading-tight">

@@ -103,7 +103,7 @@ export function Contact() {
                   return (
                     <li key={c.label}>
                       {c.href ? (
-                        <a href={c.href} className="block hover:opacity-80 transition-opacity">
+                        <a href={c.href} className="block hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
                           {content}
                         </a>
                       ) : (
@@ -145,7 +145,7 @@ export function Contact() {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={s.platform}
-                        className="flex-1 min-w-[3rem] grid place-items-center h-12 rounded-xl bg-background border border-border hover:border-primary/40 hover:text-primary transition-colors shadow-sm"
+                        className="flex-1 min-w-[3rem] grid place-items-center h-12 rounded-xl bg-background border border-border hover:border-primary/40 hover:text-primary transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                       >
                         <SocialIcon platform={s.platform} className="h-5 w-5" />
                       </a>

@@ -70,8 +70,8 @@ export function Posts() {
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.4, delay: (i % 3) * 0.06 }}
             >
-              <Link href={`/posts/${post.slug}`} target="_blank" rel="noopener noreferrer" className="block h-full text-left">
-                <Card className="group h-full p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 flex flex-col">
+              <Link href={`/posts/${post.slug}`} target="_blank" rel="noopener noreferrer" className="block h-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-xl">
+                <Card className="group h-full p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/50 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/50 flex flex-col">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="grid place-items-center h-9 w-9 rounded-lg bg-primary/10 text-primary border border-primary/20">
                       <FileText className="h-4 w-4" />

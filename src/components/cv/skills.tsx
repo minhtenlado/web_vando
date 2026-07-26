@@ -91,9 +91,9 @@ export function Skills() {
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.45, delay: gi * 0.06 }}
               >
-                <Card className="h-full p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/40 transition-colors group">
+                <Card className="h-full p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/40 hover:-translate-y-1 hover:shadow-md transition-all duration-300 group">
                   <div className="flex items-center gap-3 mb-5">
-                    <span className="grid place-items-center h-10 w-10 rounded-lg bg-primary/10 text-primary border border-primary/20 group-hover:bg-primary/20 transition-colors">
+                    <span className="grid place-items-center h-10 w-10 rounded-lg bg-primary/10 text-primary border border-primary/20 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
                       <Icon className="h-5 w-5" />
                     </span>
                     <div>

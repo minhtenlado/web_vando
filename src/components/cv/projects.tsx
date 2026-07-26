@@ -37,6 +37,7 @@ export function Projects() {
   const { t } = useLocale()
   const [lightbox, setLightbox] = React.useState<{ list: string[], index: number } | null>(null)
   const [activeProject, setActiveProject] = React.useState<SiteProject | null>(null)
+  const activeYtId = activeProject?.youtubeUrl ? youtubeId(activeProject.youtubeUrl) : null;
 
   // Keyboard navigation for lightbox & modal
   React.useEffect(() => {
@@ -58,6 +59,15 @@ export function Projects() {
       window.addEventListener('keydown', handleKeyDown)
       return () => window.removeEventListener('keydown', handleKeyDown)
     }
+  }, [lightbox, activeProject])
+
+  React.useEffect(() => {
+    if (lightbox || activeProject) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => { document.body.style.overflow = 'unset' }
   }, [lightbox, activeProject])
 
   return (
@@ -246,14 +256,14 @@ export function Projects() {
                     )}
 
                     {/* Video */}
-                    {activeProject.youtubeUrl && youtubeId(activeProject.youtubeUrl) && (
+                    {activeProject.youtubeUrl && activeYtId && (
                       <div>
                         <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
                           Video
                         </h3>
                         <div className="relative aspect-video rounded-xl overflow-hidden border border-border shadow-sm bg-black">
                           <iframe
-                            src={`https://www.youtube.com/embed/${youtubeId(activeProject.youtubeUrl)}?rel=0`}
+                            src={`https://www.youtube.com/embed/${activeYtId}?rel=0`}
                             title="YouTube video demo"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen

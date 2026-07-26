@@ -54,7 +54,7 @@ export function CodeShowcase() {
                   key={s.id}
                   onClick={() => setActiveId(s.id)}
                   className={cn(
-                    "group flex items-start gap-3 rounded-lg border p-3 text-left transition-all shrink-0 lg:w-full",
+                    "group flex items-start gap-3 rounded-lg border p-3 text-left transition-all shrink-0 lg:w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                     isActive
                       ? "border-primary/50 bg-primary/5"
                       : "border-border/60 bg-card/40 hover:border-primary/30 hover:bg-muted/40"

@@ -41,7 +41,7 @@ export function Footer() {
             <div className="flex gap-3 pt-2">
               <a
                 href={`mailto:${profile.email}`}
-                className="grid place-items-center h-9 w-9 rounded-md bg-background border border-border hover:bg-primary hover:text-primary-foreground transition-colors"
+                className="grid place-items-center h-9 w-9 rounded-md bg-background border border-border hover:bg-primary hover:text-primary-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 aria-label="Email"
               >
                 <Mail className="h-4 w-4" />
@@ -50,7 +50,7 @@ export function Footer() {
                 href={`https://${profile.github}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="grid place-items-center h-9 w-9 rounded-md bg-background border border-border hover:bg-primary hover:text-primary-foreground transition-colors"
+                className="grid place-items-center h-9 w-9 rounded-md bg-background border border-border hover:bg-primary hover:text-primary-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 aria-label="GitHub"
               >
                 <Github className="h-4 w-4" />
@@ -59,7 +59,7 @@ export function Footer() {
                 href={`https://${profile.linkedin}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="grid place-items-center h-9 w-9 rounded-md bg-background border border-border hover:bg-primary hover:text-primary-foreground transition-colors"
+                className="grid place-items-center h-9 w-9 rounded-md bg-background border border-border hover:bg-primary hover:text-primary-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 aria-label="LinkedIn"
               >
                 <Linkedin className="h-4 w-4" />

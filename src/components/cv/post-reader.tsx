@@ -41,14 +41,14 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
     let scriptElement: HTMLScriptElement | null = null;
 
     // @ts-ignore
-    if (window.hljs) {
-      highlightBlocks();
-    } else {
+    if (!document.querySelector('script[src*="highlight.js"]')) {
       const script = document.createElement("script")
       script.src = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"
       script.onload = highlightBlocks
       document.body.appendChild(script)
       scriptElement = script;
+    } else if (window.hljs) {
+      highlightBlocks();
     }
 
     // 2. Zoom handling

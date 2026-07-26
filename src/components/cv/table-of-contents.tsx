@@ -89,7 +89,13 @@ export function TableOfContents({ selector = ".prose" }: { selector?: string }) 
           >
             <a href={`#${item.id}`} onClick={(e) => {
               e.preventDefault()
-              document.getElementById(item.id)?.scrollIntoView({ behavior: "smooth" })
+              const element = document.getElementById(item.id)
+              if (element) {
+                const headerOffset = 100
+                const elementPosition = element.getBoundingClientRect().top
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+                window.scrollTo({ top: offsetPosition, behavior: "smooth" })
+              }
             }}>
               {item.text}
             </a>

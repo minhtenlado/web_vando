@@ -11,10 +11,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const post = await db.post.findFirst({ where: { slug, published: true } })
   if (!post) return { title: "Post Not Found" }
+
+  const title = (post.seoTitle || post.title) + " — Phan Huỳnh Văn Đô"
+  const description = post.seoDescription || post.excerpt
+
   return {
-    title: (post.seoTitle || post.title) + " — Phan Huỳnh Văn Đô",
-    description: post.seoDescription || post.excerpt,
+    title,
+    description,
     ...(post.seoKeywords ? { keywords: post.seoKeywords } : {}),
+    openGraph: {
+      title,
+      description,
+      type: "article",
+      url: `/posts/${slug}`,
+    }
   }
 }
 
@@ -44,11 +54,24 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   })
   
   // Calculate reading time roughly
-  const wordCount = post.content.replace(/<[^>]*>?/gm, "").split(/\s+/).length
+  const wordCount = post.content.replace(/<[^>]*>?/gm, "").trim().split(/\s+/).length
   const readingTime = Math.max(1, Math.ceil(wordCount / 200))
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            "headline": post.title,
+            "datePublished": post.createdAt,
+            "description": post.excerpt,
+            "author": { "@type": "Person", "name": "Phan Huỳnh Văn Đô" }
+          })
+        }}
+      />
       {/* Top minimal header */}
       <header className="sticky top-0 z-40 w-full backdrop-blur-xl bg-background/80 border-b border-border shadow-sm">
         <div className="container mx-auto max-w-7xl px-4 md:px-8 h-16 flex items-center justify-between">

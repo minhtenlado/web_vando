@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { Quote, ChevronLeft, ChevronRight, Star } from "lucide-react"
 import { SectionHeader } from "./section-header"
 import { Card } from "@/components/ui/card"
@@ -49,49 +49,52 @@ export function Testimonials() {
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45 }}
-          >
-            <Card className="relative p-6 sm:p-8 border-border/60 bg-card/40 backdrop-blur overflow-hidden">
-              <Quote className="absolute top-4 right-4 h-10 w-10 text-primary/15" />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className="relative p-6 sm:p-8 border-border/60 bg-card/40 backdrop-blur overflow-hidden">
+                <Quote className="absolute top-4 right-4 h-10 w-10 text-primary/15" />
 
-              <div className="flex gap-1 mb-4">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star
-                    key={i}
-                    className="h-4 w-4 fill-accent text-accent"
-                  />
-                ))}
-              </div>
-
-              <blockquote className="text-lg sm:text-xl leading-relaxed font-medium">
-                <span className="text-primary">“</span>
-                {active.quote}
-                <span className="text-primary">”</span>
-              </blockquote>
-
-              <div className="mt-6 flex items-center gap-3">
-                <Avatar className="h-12 w-12 border border-border">
-                  <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                    {active.name
-                      .split(" ")
-                      .slice(-2)
-                      .map((w) => w[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-semibold leading-tight">{active.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {active.title} · {active.company}
-                  </p>
+                <div className="flex gap-1 mb-4">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className="h-4 w-4 fill-accent text-accent"
+                    />
+                  ))}
                 </div>
-              </div>
-            </Card>
-          </motion.div>
+
+                <blockquote className="text-lg sm:text-xl leading-relaxed font-medium">
+                  <span className="text-primary">“</span>
+                  {active.quote}
+                  <span className="text-primary">”</span>
+                </blockquote>
+
+                <div className="mt-6 flex items-center gap-3">
+                  <Avatar className="h-12 w-12 border border-border">
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                      {active.name
+                        .split(" ")
+                        .slice(-2)
+                        .map((w) => w[0])
+                        .join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold leading-tight">{active.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {active.title} · {active.company}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          </AnimatePresence>
 
           {/* Controls */}
           <div className="mt-6 flex items-center justify-between">
