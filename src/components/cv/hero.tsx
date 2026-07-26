@@ -33,7 +33,7 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative min-h-[100svh] flex items-center pt-16 overflow-hidden"
+      className="relative pt-20 pb-8 md:pt-28 md:pb-12 overflow-hidden"
     >
       {/* Background layers */}
       <div className="absolute inset-0 bg-grid pointer-events-none [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />

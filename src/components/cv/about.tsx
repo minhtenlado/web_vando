@@ -21,7 +21,7 @@ export function About() {
   const stats = profile.stats || []
 
   return (
-    <section id="about" className="relative py-20 sm:py-28">
+    <section id="about" className="relative py-10 sm:py-16">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
         <SectionHeader
           index="01 / about"
