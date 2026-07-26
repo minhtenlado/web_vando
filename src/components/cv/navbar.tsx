@@ -62,9 +62,7 @@ export function Navbar() {
             <span className="absolute inset-0 rounded-md pulse-ring opacity-0 group-hover:opacity-100" />
           </span>
           <span className="font-mono text-sm font-semibold tracking-tight">
-            <span className="text-primary">{"<"}</span>
-            {profile.name.split(" ").slice(-1)[0].toLowerCase()}.dev
-            <span className="text-primary">{"/>"}</span>
+            {profile.name || "Phan Huỳnh Văn Đô"}
           </span>
         </Link>
 
