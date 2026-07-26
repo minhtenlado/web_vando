@@ -57,8 +57,19 @@ export async function PUT(
     }
     data.slug = slug;
   }
+function sanitizePostContent(c: string): string {
+  return c
+    .replace(/&shy;|&#173;|&#xAD;|\u00AD|\u200B|&#8203;|&#x200B;/gi, "")
+    .replace(/style="([^"]*)"/gi, (_match, styleVal) => {
+      const cleanStyle = styleVal
+        .replace(/word-break\s*:[^;]+;?/gi, "")
+        .replace(/hyphens\s*:[^;]+;?/gi, "");
+      return cleanStyle ? `style="${cleanStyle}"` : "";
+    });
+}
+
   if (typeof body.excerpt === "string") data.excerpt = body.excerpt.slice(0, 600);
-  if (typeof body.content === "string") data.content = body.content.slice(0, 5000000);
+  if (typeof body.content === "string") data.content = sanitizePostContent(body.content).slice(0, 5000000);
   if (typeof body.published === "boolean") data.published = body.published;
   if (typeof body.seoTitle === "string") data.seoTitle = body.seoTitle.slice(0, 300);
   if (typeof body.seoDescription === "string") data.seoDescription = body.seoDescription.slice(0, 600);

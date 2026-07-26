@@ -40,6 +40,17 @@ function slugify(s: string): string {
     .slice(0, 120);
 }
 
+function sanitizePostContent(c: string): string {
+  return c
+    .replace(/&shy;|&#173;|&#xAD;|\u00AD|\u200B|&#8203;|&#x200B;/gi, "")
+    .replace(/style="([^"]*)"/gi, (_match, styleVal) => {
+      const cleanStyle = styleVal
+        .replace(/word-break\s*:[^;]+;?/gi, "")
+        .replace(/hyphens\s*:[^;]+;?/gi, "");
+      return cleanStyle ? `style="${cleanStyle}"` : "";
+    });
+}
+
 export async function POST(req: NextRequest) {
   const guard = await requireAuth();
   if (guard instanceof Response) return guard;
@@ -72,7 +83,7 @@ export async function POST(req: NextRequest) {
       title,
       slug,
       excerpt: (body.excerpt ?? "").slice(0, 600),
-      content: (body.content ?? "").slice(0, 5000000),
+      content: sanitizePostContent((body.content ?? "")).slice(0, 5000000),
       published: !!body.published,
       seoTitle: body.seoTitle,
       seoDescription: body.seoDescription,

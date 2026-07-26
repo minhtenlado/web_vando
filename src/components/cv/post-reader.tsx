@@ -68,6 +68,21 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
     }
   }, [contentHtml])
 
+  // Clean HTML from hidden soft hyphens, zero-width spaces, and problematic word-break inline styles
+  const cleanedContent = React.useMemo(() => {
+    if (!contentHtml) return ""
+    return contentHtml
+      .replace(/&shy;|&#173;|&#xAD;|\u00AD|\u200B|&#8203;|&#x200B;/gi, "")
+      .replace(/style="([^"]*)"/gi, (_match, styleVal) => {
+        const cleanStyle = styleVal
+          .replace(/word-break\s*:[^;]+;?/gi, "")
+          .replace(/hyphens\s*:[^;]+;?/gi, "")
+        return cleanStyle ? `style="${cleanStyle}"` : ""
+      })
+      .replace(/<table/g, '<div class="w-full overflow-x-auto my-6"><table')
+      .replace(/<\/table>/g, '</table></div>')
+  }, [contentHtml])
+
   return (
     <article className="flex-1 w-full max-w-7xl mx-auto flex flex-col relative">
       
@@ -122,7 +137,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
               [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-xl [&_iframe]:shadow-md
               ql-editor-display"
             style={{ fontSize: '1em' }}
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(contentHtml.replace(/<table/g, '<div class="w-full overflow-x-auto my-6"><table').replace(/<\/table>/g, '</table></div>'), { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(cleanedContent, { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }}
           />
         </div>
       </div>
