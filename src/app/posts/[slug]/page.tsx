@@ -58,7 +58,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           </Link>
           <div className="flex items-center gap-4">
             <span className="font-mono text-sm font-semibold tracking-tight hidden sm:inline-block mr-2">
-              <span className="text-primary">{"<"}</span>đô.dev<span className="text-primary">{"/>"}</span>
+              Phan Huỳnh Văn Đô
             </span>
             <PostThemeToggle />
           </div>
