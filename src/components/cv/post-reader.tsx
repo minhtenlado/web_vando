@@ -10,10 +10,11 @@ type PostReaderProps = {
   pubDate: string
   readingTime: number
   contentHtml: string
+  pdfUrl?: string
   children?: React.ReactNode
 }
 
-export function PostReader({ title, pubDate, readingTime, contentHtml, children }: PostReaderProps) {
+export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, children }: PostReaderProps) {
   const [zoom, setZoom] = React.useState(100)
 
   // Minimum and maximum zoom levels
@@ -131,21 +132,31 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
             </div>
           </header>
 
-          <div 
-            className="prose prose-slate dark:prose-invert max-w-none
-              font-sans 
-              prose-headings:font-sans prose-headings:font-bold prose-headings:leading-tight
-              prose-p:leading-relaxed prose-p:text-foreground/90
-              prose-a:text-primary hover:prose-a:text-primary/80
-              prose-img:rounded-xl prose-img:shadow-md prose-img:mx-auto
-              prose-pre:bg-zinc-950 prose-pre:text-zinc-50 prose-pre:border prose-pre:border-zinc-800 prose-pre:shadow-sm
-              prose-code:text-pink-500 prose-code:bg-pink-500/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none
-              prose-table:w-full prose-td:border prose-td:border-border prose-th:border prose-th:border-border prose-td:p-3 prose-th:p-3 prose-th:bg-muted/50
-              [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-xl [&_iframe]:shadow-md
-              ql-editor-display"
-            style={{ fontSize: '1em' }}
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(cleanedContent, { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }}
-          />
+          {pdfUrl && (!contentHtml || contentHtml.trim() === "<p><br></p>" || contentHtml.trim() === "") ? (
+            <div className="w-full h-[80vh] min-h-[600px] border rounded-xl overflow-hidden mt-8 shadow-inner bg-zinc-100 dark:bg-zinc-900">
+              <iframe
+                src={`${pdfUrl}#toolbar=0`}
+                className="w-full h-full"
+                title={title}
+              />
+            </div>
+          ) : (
+            <div 
+              className="prose prose-slate dark:prose-invert max-w-none
+                font-sans 
+                prose-headings:font-sans prose-headings:font-bold prose-headings:leading-tight
+                prose-p:leading-relaxed prose-p:text-foreground/90
+                prose-a:text-primary hover:prose-a:text-primary/80
+                prose-img:rounded-xl prose-img:shadow-md prose-img:mx-auto
+                prose-pre:bg-zinc-950 prose-pre:text-zinc-50 prose-pre:border prose-pre:border-zinc-800 prose-pre:shadow-sm
+                prose-code:text-pink-500 prose-code:bg-pink-500/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none
+                prose-table:w-full prose-td:border prose-td:border-border prose-th:border prose-th:border-border prose-td:p-3 prose-th:p-3 prose-th:bg-muted/50
+                [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-xl [&_iframe]:shadow-md
+                ql-editor-display"
+              style={{ fontSize: '1em' }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(cleanedContent, { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }}
+            />
+          )}
         </div>
       </div>
 

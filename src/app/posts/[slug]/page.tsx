@@ -102,6 +102,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             pubDate={pubDate} 
             readingTime={readingTime} 
             contentHtml={post.content} 
+            pdfUrl={post.pdfUrl || undefined}
           >
             {relatedPosts.length > 0 && (
               <div className="mt-16 pt-10 border-t border-border">

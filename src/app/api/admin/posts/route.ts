@@ -27,6 +27,7 @@ type PostInput = {
   seoTitle?: string;
   seoDescription?: string;
   seoKeywords?: string;
+  pdfUrl?: string;
 };
 
 function slugify(s: string): string {
@@ -91,6 +92,7 @@ export async function POST(req: NextRequest) {
       seoTitle: body.seoTitle,
       seoDescription: body.seoDescription,
       seoKeywords: body.seoKeywords,
+      pdfUrl: body.pdfUrl,
       ...(body.createdAt ? { createdAt: new Date(body.createdAt) } : {}),
     },
   });
