@@ -110,8 +110,8 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
           </header>
 
           <div 
-            className="prose prose-slate dark:prose-invert max-w-none break-words whitespace-pre-wrap
-              font-serif 
+            className="prose prose-slate dark:prose-invert max-w-none
+              font-sans 
               prose-headings:font-sans prose-headings:font-bold prose-headings:leading-tight
               prose-p:leading-relaxed prose-p:text-foreground/90
               prose-a:text-primary hover:prose-a:text-primary/80
