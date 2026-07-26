@@ -91,8 +91,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       <main className="flex-1 container mx-auto max-w-[1600px] px-4 md:px-8 py-8 lg:py-12">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 items-start">
           
-          {/* Left Sidebar: TOC */}
-          <aside className="lg:w-64 lg:shrink-0 lg:sticky lg:top-24 lg:h-[calc(100vh-8rem)]">
+          {/* Left Sidebar: TOC (Sticky pinned when scrolling) */}
+          <aside className="lg:w-64 lg:shrink-0 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
             <TableOfContents selector=".prose" />
           </aside>
 

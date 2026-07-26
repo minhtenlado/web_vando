@@ -3,7 +3,7 @@
 @import "tw-animate-css";
 
 html, body {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 @custom-variant dark (&:is(.dark *));

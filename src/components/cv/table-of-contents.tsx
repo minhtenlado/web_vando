@@ -71,7 +71,7 @@ export function TableOfContents({ selector = ".prose" }: { selector?: string }) 
   if (items.length === 0) return null
 
   return (
-    <nav className="h-full overflow-auto hidden lg:block pr-6">
+    <nav className="hidden lg:block pr-4">
       <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-muted-foreground">
         {t("Phụ lục", "Contents")}
       </h4>
