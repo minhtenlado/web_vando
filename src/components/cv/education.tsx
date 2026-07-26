@@ -6,6 +6,7 @@ import { GraduationCap, Award, Calendar, BookOpen } from "lucide-react"
 import { SectionHeader } from "./section-header"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { getLocalized } from "@/lib/utils"
 import { educations, certifications } from "@/lib/cv/data"
 import { useLocale } from "@/components/cv/locale-context"
 
@@ -45,10 +46,10 @@ export function Education() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
                         <h4 className="font-semibold leading-tight">
-                          {edu.degree[locale]}
+                          {getLocalized(edu.degree, locale)}
                         </h4>
                         <p className="mt-1 text-sm text-primary flex items-center gap-1.5">
-                          <BookOpen className="h-3.5 w-3.5" /> {edu.school[locale]}
+                          <BookOpen className="h-3.5 w-3.5" /> {getLocalized(edu.school, locale)}
                         </p>
                       </div>
                       <Badge variant="secondary" className="gap-1 font-mono shrink-0">
@@ -56,7 +57,7 @@ export function Education() {
                       </Badge>
                     </div>
                     <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-                      {edu.detail[locale]}
+                      {getLocalized(edu.detail, locale)}
                     </p>
                   </Card>
                 </motion.div>

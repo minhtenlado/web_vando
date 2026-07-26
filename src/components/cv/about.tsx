@@ -9,6 +9,8 @@ import { useSiteData } from "@/components/cv/site-data-context"
 import DOMPurify from "isomorphic-dompurify"
 import { useLocale } from "@/components/cv/locale-context"
 
+import { cn, getLocalized } from "@/lib/utils"
+
 const iconMap: Record<string, React.ElementType> = {
   Terminal, Zap, ShieldCheck, Layers, Code, Cpu, Server, Database, Globe, Smartphone
 }
@@ -72,9 +74,9 @@ export function About() {
                         className="rounded-lg border border-border/60 bg-background/40 p-4 hover:border-primary/40 transition-colors"
                       >
                         <Icon className="h-5 w-5 text-primary mb-2" />
-                        <h4 className="text-sm font-semibold mb-1">{p.title[locale]}</h4>
+                        <h4 className="text-sm font-semibold mb-1">{getLocalized(p.title, locale)}</h4>
                         <p className="text-xs text-muted-foreground leading-relaxed">
-                          {p.desc[locale]}
+                          {getLocalized(p.desc, locale)}
                         </p>
                       </div>
                     )
@@ -103,7 +105,7 @@ export function About() {
                     {s.value}
                   </div>
                   <div className="mt-1 text-sm text-muted-foreground">
-                    {s.label[locale]}
+                    {getLocalized(s.label, locale)}
                   </div>
                 </div>
                 <span className="absolute top-2 right-2 font-mono text-[10px] text-muted-foreground/60">

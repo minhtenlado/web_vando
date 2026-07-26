@@ -43,6 +43,42 @@ const EMPTY: ConfigState = {
   techBadges: [],
 };
 
+function normalizeLocaleObj(val: any): { vi: string; en: string } {
+  if (typeof val === "object" && val !== null && !Array.isArray(val)) {
+    return {
+      vi: typeof val.vi === "string" ? val.vi : (typeof val.en === "string" ? val.en : ""),
+      en: typeof val.en === "string" ? val.en : (typeof val.vi === "string" ? val.vi : ""),
+    };
+  }
+  const str = typeof val === "string" ? val : "";
+  return { vi: str, en: str };
+}
+
+function parsePrinciples(arr: any[]): PrincipleItem[] {
+  return (arr ?? []).map((item: any) => ({
+    icon: String(item?.icon ?? ""),
+    title: normalizeLocaleObj(item?.title),
+    desc: normalizeLocaleObj(item?.desc),
+  }));
+}
+
+function parseStats(arr: any[]): StatItem[] {
+  return (arr ?? []).map((item: any) => ({
+    value: String(item?.value ?? ""),
+    label: normalizeLocaleObj(item?.label),
+  }));
+}
+
+function parseSkillGroups(arr: any[]): SkillGroupItem[] {
+  return (arr ?? []).map((group: any) => ({
+    title: normalizeLocaleObj(group?.title),
+    icon: String(group?.icon ?? ""),
+    skills: Array.isArray(group?.skills)
+      ? group.skills.map((s: any) => ({ name: String(s?.name ?? ""), level: Number(s?.level || 50) }))
+      : [],
+  }));
+}
+
 export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | null, locale: string }) {
   const { toast } = useToast();
   const [loading, setLoading] = React.useState(!initial);
@@ -52,9 +88,9 @@ export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | nul
       ? {
           summary: initial.summary ?? "",
           nowText: initial.nowText ?? "",
-          principles: initial.principles ?? [],
-          stats: initial.stats ?? [],
-          skillGroups: initial.skillGroups ?? [],
+          principles: parsePrinciples(initial.principles),
+          stats: parseStats(initial.stats),
+          skillGroups: parseSkillGroups(initial.skillGroups),
           aboutSubtitle: initial.aboutSubtitle ?? "",
           skillsSubtitle: initial.skillsSubtitle ?? "",
           experienceSubtitle: initial.experienceSubtitle ?? "",
@@ -70,9 +106,9 @@ export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | nul
       setForm({
         summary: initial.summary ?? "",
         nowText: initial.nowText ?? "",
-        principles: initial.principles ?? [],
-        stats: initial.stats ?? [],
-        skillGroups: initial.skillGroups ?? [],
+        principles: parsePrinciples(initial.principles),
+        stats: parseStats(initial.stats),
+        skillGroups: parseSkillGroups(initial.skillGroups),
         aboutSubtitle: initial.aboutSubtitle ?? "",
         skillsSubtitle: initial.skillsSubtitle ?? "",
         experienceSubtitle: initial.experienceSubtitle ?? "",
@@ -90,9 +126,9 @@ export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | nul
           setForm({
             summary: p.summary ?? "",
             nowText: p.nowText ?? "",
-            principles: p.principles ?? [],
-            stats: p.stats ?? [],
-            skillGroups: p.skillGroups ?? [],
+            principles: parsePrinciples(p.principles),
+            stats: parseStats(p.stats),
+            skillGroups: parseSkillGroups(p.skillGroups),
             aboutSubtitle: p.aboutSubtitle ?? "",
             skillsSubtitle: p.skillsSubtitle ?? "",
             experienceSubtitle: p.experienceSubtitle ?? "",

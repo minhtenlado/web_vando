@@ -16,6 +16,7 @@ import {
   HelpCircle,
   type LucideIcon,
 } from "lucide-react"
+import { getLocalized } from "@/lib/utils"
 import { SectionHeader } from "./section-header"
 import { Card } from "@/components/ui/card"
 import { useSiteData } from "@/components/cv/site-data-context"
@@ -97,7 +98,7 @@ export function Skills() {
                       <Icon className="h-5 w-5" />
                     </span>
                     <div>
-                      <h3 className="text-sm font-semibold">{group.title[locale]}</h3>
+                      <h3 className="text-sm font-semibold">{getLocalized(group.title, locale)}</h3>
                       <p className="font-mono text-[10px] text-muted-foreground">
                         {group.skills.length} modules
                       </p>
