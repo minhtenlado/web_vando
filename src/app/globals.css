@@ -228,6 +228,7 @@
 }
 .ql-editor-display .ql-align-justify {
   text-align: justify;
+  text-justify: inter-word;
 }
 .ql-editor-display .ql-size-small {
   font-size: 0.75em;
@@ -245,11 +246,13 @@
   word-break: keep-all !important;
   overflow-wrap: break-word !important;
   hyphens: none !important;
+  line-break: strict !important;
 }
 
 .ql-editor-display a,
 .prose a {
-  word-break: break-all;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
 }
 
 .ql-editor-display pre {
