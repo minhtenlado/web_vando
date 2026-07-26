@@ -95,30 +95,28 @@ export async function PUT(req: NextRequest) {
     create: { id: profileId, locale, ...data },
   });
 
-  // Sync bilingual arrays (principles, stats, skillGroups, techBadges, animatedRoles) to the opposite locale
-  const otherLocale = locale === "en" ? "vi" : "en";
-  const otherProfileId = `profile-${otherLocale}`;
-  const sharedData: Record<string, string> = {};
-  if (data.principles) sharedData.principles = data.principles;
-  if (data.stats) sharedData.stats = data.stats;
-  if (data.skillGroups) sharedData.skillGroups = data.skillGroups;
-  if (data.techBadges) sharedData.techBadges = data.techBadges;
-  if (data.animatedRoles) sharedData.animatedRoles = data.animatedRoles;
-  if (data.summary) sharedData.summary = data.summary;
-  if (data.nowText) sharedData.nowText = data.nowText;
-  if (data.aboutSubtitle) sharedData.aboutSubtitle = data.aboutSubtitle;
-  if (data.skillsSubtitle) sharedData.skillsSubtitle = data.skillsSubtitle;
-  if (data.experienceSubtitle) sharedData.experienceSubtitle = data.experienceSubtitle;
+  // Sync bilingual/shared arrays (principles, stats, skillGroups, techBadges, animatedRoles) to ALL profile rows
+  const allProfileIds = ["profile-vi", "profile-en", "profile"];
+  const syncData: Record<string, string> = {};
+  if (data.principles) syncData.principles = data.principles;
+  if (data.stats) syncData.stats = data.stats;
+  if (data.skillGroups) syncData.skillGroups = data.skillGroups;
+  if (data.techBadges) syncData.techBadges = data.techBadges;
+  if (data.animatedRoles) syncData.animatedRoles = data.animatedRoles;
 
-  if (Object.keys(sharedData).length > 0) {
-    try {
-      await db.profile.upsert({
-        where: { id: otherProfileId },
-        update: sharedData,
-        create: { id: otherProfileId, locale: otherLocale, ...sharedData },
-      });
-    } catch (e) {
-      console.error("[profile-api] Failed to sync shared profile data to opposite locale:", e);
+  if (Object.keys(syncData).length > 0) {
+    for (const pid of allProfileIds) {
+      if (pid === profileId) continue;
+      const targetLoc = pid === "profile-en" ? "en" : "vi";
+      try {
+        await db.profile.upsert({
+          where: { id: pid },
+          update: syncData,
+          create: { id: pid, locale: targetLoc, ...syncData },
+        });
+      } catch (e) {
+        console.error(`[profile-api] Sync failed for ${pid}:`, e);
+      }
     }
   }
 

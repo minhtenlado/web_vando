@@ -118,6 +118,16 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         return secondary ? (secondary as any)[key] : null;
       };
 
+      const getArrayVal = (key: string): any[] => {
+        const vArr = safeParseJsonObjArr(pRowVi ? (pRowVi as any)[key] : null);
+        const eArr = safeParseJsonObjArr(pRowEn ? (pRowEn as any)[key] : null);
+        const lArr = safeParseJsonObjArr(pRowLegacy ? (pRowLegacy as any)[key] : null);
+        if (vArr.length >= eArr.length && vArr.length >= lArr.length && vArr.length > 0) return vArr;
+        if (eArr.length >= lArr.length && eArr.length > 0) return eArr;
+        if (lArr.length > 0) return lArr;
+        return vArr.length ? vArr : eArr;
+      };
+
       profile = {
         name: getVal("name") || "",
         role: getVal("role") || "",
@@ -130,16 +140,16 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         linkedin: getVal("linkedin") || "",
         summary: getVal("summary") || "",
         avatar: getVal("avatar") || "",
-        principles: safeParseJsonObjArr(getVal("principles")),
-        stats: safeParseJsonObjArr(getVal("stats")),
+        principles: getArrayVal("principles"),
+        stats: getArrayVal("stats"),
         nowText: getVal("nowText") || "",
-        skillGroups: safeParseJsonObjArr(getVal("skillGroups")),
+        skillGroups: getArrayVal("skillGroups"),
         socials: safeParseJsonObjArr(getVal("socials")),
         aboutSubtitle: getVal("aboutSubtitle") || "",
         skillsSubtitle: getVal("skillsSubtitle") || "",
         experienceSubtitle: getVal("experienceSubtitle") || "",
-        animatedRoles: safeParseJsonObjArr(getVal("animatedRoles")).map((i: any) => String(i)),
-        techBadges: safeParseJsonObjArr(getVal("techBadges")).map((i: any) => ({
+        animatedRoles: getArrayVal("animatedRoles").map((i: any) => String(i)),
+        techBadges: getArrayVal("techBadges").map((i: any) => ({
           icon: String(i?.icon ?? ""),
           text: String(i?.text ?? "")
         })),
