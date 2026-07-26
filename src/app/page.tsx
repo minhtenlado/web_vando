@@ -1,5 +1,4 @@
-'use client'
-
+import { getSiteData } from "@/lib/cv/site-data-server"
 import { Navbar } from "@/components/cv/navbar"
 import { ScrollProgress } from "@/components/cv/scroll-progress"
 import { CommandPalette } from "@/components/cv/command-palette"
@@ -13,13 +12,19 @@ import { Posts } from "@/components/cv/posts"
 import { Education } from "@/components/cv/education"
 import { Contact } from "@/components/cv/contact"
 import { Footer } from "@/components/cv/footer"
-
 import { LocaleProvider } from "@/components/cv/locale-context"
+import { cookies } from "next/headers"
 
-export default function Home() {
+export const dynamic = "force-dynamic"
+
+export default async function Home() {
+  const cookieStore = await cookies()
+  const locale = cookieStore.get("cv-locale")?.value || "vi"
+  const initialData = await getSiteData(locale)
+
   return (
-    <LocaleProvider>
-      <SiteDataProvider>
+    <LocaleProvider initialLocale={locale}>
+      <SiteDataProvider initialData={initialData}>
         <div className="relative min-h-screen flex flex-col bg-background">
           <ScrollProgress />
           <CommandPalette />

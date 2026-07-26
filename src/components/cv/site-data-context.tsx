@@ -1,13 +1,11 @@
 'use client'
 
 import * as React from "react"
-import type { SiteData, SiteProfile, SiteProject, SiteExperience, SitePost } from "@/lib/cv/site-data-server"
+import type { SiteData, SiteProfile, SiteProject, SiteExperience } from "@/lib/cv/site-data-server"
 import {
   profile as defaultProfile,
   projects as defaultProjects,
   experiences as defaultExperiences,
-  type Project,
-  type Experience,
 } from "@/lib/cv/data"
 import { useLocale } from "./locale-context"
 
@@ -25,17 +23,25 @@ const defaultData: SiteData = {
 
 const SiteDataContext = React.createContext<Ctx>({
   ...defaultData,
-  loading: true,
+  loading: false,
   refresh: async () => {},
 })
 
-export function SiteDataProvider({ children }: { children: React.ReactNode }) {
-  const [data, setData] = React.useState<SiteData>(defaultData)
-  const [loading, setLoading] = React.useState(true)
+export function SiteDataProvider({
+  children,
+  initialData,
+}: {
+  children: React.ReactNode
+  initialData?: SiteData
+}) {
+  const [data, setData] = React.useState<SiteData>(initialData || defaultData)
+  const [loading, setLoading] = React.useState(!initialData)
   const { locale } = useLocale()
+  const isFirstRun = React.useRef(true)
 
   const refresh = React.useCallback(async () => {
     try {
+      setLoading(true)
       const res = await fetch(`/api/site-data?locale=${locale}`, { cache: "no-store" })
       if (res.ok) {
         const json = await res.json()
@@ -47,15 +53,19 @@ export function SiteDataProvider({ children }: { children: React.ReactNode }) {
         })
       }
     } catch {
-      // keep defaults
+      // keep existing data
     } finally {
       setLoading(false)
     }
   }, [locale])
 
   React.useEffect(() => {
+    if (isFirstRun.current) {
+      isFirstRun.current = false
+      if (initialData) return
+    }
     refresh()
-  }, [refresh])
+  }, [locale, refresh, initialData])
 
   const value = React.useMemo(
     () => ({ ...data, loading, refresh }),
