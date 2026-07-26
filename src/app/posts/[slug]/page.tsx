@@ -57,6 +57,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const wordCount = post.content.replace(/<[^>]*>?/gm, "").trim().split(/\s+/).length
   const readingTime = Math.max(1, Math.ceil(wordCount / 200))
 
+  const isPdfMode = !!(post.pdfUrl && (!post.content || post.content.trim() === "<p><br></p>" || post.content.trim() === ""))
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col">
       <script
@@ -89,21 +91,25 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       </header>
 
       <main className="flex-1 container mx-auto max-w-[1600px] px-4 md:px-8 py-8 lg:py-12">
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 items-start">
+        <div className={`flex flex-col lg:flex-row gap-8 lg:gap-16 items-start ${isPdfMode ? "justify-center" : ""}`}>
           
           {/* Left Sidebar: TOC (Sticky pinned when scrolling) */}
-          <aside className="lg:w-64 lg:shrink-0 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
-            <TableOfContents selector=".prose" />
-          </aside>
+          {!isPdfMode && (
+            <aside className="lg:w-64 lg:shrink-0 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto hidden lg:block">
+              <TableOfContents selector=".prose" />
+            </aside>
+          )}
 
           {/* Right Content: Article */}
-          <PostReader 
-            title={post.title} 
-            pubDate={pubDate} 
-            readingTime={readingTime} 
-            contentHtml={post.content} 
-            pdfUrl={post.pdfUrl || undefined}
-          >
+          <div className={isPdfMode ? "w-full max-w-5xl mx-auto" : "flex-1 w-full"}>
+            <PostReader 
+              title={post.title} 
+              pubDate={pubDate} 
+              readingTime={readingTime} 
+              contentHtml={post.content} 
+              pdfUrl={post.pdfUrl || undefined}
+              isPdfMode={isPdfMode}
+            >
             {relatedPosts.length > 0 && (
               <div className="mt-16 pt-10 border-t border-border">
                 <h3 className="text-xl font-bold font-serif mb-6 text-foreground">Đọc thêm bài viết khác</h3>
@@ -117,7 +123,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                 </div>
               </div>
             )}
-          </PostReader>
+            </PostReader>
+          </div>
           
         </div>
       </main>
