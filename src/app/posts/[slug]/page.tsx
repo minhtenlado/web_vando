@@ -6,6 +6,7 @@ import Link from "next/link"
 import { TableOfContents } from "@/components/cv/table-of-contents"
 import { PostReader } from "@/components/cv/post-reader"
 import { PostThemeToggle } from "@/components/cv/post-theme-toggle"
+import { BackButton } from "@/components/cv/back-button"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -77,10 +78,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         />
         <header className="flex-none h-14 bg-white dark:bg-zinc-950 border-b px-4 md:px-6 flex items-center justify-between z-50 shadow-sm">
           <div className="flex items-center gap-3 sm:gap-4 truncate">
-            <Link href="/#posts" className="text-muted-foreground hover:text-foreground transition-colors shrink-0 flex items-center gap-2 group" title="Trở về">
-              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-              <span className="text-sm font-medium hidden sm:block">Trở về</span>
-            </Link>
+            <BackButton />
             <div className="w-px h-4 bg-border shrink-0"></div>
             <h1 className="text-sm md:text-base font-semibold text-primary truncate" title={post.title}>
               {post.title}
@@ -123,10 +121,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       {/* Top minimal header */}
       <header className="sticky top-0 z-40 w-full backdrop-blur-xl bg-background/80 border-b border-border shadow-sm">
         <div className="container mx-auto max-w-7xl px-4 md:px-8 h-16 flex items-center justify-between">
-          <Link href="/#posts" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors group">
-            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-            <span>Trở về</span>
-          </Link>
+          <BackButton />
           <div className="flex items-center gap-4">
             <span className="font-mono text-sm font-semibold tracking-tight hidden sm:inline-block mr-2">
               Phan Huỳnh Văn Đô
