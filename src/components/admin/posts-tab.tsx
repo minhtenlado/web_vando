@@ -374,14 +374,53 @@ export function PostsTab({ locale }: { locale: string }) {
 
             <div className="space-y-4 border rounded-xl p-4 bg-muted/20 mt-4">
               <h3 className="font-semibold text-sm">Cấu hình SEO</h3>
+
+              {/* Google Preview */}
+              <div className="rounded-lg border border-border/60 bg-background p-4 space-y-1">
+                <p className="text-xs text-muted-foreground font-mono mb-2">🔍 Xem trước trên Google</p>
+                <p className="text-blue-600 dark:text-blue-400 text-base font-medium leading-snug truncate">
+                  {(form.seoTitle || form.title || "Tiêu đề bài viết").slice(0, 60)}
+                  {(form.seoTitle || form.title || "").length > 60 ? "..." : ""} — Phan Huỳnh Văn Đô
+                </p>
+                <p className="text-green-700 dark:text-green-500 text-xs font-mono">
+                  phanhuynh.id.vn › posts › {form.slug || "bai-viet"}
+                </p>
+                <p className="text-sm text-muted-foreground line-clamp-2">
+                  {(form.seoDescription || form.excerpt || "Mô tả sẽ hiển thị ở đây...").slice(0, 160)}
+                  {(form.seoDescription || form.excerpt || "").length > 160 ? "..." : ""}
+                </p>
+              </div>
+
+              {/* SEO Title */}
               <div className="space-y-1.5">
                 <Label className="font-mono text-xs">Tiêu đề SEO (tùy chọn)</Label>
                 <Input
                   value={form.seoTitle}
                   onChange={(e) => setForm({ ...form, seoTitle: e.target.value })}
                   placeholder="Tiêu đề hiển thị trên Google..."
+                  maxLength={300}
                 />
+                <div className="flex items-center justify-between">
+                  <p className={`text-xs ${
+                    form.seoTitle.length === 0 ? "text-muted-foreground" :
+                    form.seoTitle.length < 30 ? "text-yellow-500" :
+                    form.seoTitle.length <= 60 ? "text-green-500" :
+                    "text-red-500"
+                  }`}>
+                    {form.seoTitle.length === 0 ? "💡 Nên có 30–60 ký tự để tối ưu" :
+                     form.seoTitle.length < 30 ? `⚠️ Quá ngắn — cần thêm ${30 - form.seoTitle.length} ký tự nữa` :
+                     form.seoTitle.length <= 60 ? "✅ Độ dài tối ưu!" :
+                     `❌ Quá dài ${form.seoTitle.length - 60} ký tự — Google sẽ cắt bớt`}
+                  </p>
+                  <span className={`text-xs font-mono ${
+                    form.seoTitle.length === 0 ? "text-muted-foreground" :
+                    form.seoTitle.length >= 30 && form.seoTitle.length <= 60 ? "text-green-500" :
+                    form.seoTitle.length > 60 ? "text-red-500" : "text-yellow-500"
+                  }`}>{form.seoTitle.length}/60</span>
+                </div>
               </div>
+
+              {/* SEO Description */}
               <div className="space-y-1.5">
                 <Label className="font-mono text-xs">Mô tả SEO (Meta Description)</Label>
                 <Textarea
@@ -389,15 +428,50 @@ export function PostsTab({ locale }: { locale: string }) {
                   onChange={(e) => setForm({ ...form, seoDescription: e.target.value })}
                   rows={2}
                   placeholder="Mô tả ngắn gọn về bài viết để hiển thị trên công cụ tìm kiếm..."
+                  maxLength={600}
                 />
+                <div className="flex items-center justify-between">
+                  <p className={`text-xs ${
+                    form.seoDescription.length === 0 ? "text-muted-foreground" :
+                    form.seoDescription.length < 120 ? "text-yellow-500" :
+                    form.seoDescription.length <= 160 ? "text-green-500" :
+                    "text-red-500"
+                  }`}>
+                    {form.seoDescription.length === 0 ? "💡 Nên có 120–160 ký tự để tối ưu" :
+                     form.seoDescription.length < 120 ? `⚠️ Quá ngắn — cần thêm ${120 - form.seoDescription.length} ký tự nữa` :
+                     form.seoDescription.length <= 160 ? "✅ Độ dài tối ưu!" :
+                     `❌ Quá dài ${form.seoDescription.length - 160} ký tự — Google sẽ cắt bớt`}
+                  </p>
+                  <span className={`text-xs font-mono ${
+                    form.seoDescription.length === 0 ? "text-muted-foreground" :
+                    form.seoDescription.length >= 120 && form.seoDescription.length <= 160 ? "text-green-500" :
+                    form.seoDescription.length > 160 ? "text-red-500" : "text-yellow-500"
+                  }`}>{form.seoDescription.length}/160</span>
+                </div>
               </div>
+
+              {/* SEO Keywords */}
               <div className="space-y-1.5">
                 <Label className="font-mono text-xs">Từ khóa SEO (Keywords)</Label>
                 <Input
                   value={form.seoKeywords}
                   onChange={(e) => setForm({ ...form, seoKeywords: e.target.value })}
                   placeholder="c, c++, vi điều khiển, stm32..."
+                  maxLength={300}
                 />
+                <div className="flex items-center justify-between">
+                  <p className={`text-xs ${
+                    form.seoKeywords.length === 0 ? "text-muted-foreground" :
+                    form.seoKeywords.length < 10 ? "text-yellow-500" :
+                    form.seoKeywords.length <= 300 ? "text-green-500" :
+                    "text-red-500"
+                  }`}>
+                    {form.seoKeywords.length === 0 ? "💡 Nhập từ khóa cách nhau bằng dấu phẩy" :
+                     form.seoKeywords.length < 10 ? "⚠️ Nên thêm nhiều từ khóa hơn" :
+                     `✅ ${form.seoKeywords.split(",").filter(k => k.trim()).length} từ khóa`}
+                  </p>
+                  <span className="text-xs font-mono text-muted-foreground">{form.seoKeywords.length}/300</span>
+                </div>
               </div>
             </div>
 
