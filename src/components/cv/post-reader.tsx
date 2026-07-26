@@ -133,7 +133,8 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, i
                 <Clock className="h-[1.2em] w-[1.2em]" />
                 <span>{readingTime} phút đọc</span>
               </div>
-            </header>
+            </div>
+          </header>
           )}
 
           {isPdfMode ? (
