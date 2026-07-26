@@ -50,6 +50,7 @@ export type SitePost = {
   seoTitle?: string | null
   seoDescription?: string | null
   seoKeywords?: string | null
+  pdfUrl?: string | null
 }
 
 export type SiteData = {
@@ -92,6 +93,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
           seoTitle: true,
           seoDescription: true,
           seoKeywords: true,
+          pdfUrl: true,
         }
       }),
     ])
@@ -210,6 +212,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
       seoTitle: po.seoTitle,
       seoDescription: po.seoDescription,
       seoKeywords: po.seoKeywords,
+      pdfUrl: po.pdfUrl,
     }))
   } catch (e) {
     console.error("[site-data] Database error:", e)
