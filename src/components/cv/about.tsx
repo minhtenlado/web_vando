@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { motion } from "framer-motion"
-import { Terminal, Zap, ShieldCheck, Layers, Code, Cpu, Server, Database, Globe, Smartphone, HelpCircle } from "lucide-react"
+import { Terminal, Zap, ShieldCheck, Layers, Code, Cpu, Server, Database, Globe, Smartphone, HelpCircle, BookOpen, Lightbulb, Brain, Camera, Microchip, Network, Cloud, Radio } from "lucide-react"
 import { SectionHeader } from "./section-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { useSiteData } from "@/components/cv/site-data-context"
@@ -12,7 +12,8 @@ import { useLocale } from "@/components/cv/locale-context"
 import { cn, getLocalized } from "@/lib/utils"
 
 const iconMap: Record<string, React.ElementType> = {
-  Terminal, Zap, ShieldCheck, Layers, Code, Cpu, Server, Database, Globe, Smartphone
+  Terminal, Zap, ShieldCheck, Layers, Code, Cpu, Server, Database, Globe, Smartphone, BookOpen, Lightbulb, Brain, Camera, Microchip, Network, Cloud, Radio,
+  terminal: Terminal, zap: Zap, shieldcheck: ShieldCheck, layers: Layers, code: Code, cpu: Cpu, server: Server, database: Database, globe: Globe, smartphone: Smartphone, bookopen: BookOpen, lightbulb: Lightbulb, brain: Brain, camera: Camera, microchip: Microchip, network: Network, cloud: Cloud, radio: Radio
 }
 
 export function About() {

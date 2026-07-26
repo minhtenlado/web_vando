@@ -3,11 +3,17 @@
 import * as React from "react"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { MapPin, Mail, Github, Linkedin, ArrowDown, Cpu, Radio } from "lucide-react"
+import { MapPin, Mail, Github, Linkedin, ArrowDown, Cpu, Radio, Brain, Camera, Microchip, Network, Code, Terminal, Cloud, BookOpen, Lightbulb } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useSiteData } from "@/components/cv/site-data-context"
 import { useLocale } from "@/components/cv/locale-context"
+
+const badgeIconMap: Record<string, React.ElementType> = {
+  cpu: Cpu, radio: Radio, brain: Brain, camera: Camera, microchip: Microchip,
+  network: Network, code: Code, terminal: Terminal, cloud: Cloud, bookopen: BookOpen, lightbulb: Lightbulb,
+  Cpu, Radio, Brain, Camera, Microchip, Network, Code, Terminal, Cloud, BookOpen, Lightbulb
+}
 
 const defaultRoles = [
   "Embedded Software Engineer",
@@ -82,7 +88,8 @@ export function Hero() {
                 { icon: "radio", text: "FreeRTOS · Zephyr" },
                 { icon: "", text: "C / C++ / Python" }
               ]).map((badge, idx) => {
-                const IconComponent = badge.icon === "cpu" ? Cpu : badge.icon === "radio" ? Radio : null;
+                const iconKey = badge.icon ? badge.icon.toLowerCase() : "";
+                const IconComponent = badgeIconMap[iconKey] || null;
 
                 return (
                   <Badge key={idx} variant="secondary" className="gap-1.5 py-1.5">
