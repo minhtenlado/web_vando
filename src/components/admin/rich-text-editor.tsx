@@ -91,85 +91,87 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
 
   return (
     <div className={`rich-text-editor relative ${className || ""}`}>
-      {/* Custom Table insertion button integrated directly inside the Quill toolbar */}
-      <div className="absolute right-2 top-1.5 z-50">
-        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="h-7 px-2.5 text-xs font-medium bg-background border border-border shadow-xs hover:bg-accent"
-            >
-              <Table className="h-3.5 w-3.5 mr-1.5 text-primary" />
-              Chèn Bảng
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-64 p-3.5 space-y-3" align="end">
-            <div className="flex items-center justify-between">
-              <span className="font-semibold text-xs flex items-center gap-1.5 text-foreground">
-                <Table className="h-4 w-4 text-primary" /> Chèn Bảng tùy chỉnh
-              </span>
-            </div>
+      {/* Sticky container pinned at top: 0 alongside .ql-toolbar so button moves synchronously when scrolling */}
+      <div className="sticky top-0 z-50 h-0 flex justify-end pr-2 pt-1.5 pointer-events-none">
+        <div className="pointer-events-auto">
+          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-7 px-2.5 text-xs font-medium bg-background border border-border shadow-xs hover:bg-accent"
+              >
+                <Table className="h-3.5 w-3.5 mr-1.5 text-primary" />
+                Chèn Bảng
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 p-3.5 space-y-3" align="end">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-xs flex items-center gap-1.5 text-foreground">
+                  <Table className="h-4 w-4 text-primary" /> Chèn Bảng tùy chỉnh
+                </span>
+              </div>
 
-            <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-[11px] text-muted-foreground">Số hàng</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={30}
+                    value={rows}
+                    onChange={(e) => setRows(Math.max(1, parseInt(e.target.value) || 1))}
+                    className="h-8 text-xs font-mono"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-[11px] text-muted-foreground">Số cột</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={15}
+                    value={cols}
+                    onChange={(e) => setCols(Math.max(1, parseInt(e.target.value) || 1))}
+                    className="h-8 text-xs font-mono"
+                  />
+                </div>
+              </div>
+
               <div className="space-y-1">
-                <Label className="text-[11px] text-muted-foreground">Số hàng</Label>
-                <Input
-                  type="number"
-                  min={1}
-                  max={30}
-                  value={rows}
-                  onChange={(e) => setRows(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="h-8 text-xs font-mono"
-                />
+                <Label className="text-[11px] text-muted-foreground">Nhanh</Label>
+                <div className="flex gap-1">
+                  {[
+                    { r: 2, c: 2 },
+                    { r: 3, c: 3 },
+                    { r: 4, c: 4 },
+                    { r: 5, c: 3 },
+                  ].map((p) => (
+                    <Button
+                      key={`${p.r}x${p.c}`}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-6 px-1.5 text-[10px] flex-1 font-mono"
+                      onClick={() => insertCustomTable(p.r, p.c)}
+                    >
+                      {p.r}x{p.c}
+                    </Button>
+                  ))}
+                </div>
               </div>
-              <div className="space-y-1">
-                <Label className="text-[11px] text-muted-foreground">Số cột</Label>
-                <Input
-                  type="number"
-                  min={1}
-                  max={15}
-                  value={cols}
-                  onChange={(e) => setCols(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="h-8 text-xs font-mono"
-                />
-              </div>
-            </div>
 
-            <div className="space-y-1">
-              <Label className="text-[11px] text-muted-foreground">Nhanh</Label>
-              <div className="flex gap-1">
-                {[
-                  { r: 2, c: 2 },
-                  { r: 3, c: 3 },
-                  { r: 4, c: 4 },
-                  { r: 5, c: 3 },
-                ].map((p) => (
-                  <Button
-                    key={`${p.r}x${p.c}`}
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="h-6 px-1.5 text-[10px] flex-1 font-mono"
-                    onClick={() => insertCustomTable(p.r, p.c)}
-                  >
-                    {p.r}x{p.c}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <Button
-              type="button"
-              size="sm"
-              className="w-full h-8 text-xs font-medium"
-              onClick={() => insertCustomTable(rows, cols)}
-            >
-              Tạo bảng {rows} × {cols}
-            </Button>
-          </PopoverContent>
-        </Popover>
+              <Button
+                type="button"
+                size="sm"
+                className="w-full h-8 text-xs font-medium"
+                onClick={() => insertCustomTable(rows, cols)}
+              >
+                Tạo bảng {rows} × {cols}
+              </Button>
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
 
       <ReactQuill
