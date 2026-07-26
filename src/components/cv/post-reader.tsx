@@ -10,8 +10,6 @@ type PostReaderProps = {
   pubDate: string
   readingTime: number
   contentHtml: string
-  readingTime: number
-  contentHtml: string
   children?: React.ReactNode
 }
 
