@@ -1,14 +1,30 @@
 'use client'
 
 import { ArrowLeft } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export function BackButton() {
+  const router = useRouter()
+
   const handleBack = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
-    // Sử dụng điều hướng cứng (hard navigation) để đảm bảo trình duyệt 
-    // chắc chắn sẽ tự động cuộn (scroll) tới đúng phần #posts 
-    // (Bỏ qua các lỗi của Next.js router khi cuộn tới hash từ trang khác)
-    window.location.href = "/#posts"
+    
+    // 1. Chuyển hướng về trang chủ
+    router.push("/")
+    
+    // 2. Liên tục kiểm tra xem phần tử #posts đã render chưa để scroll tới
+    let attempts = 0
+    const interval = setInterval(() => {
+      const el = document.getElementById("posts")
+      if (el) {
+        clearInterval(interval)
+        // Khi trang đã load xong layout, thay đổi URL hash và cuộn xuống
+        window.history.replaceState(null, '', '/#posts')
+        el.scrollIntoView({ behavior: "smooth" })
+      }
+      attempts++
+      if (attempts > 20) clearInterval(interval) // Dừng lại sau 2 giây nếu không tìm thấy
+    }, 100)
   }
 
   return (
