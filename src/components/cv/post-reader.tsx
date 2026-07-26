@@ -68,16 +68,23 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
     }
   }, [contentHtml])
 
-  // Clean HTML from hidden soft hyphens, zero-width spaces, and problematic word-break inline styles
+  // Clean HTML: replace &amp;nbsp; with regular spaces, strip soft hyphens/zero-width spaces,
+  // remove problematic word-break inline styles
   const cleanedContent = React.useMemo(() => {
     if (!contentHtml) return ""
     return contentHtml
+      // Replace non-breaking spaces with regular spaces (ROOT CAUSE of word-break issues)
+      .replace(/&nbsp;/gi, " ")
+      .replace(/\u00A0/g, " ")
+      // Remove soft hyphens and zero-width spaces
       .replace(/&shy;|&#173;|&#xAD;|\u00AD|\u200B|&#8203;|&#x200B;/gi, "")
+      // Strip problematic inline styles
       .replace(/style="([^"]*)"/gi, (_match, styleVal) => {
         const cleanStyle = styleVal
           .replace(/word-break\s*:[^;]+;?/gi, "")
           .replace(/hyphens\s*:[^;]+;?/gi, "")
-        return cleanStyle ? `style="${cleanStyle}"` : ""
+          .replace(/overflow-wrap\s*:[^;]+;?/gi, "")
+        return cleanStyle.trim() ? `style="${cleanStyle}"` : ""
       })
       .replace(/<table/g, '<div class="w-full overflow-x-auto my-6"><table')
       .replace(/<\/table>/g, '</table></div>')

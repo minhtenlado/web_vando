@@ -239,27 +239,28 @@
 .ql-editor-display .ql-size-huge {
   font-size: 2.5em;
 }
+/* Vietnamese-safe text wrapping: only break at spaces, never mid-word */
 .ql-editor-display,
-.prose,
-.ql-editor-display *,
-.prose * {
-  word-break: keep-all !important;
+.prose {
+  word-break: normal !important;
   overflow-wrap: break-word !important;
   hyphens: none !important;
-  line-break: strict !important;
 }
 
+/* Links: allow breaking long URLs to prevent overflow */
 .ql-editor-display a,
 .prose a {
   overflow-wrap: anywhere !important;
   word-break: normal !important;
 }
 
+/* Code blocks: allow horizontal scroll, wrap long lines */
 .ql-editor-display pre {
   max-width: 100%;
   overflow-x: auto;
   white-space: pre-wrap;
-  word-break: break-all;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
 }
 .ql-editor-display img, .ql-editor-display video, .ql-editor-display iframe {
   max-width: 100%;
