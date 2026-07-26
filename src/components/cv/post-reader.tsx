@@ -47,7 +47,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
       script.onload = highlightBlocks
       document.body.appendChild(script)
       scriptElement = script;
-    } else if (window.hljs) {
+    } else if ((window as any).hljs) {
       highlightBlocks();
     }
 
