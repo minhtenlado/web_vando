@@ -71,13 +71,25 @@ export function Education() {
                       <span className="absolute -left-[31px] top-4 grid place-items-center h-3.5 w-3.5 rounded-full bg-background border-2 border-primary ring-4 ring-background" />
                       <Card className="p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/40 transition-colors hover:shadow-md">
                         <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1">
-                            <h4 className="font-semibold leading-tight">
-                              {getLocalized(edu.degree, locale)}
-                            </h4>
-                            <p className="mt-1 text-sm text-primary flex items-center gap-1.5">
-                              <BookOpen className="h-3.5 w-3.5" /> {getLocalized(edu.school, locale)}
-                            </p>
+                          <div className="flex items-start gap-3.5 flex-1 min-w-0">
+                            {edu.logo && (
+                              <div className="relative shrink-0 h-12 w-12 sm:h-14 sm:w-14 rounded-xl border border-border/80 bg-background/90 p-2 flex items-center justify-center overflow-hidden shadow-sm backdrop-blur">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={edu.logo}
+                                  alt={getLocalized(edu.school, locale)}
+                                  className="max-h-full max-w-full object-contain w-auto h-auto transition-transform hover:scale-105"
+                                />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold leading-tight text-base sm:text-lg">
+                                {getLocalized(edu.degree, locale)}
+                              </h4>
+                              <p className="mt-1.5 text-sm text-primary flex items-center gap-1.5 font-medium">
+                                <BookOpen className="h-3.5 w-3.5 shrink-0" /> {getLocalized(edu.school, locale)}
+                              </p>
+                            </div>
                           </div>
                           <Badge variant="secondary" className="gap-1 font-mono shrink-0">
                             <Calendar className="h-3 w-3" /> {edu.period}
@@ -184,13 +196,25 @@ export function Education() {
                     <span className="absolute -left-[31px] top-4 grid place-items-center h-3.5 w-3.5 rounded-full bg-background border-2 border-primary ring-4 ring-background" />
                     <Card className="p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/40 transition-colors hover:shadow-md">
                       <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <h4 className="font-semibold leading-tight">
-                            {getLocalized(edu.degree, locale)}
-                          </h4>
-                          <p className="mt-1 text-sm text-primary flex items-center gap-1.5">
-                            <BookOpen className="h-3.5 w-3.5" /> {getLocalized(edu.school, locale)}
-                          </p>
+                        <div className="flex items-start gap-3.5 flex-1 min-w-0">
+                          {edu.logo && (
+                            <div className="relative shrink-0 h-12 w-12 sm:h-14 sm:w-14 rounded-xl border border-border/80 bg-background/90 p-2 flex items-center justify-center overflow-hidden shadow-sm backdrop-blur">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={edu.logo}
+                                alt={getLocalized(edu.school, locale)}
+                                className="max-h-full max-w-full object-contain w-auto h-auto transition-transform hover:scale-105"
+                              />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold leading-tight text-base sm:text-lg">
+                              {getLocalized(edu.degree, locale)}
+                            </h4>
+                            <p className="mt-1.5 text-sm text-primary flex items-center gap-1.5 font-medium">
+                              <BookOpen className="h-3.5 w-3.5 shrink-0" /> {getLocalized(edu.school, locale)}
+                            </p>
+                          </div>
                         </div>
                         <Badge variant="secondary" className="gap-1 font-mono shrink-0">
                           <Calendar className="h-3 w-3" /> {edu.period}

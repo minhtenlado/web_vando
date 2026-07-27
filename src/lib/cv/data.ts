@@ -190,6 +190,7 @@ export type EducationItem = {
   school: Record<"vi" | "en", string>
   period: string
   detail: Record<"vi" | "en", string>
+  logo?: string
 }
 
 export const educations: EducationItem[] = [

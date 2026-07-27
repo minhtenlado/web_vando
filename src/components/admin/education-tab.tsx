@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, Save, Trash, Plus, GraduationCap, Award, BookOpen } from "lucide-react";
+import { Loader2, Save, Trash, Plus, GraduationCap, Award, BookOpen, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +21,7 @@ type EducationItem = {
   school: LocaleString;
   period: string;
   detail: LocaleString;
+  logo?: string;
 };
 
 type CertificationItem = {
@@ -71,6 +72,7 @@ function parseEducations(arr: any[]): EducationItem[] {
     school: normalizeLocaleObj(item?.school),
     period: String(item?.period ?? ""),
     detail: normalizeLocaleObj(item?.detail),
+    logo: item?.logo ? String(item.logo) : "",
   }));
 }
 
@@ -243,6 +245,75 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
                   }}
                   placeholder="VD: 2022 - 2027 (hiển thị chung cho 2 ngôn ngữ)"
                 />
+              </div>
+              <div className="space-y-1">
+                <Label>Logo Trường / Tổ chức (Tùy chọn)</Label>
+                <div className="flex items-center gap-3">
+                  {edu.logo ? (
+                    <div className="relative size-12 rounded-lg border bg-background p-1 flex items-center justify-center shrink-0 overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={edu.logo} alt="Logo preview" className="max-h-full max-w-full object-contain" />
+                      <button
+                        type="button"
+                        className="absolute top-0 right-0 bg-destructive text-destructive-foreground p-0.5 rounded-bl"
+                        onClick={() => {
+                          const arr = [...form.educations];
+                          arr[idx].logo = "";
+                          update("educations", arr);
+                        }}
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </div>
+                  ) : null}
+                  <div className="flex-1 flex gap-2">
+                    <Input
+                      value={edu.logo || ""}
+                      onChange={(e) => {
+                        const arr = [...form.educations];
+                        arr[idx].logo = e.target.value;
+                        update("educations", arr);
+                      }}
+                      placeholder="URL logo (hoặc tải ảnh từ máy tính...)"
+                    />
+                    <Label className="cursor-pointer">
+                      <div className="h-10 px-3 flex items-center justify-center gap-1.5 border rounded-md bg-secondary hover:bg-secondary/80 text-secondary-foreground text-xs font-medium shrink-0">
+                        <Upload className="size-3.5" />
+                        <span>Tải logo</span>
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) {
+                            toast({ title: "Lỗi", description: "File ảnh phải < 5MB", variant: "destructive" });
+                            return;
+                          }
+                          try {
+                            toast({ title: "Đang tải ảnh...", description: "Vui lòng chờ giây lát..." });
+                            const fd = new FormData();
+                            fd.append("file", file);
+                            const res = await fetch("/api/admin/upload-image", { method: "POST", body: fd });
+                            const data = await res.json().catch(() => ({}));
+                            if (res.ok && data.ok && data.url) {
+                              const arr = [...form.educations];
+                              arr[idx].logo = data.url;
+                              update("educations", arr);
+                              toast({ title: "Thành công", description: "Đã tải logo lên." });
+                            } else {
+                              toast({ title: "Lỗi", description: "Không thể tải logo.", variant: "destructive" });
+                            }
+                          } catch (err) {
+                            toast({ title: "Lỗi", description: "Tải logo thất bại.", variant: "destructive" });
+                          }
+                        }}
+                      />
+                    </Label>
+                  </div>
+                </div>
               </div>
               <div className="space-y-1">
                 <Label>Mô tả chi tiết</Label>
