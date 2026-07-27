@@ -66,7 +66,7 @@ export function Footer() {
   return (
     <footer id="contact" className="relative border-t border-border/60 bg-muted/20 py-8 sm:py-12 scroll-mt-16 md:scroll-mt-20">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">
           
           {/* Col 1: Profile & Social Icons */}
           <div className="space-y-3 sm:space-y-4">
@@ -104,83 +104,87 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Col 2: Direct Contact Details */}
-          <div>
-            <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base text-foreground">{t("Liên hệ", "Contact")}</h4>
-            <ul className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
-              {profile.email && (
-                <li>
-                  <a href={`mailto:${profile.email}`} className="inline-flex items-center gap-2 hover:text-primary transition-colors break-all">
-                    <Mail className="h-3.5 w-3.5 shrink-0 text-primary" />
-                    <span>{profile.email}</span>
-                  </a>
-                </li>
-              )}
-              {profile.phone && (
-                <li>
-                  <a href={`tel:${profile.phone.replace(/\s/g, "")}`} className="inline-flex items-center gap-2 hover:text-primary transition-colors">
-                    <Phone className="h-3.5 w-3.5 shrink-0 text-primary" />
-                    <span>{profile.phone}</span>
-                  </a>
-                </li>
-              )}
-              {profile.location && (
-                <li className="inline-flex items-start gap-2">
-                  <MapPin className="h-3.5 w-3.5 shrink-0 text-primary mt-0.5" />
-                  <span className="leading-snug">{profile.location}</span>
-                </li>
-              )}
-              {profile.website && (
-                <li>
-                  <a href={`https://${profile.website}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-primary transition-colors">
-                    <Globe className="h-3.5 w-3.5 shrink-0 text-primary" />
-                    <span>{profile.website}</span>
-                  </a>
-                </li>
-              )}
-            </ul>
-          </div>
+          {/* Col 2 & 3 & 4 Subgrid: Contact + 2-Column Links & Other on mobile */}
+          <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
+            {/* Direct Contact Details */}
+            <div>
+              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base text-foreground">{t("Liên hệ", "Contact")}</h4>
+              <ul className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
+                {profile.email && (
+                  <li>
+                    <a href={`mailto:${profile.email}`} className="inline-flex items-center gap-2 hover:text-primary transition-colors break-all">
+                      <Mail className="h-3.5 w-3.5 shrink-0 text-primary" />
+                      <span>{profile.email}</span>
+                    </a>
+                  </li>
+                )}
+                {profile.phone && (
+                  <li>
+                    <a href={`tel:${profile.phone.replace(/\s/g, "")}`} className="inline-flex items-center gap-2 hover:text-primary transition-colors">
+                      <Phone className="h-3.5 w-3.5 shrink-0 text-primary" />
+                      <span>{profile.phone}</span>
+                    </a>
+                  </li>
+                )}
+                {profile.location && (
+                  <li className="inline-flex items-start gap-2">
+                    <MapPin className="h-3.5 w-3.5 shrink-0 text-primary mt-0.5" />
+                    <span className="leading-snug">{profile.location}</span>
+                  </li>
+                )}
+                {profile.website && (
+                  <li>
+                    <a href={`https://${profile.website}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-primary transition-colors">
+                      <Globe className="h-3.5 w-3.5 shrink-0 text-primary" />
+                      <span>{profile.website}</span>
+                    </a>
+                  </li>
+                )}
+              </ul>
+            </div>
 
-          {/* Col 3: Links */}
-          <div>
-            <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base text-foreground">{t("Liên kết", "Links")}</h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
-              {navLinks.slice(0, 4).map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="hover:text-foreground transition-colors"
-                  >
-                    {link[locale]}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+            {/* Links and Other - 2 Columns Side-By-Side on Mobile! */}
+            <div className="grid grid-cols-2 sm:contents gap-6">
+              <div>
+                <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base text-foreground">{t("Liên kết", "Links")}</h4>
+                <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
+                  {navLinks.slice(0, 4).map((link) => (
+                    <li key={link.href}>
+                      <a
+                        href={link.href}
+                        className="hover:text-foreground transition-colors"
+                      >
+                        {link[locale]}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-          {/* Col 4: Other */}
-          <div>
-            <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base text-foreground">{t("Khác", "Other")}</h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
-              {navLinks.slice(4).map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="hover:text-foreground transition-colors"
-                  >
-                    {link[locale]}
-                  </a>
-                </li>
-              ))}
-              <li>
-                <button
-                  onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
-                  className="hover:text-foreground transition-colors text-left"
-                >
-                  {t("Bảng lệnh (Cmd+K)", "Command Palette (Cmd+K)")}
-                </button>
-              </li>
-            </ul>
+              <div>
+                <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base text-foreground">{t("Khác", "Other")}</h4>
+                <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
+                  {navLinks.slice(4).map((link) => (
+                    <li key={link.href}>
+                      <a
+                        href={link.href}
+                        className="hover:text-foreground transition-colors"
+                      >
+                        {link[locale]}
+                      </a>
+                    </li>
+                  ))}
+                  <li>
+                    <button
+                      onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
+                      className="hover:text-foreground transition-colors text-left"
+                    >
+                      {t("Bảng lệnh (Cmd+K)", "Command Palette (Cmd+K)")}
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
 
         </div>
