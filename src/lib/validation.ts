@@ -48,7 +48,7 @@ export const DANGEROUS_CONTENT_MSG =
 // ─── Safe HTML sanitization (replaces dangerouslySetInnerHTML inline calls) ──
 
 /** DOMPurify config used throughout the app */
-const SANITIZE_CONFIG: DOMPurify.Config = {
+const SANITIZE_CONFIG = {
   ADD_TAGS: ["iframe"],
   ADD_ATTR: [
     "allow",
@@ -68,7 +68,7 @@ const SANITIZE_CONFIG: DOMPurify.Config = {
 export function sanitizeHtml(rawHtml: string): string {
   if (!rawHtml) return ""
   const normalized = rawHtml.replace(/&nbsp;/g, " ")
-  return DOMPurify.sanitize(normalized, SANITIZE_CONFIG)
+  return DOMPurify.sanitize(normalized, SANITIZE_CONFIG) as string
 }
 
 /** Trusted iframe hosts for post content */
@@ -103,7 +103,7 @@ export function sanitizePostHtml(rawHtml: string): string {
     .replace(/<\/table>/g, "</table></div>")
 
   // Sanitize
-  const clean = DOMPurify.sanitize(preprocessed, SANITIZE_CONFIG)
+  const clean = DOMPurify.sanitize(preprocessed, SANITIZE_CONFIG) as string
 
   // Post-sanitize: only allow iframes from trusted domains
   return clean.replace(
