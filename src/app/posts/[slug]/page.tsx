@@ -7,7 +7,6 @@ import { TableOfContents } from "@/components/cv/table-of-contents"
 import { PostReader } from "@/components/cv/post-reader"
 import { PostThemeToggle } from "@/components/cv/post-theme-toggle"
 import { BackButton } from "@/components/cv/back-button"
-import { PdfViewer } from "@/components/cv/pdf-viewer"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -90,8 +89,12 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             <PostThemeToggle />
           </div>
         </header>
-        <main className="flex-1 w-full h-full relative flex flex-col">
-          <PdfViewer pdfUrl={post.pdfUrl!} title={post.title} />
+        <main className="flex-1 w-full h-[calc(100vh-3.5rem)] relative overflow-y-auto -webkit-overflow-scrolling-touch">
+          <iframe
+            src={`${post.pdfUrl!}#view=FitH&toolbar=0`}
+            className="w-full h-full min-h-[calc(100vh-3.5rem)] border-0"
+            title={post.title}
+          />
         </main>
       </div>
     )
