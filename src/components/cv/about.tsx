@@ -6,7 +6,7 @@ import { Terminal, Zap, ShieldCheck, Layers, Code, Cpu, Server, Database, Globe,
 import { SectionHeader } from "./section-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { useSiteData } from "@/components/cv/site-data-context"
-import DOMPurify from "isomorphic-dompurify"
+import { sanitizeHtml } from "@/lib/validation"
 import { useLocale } from "@/components/cv/locale-context"
 
 import { cn, getLocalized } from "@/lib/utils"
@@ -60,7 +60,7 @@ export function About() {
                 </h3>
                 <div 
                   className="text-sm leading-relaxed text-foreground/90 my-4 prose prose-sm dark:prose-invert max-w-none ql-editor-display"
-                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((profile.summary || "").replace(/&nbsp;/g, ' '), { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }} 
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(profile.summary || "") }} 
                 />
                 <h3 className="text-lg font-semibold text-primary mt-8 mb-4">
                   {t("Triết lý làm việc", "Working principles")}
@@ -122,7 +122,7 @@ export function About() {
                 </h3>
                 <div 
                   className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none ql-editor-display" 
-                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((profile.nowText || "").replace(/&nbsp;/g, ' '), { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }} 
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(profile.nowText || "") }} 
                 />
               </div>
             )}

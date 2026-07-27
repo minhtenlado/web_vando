@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { CalendarDays, Clock, ZoomIn, ZoomOut, RotateCcw } from "lucide-react"
-import DOMPurify from "isomorphic-dompurify"
+import { sanitizePostHtml } from "@/lib/validation"
 import { Button } from "@/components/ui/button"
 
 type PostReaderProps = {
@@ -68,27 +68,6 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
     }
   }, [contentHtml])
 
-  // Clean HTML: replace &amp;nbsp; with regular spaces, strip soft hyphens/zero-width spaces,
-  // remove problematic word-break inline styles
-  const cleanedContent = React.useMemo(() => {
-    if (!contentHtml) return ""
-    return contentHtml
-      // Replace non-breaking spaces with regular spaces (ROOT CAUSE of word-break issues)
-      .replace(/&nbsp;/gi, " ")
-      .replace(/\u00A0/g, " ")
-      // Remove soft hyphens and zero-width spaces
-      .replace(/&shy;|&#173;|&#xAD;|\u00AD|\u200B|&#8203;|&#x200B;/gi, "")
-      // Strip problematic inline styles
-      .replace(/style="([^"]*)"/gi, (_match, styleVal) => {
-        const cleanStyle = styleVal
-          .replace(/word-break\s*:[^;]+;?/gi, "")
-          .replace(/hyphens\s*:[^;]+;?/gi, "")
-          .replace(/overflow-wrap\s*:[^;]+;?/gi, "")
-        return cleanStyle.trim() ? `style="${cleanStyle}"` : ""
-      })
-      .replace(/<table/g, '<div class="w-full overflow-x-auto my-6"><table')
-      .replace(/<\/table>/g, '</table></div>')
-  }, [contentHtml])
 
   return (
     <article className="flex-1 w-full max-w-7xl mx-auto flex flex-col relative">
@@ -148,24 +127,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
                 [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-lg sm:[&_iframe]:rounded-xl [&_iframe]:shadow-md
                 ql-editor-display"
               style={{ fontSize: '1em' }}
-              dangerouslySetInnerHTML={{ __html: (() => {
-                const clean = DOMPurify.sanitize(cleanedContent, {
-                  ADD_TAGS: ["iframe"],
-                  ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"],
-                });
-                // Post-sanitize: chỉ cho phép iframe từ trusted domains
-                const TRUSTED_IFRAME_HOSTS = [
-                  "www.youtube.com", "youtube.com", "www.youtube-nocookie.com",
-                  "player.vimeo.com", "codepen.io",
-                ];
-                return clean.replace(/<iframe[^>]*src="([^"]*)"[^>]*>/gi, (match, src) => {
-                  try {
-                    const url = new URL(src);
-                    if (TRUSTED_IFRAME_HOSTS.includes(url.hostname)) return match;
-                  } catch { /* invalid URL */ }
-                  return ""; // Xóa iframe không tin cậy
-                });
-              })() }}
+              dangerouslySetInnerHTML={{ __html: sanitizePostHtml(contentHtml) }}
             />
         </div>
       </div>

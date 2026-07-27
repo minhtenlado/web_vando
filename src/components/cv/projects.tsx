@@ -10,18 +10,8 @@ import { Button } from "@/components/ui/button"
 import { useSiteData } from "@/components/cv/site-data-context"
 import type { SiteProject } from "@/lib/cv/site-data-server"
 import { useLocale } from "@/components/cv/locale-context"
-import DOMPurify from "isomorphic-dompurify"
+import { sanitizeHtml } from "@/lib/validation"
 import Image from "next/image"
-
-/** Sanitizes HTML strings safely to prevent XSS injection. */
-function sanitizeHtml(rawHtml: string): string {
-  if (!rawHtml) return ""
-  const normalized = rawHtml.replace(/&nbsp;/g, " ")
-  return DOMPurify.sanitize(normalized, {
-    ADD_TAGS: ["iframe"],
-    ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"],
-  })
-}
 
 /** Extract a YouTube video id from various URL forms safely. */
 function youtubeId(url: string): string | null {

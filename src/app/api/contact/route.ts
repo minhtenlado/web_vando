@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { hasDangerousContent, DANGEROUS_CONTENT_MSG } from "@/lib/validation";
 
 type ContactPayload = {
   name?: string;
@@ -44,6 +45,13 @@ export async function POST(req: NextRequest) {
     if (!EMAIL_RE.test(email)) errors.email = "Địa chỉ email không hợp lệ.";
     if (message.length < 10)
       errors.message = "Nội dung tin nhắn quá ngắn (tối thiểu 10 ký tự).";
+
+    if (hasDangerousContent(name)) {
+      errors.name = DANGEROUS_CONTENT_MSG;
+    }
+    if (hasDangerousContent(message)) {
+      errors.message = DANGEROUS_CONTENT_MSG;
+    }
 
     if (Object.keys(errors).length > 0) {
       return NextResponse.json(
