@@ -63,37 +63,50 @@ export function Posts() {
         />
 
         <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {published.map((post, i) => (
-            <motion.div
-              key={post.id}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.4, delay: (i % 3) * 0.06 }}
-            >
-              <Link href={`/posts/${post.slug}`} target="_blank" rel="noopener noreferrer" className="block h-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-xl">
-                <Card className="group h-full p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/50 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/50 flex flex-col">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="grid place-items-center h-9 w-9 rounded-lg bg-primary/10 text-primary border border-primary/20">
-                      <FileText className="h-4 w-4" />
-                    </span>
-                    <Badge variant="outline" className="gap-1 font-mono text-[10px]">
-                      <Calendar className="h-3 w-3" /> {formatDate(post.createdAt, locale)}
-                    </Badge>
-                  </div>
-                  <h3 className="text-base font-semibold leading-tight group-hover:text-primary transition-colors">
-                    {post.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-3 flex-1">
-                    {post.excerpt}
-                  </p>
-                  <div className="mt-4 flex items-center gap-1.5 text-sm text-primary font-medium">
-                    {t("Đọc tiếp", "Read more")} <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </Card>
-              </Link>
-            </motion.div>
-          ))}
+          {published.map((post, i) => {
+            const targetHref = post.pdfUrl ? post.pdfUrl : `/posts/${post.slug}`
+            return (
+              <motion.div
+                key={post.id}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.4, delay: (i % 3) * 0.06 }}
+              >
+                <a 
+                  href={targetHref} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="block h-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-xl"
+                >
+                  <Card className="group h-full p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/50 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/50 flex flex-col">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="grid place-items-center h-9 w-9 rounded-lg bg-primary/10 text-primary border border-primary/20">
+                        <FileText className="h-4 w-4" />
+                      </span>
+                      <Badge variant="outline" className="gap-1 font-mono text-[10px]">
+                        <Calendar className="h-3 w-3" /> {formatDate(post.createdAt, locale)}
+                      </Badge>
+                      {post.pdfUrl && (
+                        <Badge variant="secondary" className="font-mono text-[10px] ml-auto">
+                          PDF
+                        </Badge>
+                      )}
+                    </div>
+                    <h3 className="text-base font-semibold leading-tight group-hover:text-primary transition-colors">
+                      {post.title}
+                    </h3>
+                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-3 flex-1">
+                      {post.excerpt}
+                    </p>
+                    <div className="mt-4 flex items-center gap-1.5 text-sm text-primary font-medium">
+                      {t("Đọc tiếp", "Read more")} <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </Card>
+                </a>
+              </motion.div>
+            )
+          })}
         </div>
       </div>
 
