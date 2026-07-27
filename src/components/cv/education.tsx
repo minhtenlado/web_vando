@@ -33,11 +33,20 @@ export function Education() {
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
         <SectionHeader
           index="08 / education"
-          title={t("Học vấn & Chứng chỉ", "Education & Certifications")}
-          subtitle={t(
-            "Nền tảng học thuật và các chứng chỉ chuyên môn đã đạt được trong hành trình trở thành kỹ sư nhúng.",
-            "Academic background and professional certifications acquired during the journey to become an embedded engineer."
-          )}
+          title={hasRightColumn 
+            ? t("Học vấn & Chứng chỉ", "Education & Certifications") 
+            : t("Học vấn", "Education")
+          }
+          subtitle={hasRightColumn
+            ? t(
+                "Nền tảng học thuật và các chứng chỉ chuyên môn đã đạt được trong hành trình trở thành kỹ sư nhúng.",
+                "Academic background and professional certifications acquired during the journey to become an embedded engineer."
+              )
+            : t(
+                "Nền tảng học thuật đã được đào tạo trong hành trình trở thành kỹ sư phần mềm nhúng.",
+                "Academic background acquired during the journey to become an embedded software engineer."
+              )
+          }
         />
 
         <div className={`mt-10 grid gap-8 ${hasRightColumn ? "lg:grid-cols-2" : "max-w-3xl mx-auto"}`}>

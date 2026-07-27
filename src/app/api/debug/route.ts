@@ -2,6 +2,22 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
 export async function GET() {
+  const result: any = {};
+  
+  try {
+    const raw = await db.$executeRawUnsafe(`ALTER TABLE "Profile" ADD COLUMN IF NOT EXISTS "educations" TEXT NOT NULL DEFAULT '[]';`);
+    result.raw1 = raw;
+  } catch (e: any) {
+    result.raw1_error = e.message;
+  }
+  
+  try {
+    const raw = await db.$executeRawUnsafe(`ALTER TABLE "Profile" ADD COLUMN IF NOT EXISTS "certifications" TEXT NOT NULL DEFAULT '[]';`);
+    result.raw2 = raw;
+  } catch (e: any) {
+    result.raw2_error = e.message;
+  }
+
   try {
     const data = {
       educations: JSON.stringify([]),
@@ -15,13 +31,12 @@ export async function GET() {
       create: { id: "profile-vi", locale: "vi", ...data },
     });
     
-    return NextResponse.json({ ok: true, profile: updated });
+    result.updated = updated;
+    result.ok = true;
   } catch (error: any) {
-    return NextResponse.json({ 
-      ok: false, 
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    });
+    result.ok = false;
+    result.upsert_error = error.message;
   }
+  
+  return NextResponse.json(result);
 }
