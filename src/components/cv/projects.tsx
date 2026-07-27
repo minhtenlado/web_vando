@@ -13,10 +13,19 @@ import { useLocale } from "@/components/cv/locale-context"
 import DOMPurify from "isomorphic-dompurify"
 import Image from "next/image"
 
+/** Sanitizes HTML strings safely to prevent XSS injection. */
+function sanitizeHtml(rawHtml: string): string {
+  if (!rawHtml) return ""
+  const normalized = rawHtml.replace(/&nbsp;/g, " ")
+  return DOMPurify.sanitize(normalized, {
+    ADD_TAGS: ["iframe"],
+    ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"],
+  })
+}
 
-/** Extract a YouTube video id from various URL forms. */
+/** Extract a YouTube video id from various URL forms safely. */
 function youtubeId(url: string): string | null {
-  if (!url) return null
+  if (!url || typeof url !== "string") return null
   const patterns = [
     /(?:youtube\.com\/watch\?v=)([\w-]{11})/,
     /(?:youtu\.be\/)([\w-]{11})/,
@@ -27,7 +36,6 @@ function youtubeId(url: string): string | null {
     const m = url.match(p)
     if (m) return m[1]
   }
-  // bare 11-char id
   if (/^[\w-]{11}$/.test(url.trim())) return url.trim()
   return null
 }
@@ -35,39 +43,47 @@ function youtubeId(url: string): string | null {
 export function Projects() {
   const { projects, profile } = useSiteData()
   const { t } = useLocale()
-  const [lightbox, setLightbox] = React.useState<{ list: string[], index: number } | null>(null)
+  const [lightbox, setLightbox] = React.useState<{ list: string[]; index: number } | null>(null)
   const [activeProject, setActiveProject] = React.useState<SiteProject | null>(null)
-  const activeYtId = activeProject?.youtubeUrl ? youtubeId(activeProject.youtubeUrl) : null;
+  const activeYtId = activeProject?.youtubeUrl ? youtubeId(activeProject.youtubeUrl) : null
 
   // Keyboard navigation for lightbox & modal
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (lightbox) setLightbox(null)
-        else if (activeProject) setActiveProject(null)
-      }
-      if (lightbox) {
-        if (e.key === 'ArrowLeft' && lightbox.index > 0) {
-          setLightbox({ ...lightbox, index: lightbox.index - 1 })
+      try {
+        if (e.key === "Escape") {
+          if (lightbox) setLightbox(null)
+          else if (activeProject) setActiveProject(null)
         }
-        if (e.key === 'ArrowRight' && lightbox.index < lightbox.list.length - 1) {
-          setLightbox({ ...lightbox, index: lightbox.index + 1 })
+        if (lightbox) {
+          if (e.key === "ArrowLeft" && lightbox.index > 0) {
+            setLightbox({ ...lightbox, index: lightbox.index - 1 })
+          }
+          if (e.key === "ArrowRight" && lightbox.index < lightbox.list.length - 1) {
+            setLightbox({ ...lightbox, index: lightbox.index + 1 })
+          }
         }
+      } catch {
+        // Silently capture keyboard event edge cases
       }
     }
+
     if (lightbox || activeProject) {
-      window.addEventListener('keydown', handleKeyDown)
-      return () => window.removeEventListener('keydown', handleKeyDown)
+      window.addEventListener("keydown", handleKeyDown)
+      return () => window.removeEventListener("keydown", handleKeyDown)
     }
   }, [lightbox, activeProject])
 
+  // Prevent background scrolling when modal or lightbox is active
   React.useEffect(() => {
     if (lightbox || activeProject) {
-      document.body.style.overflow = 'hidden'
+      document.body.style.overflow = "hidden"
     } else {
-      document.body.style.overflow = 'unset'
+      document.body.style.overflow = "unset"
     }
-    return () => { document.body.style.overflow = 'unset' }
+    return () => {
+      document.body.style.overflow = "unset"
+    }
   }, [lightbox, activeProject])
 
   return (
@@ -84,7 +100,6 @@ export function Projects() {
 
         <div className="mt-10 grid md:grid-cols-2 gap-6">
           {projects.map((p, i) => {
-            const ytId = youtubeId(p.youtubeUrl ?? "")
             return (
               <motion.div
                 key={p.id ?? p.title}
@@ -122,14 +137,14 @@ export function Projects() {
                         {p.title}
                       </h3>
                     </div>
-                    <div 
+                    <div
                       className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-3 ql-editor-display prose prose-sm dark:prose-invert max-w-none"
-                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((p.description || "").replace(/&nbsp;/g, ' '), { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(p.description || "") }}
                     />
                     <div className="mt-4 pt-4 border-t border-border/50">
-                      <Button 
-                        className="w-full justify-between hover:bg-primary hover:text-primary-foreground transition-colors" 
-                        variant="secondary" 
+                      <Button
+                        className="w-full justify-between hover:bg-primary hover:text-primary-foreground transition-colors"
+                        variant="secondary"
                         onClick={() => setActiveProject(p)}
                       >
                         {t("Xem chi tiết", "View Details")}
@@ -159,15 +174,15 @@ export function Projects() {
       {/* Project Detail Modal */}
       <AnimatePresence>
         {activeProject && (
-            <motion.div
-              role="dialog"
-              aria-modal="true"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setActiveProject(null)}
-              className="fixed inset-0 z-[60] bg-background/95 backdrop-blur-md grid place-items-center p-0 sm:p-6 lg:p-12"
-            >
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setActiveProject(null)}
+            className="fixed inset-0 z-[60] bg-background/95 backdrop-blur-md grid place-items-center p-0 sm:p-6 lg:p-12"
+          >
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -189,6 +204,7 @@ export function Projects() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setActiveProject(null)}
+                    aria-label={t("Đóng", "Close")}
                     className="grid place-items-center h-10 w-10 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
                   >
                     <X className="size-5" />
@@ -199,117 +215,118 @@ export function Projects() {
               {/* Scrollable Content */}
               <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar">
                 <div className="max-w-3xl mx-auto space-y-8">
-                    {/* Hero Image */}
-                    {activeProject.image && (
-                      <div className="relative aspect-video rounded-xl overflow-hidden border border-border/50 shadow-sm">
-                        <Image fill src={activeProject.image} alt={activeProject.title} className="object-cover" />
-                      </div>
-                    )}
+                  {/* Hero Image */}
+                  {activeProject.image && (
+                    <div className="relative aspect-video rounded-xl overflow-hidden border border-border/50 shadow-sm">
+                      <Image fill src={activeProject.image} alt={activeProject.title} className="object-cover" />
+                    </div>
+                  )}
 
-                    {/* Description */}
+                  {/* Description */}
+                  <div>
+                    <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+                      {t("Tổng quan", "Overview")}
+                    </h3>
+                    <div
+                      className="text-base text-foreground/90 leading-relaxed whitespace-pre-wrap ql-editor-display prose prose-sm dark:prose-invert max-w-none"
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(activeProject.description || "") }}
+                    />
+                  </div>
+
+                  {/* Features */}
+                  {activeProject.features && activeProject.features.length > 0 && (
                     <div>
                       <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                        Tổng quan
+                        {t("Tính năng chính", "Key Features")}
                       </h3>
-                      <div 
-                        className="text-base text-foreground/90 leading-relaxed whitespace-pre-wrap ql-editor-display prose prose-sm dark:prose-invert max-w-none"
-                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((activeProject.description || "").replace(/&nbsp;/g, ' '), { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }}
-                      />
+                      <ul className="grid sm:grid-cols-2 gap-3">
+                        {activeProject.features.map((f, fi) => (
+                          <li key={fi} className="flex gap-2 text-sm bg-muted/30 p-3 rounded-lg border border-border/50">
+                            <CheckCircle2 className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+                            <span className="leading-relaxed">{f}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
+                  )}
 
-                    {/* Features */}
-                    {activeProject.features && activeProject.features.length > 0 && (
-                      <div>
-                        <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                          Tính năng chính
-                        </h3>
-                        <ul className="grid sm:grid-cols-2 gap-3">
-                          {activeProject.features.map((f, fi) => (
-                            <li key={fi} className="flex gap-2 text-sm bg-muted/30 p-3 rounded-lg border border-border/50">
-                              <CheckCircle2 className="h-4 w-4 mt-0.5 text-primary shrink-0" />
-                              <span className="leading-relaxed">{f}</span>
-                            </li>
-                          ))}
-                        </ul>
+                  {/* Gallery */}
+                  {activeProject.images && activeProject.images.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+                        {t("Ảnh minh họa", "Gallery")}
+                      </h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {activeProject.images.map((img, imgIdx) => (
+                          <button
+                            key={imgIdx}
+                            onClick={() => setLightbox({ list: activeProject.images!, index: imgIdx })}
+                            className="group relative aspect-video rounded-lg overflow-hidden border border-border/50 hover:border-primary/50 transition-all shadow-sm hover:shadow-md"
+                          >
+                            <Image fill src={img} alt={`Gallery ${imgIdx}`} className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                          </button>
+                        ))}
                       </div>
-                    )}
-
-                    {/* Gallery */}
-                    {activeProject.images && activeProject.images.length > 0 && (
-                      <div>
-                        <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                          Ảnh
-                        </h3>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                          {activeProject.images.map((img, imgIdx) => (
-                            <button
-                              key={imgIdx}
-                              onClick={() => setLightbox({ list: activeProject.images!, index: imgIdx })}
-                              className="group relative aspect-video rounded-lg overflow-hidden border border-border/50 hover:border-primary/50 transition-all shadow-sm hover:shadow-md"
-                            >
-                              <Image fill src={img} alt={`Gallery ${imgIdx}`} className="object-cover transition-transform duration-500 group-hover:scale-105" />
-                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Video */}
-                    {activeProject.youtubeUrl && activeYtId && (
-                      <div>
-                        <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                          Video
-                        </h3>
-                        <div className="relative aspect-video rounded-xl overflow-hidden border border-border shadow-sm bg-black">
-                          <iframe
-                            src={`https://www.youtube.com/embed/${activeYtId}?rel=0`}
-                            title="YouTube video demo"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="absolute inset-0 h-full w-full"
-                          />
-                        </div>
-                      </div>
-                    )}
-                    {/* Links */}
-                    <div className="p-5 rounded-xl border border-border bg-muted/10 space-y-3">
-                      {activeProject.link ? (
-                        <Button asChild className="w-full" size="lg">
-                          <a href={activeProject.link} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="mr-2 size-4" /> {t("Xem tài liệu chi tiết", "View Detailed Documentation")}
-                          </a>
-                        </Button>
-                      ) : (
-                        <Button className="w-full" size="lg" disabled>
-                          {t("Chưa có tài liệu chi tiết", "No documentation available")}
-                        </Button>
-                      )}
-                      
-                      {activeProject.repo && (
-                        <Button asChild variant="outline" className="w-full" size="lg">
-                          <a href={activeProject.repo} target="_blank" rel="noopener noreferrer">
-                            <Github className="mr-2 size-4" /> Xem mã nguồn (GitHub)
-                          </a>
-                        </Button>
-                      )}
                     </div>
+                  )}
 
-                    {/* Tech Stack */}
-                    {activeProject.tech && activeProject.tech.length > 0 && (
-                      <div>
-                        <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3">
-                          Công nghệ sử dụng
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                          {activeProject.tech.map((item, ti) => (
-                            <Badge key={ti} variant="secondary" className="px-2.5 py-1 text-xs">
-                              {item}
-                            </Badge>
-                          ))}
-                        </div>
+                  {/* Video */}
+                  {activeProject.youtubeUrl && activeYtId && (
+                    <div>
+                      <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+                        Video
+                      </h3>
+                      <div className="relative aspect-video rounded-xl overflow-hidden border border-border shadow-sm bg-black">
+                        <iframe
+                          src={`https://www.youtube.com/embed/${activeYtId}?rel=0`}
+                          title="YouTube video demo"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="absolute inset-0 h-full w-full"
+                        />
                       </div>
+                    </div>
+                  )}
+
+                  {/* Links */}
+                  <div className="p-5 rounded-xl border border-border bg-muted/10 space-y-3">
+                    {activeProject.link ? (
+                      <Button asChild className="w-full" size="lg">
+                        <a href={activeProject.link} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="mr-2 size-4" /> {t("Xem tài liệu chi tiết", "View Detailed Documentation")}
+                        </a>
+                      </Button>
+                    ) : (
+                      <Button className="w-full" size="lg" disabled>
+                        {t("Chưa có tài liệu chi tiết", "No documentation available")}
+                      </Button>
                     )}
+
+                    {activeProject.repo && (
+                      <Button asChild variant="outline" className="w-full" size="lg">
+                        <a href={activeProject.repo} target="_blank" rel="noopener noreferrer">
+                          <Github className="mr-2 size-4" /> {t("Xem mã nguồn (GitHub)", "View Source (GitHub)")}
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Tech Stack */}
+                  {activeProject.tech && activeProject.tech.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3">
+                        {t("Công nghệ sử dụng", "Tech Stack")}
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {activeProject.tech.map((item, ti) => (
+                          <Badge key={ti} variant="secondary" className="px-2.5 py-1 text-xs">
+                            {item}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -317,7 +334,7 @@ export function Projects() {
         )}
       </AnimatePresence>
 
-      {/* Image lightbox */}
+      {/* Image Lightbox */}
       <AnimatePresence>
         {lightbox && (
           <motion.div
@@ -343,7 +360,7 @@ export function Projects() {
               >
                 <X className="h-5 w-5" />
               </button>
-              
+
               <div className="relative w-full h-full p-4 flex items-center justify-center group/lb">
                 <Image
                   fill
@@ -352,26 +369,34 @@ export function Projects() {
                   alt="Gallery full size"
                   className="object-contain rounded-md shadow-2xl border border-border/20 animate-in fade-in zoom-in-95 duration-200"
                 />
-                
+
                 {lightbox.index > 0 && (
                   <button
-                    onClick={(e) => { e.stopPropagation(); setLightbox({ ...lightbox, index: lightbox.index - 1 }) }}
-                    className="absolute left-0 sm:left-4 z-20 grid place-items-center h-12 w-12 rounded-full bg-background/50 backdrop-blur border border-border hover:bg-muted transition-all opacity-0 group-hover/lb:opacity-100"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setLightbox({ ...lightbox, index: lightbox.index - 1 })
+                    }}
+                    aria-label={t("Ảnh trước", "Previous image")}
+                    className="absolute left-0 sm:left-4 z-20 grid place-items-center h-12 w-12 rounded-full bg-background/50 backdrop-blur border border-border hover:bg-muted transition-all opacity-80 sm:opacity-0 sm:group-hover/lb:opacity-100"
                   >
                     <ChevronLeft className="h-6 w-6" />
                   </button>
                 )}
-                
+
                 {lightbox.index < lightbox.list.length - 1 && (
                   <button
-                    onClick={(e) => { e.stopPropagation(); setLightbox({ ...lightbox, index: lightbox.index + 1 }) }}
-                    className="absolute right-0 sm:right-4 z-20 grid place-items-center h-12 w-12 rounded-full bg-background/50 backdrop-blur border border-border hover:bg-muted transition-all opacity-0 group-hover/lb:opacity-100"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setLightbox({ ...lightbox, index: lightbox.index + 1 })
+                    }}
+                    aria-label={t("Ảnh kế tiếp", "Next image")}
+                    className="absolute right-0 sm:right-4 z-20 grid place-items-center h-12 w-12 rounded-full bg-background/50 backdrop-blur border border-border hover:bg-muted transition-all opacity-80 sm:opacity-0 sm:group-hover/lb:opacity-100"
                   >
                     <ChevronRight className="h-6 w-6" />
                   </button>
                 )}
-                
-                <div className="absolute bottom-0 inset-x-0 p-4 text-center text-sm font-mono text-muted-foreground opacity-0 group-hover/lb:opacity-100 transition-opacity">
+
+                <div className="absolute bottom-0 inset-x-0 p-4 text-center text-sm font-mono text-muted-foreground opacity-80 sm:opacity-0 sm:group-hover/lb:opacity-100 transition-opacity">
                   {lightbox.index + 1} / {lightbox.list.length}
                 </div>
               </div>
