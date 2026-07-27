@@ -95,8 +95,8 @@ export function Contact() {
                         <Icon className="h-5 w-5" />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm text-muted-foreground mb-0.5">{c.label}</p>
-                        <p className="text-base font-medium break-words whitespace-normal">{c.value}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-0.5">{c.label}</p>
+                        <p className="text-sm sm:text-base font-medium break-all sm:break-words leading-snug">{c.value}</p>
                       </div>
                     </div>
                   )

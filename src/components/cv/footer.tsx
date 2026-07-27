@@ -20,8 +20,8 @@ export function Footer() {
   return (
     <footer className="relative border-t border-border/60 bg-muted/20">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12 py-12 lg:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
-          <div className="md:col-span-2 space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
+          <div className="sm:col-span-2 space-y-4">
             <a
               href="#top"
               onClick={handleScrollTop}
@@ -68,8 +68,8 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4">{t("Liên kết", "Links")}</h4>
-            <ul className="space-y-2.5">
+            <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">{t("Liên kết", "Links")}</h4>
+            <ul className="space-y-2">
               {navLinks.slice(0, 4).map((link) => (
                 <li key={link.href}>
                   <a
@@ -84,8 +84,8 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4">{t("Khác", "Other")}</h4>
-            <ul className="space-y-2.5">
+            <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">{t("Khác", "Other")}</h4>
+            <ul className="space-y-2">
               {navLinks.slice(4).map((link) => (
                 <li key={link.href}>
                   <a
@@ -108,14 +108,14 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 md:mt-16 pt-8 border-t border-border/60 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+        <div className="mt-10 md:mt-16 pt-6 sm:pt-8 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
           <p>
             &copy; {year} {profile.name}. {t("Tất cả các quyền được bảo lưu.", "All rights reserved.")}
           </p>
           <a
             href="#top"
             onClick={handleScrollTop}
-            className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors shrink-0"
           >
             {t("Về đầu trang", "Back to top")} <ArrowUp className="h-3.5 w-3.5" />
           </a>

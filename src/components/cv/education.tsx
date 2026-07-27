@@ -38,7 +38,7 @@ export function Education() {
               index="08 / education"
               title={t("Học vấn", "Education")}
             />
-            <div className="mt-10 relative border-l-2 border-border/60 pl-6 space-y-6 ml-2">
+            <div className="mt-10 relative border-l-2 border-border/60 pl-3.5 sm:pl-6 space-y-6 ml-1 sm:ml-2">
               {edus.map((edu, i) => (
                 <motion.div
                   key={i}
@@ -48,10 +48,10 @@ export function Education() {
                   transition={{ duration: 0.45, delay: i * 0.06 }}
                   className="relative"
                 >
-                  <span className="absolute -left-[31px] top-4 grid place-items-center h-3.5 w-3.5 rounded-full bg-background border-2 border-primary ring-4 ring-background" />
-                  <Card className="p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/40 transition-colors hover:shadow-md">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 min-w-0">
+                  <span className="absolute -left-[21px] sm:-left-[31px] top-4 grid place-items-center h-3.5 w-3.5 rounded-full bg-background border-2 border-primary ring-4 ring-background" />
+                  <Card className="p-4 sm:p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/40 transition-colors hover:shadow-md">
+                      <div className="flex flex-col-reverse sm:flex-row items-start justify-between gap-3 sm:gap-4">
+                        <div className="flex-1 min-w-0 w-full">
                           <h4 className="font-semibold leading-tight text-base sm:text-lg">
                             {getLocalized(edu.degree, locale)}
                           </h4>
@@ -59,14 +59,14 @@ export function Education() {
                             <BookOpen className="h-3.5 w-3.5 shrink-0" /> {getLocalized(edu.school, locale)}
                           </p>
                           <div className="mt-2.5 flex items-center">
-                            <Badge variant="secondary" className="gap-1 font-mono">
+                            <Badge variant="secondary" className="gap-1 font-mono text-xs">
                               <Calendar className="h-3 w-3" /> {edu.period}
                             </Badge>
                           </div>
                         </div>
 
                         {edu.logo && (
-                          <div className="relative shrink-0 h-16 min-w-[80px] max-w-[200px] sm:h-20 sm:min-w-[100px] sm:max-w-[240px] rounded-xl border border-border/80 bg-background/90 p-2.5 flex items-center justify-center overflow-hidden shadow-sm backdrop-blur">
+                          <div className="relative shrink-0 h-14 min-w-[70px] max-w-[160px] sm:h-20 sm:min-w-[100px] sm:max-w-[240px] rounded-xl border border-border/80 bg-background/90 p-2 sm:p-2.5 flex items-center justify-center overflow-hidden shadow-sm backdrop-blur self-start">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={edu.logo}
