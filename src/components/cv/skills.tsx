@@ -70,7 +70,7 @@ export function Skills() {
   const skillGroups = profile.skillGroups || []
 
   return (
-    <section id="skills" className="relative py-20 sm:py-28 bg-muted/20">
+    <section id="skills" className="relative py-8 sm:py-12 bg-muted/20">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
         <SectionHeader
           index="02 / skills"

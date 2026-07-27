@@ -29,7 +29,7 @@ export function Education() {
   const hasRightColumn = visibleCerts.length > 0 || visibleLangs.length > 0
 
   return (
-    <section id="education" className="relative py-20 sm:py-28">
+    <section id="education" className="relative py-8 sm:py-12">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Left Column: Education */}

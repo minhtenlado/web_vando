@@ -64,7 +64,7 @@ export function Footer() {
   const enabledSocials = profile.socials?.filter((s: any) => s.enabled) || []
 
   return (
-    <footer id="contact" className="relative border-t border-border/60 bg-muted/20 py-12 lg:py-16">
+    <footer id="contact" className="relative border-t border-border/60 bg-muted/20 py-8 sm:py-12">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           

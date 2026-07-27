@@ -33,7 +33,7 @@ export function Experience() {
   }, [lightbox])
 
   return (
-    <section id="experience" className="relative py-20 sm:py-28">
+    <section id="experience" className="relative py-8 sm:py-12">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
         <SectionHeader
           index="03 / experience"

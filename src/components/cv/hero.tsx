@@ -46,7 +46,7 @@ export function Hero() {
       <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
       <div className="absolute top-1/3 -right-32 h-96 w-96 rounded-full bg-accent/20 blur-3xl pointer-events-none" />
 
-      <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12 py-12 md:py-20 relative">
+      <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12 py-4 md:py-8 relative">
         <div className="grid lg:grid-cols-[1.4fr_1fr] gap-10 lg:gap-16 items-center">
           {/* Left: text */}
           <motion.div
