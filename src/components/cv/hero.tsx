@@ -70,7 +70,7 @@ export function Hero() {
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] break-words">
                 {profile.name}
               </h1>
-              <div className="h-9 sm:h-10 flex items-center">
+              <div className="min-h-[2.25rem] sm:min-h-[2.5rem] h-auto flex items-center">
                 <span className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gradient-emerald font-mono">
                   {displayRoles[roleIdx]}
                   <span className="cursor-blink" />

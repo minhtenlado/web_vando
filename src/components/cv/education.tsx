@@ -29,7 +29,7 @@ export function Education() {
   const hasRightColumn = visibleCerts.length > 0 || visibleLangs.length > 0
 
   return (
-    <section id="education" className="relative py-8 sm:py-12">
+    <section id="education" className="relative py-8 sm:py-12 scroll-mt-16 md:scroll-mt-20">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Left Column: Education */}
@@ -146,7 +146,7 @@ export function Education() {
                     transition={{ duration: 0.45, delay: 0.1 }}
                   >
                     <Card className="p-5 border-border/60 bg-card/40 backdrop-blur">
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {visibleLangs.map((l: any, i: number) => (
                           <div key={i} className="rounded-lg border border-border/60 p-3">
                             <div className="flex items-center justify-between">

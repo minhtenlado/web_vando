@@ -18,7 +18,7 @@ export function Navbar() {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
   const [scrolled, setScrolled] = React.useState(false)
-  const [active, setActive] = React.useState<string>("#about")
+  const [active, setActive] = React.useState<string>("/#about")
 
   React.useEffect(() => setMounted(true), [])
 
@@ -67,7 +67,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop nav */}
-        <ul className="hidden md:flex items-center gap-1">
+        <ul className="hidden lg:flex items-center gap-1">
           {navLinks.map((link) => (
             <li key={link.href}>
               <Link
@@ -130,13 +130,13 @@ export function Navbar() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden h-9 w-9"
+                className="lg:hidden h-9 w-9"
                 aria-label={t("Mở menu", "Open menu")}
               >
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-72">
+            <SheetContent side="right" className="w-72 max-h-[100dvh] overflow-y-auto">
               <SheetTitle className="sr-only">{t("Menu điều hướng", "Navigation menu")}</SheetTitle>
               <div className="flex items-center justify-between mt-2">
                 <span className="font-mono text-sm text-primary">menu()</span>

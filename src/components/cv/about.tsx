@@ -24,7 +24,7 @@ export function About() {
   const stats = profile.stats || []
 
   return (
-    <section id="about" className="relative py-8 sm:py-12">
+    <section id="about" className="relative py-8 sm:py-12 scroll-mt-16 md:scroll-mt-20">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
         <SectionHeader
           index="01 / about"
@@ -66,7 +66,7 @@ export function About() {
                   {t("Triết lý làm việc", "Working principles")}
                 </h3>
 
-                <div className="grid sm:grid-cols-2 gap-3 mt-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
                   {principles.map((p, idx) => {
                     const Icon = iconMap[p.icon] || HelpCircle
                     return (
@@ -93,7 +93,7 @@ export function About() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="grid grid-cols-2 gap-4"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
           >
             {stats.map((s, i) => (
               <div
