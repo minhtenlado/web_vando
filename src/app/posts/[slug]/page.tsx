@@ -49,6 +49,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
   // Format dates
   const pubDate = new Date(post.createdAt).toLocaleDateString("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
     year: "numeric",
     month: "long",
     day: "numeric",

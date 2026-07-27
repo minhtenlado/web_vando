@@ -15,6 +15,7 @@ import { useLocale } from "@/components/cv/locale-context"
 function formatDate(iso: string, locale: string): string {
   try {
     return new Date(iso).toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", {
+      timeZone: "Asia/Ho_Chi_Minh",
       day: "2-digit",
       month: "long",
       year: "numeric",
