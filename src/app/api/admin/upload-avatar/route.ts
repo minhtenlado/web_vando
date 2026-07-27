@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { put, del } from "@vercel/blob";
 import crypto from "crypto";
 
-const ALLOWED = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
+const ALLOWED = new Set(["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml"]);
 const MAX_SIZE = 4 * 1024 * 1024; // 4MB
 
 export async function POST(req: NextRequest) {
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
   if (!ALLOWED.has(file.type)) {
     return NextResponse.json(
-      { ok: false, message: "Định dạng không hỗ trợ (chỉ PNG/JPEG/WebP/GIF)." },
+      { ok: false, message: "Định dạng không hỗ trợ (chỉ PNG/JPEG/WebP/GIF/SVG)." },
       { status: 422 }
     );
   }
