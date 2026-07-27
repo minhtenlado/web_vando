@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import type { SiteProfile } from "@/lib/cv/site-data-server";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 import { educations as staticEducations, certifications as staticCertifications } from "@/lib/cv/data"
 
 type LocaleString = { vi: string; en: string };
@@ -26,11 +27,13 @@ type CertificationItem = {
   name: string;
   issuer: string;
   year: string;
+  enabled?: boolean;
 };
 
 type LanguageItem = {
   name: LocaleString;
   level: LocaleString;
+  enabled?: boolean;
 };
 
 type ConfigState = {
@@ -77,14 +80,16 @@ function parseCertifications(arr: any[]): CertificationItem[] {
     name: String(item?.name ?? ""),
     issuer: String(item?.issuer ?? ""),
     year: String(item?.year ?? ""),
+    enabled: item?.enabled !== false,
   }));
 }
 
 function parseLanguages(arr: any[]): LanguageItem[] {
-  if (!arr || arr.length === 0) return fallbackLanguages as LanguageItem[];
+  if (!arr || arr.length === 0) return fallbackLanguages.map(l => ({ ...l, enabled: true })) as LanguageItem[];
   return (arr ?? []).map((item: any) => ({
     name: normalizeLocaleObj(item?.name),
     level: normalizeLocaleObj(item?.level),
+    enabled: item?.enabled !== false,
   }));
 }
 
@@ -278,20 +283,33 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
         <CardContent className="space-y-6">
           {form.certifications.map((cert, idx) => (
             <div key={idx} className="p-4 border rounded-lg relative space-y-4 bg-muted/20">
-              <Button
-                type="button"
-                variant="destructive"
-                size="icon"
-                className="absolute top-2 right-2 size-8"
-                onClick={() => {
-                  const arr = [...form.certifications];
-                  arr.splice(idx, 1);
-                  update("certifications", arr);
-                }}
-              >
-                <Trash className="size-4" />
-              </Button>
-              <div className="grid sm:grid-cols-3 gap-4 mr-10">
+              <div className="absolute top-2 right-2 flex items-center gap-2">
+                <div className="flex items-center space-x-2 mr-2">
+                  <Switch 
+                    checked={cert.enabled !== false} 
+                    onCheckedChange={(val) => {
+                      const arr = [...form.certifications];
+                      arr[idx].enabled = val;
+                      update("certifications", arr);
+                    }}
+                  />
+                  <Label className="text-xs">Hiển thị</Label>
+                </div>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="size-8"
+                  onClick={() => {
+                    const arr = [...form.certifications];
+                    arr.splice(idx, 1);
+                    update("certifications", arr);
+                  }}
+                >
+                  <Trash className="size-4" />
+                </Button>
+              </div>
+              <div className="grid sm:grid-cols-3 gap-4 mr-32">
                 <div className="space-y-1">
                   <Label>Tên chứng chỉ</Label>
                   <Input
@@ -356,20 +374,33 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
         <CardContent className="space-y-6">
           {form.languages.map((lang, idx) => (
             <div key={idx} className="p-4 border rounded-lg relative space-y-4 bg-muted/20">
-              <Button
-                type="button"
-                variant="destructive"
-                size="icon"
-                className="absolute top-2 right-2 size-8"
-                onClick={() => {
-                  const arr = [...form.languages];
-                  arr.splice(idx, 1);
-                  update("languages", arr);
-                }}
-              >
-                <Trash className="size-4" />
-              </Button>
-              <div className="grid sm:grid-cols-2 gap-4 mr-10">
+              <div className="absolute top-2 right-2 flex items-center gap-2">
+                <div className="flex items-center space-x-2 mr-2">
+                  <Switch 
+                    checked={lang.enabled !== false} 
+                    onCheckedChange={(val) => {
+                      const arr = [...form.languages];
+                      arr[idx].enabled = val;
+                      update("languages", arr);
+                    }}
+                  />
+                  <Label className="text-xs">Hiển thị</Label>
+                </div>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="size-8"
+                  onClick={() => {
+                    const arr = [...form.languages];
+                    arr.splice(idx, 1);
+                    update("languages", arr);
+                  }}
+                >
+                  <Trash className="size-4" />
+                </Button>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-4 mr-32">
                 <div className="space-y-1">
                   <Label>Tên ngôn ngữ</Label>
                   <Input

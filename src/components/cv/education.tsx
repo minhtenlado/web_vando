@@ -24,6 +24,10 @@ export function Education() {
   ]
   const langs = profile?.languages?.length ? profile.languages : fallbackLanguages
 
+  const visibleCerts = certs.filter((c: any) => c.enabled !== false)
+  const visibleLangs = langs.filter((l: any) => l.enabled !== false)
+  const hasRightColumn = visibleCerts.length > 0 || visibleLangs.length > 0
+
   return (
     <section id="education" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
@@ -36,7 +40,7 @@ export function Education() {
           )}
         />
 
-        <div className="mt-10 grid lg:grid-cols-2 gap-8">
+        <div className={`mt-10 grid gap-8 ${hasRightColumn ? "lg:grid-cols-2" : "max-w-3xl mx-auto"}`}>
           {/* Education */}
           <div>
             <div className="flex items-center gap-2 mb-5">
@@ -77,70 +81,83 @@ export function Education() {
             </div>
           </div>
 
-          {/* Certifications */}
-          <div>
-            <div className="flex items-center gap-2 mb-5">
-              <Award className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold">{t("Chứng chỉ", "Certifications")}</h3>
-            </div>
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.45 }}
-            >
-              <Card className="p-5 border-border/60 bg-card/40 backdrop-blur">
-                <ul className="divide-y divide-border">
-                  {certs.map((c, i) => (
-                    <li
-                      key={i}
-                      className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="grid place-items-center h-9 w-9 rounded-lg bg-primary/10 text-primary border border-primary/20 shrink-0">
-                          <Award className="h-4 w-4" />
-                        </span>
-                        <div>
-                          <p className="text-sm font-medium leading-tight">
-                            {c.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {c.issuer}
-                          </p>
-                        </div>
-                      </div>
-                      <Badge variant="outline" className="font-mono">
-                        {c.year}
-                      </Badge>
-                    </li>
-                  ))}
-                </ul>
-              </Card>
-            </motion.div>
-
-            {/* Languages */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.45, delay: 0.1 }}
-              className="mt-4"
-            >
-              <Card className="p-5 border-border/60 bg-card/40 backdrop-blur">
-                <h4 className="text-sm font-semibold mb-3">{t("Ngôn ngữ", "Languages")}</h4>
-                <div className="grid grid-cols-2 gap-3">
-                  {langs.map((l, i) => (
-                    <div key={i} className="rounded-lg border border-border/60 p-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">{getLocalized(l.name, locale)}</span>
-                        <Badge variant="outline" className="font-mono text-[10px]">{getLocalized(l.level, locale)}</Badge>
-                      </div>
-                    </div>
-                  ))}
+          {/* Right Column: Certifications and Languages */}
+          {hasRightColumn && (
+            <div>
+              {/* Certifications */}
+              {visibleCerts.length > 0 && (
+                <div className={visibleLangs.length > 0 ? "mb-10" : ""}>
+                  <div className="flex items-center gap-2 mb-5">
+                    <Award className="h-5 w-5 text-primary" />
+                    <h3 className="text-lg font-semibold">{t("Chứng chỉ", "Certifications")}</h3>
+                  </div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{ duration: 0.45 }}
+                  >
+                    <Card className="p-5 border-border/60 bg-card/40 backdrop-blur">
+                      <ul className="divide-y divide-border">
+                        {visibleCerts.map((c: any, i: number) => (
+                          <li
+                            key={i}
+                            className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className="grid place-items-center h-9 w-9 rounded-lg bg-primary/10 text-primary border border-primary/20 shrink-0">
+                                <Award className="h-4 w-4" />
+                              </span>
+                              <div>
+                                <p className="text-sm font-medium leading-tight">
+                                  {c.name}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {c.issuer}
+                                </p>
+                              </div>
+                            </div>
+                            <Badge variant="outline" className="font-mono">
+                              {c.year}
+                            </Badge>
+                          </li>
+                        ))}
+                      </ul>
+                    </Card>
+                  </motion.div>
                 </div>
-              </Card>
-            </motion.div>
-          </div>
+              )}
+
+              {/* Languages */}
+              {visibleLangs.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-5">
+                    <BookOpen className="h-5 w-5 text-primary" />
+                    <h3 className="text-lg font-semibold">{t("Ngôn ngữ", "Languages")}</h3>
+                  </div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{ duration: 0.45, delay: 0.1 }}
+                  >
+                    <Card className="p-5 border-border/60 bg-card/40 backdrop-blur">
+                      <div className="grid grid-cols-2 gap-3">
+                        {visibleLangs.map((l: any, i: number) => (
+                          <div key={i} className="rounded-lg border border-border/60 p-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium">{getLocalized(l.name, locale)}</span>
+                              <Badge variant="outline" className="font-mono text-[10px]">{getLocalized(l.level, locale)}</Badge>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  </motion.div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </section>
