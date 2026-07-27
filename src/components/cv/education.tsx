@@ -53,7 +53,7 @@ export function Education() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3.5 flex-1 min-w-0">
                         {edu.logo && (
-                          <div className="relative shrink-0 h-12 w-12 sm:h-14 sm:w-14 rounded-xl border border-border/80 bg-background/90 p-2 flex items-center justify-center overflow-hidden shadow-sm backdrop-blur">
+                          <div className="relative shrink-0 h-14 min-w-[56px] max-w-[140px] sm:h-16 sm:min-w-[64px] sm:max-w-[180px] rounded-xl border border-border/80 bg-background/90 p-2 flex items-center justify-center overflow-hidden shadow-sm backdrop-blur">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={edu.logo}
