@@ -1,4 +1,5 @@
 import { getSiteData } from "@/lib/cv/site-data-server"
+import { HashScrollHandler } from "@/components/cv/hash-scroll-handler"
 import { Navbar } from "@/components/cv/navbar"
 import { ScrollProgress } from "@/components/cv/scroll-progress"
 import { CommandPalette } from "@/components/cv/command-palette"
@@ -26,6 +27,7 @@ export default async function Home() {
     <LocaleProvider initialLocale={locale}>
       <SiteDataProvider initialData={initialData}>
         <div className="relative min-h-screen flex flex-col bg-background">
+          <HashScrollHandler />
           <ScrollProgress />
           <CommandPalette />
           <Navbar />
