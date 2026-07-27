@@ -101,11 +101,35 @@ export async function PUT(req: NextRequest) {
     }
   }
 
-  const updated = await db.profile.upsert({
-    where: { id: profileId },
-    update: data,
-    create: { id: profileId, locale, ...data },
-  });
+  let updated;
+  try {
+    updated = await db.profile.upsert({
+      where: { id: profileId },
+      update: data,
+      create: { id: profileId, locale, ...data },
+    });
+  } catch (error: any) {
+    console.error("Profile upsert error:", error);
+    // If the error is about missing columns (educations, certifications, languages),
+    // we can attempt to add them automatically.
+    try {
+      await db.$executeRawUnsafe(`ALTER TABLE "Profile" ADD COLUMN IF NOT EXISTS "educations" TEXT NOT NULL DEFAULT '[]';`);
+      await db.$executeRawUnsafe(`ALTER TABLE "Profile" ADD COLUMN IF NOT EXISTS "certifications" TEXT NOT NULL DEFAULT '[]';`);
+      await db.$executeRawUnsafe(`ALTER TABLE "Profile" ADD COLUMN IF NOT EXISTS "languages" TEXT NOT NULL DEFAULT '[]';`);
+      
+      // Retry upsert
+      updated = await db.profile.upsert({
+        where: { id: profileId },
+        update: data,
+        create: { id: profileId, locale, ...data },
+      });
+    } catch (fallbackError: any) {
+      return NextResponse.json(
+        { ok: false, message: "Lỗi Prisma: " + (error.message || "Không xác định") },
+        { status: 500 }
+      );
+    }
+  }
 
   // Sync bilingual/shared arrays (principles, stats, skillGroups, techBadges, animatedRoles) to ALL profile rows
   const allProfileIds = ["profile-vi", "profile-en", "profile"];
