@@ -31,149 +31,178 @@ export function Education() {
   return (
     <section id="education" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
-        {hasRightColumn && (
-          <SectionHeader
-            index="08 / education"
-            title={t("Học vấn & Chứng chỉ", "Education & Certifications")}
-            subtitle={t(
-              "Nền tảng học thuật và các chứng chỉ chuyên môn đã đạt được trong hành trình trở thành kỹ sư nhúng.",
-              "Academic background and professional certifications acquired during the journey to become an embedded engineer."
-            )}
-          />
-        )}
+        <SectionHeader
+          index="08 / education"
+          title={hasRightColumn 
+            ? t("Học vấn & Chứng chỉ", "Education & Certifications") 
+            : t("Học vấn", "Education")
+          }
+          subtitle={hasRightColumn
+            ? t(
+                "Nền tảng học thuật và các chứng chỉ chuyên môn đã đạt được trong hành trình trở thành kỹ sư nhúng.",
+                "Academic background and professional certifications acquired during the journey to become an embedded engineer."
+              )
+            : t(
+                "Nền tảng học thuật đã được đào tạo trong hành trình trở thành kỹ sư phần mềm nhúng.",
+                "Academic background acquired during the journey to become an embedded software engineer."
+              )
+          }
+        />
 
-        <div className={`mt-10 grid gap-8 ${hasRightColumn ? "lg:grid-cols-2" : "max-w-3xl mx-auto mt-0"}`}>
-          {/* Education */}
-          <div>
-            {!hasRightColumn && (
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 0.5 }}
-                className="flex flex-col gap-3 mb-4"
-              >
-                <div className="flex items-center gap-2 font-mono text-xs text-primary">
-                  <span className="h-px w-8 bg-primary/60" />
-                  <span>08 / education</span>
+        <div className="mt-10">
+          {hasRightColumn ? (
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Left Column: Education */}
+              <div>
+                <div className="flex items-center gap-2 mb-5">
+                  <GraduationCap className="h-5 w-5 text-primary" />
+                  <h3 className="text-lg font-semibold">{t("Học vấn", "Education")}</h3>
                 </div>
-              </motion.div>
-            )}
-            <div className={`flex items-center gap-3 ${hasRightColumn ? 'mb-5' : 'mb-10'}`}>
-              <GraduationCap className={hasRightColumn ? "h-5 w-5 text-primary" : "h-8 w-8 sm:h-9 sm:w-9 text-primary"} />
-              <h3 className={hasRightColumn ? "text-lg font-semibold" : "text-3xl sm:text-4xl font-bold tracking-tight"}>
-                {t("Học vấn", "Education")}
-              </h3>
-            </div>
-            <div className="relative border-l-2 border-border/60 pl-6 space-y-6 ml-2 mt-4">
-              {edus.map((edu, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -16 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.45, delay: i * 0.06 }}
-                  className="relative"
-                >
-                  <span className="absolute -left-[31px] top-4 grid place-items-center h-3.5 w-3.5 rounded-full bg-background border-2 border-primary ring-4 ring-background" />
-                  <Card className="p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/40 transition-colors hover:shadow-md">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1">
-                        <h4 className="font-semibold leading-tight">
-                          {getLocalized(edu.degree, locale)}
-                        </h4>
-                        <p className="mt-1 text-sm text-primary flex items-center gap-1.5">
-                          <BookOpen className="h-3.5 w-3.5" /> {getLocalized(edu.school, locale)}
+                <div className="relative border-l-2 border-border/60 pl-6 space-y-6 ml-2">
+                  {edus.map((edu, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -16 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true, margin: "-60px" }}
+                      transition={{ duration: 0.45, delay: i * 0.06 }}
+                      className="relative"
+                    >
+                      <span className="absolute -left-[31px] top-4 grid place-items-center h-3.5 w-3.5 rounded-full bg-background border-2 border-primary ring-4 ring-background" />
+                      <Card className="p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/40 transition-colors hover:shadow-md">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1">
+                            <h4 className="font-semibold leading-tight">
+                              {getLocalized(edu.degree, locale)}
+                            </h4>
+                            <p className="mt-1 text-sm text-primary flex items-center gap-1.5">
+                              <BookOpen className="h-3.5 w-3.5" /> {getLocalized(edu.school, locale)}
+                            </p>
+                          </div>
+                          <Badge variant="secondary" className="gap-1 font-mono shrink-0">
+                            <Calendar className="h-3 w-3" /> {edu.period}
+                          </Badge>
+                        </div>
+                        <p className="mt-3 text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                          {getLocalized(edu.detail, locale)}
                         </p>
-                      </div>
-                      <Badge variant="secondary" className="gap-1 font-mono shrink-0">
-                        <Calendar className="h-3 w-3" /> {edu.period}
-                      </Badge>
-                    </div>
-                    <p className="mt-3 text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                      {getLocalized(edu.detail, locale)}
-                    </p>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </div>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
 
-          {/* Right Column: Certifications and Languages */}
-          {hasRightColumn && (
-            <div>
-              {/* Certifications */}
-              {visibleCerts.length > 0 && (
-                <div className={visibleLangs.length > 0 ? "mb-10" : ""}>
-                  <div className="flex items-center gap-2 mb-5">
-                    <Award className="h-5 w-5 text-primary" />
-                    <h3 className="text-lg font-semibold">{t("Chứng chỉ", "Certifications")}</h3>
+              {/* Right Column: Certifications and Languages */}
+              <div>
+                {/* Certifications */}
+                {visibleCerts.length > 0 && (
+                  <div className={visibleLangs.length > 0 ? "mb-10" : ""}>
+                    <div className="flex items-center gap-2 mb-5">
+                      <Award className="h-5 w-5 text-primary" />
+                      <h3 className="text-lg font-semibold">{t("Chứng chỉ", "Certifications")}</h3>
+                    </div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 16 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-60px" }}
+                      transition={{ duration: 0.45 }}
+                    >
+                      <Card className="p-5 border-border/60 bg-card/40 backdrop-blur">
+                        <ul className="divide-y divide-border">
+                          {visibleCerts.map((c: any, i: number) => (
+                            <li
+                              key={i}
+                              className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="grid place-items-center h-9 w-9 rounded-lg bg-primary/10 text-primary border border-primary/20 shrink-0">
+                                  <Award className="h-4 w-4" />
+                                </span>
+                                <div>
+                                  <p className="text-sm font-medium leading-tight">
+                                    {c.name}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {c.issuer}
+                                  </p>
+                                </div>
+                              </div>
+                              <Badge variant="outline" className="font-mono">
+                                {c.year}
+                              </Badge>
+                            </li>
+                          ))}
+                        </ul>
+                      </Card>
+                    </motion.div>
                   </div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-60px" }}
-                    transition={{ duration: 0.45 }}
-                  >
-                    <Card className="p-5 border-border/60 bg-card/40 backdrop-blur">
-                      <ul className="divide-y divide-border">
-                        {visibleCerts.map((c: any, i: number) => (
-                          <li
-                            key={i}
-                            className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
-                          >
-                            <div className="flex items-center gap-3">
-                              <span className="grid place-items-center h-9 w-9 rounded-lg bg-primary/10 text-primary border border-primary/20 shrink-0">
-                                <Award className="h-4 w-4" />
-                              </span>
-                              <div>
-                                <p className="text-sm font-medium leading-tight">
-                                  {c.name}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  {c.issuer}
-                                </p>
+                )}
+
+                {/* Languages */}
+                {visibleLangs.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-5">
+                      <BookOpen className="h-5 w-5 text-primary" />
+                      <h3 className="text-lg font-semibold">{t("Ngôn ngữ", "Languages")}</h3>
+                    </div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 16 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-60px" }}
+                      transition={{ duration: 0.45, delay: 0.1 }}
+                    >
+                      <Card className="p-5 border-border/60 bg-card/40 backdrop-blur">
+                        <div className="grid grid-cols-2 gap-3">
+                          {visibleLangs.map((l: any, i: number) => (
+                            <div key={i} className="rounded-lg border border-border/60 p-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium">{getLocalized(l.name, locale)}</span>
+                                <Badge variant="outline" className="font-mono text-[10px]">{getLocalized(l.level, locale)}</Badge>
                               </div>
                             </div>
-                            <Badge variant="outline" className="font-mono">
-                              {c.year}
-                            </Badge>
-                          </li>
-                        ))}
-                      </ul>
-                    </Card>
-                  </motion.div>
-                </div>
-              )}
-
-              {/* Languages */}
-              {visibleLangs.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-2 mb-5">
-                    <BookOpen className="h-5 w-5 text-primary" />
-                    <h3 className="text-lg font-semibold">{t("Ngôn ngữ", "Languages")}</h3>
+                          ))}
+                        </div>
+                      </Card>
+                    </motion.div>
                   </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* Single Column Mode: Left Aligned Education Timeline */
+            <div className="max-w-3xl">
+              <div className="relative border-l-2 border-border/60 pl-6 space-y-6 ml-2">
+                {edus.map((edu, i) => (
                   <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
+                    key={i}
+                    initial={{ opacity: 0, x: -16 }}
+                    whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, margin: "-60px" }}
-                    transition={{ duration: 0.45, delay: 0.1 }}
+                    transition={{ duration: 0.45, delay: i * 0.06 }}
+                    className="relative"
                   >
-                    <Card className="p-5 border-border/60 bg-card/40 backdrop-blur">
-                      <div className="grid grid-cols-2 gap-3">
-                        {visibleLangs.map((l: any, i: number) => (
-                          <div key={i} className="rounded-lg border border-border/60 p-3">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium">{getLocalized(l.name, locale)}</span>
-                              <Badge variant="outline" className="font-mono text-[10px]">{getLocalized(l.level, locale)}</Badge>
-                            </div>
-                          </div>
-                        ))}
+                    <span className="absolute -left-[31px] top-4 grid place-items-center h-3.5 w-3.5 rounded-full bg-background border-2 border-primary ring-4 ring-background" />
+                    <Card className="p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/40 transition-colors hover:shadow-md">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <h4 className="font-semibold leading-tight">
+                            {getLocalized(edu.degree, locale)}
+                          </h4>
+                          <p className="mt-1 text-sm text-primary flex items-center gap-1.5">
+                            <BookOpen className="h-3.5 w-3.5" /> {getLocalized(edu.school, locale)}
+                          </p>
+                        </div>
+                        <Badge variant="secondary" className="gap-1 font-mono shrink-0">
+                          <Calendar className="h-3 w-3" /> {edu.period}
+                        </Badge>
                       </div>
+                      <p className="mt-3 text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                        {getLocalized(edu.detail, locale)}
+                      </p>
                     </Card>
                   </motion.div>
-                </div>
-              )}
+                ))}
+              </div>
             </div>
           )}
         </div>
