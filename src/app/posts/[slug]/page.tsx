@@ -91,7 +91,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto max-w-[1600px] px-4 md:px-8 py-8 lg:py-12">
+      <main className="flex-1 container mx-auto max-w-[1600px] px-0 sm:px-4 md:px-8 py-3 sm:py-8 lg:py-12">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 items-start">
           
           {/* Left Sidebar: TOC (Sticky pinned when scrolling) */}

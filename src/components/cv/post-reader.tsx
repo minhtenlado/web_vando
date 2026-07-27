@@ -111,21 +111,21 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
 
       {/* The "Paper" Document */}
       <div 
-        className="bg-card text-card-foreground border rounded-xl shadow-2xl min-h-[80vh] overflow-hidden"
+        className="bg-card text-card-foreground border-0 sm:border rounded-none sm:rounded-xl shadow-none sm:shadow-2xl min-h-[80vh] overflow-hidden"
         style={{ fontSize: `${zoom}%`, transition: "font-size 0.15s ease-out" }}
       >
-        <div className="mx-auto w-full max-w-5xl p-4 sm:p-12 md:p-16 lg:p-20">
-          <header className="mb-10 md:mb-14 border-b pb-8">
-            <h1 className="text-[2.25em] leading-[1.2] font-bold font-serif mb-6">
+        <div className="mx-auto w-full max-w-5xl px-3 py-5 sm:p-12 md:p-16 lg:p-20">
+          <header className="mb-6 sm:mb-10 md:mb-14 border-b pb-6 sm:pb-8">
+            <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-[2.25em] leading-[1.3] sm:leading-[1.2] font-bold font-serif mb-4 sm:mb-6 tracking-tight text-foreground">
               {title}
             </h1>
-            <div className="flex flex-wrap items-center gap-4 text-[0.875em] text-muted-foreground font-sans">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-[0.875em] text-muted-foreground font-sans">
               <div className="flex items-center gap-1.5">
-                <CalendarDays className="h-[1.2em] w-[1.2em]" />
+                <CalendarDays className="h-3.5 w-3.5 sm:h-[1.2em] sm:w-[1.2em]" />
                 <time>{pubDate}</time>
               </div>
               <div className="flex items-center gap-1.5">
-                <Clock className="h-[1.2em] w-[1.2em]" />
+                <Clock className="h-3.5 w-3.5 sm:h-[1.2em] sm:w-[1.2em]" />
                 <span>{readingTime} phút đọc</span>
               </div>
             </div>
@@ -133,15 +133,19 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
 
           <div 
             className="prose prose-slate dark:prose-invert max-w-none
-                font-sans 
-                prose-headings:font-sans prose-headings:font-bold prose-headings:leading-tight
-                prose-p:leading-relaxed prose-p:text-foreground/90
-                prose-a:text-primary hover:prose-a:text-primary/80
-                prose-img:rounded-xl prose-img:shadow-md prose-img:mx-auto
-                prose-pre:bg-zinc-950 prose-pre:text-zinc-50 prose-pre:border prose-pre:border-zinc-800 prose-pre:shadow-sm
-                prose-code:text-pink-500 prose-code:bg-pink-500/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none
-                prose-table:w-full prose-td:border prose-td:border-border prose-th:border prose-th:border-border prose-td:p-3 prose-th:p-3 prose-th:bg-muted/50
-                [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-xl [&_iframe]:shadow-md
+                font-sans text-base sm:text-lg
+                prose-headings:font-sans prose-headings:font-bold prose-headings:leading-tight prose-headings:tracking-tight
+                prose-h1:text-xl sm:prose-h1:text-3xl
+                prose-h2:text-lg sm:prose-h2:text-2xl prose-h2:mt-6 prose-h2:mb-3
+                prose-h3:text-base sm:prose-h3:text-xl prose-h3:mt-5 prose-h3:mb-2
+                prose-p:leading-relaxed sm:prose-p:leading-relaxed prose-p:text-foreground/90 prose-p:my-3 sm:prose-p:my-4
+                prose-li:my-1 sm:prose-li:my-2
+                prose-a:text-primary hover:prose-a:text-primary/80 prose-a:break-words
+                prose-img:rounded-lg sm:prose-img:rounded-xl prose-img:shadow-md prose-img:mx-auto prose-img:max-w-full prose-img:h-auto
+                prose-pre:bg-zinc-950 prose-pre:text-zinc-50 prose-pre:border prose-pre:border-zinc-800 prose-pre:shadow-sm prose-pre:text-xs sm:prose-pre:text-sm prose-pre:p-3 sm:prose-pre:p-4 prose-pre:rounded-lg sm:prose-pre:rounded-xl prose-pre:overflow-x-auto
+                prose-code:text-pink-500 prose-code:bg-pink-500/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none prose-code:break-words
+                prose-table:w-full prose-td:border prose-td:border-border prose-th:border prose-th:border-border prose-td:p-2 sm:prose-td:p-3 prose-th:p-2 sm:prose-th:p-3 prose-th:bg-muted/50
+                [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-lg sm:[&_iframe]:rounded-xl [&_iframe]:shadow-md
                 ql-editor-display"
               style={{ fontSize: '1em' }}
               dangerouslySetInnerHTML={{ __html: (() => {
