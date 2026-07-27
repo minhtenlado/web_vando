@@ -277,12 +277,12 @@ export function Projects() {
                       {activeProject.link ? (
                         <Button asChild className="w-full" size="lg">
                           <a href={activeProject.link} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="mr-2 size-4" /> Mở dự án trực tiếp
+                            <ExternalLink className="mr-2 size-4" /> {t("Xem tài liệu chi tiết", "View Detailed Documentation")}
                           </a>
                         </Button>
                       ) : (
                         <Button className="w-full" size="lg" disabled>
-                          Chưa có link trực tiếp
+                          {t("Chưa có tài liệu chi tiết", "No documentation available")}
                         </Button>
                       )}
                       
