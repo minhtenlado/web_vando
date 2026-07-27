@@ -192,7 +192,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-8 md:mt-12 pt-6 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
           <p>
-            &copy; {year} {profile.name}. {t("Tất cả các quyền được bảo lưu.", "All rights reserved.")}
+            &copy; {year} {profile.name || "Phan Huỳnh Văn Đô"}.
           </p>
           <a
             href="#top"
