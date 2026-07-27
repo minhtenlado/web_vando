@@ -20,8 +20,8 @@ export function Footer() {
   return (
     <footer className="relative border-t border-border/60 bg-muted/20">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12 py-12 lg:py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
-          <div className="sm:col-span-2 space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
+          <div className="md:col-span-2 space-y-3 sm:space-y-4">
             <a
               href="#top"
               onClick={handleScrollTop}
@@ -38,7 +38,7 @@ export function Footer() {
             <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
               {profile.tagline}
             </p>
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3 pt-1">
               <a
                 href={`mailto:${profile.email}`}
                 className="grid place-items-center h-9 w-9 rounded-md bg-background border border-border hover:bg-primary hover:text-primary-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -67,48 +67,50 @@ export function Footer() {
             </div>
           </div>
 
-          <div>
-            <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">{t("Liên kết", "Links")}</h4>
-            <ul className="space-y-2">
-              {navLinks.slice(0, 4).map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link[locale]}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <div className="md:col-span-2 grid grid-cols-2 gap-6 sm:gap-8">
+            <div>
+              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">{t("Liên kết", "Links")}</h4>
+              <ul className="space-y-2.5">
+                {navLinks.slice(0, 4).map((link) => (
+                  <li key={link.href}>
+                    <a
+                      href={link.href}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {link[locale]}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          <div>
-            <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">{t("Khác", "Other")}</h4>
-            <ul className="space-y-2">
-              {navLinks.slice(4).map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            <div>
+              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">{t("Khác", "Other")}</h4>
+              <ul className="space-y-2.5">
+                {navLinks.slice(4).map((link) => (
+                  <li key={link.href}>
+                    <a
+                      href={link.href}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {link[locale]}
+                    </a>
+                  </li>
+                ))}
+                <li>
+                  <button
+                    onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
                   >
-                    {link[locale]}
-                  </a>
+                    {t("Bảng lệnh (Cmd+K)", "Command Palette (Cmd+K)")}
+                  </button>
                 </li>
-              ))}
-              <li>
-                <button
-                  onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {t("Bảng lệnh (Cmd+K)", "Command Palette (Cmd+K)")}
-                </button>
-              </li>
-            </ul>
+              </ul>
+            </div>
           </div>
         </div>
 
-        <div className="mt-10 md:mt-16 pt-6 sm:pt-8 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
+        <div className="mt-8 md:mt-16 pt-6 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
           <p>
             &copy; {year} {profile.name}. {t("Tất cả các quyền được bảo lưu.", "All rights reserved.")}
           </p>
