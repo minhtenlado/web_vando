@@ -22,7 +22,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, message: "Thiếu file ảnh." }, { status: 422 });
   }
 
-  if (!ALLOWED.has(file.type)) {
+  const ext = (file.name.split(".").pop() || "png").toLowerCase().slice(0, 5);
+  const ALLOWED_EXTS = new Set(["png", "jpg", "jpeg", "webp", "gif", "svg"]);
+
+  if (!ALLOWED.has(file.type) && !ALLOWED_EXTS.has(ext)) {
     return NextResponse.json(
       { ok: false, message: "Định dạng không hỗ trợ (chỉ PNG/JPEG/WebP/GIF/SVG)." },
       { status: 422 }
@@ -35,13 +38,19 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const ext = (file.name.split(".").pop() || "png").toLowerCase().slice(0, 5);
   const name = `img_${Date.now()}_${crypto.randomBytes(3).toString("hex")}.${ext}`;
 
-  const blob = await put(name, file, {
-    access: "public",
-    addRandomSuffix: false,
-  });
-
-  return NextResponse.json({ ok: true, url: blob.url });
+  try {
+    const blob = await put(name, file, {
+      access: "public",
+      addRandomSuffix: false,
+    });
+    return NextResponse.json({ ok: true, url: blob.url });
+  } catch (err: any) {
+    console.error("Vercel Blob Upload Error:", err);
+    return NextResponse.json(
+      { ok: false, message: err?.message || "Lỗi khi lưu file lên Vercel Blob." },
+      { status: 500 }
+    );
+  }
 }

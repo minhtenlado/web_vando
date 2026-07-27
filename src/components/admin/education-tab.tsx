@@ -65,8 +65,8 @@ function normalizeLocaleObj(val: any): LocaleString {
   return { vi: str, en: str };
 }
 
-function parseEducations(arr: any[]): EducationItem[] {
-  if (!arr || arr.length === 0) return staticEducations as EducationItem[];
+function parseEducations(arr: any[] | null | undefined): EducationItem[] {
+  if (arr === undefined || arr === null) return staticEducations as EducationItem[];
   return (arr ?? []).map((item: any) => ({
     degree: normalizeLocaleObj(item?.degree),
     school: normalizeLocaleObj(item?.school),
@@ -201,8 +201,7 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
                 size="icon"
                 className="absolute top-2 right-2 size-8"
                 onClick={() => {
-                  const arr = [...form.educations];
-                  arr.splice(idx, 1);
+                  const arr = form.educations.filter((_, i) => i !== idx);
                   update("educations", arr);
                 }}
               >
@@ -214,8 +213,10 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
                   <Input
                     value={edu.degree[activeLang]}
                     onChange={(e) => {
-                      const arr = [...form.educations];
-                      arr[idx].degree[activeLang] = e.target.value;
+                      const val = e.target.value;
+                      const arr = form.educations.map((item, i) =>
+                        i === idx ? { ...item, degree: { ...item.degree, [activeLang]: val } } : item
+                      );
                       update("educations", arr);
                     }}
                     placeholder="VD: Kỹ sư IoT..."
@@ -226,8 +227,10 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
                   <Input
                     value={edu.school[activeLang]}
                     onChange={(e) => {
-                      const arr = [...form.educations];
-                      arr[idx].school[activeLang] = e.target.value;
+                      const val = e.target.value;
+                      const arr = form.educations.map((item, i) =>
+                        i === idx ? { ...item, school: { ...item.school, [activeLang]: val } } : item
+                      );
                       update("educations", arr);
                     }}
                     placeholder="VD: Đại học Công nghiệp TP.HCM"
@@ -239,8 +242,10 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
                 <Input
                   value={edu.period}
                   onChange={(e) => {
-                    const arr = [...form.educations];
-                    arr[idx].period = e.target.value;
+                    const val = e.target.value;
+                    const arr = form.educations.map((item, i) =>
+                      i === idx ? { ...item, period: val } : item
+                    );
                     update("educations", arr);
                   }}
                   placeholder="VD: 2022 - 2027 (hiển thị chung cho 2 ngôn ngữ)"
@@ -257,8 +262,9 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
                         type="button"
                         className="absolute top-0 right-0 bg-destructive text-destructive-foreground p-0.5 rounded-bl"
                         onClick={() => {
-                          const arr = [...form.educations];
-                          arr[idx].logo = "";
+                          const arr = form.educations.map((item, i) =>
+                            i === idx ? { ...item, logo: "" } : item
+                          );
                           update("educations", arr);
                         }}
                       >
@@ -270,8 +276,10 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
                     <Input
                       value={edu.logo || ""}
                       onChange={(e) => {
-                        const arr = [...form.educations];
-                        arr[idx].logo = e.target.value;
+                        const val = e.target.value;
+                        const arr = form.educations.map((item, i) =>
+                          i === idx ? { ...item, logo: val } : item
+                        );
                         update("educations", arr);
                       }}
                       placeholder="URL logo (hoặc tải ảnh từ máy tính...)"
@@ -283,13 +291,18 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
                       </div>
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/*,.svg"
                         className="hidden"
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) {
-                            toast({ title: "Lỗi", description: "File ảnh phải < 5MB", variant: "destructive" });
+                          
+                          const ext = (file.name.split(".").pop() || "").toLowerCase();
+                          const isAllowedType = file.type.startsWith("image/") || ["svg", "png", "jpg", "jpeg", "webp", "gif"].includes(ext);
+                          
+                          if (!isAllowedType || file.size > 5 * 1024 * 1024) {
+                            toast({ title: "Lỗi", description: "File phải là ảnh (PNG, JPG, SVG, WebP...) và < 5MB", variant: "destructive" });
+                            e.target.value = "";
                             return;
                           }
                           try {
@@ -299,15 +312,18 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
                             const res = await fetch("/api/admin/upload-image", { method: "POST", body: fd });
                             const data = await res.json().catch(() => ({}));
                             if (res.ok && data.ok && data.url) {
-                              const arr = [...form.educations];
-                              arr[idx].logo = data.url;
+                              const arr = form.educations.map((item, i) =>
+                                i === idx ? { ...item, logo: data.url } : item
+                              );
                               update("educations", arr);
-                              toast({ title: "Thành công", description: "Đã tải logo lên." });
+                              toast({ title: "Thành công", description: "Đã tải logo lên thành công!" });
                             } else {
-                              toast({ title: "Lỗi", description: "Không thể tải logo.", variant: "destructive" });
+                              toast({ title: "Lỗi", description: data.message || "Không thể tải logo.", variant: "destructive" });
                             }
                           } catch (err) {
                             toast({ title: "Lỗi", description: "Tải logo thất bại.", variant: "destructive" });
+                          } finally {
+                            e.target.value = "";
                           }
                         }}
                       />
@@ -320,8 +336,10 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
                 <Textarea
                   value={edu.detail[activeLang]}
                   onChange={(e) => {
-                    const arr = [...form.educations];
-                    arr[idx].detail[activeLang] = e.target.value;
+                    const val = e.target.value;
+                    const arr = form.educations.map((item, i) =>
+                      i === idx ? { ...item, detail: { ...item.detail, [activeLang]: val } } : item
+                    );
                     update("educations", arr);
                   }}
                   placeholder="Mô tả về ngành học, đồ án..."
@@ -336,7 +354,7 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
             onClick={() => {
               update("educations", [
                 ...form.educations,
-                { degree: { vi: "", en: "" }, school: { vi: "", en: "" }, period: "", detail: { vi: "", en: "" } },
+                { degree: { vi: "", en: "" }, school: { vi: "", en: "" }, period: "", detail: { vi: "", en: "" }, logo: "" },
               ]);
             }}
           >
