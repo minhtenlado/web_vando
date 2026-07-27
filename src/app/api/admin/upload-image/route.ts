@@ -41,16 +41,27 @@ export async function POST(req: NextRequest) {
   const name = `img_${Date.now()}_${crypto.randomBytes(3).toString("hex")}.${ext}`;
 
   try {
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      throw new Error("Missing BLOB_READ_WRITE_TOKEN credentials");
+    }
     const blob = await put(name, file, {
       access: "public",
       addRandomSuffix: false,
     });
     return NextResponse.json({ ok: true, url: blob.url });
   } catch (err: any) {
-    console.error("Vercel Blob Upload Error:", err);
-    return NextResponse.json(
-      { ok: false, message: err?.message || "Lỗi khi lưu file lên Vercel Blob." },
-      { status: 500 }
-    );
+    console.warn("Vercel Blob upload failed, falling back to Base64 Data URL:", err?.message);
+    try {
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const mime = file.type || (ext === "svg" ? "image/svg+xml" : `image/${ext === "jpg" ? "jpeg" : ext}`);
+      const dataUrl = `data:${mime};base64,${buffer.toString("base64")}`;
+      return NextResponse.json({ ok: true, url: dataUrl });
+    } catch (fallbackErr: any) {
+      return NextResponse.json(
+        { ok: false, message: err?.message || "Lỗi khi lưu file." },
+        { status: 500 }
+      );
+    }
   }
 }
