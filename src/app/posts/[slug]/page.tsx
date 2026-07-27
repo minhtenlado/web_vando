@@ -77,25 +77,21 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             })
           }}
         />
-        <header className="flex-none h-14 bg-white dark:bg-zinc-950 border-b px-4 md:px-6 flex items-center justify-between z-50 shadow-sm">
-          <div className="flex items-center gap-3 sm:gap-4 truncate">
+        <header className="flex-none h-14 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-border/50 px-4 md:px-6 flex items-center justify-between z-50">
+          <div className="flex items-center gap-3">
             <BackButton />
-            <div className="w-px h-4 bg-border shrink-0"></div>
-            <h1 className="text-sm md:text-base font-semibold text-primary truncate" title={post.title}>
-              {post.title}
-            </h1>
           </div>
-          <div className="flex items-center gap-4 shrink-0 pl-4">
-            <a href={post.pdfUrl!} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline shrink-0">
-              Tải PDF
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0 pl-4">
+            <a href={post.pdfUrl!} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors bg-blue-50 dark:bg-blue-900/30 px-3 py-1.5 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 flex items-center gap-2">
+              <span className="hidden sm:inline">Tải</span> PDF
             </a>
             <div className="w-px h-4 bg-border shrink-0"></div>
             <PostThemeToggle />
           </div>
         </header>
-        <main className="flex-1 w-full h-full relative">
+        <main className="flex-1 w-full h-full relative bg-zinc-100/50 dark:bg-zinc-900/50">
           <iframe
-            src={post.pdfUrl!}
+            src={`${post.pdfUrl!}#view=FitH&toolbar=0`}
             className="absolute inset-0 w-full h-full border-0"
             title={post.title}
           />

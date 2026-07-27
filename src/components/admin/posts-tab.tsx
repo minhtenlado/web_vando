@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -110,6 +111,8 @@ export function PostsTab({ locale }: { locale: string }) {
   const [deleting, setDeleting] = React.useState(false);
   const [slugTouched, setSlugTouched] = React.useState(false);
   const [uploadingPdf, setUploadingPdf] = React.useState(false);
+  // Post type state to separate normal posts from PDF uploads
+  const [postType, setPostType] = React.useState<"text" | "pdf">("text");
 
   async function fetchItems() {
     setLoading(true);
@@ -136,6 +139,7 @@ export function PostsTab({ locale }: { locale: string }) {
   function openCreate() {
     setEditing(null);
     setForm(getEmptyForm());
+    setPostType("text");
     setSlugTouched(false);
     setDialogOpen(true);
   }
@@ -143,6 +147,7 @@ export function PostsTab({ locale }: { locale: string }) {
   function openEdit(p: SitePost) {
     setEditing(p);
     setForm(toForm(p));
+    setPostType(p.pdfUrl ? "pdf" : "text");
     setSlugTouched(true); // don't auto-overwrite existing slug
     setDialogOpen(true);
   }
@@ -365,77 +370,102 @@ export function PostsTab({ locale }: { locale: string }) {
               />
             </div>
 
-            <div className="space-y-1.5 flex-1 flex flex-col min-h-0">
-              <Label className="font-mono text-xs flex items-center justify-between">
-                <span>Nội dung bài viết *</span>
-              </Label>
-              <div className="flex-1 min-h-[300px]">
-                <RichTextEditor
-                  value={form.content}
-                  onChange={(val) => setForm({ ...form, content: val })}
-                />
-              </div>
+            <div className="space-y-3 flex-1 flex flex-col min-h-0 pt-2 border-t mt-4">
+              <Label className="font-mono text-xs">Loại bài viết</Label>
+              <Tabs
+                value={postType}
+                onValueChange={(val) => {
+                  const type = val as "text" | "pdf";
+                  setPostType(type);
+                  // Auto clear the inactive field so they don't clash
+                  if (type === "text") {
+                    setForm((f) => ({ ...f, pdfUrl: "" }));
+                  } else {
+                    setForm((f) => ({ ...f, content: "" }));
+                  }
+                }}
+                className="flex-1 flex flex-col min-h-0"
+              >
+                <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
+                  <TabsTrigger value="text">Tạo bài viết</TabsTrigger>
+                  <TabsTrigger value="pdf">Tải bài viết lên (PDF)</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="text" className="flex-1 flex flex-col min-h-0 mt-4 data-[state=inactive]:hidden">
+                  <div className="flex-1 min-h-[300px]">
+                    <RichTextEditor
+                      value={form.content}
+                      onChange={(val) => setForm({ ...form, content: val })}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="pdf" className="mt-4 data-[state=inactive]:hidden">
+                  <div className="space-y-4 border rounded-xl p-6 bg-muted/10 text-center flex flex-col items-center justify-center min-h-[200px]">
+                    <FileText className="size-10 text-muted-foreground mb-2" />
+                    <Label className="block text-sm">Tải lên File PDF thay thế nội dung</Label>
+                    <p className="text-xs text-muted-foreground max-w-sm mb-4">
+                      Khi bài viết ở định dạng PDF, trang web sẽ hiển thị trực tiếp trình xem PDF chuyên nghiệp và ẩn phần tiêu đề.
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <Input
+                        type="file"
+                        accept="application/pdf"
+                        className="hidden"
+                        id="pdf-upload"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          setUploadingPdf(true);
+                          try {
+                            const fd = new FormData();
+                            fd.append("file", file);
+                            const res = await fetch("/api/admin/upload-file", { method: "POST", body: fd });
+                            const data = await res.json();
+                            if (data.ok) {
+                              setForm((f) => ({ ...f, pdfUrl: data.url, content: "" }));
+                            } else {
+                              toast({ title: "Lỗi tải PDF", description: data.message, variant: "destructive" });
+                            }
+                          } catch {
+                            toast({ title: "Lỗi tải PDF", variant: "destructive" });
+                          } finally {
+                            setUploadingPdf(false);
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="default"
+                        onClick={() => document.getElementById("pdf-upload")?.click()}
+                        disabled={uploadingPdf}
+                      >
+                        {uploadingPdf ? <Loader2 className="size-4 animate-spin mr-2" /> : <Plus className="size-4 mr-2" />}
+                        {uploadingPdf ? "Đang tải..." : "Chọn file PDF"}
+                      </Button>
+                    </div>
+
+                    {form.pdfUrl && (
+                      <div className="flex items-center gap-2 mt-4 max-w-full">
+                        <span className="text-xs text-blue-600 truncate font-mono bg-blue-50/50 p-2 px-3 rounded-full border border-blue-200">
+                          Đã đính kèm: {form.pdfUrl.split('/').pop()}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:bg-destructive/10 shrink-0 rounded-full"
+                          onClick={() => setForm((f) => ({ ...f, pdfUrl: "" }))}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
 
-            <div className="space-y-1.5 border rounded-xl p-4 bg-muted/10">
-              <Label className="font-mono text-xs mb-2 block">Hoặc tải lên File PDF thay thế nội dung</Label>
-              <div className="flex items-center gap-3">
-                <Input
-                  type="file"
-                  accept="application/pdf"
-                  className="hidden"
-                  id="pdf-upload"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    setUploadingPdf(true);
-                    try {
-                      const fd = new FormData();
-                      fd.append("file", file);
-                      const res = await fetch("/api/admin/upload-file", { method: "POST", body: fd });
-                      const data = await res.json();
-                      if (data.ok) {
-                        setForm((f) => ({ ...f, pdfUrl: data.url }));
-                      } else {
-                        toast({ title: "Lỗi tải PDF", description: data.message, variant: "destructive" });
-                      }
-                    } catch {
-                      toast({ title: "Lỗi tải PDF", variant: "destructive" });
-                    } finally {
-                      setUploadingPdf(false);
-                    }
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => document.getElementById("pdf-upload")?.click()}
-                  disabled={uploadingPdf}
-                >
-                  {uploadingPdf ? <Loader2 className="size-4 animate-spin" /> : <FileText className="size-4" />}
-                  {uploadingPdf ? "Đang tải..." : "Chọn file PDF"}
-                </Button>
-                {form.pdfUrl && (
-                  <div className="flex items-center gap-2 flex-1">
-                    <span className="text-xs text-muted-foreground truncate flex-1 font-mono bg-background p-2 rounded border">
-                      {form.pdfUrl.split('/').pop()}
-                    </span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:bg-destructive/10"
-                      onClick={() => setForm((f) => ({ ...f, pdfUrl: "" }))}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Nếu bạn tải lên PDF, nội dung Markdown ở trên sẽ bị bỏ qua và trang bài viết sẽ hiển thị trực tiếp file PDF.
-              </p>
-            </div>
 
             <div className="space-y-4 border rounded-xl p-4 bg-muted/20 mt-4">
               <h3 className="font-semibold text-sm">Cấu hình SEO</h3>
