@@ -58,23 +58,23 @@ export function Education() {
                           <p className="mt-1.5 text-sm text-primary flex items-center gap-1.5 font-medium">
                             <BookOpen className="h-3.5 w-3.5 shrink-0" /> {getLocalized(edu.school, locale)}
                           </p>
+                          <div className="mt-2.5 flex items-center">
+                            <Badge variant="secondary" className="gap-1 font-mono">
+                              <Calendar className="h-3 w-3" /> {edu.period}
+                            </Badge>
+                          </div>
                         </div>
 
-                        <div className="flex flex-col items-end gap-3 shrink-0">
-                          <Badge variant="secondary" className="gap-1 font-mono">
-                            <Calendar className="h-3 w-3" /> {edu.period}
-                          </Badge>
-                          {edu.logo && (
-                            <div className="relative h-16 min-w-[80px] max-w-[200px] sm:h-20 sm:min-w-[100px] sm:max-w-[240px] rounded-xl border border-border/80 bg-background/90 p-2.5 flex items-center justify-center overflow-hidden shadow-sm backdrop-blur">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={edu.logo}
-                                alt={getLocalized(edu.school, locale)}
-                                className="max-h-full max-w-full object-contain w-auto h-auto transition-transform hover:scale-105"
-                              />
-                            </div>
-                          )}
-                        </div>
+                        {edu.logo && (
+                          <div className="relative shrink-0 h-16 min-w-[80px] max-w-[200px] sm:h-20 sm:min-w-[100px] sm:max-w-[240px] rounded-xl border border-border/80 bg-background/90 p-2.5 flex items-center justify-center overflow-hidden shadow-sm backdrop-blur">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={edu.logo}
+                              alt={getLocalized(edu.school, locale)}
+                              className="max-h-full max-w-full object-contain w-auto h-auto transition-transform hover:scale-105"
+                            />
+                          </div>
+                        )}
                       </div>
                       <p className="mt-3 text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
                         {getLocalized(edu.detail, locale)}
