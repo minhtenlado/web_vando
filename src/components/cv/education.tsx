@@ -31,30 +31,39 @@ export function Education() {
   return (
     <section id="education" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
-        <SectionHeader
-          index="08 / education"
-          title={hasRightColumn 
-            ? t("Học vấn & Chứng chỉ", "Education & Certifications") 
-            : t("Học vấn", "Education")
-          }
-          subtitle={hasRightColumn
-            ? t(
-                "Nền tảng học thuật và các chứng chỉ chuyên môn đã đạt được trong hành trình trở thành kỹ sư nhúng.",
-                "Academic background and professional certifications acquired during the journey to become an embedded engineer."
-              )
-            : t(
-                "Nền tảng học thuật đã được đào tạo trong hành trình trở thành kỹ sư phần mềm nhúng.",
-                "Academic background acquired during the journey to become an embedded software engineer."
-              )
-          }
-        />
+        {hasRightColumn && (
+          <SectionHeader
+            index="08 / education"
+            title={t("Học vấn & Chứng chỉ", "Education & Certifications")}
+            subtitle={t(
+              "Nền tảng học thuật và các chứng chỉ chuyên môn đã đạt được trong hành trình trở thành kỹ sư nhúng.",
+              "Academic background and professional certifications acquired during the journey to become an embedded engineer."
+            )}
+          />
+        )}
 
-        <div className={`mt-10 grid gap-8 ${hasRightColumn ? "lg:grid-cols-2" : "max-w-3xl mx-auto"}`}>
+        <div className={`mt-10 grid gap-8 ${hasRightColumn ? "lg:grid-cols-2" : "max-w-3xl mx-auto mt-0"}`}>
           {/* Education */}
           <div>
-            <div className="flex items-center gap-2 mb-5">
-              <GraduationCap className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold">{t("Học vấn", "Education")}</h3>
+            {!hasRightColumn && (
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.5 }}
+                className="flex flex-col gap-3 mb-4"
+              >
+                <div className="flex items-center gap-2 font-mono text-xs text-primary">
+                  <span className="h-px w-8 bg-primary/60" />
+                  <span>08 / education</span>
+                </div>
+              </motion.div>
+            )}
+            <div className={`flex items-center gap-3 ${hasRightColumn ? 'mb-5' : 'mb-10'}`}>
+              <GraduationCap className={hasRightColumn ? "h-5 w-5 text-primary" : "h-8 w-8 sm:h-9 sm:w-9 text-primary"} />
+              <h3 className={hasRightColumn ? "text-lg font-semibold" : "text-3xl sm:text-4xl font-bold tracking-tight"}>
+                {t("Học vấn", "Education")}
+              </h3>
             </div>
             <div className="relative border-l-2 border-border/60 pl-6 space-y-6 ml-2 mt-4">
               {edus.map((edu, i) => (
