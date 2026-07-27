@@ -7,11 +7,23 @@ import { SectionHeader } from "./section-header"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { getLocalized } from "@/lib/utils"
-import { educations, certifications } from "@/lib/cv/data"
+import { educations as staticEducations, certifications as staticCertifications } from "@/lib/cv/data"
 import { useLocale } from "@/components/cv/locale-context"
+import { useSiteData } from "@/components/cv/site-data-context"
 
 export function Education() {
   const { t, locale } = useLocale()
+  const { profile } = useSiteData()
+  
+  const edus = profile?.educations?.length ? profile.educations : staticEducations
+  const certs = profile?.certifications?.length ? profile.certifications : staticCertifications
+  
+  const fallbackLanguages = [
+    { name: { vi: "Tiếng Việt", en: "Vietnamese" }, level: { vi: "Bản ngữ", en: "Native" } },
+    { name: { vi: "Tiếng Anh", en: "English" }, level: { vi: "IELTS 7.0", en: "IELTS 7.0" } }
+  ]
+  const langs = profile?.languages?.length ? profile.languages : fallbackLanguages
+
   return (
     <section id="education" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
@@ -32,7 +44,7 @@ export function Education() {
               <h3 className="text-lg font-semibold">{t("Học vấn", "Education")}</h3>
             </div>
             <div className="relative border-l-2 border-border/60 pl-6 space-y-6 ml-2 mt-4">
-              {educations.map((edu, i) => (
+              {edus.map((edu, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, x: -16 }}
@@ -56,7 +68,7 @@ export function Education() {
                         <Calendar className="h-3 w-3" /> {edu.period}
                       </Badge>
                     </div>
-                    <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+                    <p className="mt-3 text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
                       {getLocalized(edu.detail, locale)}
                     </p>
                   </Card>
@@ -79,9 +91,9 @@ export function Education() {
             >
               <Card className="p-5 border-border/60 bg-card/40 backdrop-blur">
                 <ul className="divide-y divide-border">
-                  {certifications.map((c) => (
+                  {certs.map((c, i) => (
                     <li
-                      key={c.name}
+                      key={i}
                       className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
                     >
                       <div className="flex items-center gap-3">
@@ -117,18 +129,14 @@ export function Education() {
               <Card className="p-5 border-border/60 bg-card/40 backdrop-blur">
                 <h4 className="text-sm font-semibold mb-3">{t("Ngôn ngữ", "Languages")}</h4>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-lg border border-border/60 p-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{t("Tiếng Việt", "Vietnamese")}</span>
-                      <Badge variant="outline" className="font-mono text-[10px]">{t("Bản ngữ", "Native")}</Badge>
+                  {langs.map((l, i) => (
+                    <div key={i} className="rounded-lg border border-border/60 p-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">{getLocalized(l.name, locale)}</span>
+                        <Badge variant="outline" className="font-mono text-[10px]">{getLocalized(l.level, locale)}</Badge>
+                      </div>
                     </div>
-                  </div>
-                  <div className="rounded-lg border border-border/60 p-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{t("Tiếng Anh", "English")}</span>
-                      <Badge variant="outline" className="font-mono text-[10px]">IELTS 7.0</Badge>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </Card>
             </motion.div>

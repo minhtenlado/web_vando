@@ -23,6 +23,9 @@ export type SiteProfile = {
   experienceSubtitle: string
   animatedRoles: string[]
   techBadges: { icon: string; text: string }[]
+  educations: any[]
+  certifications: any[]
+  languages: any[]
   available: boolean
 }
 
@@ -68,7 +71,9 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
     name: "", role: "", tagline: "", location: "", email: "",
     phone: "", website: "", github: "", linkedin: "", summary: "", avatar: "",
     principles: [], stats: [], nowText: "", skillGroups: [], socials: [], 
-    aboutSubtitle: "", skillsSubtitle: "", experienceSubtitle: "", animatedRoles: [], techBadges: [], available: true
+    aboutSubtitle: "", skillsSubtitle: "", experienceSubtitle: "", animatedRoles: [], techBadges: [],
+    educations: [], certifications: [], languages: [],
+    available: true
   }
   let projects: SiteProject[] = []
   let experiences: SiteExperience[] = []
@@ -155,6 +160,9 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
           icon: String(i?.icon ?? ""),
           text: String(i?.text ?? "")
         })),
+        educations: getArrayVal("educations"),
+        certifications: getArrayVal("certifications"),
+        languages: getArrayVal("languages"),
         available: true,
       } as SiteProfile
     }

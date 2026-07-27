@@ -11,6 +11,7 @@ import { PageConfigTab } from "@/components/admin/page-config-tab";
 import { ProjectsTab } from "@/components/admin/projects-tab";
 import { ExperiencesTab } from "@/components/admin/experiences-tab";
 import { PostsTab } from "@/components/admin/posts-tab";
+import { EducationTab } from "@/components/admin/education-tab";
 import type { SiteProfile } from "@/lib/cv/site-data-server";
 
 import { AdminLocaleToggle } from "@/components/cv/locale-toggle";
@@ -69,6 +70,7 @@ function Dashboard({
           <TabsList className="h-auto flex-wrap">
             <TabsTrigger value="profile">Hồ sơ</TabsTrigger>
             <TabsTrigger value="config">Cấu hình trang</TabsTrigger>
+            <TabsTrigger value="education">Học vấn & Chứng chỉ</TabsTrigger>
             <TabsTrigger value="projects">Dự án</TabsTrigger>
             <TabsTrigger value="experiences">Kinh nghiệm</TabsTrigger>
             <TabsTrigger value="posts">Bài viết</TabsTrigger>
@@ -76,10 +78,15 @@ function Dashboard({
           <TabsContent value="profile" className="mt-4">
             <ProfileTab initial={initialProfile} locale={locale} />
           </TabsContent>
-          <TabsContent value="config" className="mt-4">
+          <TabsContent value="config" className="m-0 mt-6">
             <PageConfigTab initial={initialProfile} locale={locale} />
           </TabsContent>
-          <TabsContent value="projects" className="mt-4">
+          
+          <TabsContent value="education" className="m-0 mt-6">
+            <EducationTab initial={initialProfile} locale={locale} />
+          </TabsContent>
+
+          <TabsContent value="projects" className="m-0 mt-6">
             <ProjectsTab locale={locale} />
           </TabsContent>
           <TabsContent value="experiences" className="mt-4">

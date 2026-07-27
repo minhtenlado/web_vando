@@ -25,6 +25,9 @@ type ProfileInput = {
   experienceSubtitle?: string;
   animatedRoles?: string[];
   techBadges?: { icon: string; text: string }[];
+  educations?: any[];
+  certifications?: any[];
+  languages?: any[];
 };
 
 export async function PUT(req: NextRequest) {
@@ -70,6 +73,15 @@ export async function PUT(req: NextRequest) {
   if (Array.isArray(body.techBadges)) {
     data.techBadges = JSON.stringify(body.techBadges);
   }
+  if (Array.isArray(body.educations)) {
+    data.educations = JSON.stringify(body.educations);
+  }
+  if (Array.isArray(body.certifications)) {
+    data.certifications = JSON.stringify(body.certifications);
+  }
+  if (Array.isArray(body.languages)) {
+    data.languages = JSON.stringify(body.languages);
+  }
 
   if (Object.keys(data).length === 0) {
     return NextResponse.json({ ok: false, message: "Không có trường nào để cập nhật." }, { status: 422 });
@@ -103,6 +115,9 @@ export async function PUT(req: NextRequest) {
   if (data.skillGroups) syncData.skillGroups = data.skillGroups;
   if (data.techBadges) syncData.techBadges = data.techBadges;
   if (data.animatedRoles) syncData.animatedRoles = data.animatedRoles;
+  if (data.educations) syncData.educations = data.educations;
+  if (data.certifications) syncData.certifications = data.certifications;
+  if (data.languages) syncData.languages = data.languages;
 
   if (Object.keys(syncData).length > 0) {
     for (const pid of allProfileIds) {
