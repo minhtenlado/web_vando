@@ -11,7 +11,6 @@ import { Experience } from "@/components/cv/experience"
 import { Projects } from "@/components/cv/projects"
 import { Posts } from "@/components/cv/posts"
 import { Education } from "@/components/cv/education"
-import { Contact } from "@/components/cv/contact"
 import { Footer } from "@/components/cv/footer"
 import { LocaleProvider } from "@/components/cv/locale-context"
 import { cookies } from "next/headers"
@@ -39,7 +38,6 @@ export default async function Home() {
             <Projects />
             <Posts />
             <Education />
-            <Contact />
           </main>
           <Footer />
         </div>
