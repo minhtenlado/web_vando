@@ -40,6 +40,16 @@ function sanitizePostContent(c: string): string {
     });
 }
 
+/** Chỉ cho phép URL an toàn (https) — chặn javascript:, data:, vbscript: */
+function sanitizeUrl(v: unknown): string | null {
+  if (typeof v !== "string") return null;
+  const s = v.trim();
+  if (!s) return null;
+  if (/^(javascript|data|vbscript):/i.test(s)) return null;
+  if (!s.startsWith("https://")) return null;
+  return s.slice(0, 2000);
+}
+
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -78,7 +88,7 @@ export async function PUT(
   if (typeof body.seoTitle === "string") data.seoTitle = body.seoTitle.slice(0, 300);
   if (typeof body.seoDescription === "string") data.seoDescription = body.seoDescription.slice(0, 600);
   if (typeof body.seoKeywords === "string") data.seoKeywords = body.seoKeywords.slice(0, 300);
-  if (typeof body.pdfUrl === "string") data.pdfUrl = body.pdfUrl;
+  if (typeof body.pdfUrl === "string") data.pdfUrl = sanitizeUrl(body.pdfUrl);
   if (body.pdfUrl === null || body.pdfUrl === "") data.pdfUrl = null;
   if (typeof body.createdAt === "string") data.createdAt = new Date(body.createdAt);
 

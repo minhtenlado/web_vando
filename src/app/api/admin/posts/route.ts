@@ -55,6 +55,16 @@ function sanitizePostContent(c: string): string {
     });
 }
 
+/** Chỉ cho phép URL an toàn (https) — chặn javascript:, data:, vbscript: */
+function sanitizeUrl(v: unknown): string | null {
+  if (typeof v !== "string") return null;
+  const s = v.trim();
+  if (!s) return null;
+  if (/^(javascript|data|vbscript):/i.test(s)) return null;
+  if (!s.startsWith("https://")) return null;
+  return s.slice(0, 2000);
+}
+
 export async function POST(req: NextRequest) {
   const guard = await requireAuth();
   if (guard instanceof Response) return guard;
@@ -89,10 +99,10 @@ export async function POST(req: NextRequest) {
       excerpt: (body.excerpt ?? "").slice(0, 600),
       content: sanitizePostContent((body.content ?? "")).slice(0, 5000000),
       published: !!body.published,
-      seoTitle: body.seoTitle,
-      seoDescription: body.seoDescription,
-      seoKeywords: body.seoKeywords,
-      pdfUrl: body.pdfUrl,
+      seoTitle: typeof body.seoTitle === "string" ? body.seoTitle.slice(0, 300) : undefined,
+      seoDescription: typeof body.seoDescription === "string" ? body.seoDescription.slice(0, 600) : undefined,
+      seoKeywords: typeof body.seoKeywords === "string" ? body.seoKeywords.slice(0, 300) : undefined,
+      pdfUrl: sanitizeUrl(body.pdfUrl),
       ...(body.createdAt ? { createdAt: new Date(body.createdAt) } : {}),
     },
   });

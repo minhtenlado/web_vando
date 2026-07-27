@@ -1,6 +1,11 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# ===== ENVIRONMENT & SECRETS =====
+.env
+.env.*
+!.env.example
+
+# ===== DEPENDENCIES =====
 node_modules
 /.pnp
 .pnp.*
@@ -10,45 +15,65 @@ node_modules
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
+# ===== NEXT.JS =====
 /.next/
 /out/
 
-# production
+# ===== BUILD OUTPUT =====
 /build
+/dist
 
-# misc
+# ===== DATABASE FILES =====
+*.db
+*.sqlite
+*.sqlite3
+db/
+
+# ===== TESTING =====
+/coverage
+
+# ===== OS FILES =====
 .DS_Store
+Thumbs.db
 *.pem
+*.key
+*.p12
 
-# debug
+# ===== LOGS =====
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-local-*
-.claude
-.z-ai-config
 *.log
 dev.log
 dev.out.log
+server.log
+
+# ===== VERCEL =====
+.vercel
+
+# ===== TYPESCRIPT =====
+*.tsbuildinfo
+next-env.d.ts
+
+# ===== IDE / EDITOR =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===== AI / CONFIG =====
+.claude
+.z-ai-config
+local-*
+
+# ===== PROJECT-SPECIFIC =====
 test
 prompt
-
-server.log
-# Skills directory
+download/
+.zscripts/
+examples/
+mini-services/
+worklog.md
 /skills/.env

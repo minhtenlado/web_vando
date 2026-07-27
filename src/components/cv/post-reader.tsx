@@ -144,7 +144,24 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
                 [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-xl [&_iframe]:shadow-md
                 ql-editor-display"
               style={{ fontSize: '1em' }}
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(cleanedContent, { ADD_TAGS: ["iframe"], ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"] }) }}
+              dangerouslySetInnerHTML={{ __html: (() => {
+                const clean = DOMPurify.sanitize(cleanedContent, {
+                  ADD_TAGS: ["iframe"],
+                  ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "class"],
+                });
+                // Post-sanitize: chỉ cho phép iframe từ trusted domains
+                const TRUSTED_IFRAME_HOSTS = [
+                  "www.youtube.com", "youtube.com", "www.youtube-nocookie.com",
+                  "player.vimeo.com", "codepen.io",
+                ];
+                return clean.replace(/<iframe[^>]*src="([^"]*)"[^>]*>/gi, (match, src) => {
+                  try {
+                    const url = new URL(src);
+                    if (TRUSTED_IFRAME_HOSTS.includes(url.hostname)) return match;
+                  } catch { /* invalid URL */ }
+                  return ""; // Xóa iframe không tin cậy
+                });
+              })() }}
             />
         </div>
       </div>
