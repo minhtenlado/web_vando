@@ -168,7 +168,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, c
                 {/* Embedded PDF viewer */}
                 <div className="w-full aspect-[1/1.4] sm:aspect-[4/3] lg:aspect-video rounded-xl overflow-hidden border shadow-inner bg-zinc-100 dark:bg-zinc-900/50">
                   <iframe
-                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`}
+                    src={`${pdfUrl}#toolbar=0`}
                     width="100%"
                     height="100%"
                     className="w-full h-full border-0"
