@@ -166,19 +166,14 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, c
                 </div>
                 
                 {/* Embedded PDF viewer */}
-                <div className="w-full aspect-[1/1.4] sm:aspect-[4/3] lg:aspect-video rounded-xl overflow-hidden border shadow-inner bg-zinc-100 dark:bg-zinc-900/50 hidden sm:block">
-                  <object 
-                    data={pdfUrl} 
-                    type="application/pdf" 
-                    width="100%" 
+                <div className="w-full aspect-[1/1.4] sm:aspect-[4/3] lg:aspect-video rounded-xl overflow-hidden border shadow-inner bg-zinc-100 dark:bg-zinc-900/50">
+                  <iframe
+                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`}
+                    width="100%"
                     height="100%"
-                    className="w-full h-full"
-                  >
-                    <div className="flex flex-col items-center justify-center h-full p-8 text-center text-muted-foreground">
-                      <p>Trình duyệt của bạn không hỗ trợ xem trực tiếp PDF.</p>
-                      <a href={pdfUrl} className="mt-2 text-primary hover:underline">Nhấp vào đây để tải file.</a>
-                    </div>
-                  </object>
+                    className="w-full h-full border-0"
+                    title="PDF Preview"
+                  />
                 </div>
               </div>
             )}
