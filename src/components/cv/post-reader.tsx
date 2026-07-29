@@ -166,7 +166,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, c
                 </div>
                 
                 {/* Embedded PDF viewer */}
-                <div className="w-full aspect-[1/1.4] sm:aspect-[4/3] lg:aspect-video rounded-xl overflow-hidden border shadow-inner bg-zinc-100 dark:bg-zinc-900/50">
+                <div className="w-full aspect-[1/1.4] sm:aspect-[4/3] lg:aspect-video rounded-xl overflow-hidden border shadow-inner bg-zinc-100 dark:bg-zinc-900/50 hidden sm:block">
                   <iframe
                     src={`${pdfUrl}#toolbar=0`}
                     width="100%"
