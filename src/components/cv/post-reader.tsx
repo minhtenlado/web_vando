@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from "react"
-import { CalendarDays, Clock, ZoomIn, ZoomOut, RotateCcw, FileText, Download } from "lucide-react"
+import { CalendarDays, Clock, ZoomIn, ZoomOut, RotateCcw, FileText, Download, ChevronDown } from "lucide-react"
 import { sanitizePostHtml } from "@/lib/validation"
 import { Button } from "@/components/ui/button"
 
@@ -111,72 +111,56 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, c
             </div>
           </header>
 
-          <div 
-            className="prose prose-slate dark:prose-invert max-w-none
-                font-sans text-base sm:text-lg
-                prose-headings:font-sans prose-headings:font-bold prose-headings:leading-tight prose-headings:tracking-tight
-                prose-h1:text-xl sm:prose-h1:text-3xl
-                prose-h2:text-lg sm:prose-h2:text-2xl prose-h2:mt-6 prose-h2:mb-3
-                prose-h3:text-base sm:prose-h3:text-xl prose-h3:mt-5 prose-h3:mb-2
-                prose-p:leading-relaxed sm:prose-p:leading-relaxed prose-p:text-foreground/90 prose-p:my-3 sm:prose-p:my-4
-                prose-li:my-1 sm:prose-li:my-2
-                prose-a:text-primary hover:prose-a:text-primary/80 prose-a:break-words
-                prose-img:rounded-lg sm:prose-img:rounded-xl prose-img:shadow-md prose-img:mx-auto prose-img:max-w-full prose-img:h-auto
-                prose-pre:bg-zinc-950 prose-pre:text-zinc-50 prose-pre:border prose-pre:border-zinc-800 prose-pre:shadow-sm prose-pre:text-xs sm:prose-pre:text-sm prose-pre:p-3 sm:prose-pre:p-4 prose-pre:rounded-lg sm:prose-pre:rounded-xl prose-pre:overflow-x-auto
-                prose-code:text-pink-500 prose-code:bg-pink-500/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none prose-code:break-words
-                prose-table:w-full prose-td:border prose-td:border-border prose-th:border prose-th:border-border prose-td:p-2 sm:prose-td:p-3 prose-th:p-2 sm:prose-th:p-3 prose-th:bg-muted/50
-                [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-lg sm:[&_iframe]:rounded-xl [&_iframe]:shadow-md
-                ql-editor-display"
+          {/* PDF Viewer UI (Moved to Top) */}
+          {pdfUrl && (
+            <div className="mb-10 w-full flex flex-col items-center">
+              {/* iframe for PDF */}
+              <div className="w-full h-[500px] sm:h-[700px] lg:h-[900px] rounded-xl overflow-hidden border shadow-inner bg-zinc-100 dark:bg-zinc-900/50 mb-6">
+                <iframe
+                  src={`https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`}
+                  width="100%"
+                  height="100%"
+                  className="w-full h-full border-0"
+                  title="PDF Preview"
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
+                <a 
+                  href={pdfUrl} 
+                  download 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg h-12 px-8 w-full sm:w-auto active:scale-95"
+                >
+                  <Download className="mr-2 h-5 w-5" />
+                  Tải File PDF Về Máy
+                </a>
+              </div>
+            </div>
+          )}
+
+          {pdfUrl ? (
+            <details className="w-full mt-2 group border border-border rounded-xl mb-10">
+              <summary className="cursor-pointer p-4 font-semibold text-foreground flex items-center justify-between bg-muted/30 hover:bg-muted/50 rounded-xl group-open:rounded-b-none group-open:border-b border-border transition-colors">
+                <span className="flex items-center"><FileText className="w-5 h-5 mr-2" /> Bản xem trước nội dung Text (Dành cho SEO / Trích xuất nhanh)</span>
+                <ChevronDown className="w-5 h-5 transition-transform group-open:rotate-180" />
+              </summary>
+              <div className="p-4 sm:p-6 bg-background rounded-b-xl">
+                <div 
+                  className="prose prose-slate dark:prose-invert max-w-none font-sans text-base sm:text-lg prose-headings:font-sans prose-headings:font-bold prose-headings:leading-tight prose-headings:tracking-tight prose-h1:text-xl sm:prose-h1:text-3xl prose-h2:text-lg sm:prose-h2:text-2xl prose-h2:mt-6 prose-h2:mb-3 prose-h3:text-base sm:prose-h3:text-xl prose-h3:mt-5 prose-h3:mb-2 prose-p:leading-relaxed sm:prose-p:leading-relaxed prose-p:text-foreground/90 prose-p:my-3 sm:prose-p:my-4 prose-li:my-1 sm:prose-li:my-2 prose-a:text-primary hover:prose-a:text-primary/80 prose-a:break-words prose-img:rounded-lg sm:prose-img:rounded-xl prose-img:shadow-md prose-img:mx-auto prose-img:max-w-full prose-img:h-auto prose-pre:bg-zinc-950 prose-pre:text-zinc-50 prose-pre:border prose-pre:border-zinc-800 prose-pre:shadow-sm prose-pre:text-xs sm:prose-pre:text-sm prose-pre:p-3 sm:prose-pre:p-4 prose-pre:rounded-lg sm:prose-pre:rounded-xl prose-pre:overflow-x-auto prose-code:text-pink-500 prose-code:bg-pink-500/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none prose-code:break-words prose-table:w-full prose-td:border prose-td:border-border prose-th:border prose-th:border-border prose-td:p-2 sm:prose-td:p-3 prose-th:p-2 sm:prose-th:p-3 prose-th:bg-muted/50 [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-lg sm:[&_iframe]:rounded-xl [&_iframe]:shadow-md ql-editor-display"
+                  style={{ fontSize: '1em' }}
+                  dangerouslySetInnerHTML={{ __html: sanitizePostHtml(contentHtml) }}
+                />
+              </div>
+            </details>
+          ) : (
+            <div 
+              className="prose prose-slate dark:prose-invert max-w-none font-sans text-base sm:text-lg prose-headings:font-sans prose-headings:font-bold prose-headings:leading-tight prose-headings:tracking-tight prose-h1:text-xl sm:prose-h1:text-3xl prose-h2:text-lg sm:prose-h2:text-2xl prose-h2:mt-6 prose-h2:mb-3 prose-h3:text-base sm:prose-h3:text-xl prose-h3:mt-5 prose-h3:mb-2 prose-p:leading-relaxed sm:prose-p:leading-relaxed prose-p:text-foreground/90 prose-p:my-3 sm:prose-p:my-4 prose-li:my-1 sm:prose-li:my-2 prose-a:text-primary hover:prose-a:text-primary/80 prose-a:break-words prose-img:rounded-lg sm:prose-img:rounded-xl prose-img:shadow-md prose-img:mx-auto prose-img:max-w-full prose-img:h-auto prose-pre:bg-zinc-950 prose-pre:text-zinc-50 prose-pre:border prose-pre:border-zinc-800 prose-pre:shadow-sm prose-pre:text-xs sm:prose-pre:text-sm prose-pre:p-3 sm:prose-pre:p-4 prose-pre:rounded-lg sm:prose-pre:rounded-xl prose-pre:overflow-x-auto prose-code:text-pink-500 prose-code:bg-pink-500/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none prose-code:break-words prose-table:w-full prose-td:border prose-td:border-border prose-th:border prose-th:border-border prose-td:p-2 sm:prose-td:p-3 prose-th:p-2 sm:prose-th:p-3 prose-th:bg-muted/50 [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-lg sm:[&_iframe]:rounded-xl [&_iframe]:shadow-md ql-editor-display"
               style={{ fontSize: '1em' }}
               dangerouslySetInnerHTML={{ __html: sanitizePostHtml(contentHtml) }}
             />
-            
-            {/* PDF Viewer / Download UI */}
-            {pdfUrl && (
-              <div className="mt-12 pt-10 border-t border-border flex flex-col items-center">
-                <div className="mb-5 p-3.5 bg-primary/10 rounded-2xl">
-                  <FileText className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="text-xl sm:text-2xl font-bold font-serif mb-3 text-center">Tài liệu đính kèm</h3>
-                <p className="text-muted-foreground mb-8 max-w-lg text-center text-sm sm:text-base">
-                  Bài viết này có đính kèm một tài liệu PDF chi tiết (như đồ án, báo cáo, slides). Bạn có thể xem trực tiếp hoặc tải về máy.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-4 justify-center w-full sm:w-auto mb-10">
-                  <a 
-                    href={pdfUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg h-12 px-8 w-full sm:w-auto active:scale-95"
-                  >
-                    <FileText className="mr-2 h-5 w-5" />
-                    Xem Tài Liệu (PDF)
-                  </a>
-                  
-                  <a 
-                    href={pdfUrl} 
-                    download 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50 border-2 border-border bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-12 px-8 w-full sm:w-auto active:scale-95"
-                  >
-                    <Download className="mr-2 h-5 w-5" />
-                    Tải Về Máy
-                  </a>
-                </div>
-                
-                {/* Embedded PDF viewer */}
-                <div className="w-full aspect-[1/1.4] sm:aspect-[4/3] lg:aspect-video rounded-xl overflow-hidden border shadow-inner bg-zinc-100 dark:bg-zinc-900/50 hidden sm:block">
-                  <iframe
-                    src={`${pdfUrl}#toolbar=0`}
-                    width="100%"
-                    height="100%"
-                    className="w-full h-full border-0"
-                    title="PDF Preview"
-                  />
-                </div>
-              </div>
-            )}
+          )}
         </div>
       </div>
 
