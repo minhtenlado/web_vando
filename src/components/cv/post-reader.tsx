@@ -114,18 +114,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, c
           {/* PDF Viewer UI (Moved to Top) */}
           {pdfUrl && (
             <div className="mb-10 w-full flex flex-col items-center">
-              {/* iframe for PDF */}
-              <div className="w-full h-[500px] sm:h-[700px] lg:h-[900px] rounded-xl overflow-hidden border shadow-inner bg-zinc-100 dark:bg-zinc-900/50 mb-6">
-                <iframe
-                  src={`${pdfUrl}#toolbar=0`}
-                  width="100%"
-                  height="100%"
-                  className="w-full h-full border-0"
-                  title="PDF Preview"
-                />
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center w-full mb-6">
                 <a 
                   href={pdfUrl} 
                   target="_blank"
@@ -146,6 +135,17 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, c
                   <Download className="mr-2 h-5 w-5" />
                   Tải File PDF Về Máy
                 </a>
+              </div>
+
+              {/* iframe for PDF */}
+              <div className="w-full h-[500px] sm:h-[700px] lg:h-[900px] rounded-xl overflow-hidden border shadow-inner bg-zinc-100 dark:bg-zinc-900/50">
+                <iframe
+                  src={`${pdfUrl}#toolbar=0`}
+                  width="100%"
+                  height="100%"
+                  className="w-full h-full border-0"
+                  title="PDF Preview"
+                />
               </div>
             </div>
           )}
