@@ -111,6 +111,7 @@ export function PostsTab({ locale }: { locale: string }) {
   const [deleting, setDeleting] = React.useState(false);
   const [slugTouched, setSlugTouched] = React.useState(false);
   const [uploadingPdf, setUploadingPdf] = React.useState(false);
+  const [extractingPdf, setExtractingPdf] = React.useState(false);
   // Post type state to separate normal posts from PDF uploads
   const [postType, setPostType] = React.useState<"text" | "pdf">("text");
 
@@ -446,19 +447,61 @@ export function PostsTab({ locale }: { locale: string }) {
                     </div>
 
                     {form.pdfUrl && (
-                      <div className="flex items-center gap-2 mt-4 max-w-full">
-                        <span className="text-xs text-blue-600 truncate font-mono bg-blue-50/50 p-2 px-3 rounded-full border border-blue-200">
-                          Đã đính kèm: {form.pdfUrl.split('/').pop()}
-                        </span>
+                      <div className="flex flex-col gap-3 mt-4 max-w-full bg-blue-50/30 p-4 rounded-xl border border-blue-100">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-blue-600 truncate font-mono bg-blue-50/80 p-2 px-3 rounded-full border border-blue-200">
+                            Đã đính kèm: {form.pdfUrl.split('/').pop()}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:bg-destructive/10 shrink-0 rounded-full h-8 w-8"
+                            onClick={() => setForm((f) => ({ ...f, pdfUrl: "" }))}
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </div>
+                        
                         <Button
                           type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive hover:bg-destructive/10 shrink-0 rounded-full"
-                          onClick={() => setForm((f) => ({ ...f, pdfUrl: "" }))}
+                          variant="outline"
+                          size="sm"
+                          className="w-fit text-blue-700 border-blue-300 bg-blue-100 hover:bg-blue-200"
+                          onClick={async () => {
+                            try {
+                              setExtractingPdf(true);
+
+                              const res = await fetch('/api/admin/extract-pdf', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ url: form.pdfUrl })
+                              });
+                              if (!res.ok) {
+                                const errData = await res.json().catch(() => ({}));
+                                throw new Error(errData.error || 'Trích xuất thất bại');
+                              }
+                              const data = await res.json();
+                              setForm(f => ({ ...f, content: data.text }));
+                              
+                              // Force switch to Text mode so user can see it
+                              setPostType("text");
+                              toast({ title: "Thành công", description: "Đã trích xuất văn bản từ PDF chuẩn SEO!" });
+                            } catch (e: any) {
+
+                              toast({ variant: "destructive", title: "Lỗi", description: e.message });
+                            } finally {
+                              setExtractingPdf(false);
+                            }
+                          }}
+                          disabled={extractingPdf}
                         >
-                          <Trash2 className="size-4" />
+                          {extractingPdf ? <Loader2 className="size-4 animate-spin mr-2" /> : <FileText className="size-4 mr-2" />}
+                          {extractingPdf ? "Đang xử lý PDF..." : "Trích xuất Text cho SEO (Mô phỏng StuDocu)"}
                         </Button>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          *Hệ thống sẽ bóc tách toàn bộ chữ trong PDF và điền vào ô Nội dung. Bạn nên dọn dẹp lại Text cho đẹp mắt rồi mới lưu.
+                        </p>
                       </div>
                     )}
                   </div>
