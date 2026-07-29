@@ -117,7 +117,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, c
               {/* iframe for PDF */}
               <div className="w-full h-[500px] sm:h-[700px] lg:h-[900px] rounded-xl overflow-hidden border shadow-inner bg-zinc-100 dark:bg-zinc-900/50 mb-6">
                 <iframe
-                  src={`https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`}
+                  src={`${pdfUrl}#toolbar=0`}
                   width="100%"
                   height="100%"
                   className="w-full h-full border-0"
