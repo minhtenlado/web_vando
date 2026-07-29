@@ -128,6 +128,16 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, c
               <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
                 <a 
                   href={pdfUrl} 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50 border-2 border-border bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-12 px-8 w-full sm:w-auto active:scale-95"
+                >
+                  <FileText className="mr-2 h-5 w-5" />
+                  Mở Trực Tiếp Trên Tab Khác
+                </a>
+                
+                <a 
+                  href={pdfUrl} 
                   download 
                   target="_blank"
                   rel="noopener noreferrer"
