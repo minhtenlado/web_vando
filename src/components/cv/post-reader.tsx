@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from "react"
-import { CalendarDays, Clock, ZoomIn, ZoomOut, RotateCcw } from "lucide-react"
+import { CalendarDays, Clock, ZoomIn, ZoomOut, RotateCcw, FileText, Download } from "lucide-react"
 import { sanitizePostHtml } from "@/lib/validation"
 import { Button } from "@/components/ui/button"
 
@@ -10,10 +10,11 @@ type PostReaderProps = {
   pubDate: string
   readingTime: number
   contentHtml: string
+  pdfUrl?: string | null
   children?: React.ReactNode
 }
 
-export function PostReader({ title, pubDate, readingTime, contentHtml, children }: PostReaderProps) {
+export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, children }: PostReaderProps) {
   const [zoom, setZoom] = React.useState(100)
 
   // Minimum and maximum zoom levels
@@ -129,6 +130,58 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, children 
               style={{ fontSize: '1em' }}
               dangerouslySetInnerHTML={{ __html: sanitizePostHtml(contentHtml) }}
             />
+            
+            {/* PDF Viewer / Download UI */}
+            {pdfUrl && (
+              <div className="mt-12 pt-10 border-t border-border flex flex-col items-center">
+                <div className="mb-5 p-3.5 bg-primary/10 rounded-2xl">
+                  <FileText className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold font-serif mb-3 text-center">Tài liệu đính kèm</h3>
+                <p className="text-muted-foreground mb-8 max-w-lg text-center text-sm sm:text-base">
+                  Bài viết này có đính kèm một tài liệu PDF chi tiết (như đồ án, báo cáo, slides). Bạn có thể xem trực tiếp hoặc tải về máy.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-4 justify-center w-full sm:w-auto mb-10">
+                  <a 
+                    href={pdfUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg h-12 px-8 w-full sm:w-auto active:scale-95"
+                  >
+                    <FileText className="mr-2 h-5 w-5" />
+                    Xem Tài Liệu (PDF)
+                  </a>
+                  
+                  <a 
+                    href={pdfUrl} 
+                    download 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50 border-2 border-border bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-12 px-8 w-full sm:w-auto active:scale-95"
+                  >
+                    <Download className="mr-2 h-5 w-5" />
+                    Tải Về Máy
+                  </a>
+                </div>
+                
+                {/* Embedded PDF viewer */}
+                <div className="w-full aspect-[1/1.4] sm:aspect-[4/3] lg:aspect-video rounded-xl overflow-hidden border shadow-inner bg-zinc-100 dark:bg-zinc-900/50 hidden sm:block">
+                  <object 
+                    data={pdfUrl} 
+                    type="application/pdf" 
+                    width="100%" 
+                    height="100%"
+                    className="w-full h-full"
+                  >
+                    <div className="flex flex-col items-center justify-center h-full p-8 text-center text-muted-foreground">
+                      <p>Trình duyệt của bạn không hỗ trợ xem trực tiếp PDF.</p>
+                      <a href={pdfUrl} className="mt-2 text-primary hover:underline">Nhấp vào đây để tải file.</a>
+                    </div>
+                  </object>
+                </div>
+              </div>
+            )}
         </div>
       </div>
 

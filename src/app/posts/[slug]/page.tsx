@@ -59,9 +59,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const wordCount = post.content.replace(/<[^>]*>?/gm, "").trim().split(/\s+/).length
   const readingTime = Math.max(1, Math.ceil(wordCount / 200))
 
-  if (post.pdfUrl) {
-    redirect(post.pdfUrl)
-  }
+
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col">
@@ -105,14 +103,15 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               title={post.title} 
               pubDate={pubDate} 
               readingTime={readingTime} 
-              contentHtml={post.content} 
+              contentHtml={post.content}
+              pdfUrl={post.pdfUrl}
             >
             {relatedPosts.length > 0 && (
               <div className="mt-16 pt-10 border-t border-border">
                 <h3 className="text-xl font-bold font-serif mb-6 text-foreground">Đọc thêm bài viết khác</h3>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {relatedPosts.map(rp => {
-                    const rpHref = rp.pdfUrl ? rp.pdfUrl : `/posts/${rp.slug}`
+                    const rpHref = `/posts/${rp.slug}`
                     return (
                       <a key={rp.id} href={rpHref} target="_blank" rel="noopener noreferrer" className="group block bg-card border border-border/50 hover:border-primary/50 p-5 rounded-xl transition-all hover:shadow-md">
                         <h4 className="font-semibold text-card-foreground group-hover:text-primary line-clamp-2 mb-2 transition-colors leading-snug">{rp.title}</h4>

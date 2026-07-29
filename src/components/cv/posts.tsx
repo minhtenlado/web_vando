@@ -64,7 +64,7 @@ export function Posts() {
 
         <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
           {published.map((post, i) => {
-            const targetHref = post.pdfUrl ? post.pdfUrl : `/posts/${post.slug}`
+            const targetHref = `/posts/${post.slug}`
             return (
               <motion.div
                 key={post.id}
