@@ -153,7 +153,6 @@ export function Hero() {
                   sizes="(max-width: 768px) 80vw, 400px"
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-card opacity-50" />
               </div>
 
               {/* Floating chips */}
