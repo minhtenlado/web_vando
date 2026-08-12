@@ -61,15 +61,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" suppressHydrationWarning className="overflow-x-clip dark">
+    <html lang="vi" suppressHydrationWarning className="overflow-x-clip">
       <body
         className={`${alumniSans.variable} ${albertSans.variable} ${jetbrainsMono.variable} antialiased bg-background text-foreground overflow-x-clip font-sans`}
       >
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          forcedTheme="dark"
-          enableSystem={false}
+          enableSystem
           disableTransitionOnChange
         >
           {children}
