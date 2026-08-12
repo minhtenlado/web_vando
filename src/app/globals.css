@@ -88,19 +88,19 @@ html, body {
 .dark {
   /* Premium Cyber Emerald Theme */
   --background: oklch(0.11 0.012 180); /* Deep Obsidian Slate */
-  --foreground: oklch(0.94 0.008 165); /* Crisp Light Text */
+  --foreground: oklch(0.96 0.008 165); /* Crisp Light Text */
   --card: oklch(0.15 0.016 185); /* Raised Obsidian Surface */
-  --card-foreground: oklch(0.94 0.008 165);
+  --card-foreground: oklch(0.96 0.008 165);
   --popover: oklch(0.15 0.016 185);
-  --popover-foreground: oklch(0.94 0.008 165);
+  --popover-foreground: oklch(0.96 0.008 165);
   --primary: oklch(0.75 0.18 165); /* Vibrant Emerald */
   --primary-foreground: oklch(0.11 0.025 165); /* Dark Emerald Ink */
-  --secondary: oklch(0.72 0.15 195); /* Cyan Teal Accent */
-  --secondary-foreground: oklch(0.11 0.025 195);
+  --secondary: oklch(0.18 0.02 185); /* Dark Obsidian Chip Background */
+  --secondary-foreground: oklch(0.92 0.01 165); /* Crisp Light Chip Text */
   --muted: oklch(0.18 0.015 185); /* Dark Muted Surface */
-  --muted-foreground: oklch(0.70 0.012 175); /* Muted Emerald Text */
+  --muted-foreground: oklch(0.82 0.01 180); /* High Contrast Soft Text */
   --accent: oklch(0.22 0.02 185); /* Surface Highlight */
-  --accent-foreground: oklch(0.94 0.008 165);
+  --accent-foreground: oklch(0.96 0.008 165);
   --destructive: oklch(0.62 0.20 25); /* Coral Red */
   --border: oklch(0.75 0.18 165 / 0.18); /* Emerald Hairline */
   --input: oklch(0.18 0.015 185);
@@ -111,11 +111,11 @@ html, body {
   --chart-4: oklch(0.65 0.16 220);
   --chart-5: oklch(0.55 0.18 280);
   --sidebar: oklch(0.11 0.012 180);
-  --sidebar-foreground: oklch(0.94 0.008 165);
+  --sidebar-foreground: oklch(0.96 0.008 165);
   --sidebar-primary: oklch(0.75 0.18 165);
   --sidebar-primary-foreground: oklch(0.11 0.025 165);
   --sidebar-accent: oklch(0.22 0.02 185);
-  --sidebar-accent-foreground: oklch(0.94 0.008 165);
+  --sidebar-accent-foreground: oklch(0.96 0.008 165);
   --sidebar-border: oklch(0.75 0.18 165 / 0.18);
   --sidebar-ring: oklch(0.75 0.18 165);
 }

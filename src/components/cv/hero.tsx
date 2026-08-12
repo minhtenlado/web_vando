@@ -92,7 +92,7 @@ export function Hero() {
                 const IconComponent = badgeIconMap[iconKey] || null;
 
                 return (
-                  <Badge key={idx} variant="secondary" className="gap-1.5 py-1.5">
+                  <Badge key={idx} variant="secondary" className="gap-1.5 py-1.5 border border-primary/25 bg-card hover:bg-accent text-foreground transition-colors font-mono text-xs shadow-sm">
                     {IconComponent && <IconComponent className="h-3.5 w-3.5 text-primary" />}
                     {badge.text}
                   </Badge>
