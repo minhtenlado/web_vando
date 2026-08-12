@@ -42,7 +42,7 @@ export function Hero() {
       className="relative pt-20 pb-8 md:pt-28 md:pb-12 overflow-hidden"
     >
       {/* Background layers */}
-      <div className="absolute inset-0 bg-grid pointer-events-none [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
+      <div className="absolute inset-0 bg-background pointer-events-none" />
       <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
       <div className="absolute top-1/3 -right-32 h-96 w-96 rounded-full bg-accent/20 blur-3xl pointer-events-none" />
 
@@ -71,7 +71,7 @@ export function Hero() {
                 {profile.name}
               </h1>
               <div className="min-h-[2.25rem] sm:min-h-[2.5rem] h-auto flex items-center">
-                <span className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gradient-emerald font-mono">
+                <span className="text-xl sm:text-2xl lg:text-3xl font-semibold text-primary font-mono tracking-widest uppercase">
                   {displayRoles[roleIdx]}
                   <span className="cursor-blink" />
                 </span>
@@ -143,7 +143,7 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 0.15, ease: "easeOut" }}
             className="relative mx-auto w-full max-w-sm"
           >
-            <div className="relative rounded-2xl border border-border/60 bg-card/50 backdrop-blur p-3 glow-emerald">
+            <div className="relative rounded-sm border border-border bg-card p-3">
               <div className="relative aspect-square overflow-hidden rounded-xl">
                 <Image
                   src={profile.avatar}
@@ -153,14 +153,14 @@ export function Hero() {
                   sizes="(max-width: 768px) 80vw, 400px"
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-card opacity-50" />
               </div>
 
               {/* Floating chips */}
-              <div className="absolute -top-3 -right-3 rounded-lg bg-card border border-border px-3 py-1.5 shadow-md">
-                <span className="font-mono text-xs text-primary">{">_ ready"}</span>
+              <div className="absolute -top-3 -right-3 rounded-sm bg-card border border-border px-3 py-1.5 shadow-sm">
+                <span className="text-xs font-mono font-medium text-foreground">{'</>'}</span>
               </div>
-              <div className="absolute -bottom-3 -left-3 rounded-lg bg-card border border-border px-3 py-1.5 shadow-md flex items-center gap-1.5">
+              <div className="absolute -bottom-3 -left-3 rounded-sm bg-card border border-border px-3 py-1.5 shadow-sm flex items-center gap-1.5">
                 <Cpu className="h-3.5 w-3.5 text-accent" />
                 <span className="font-mono text-xs">6+ yrs</span>
               </div>

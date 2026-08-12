@@ -98,7 +98,7 @@ export function Projects() {
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.5, delay: (i % 2) * 0.08 }}
               >
-                <Card className="group h-full overflow-hidden border-border/60 bg-card/40 backdrop-blur hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
+                <Card className="group h-full overflow-hidden border-border bg-card hover:border-primary transition-all duration-300">
                   {/* Image / video thumb */}
                   <div className="relative aspect-[16/9] overflow-hidden bg-muted">
                     {p.image ? (
@@ -113,7 +113,7 @@ export function Projects() {
                         <FolderGit2 className="h-12 w-12" />
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent" />
+                    <div className="absolute inset-0 bg-card opacity-50" />
                     <div className="absolute bottom-3 right-3 flex gap-2">
                       <Badge variant="secondary" className="bg-background/80 backdrop-blur border-border/50">
                         {p.category}
@@ -207,7 +207,7 @@ export function Projects() {
                 <div className="max-w-3xl mx-auto space-y-8">
                   {/* Hero Image */}
                   {activeProject.image && (
-                    <div className="relative aspect-video rounded-xl overflow-hidden border border-border/50 shadow-sm">
+                    <div className="relative aspect-video rounded-sm overflow-hidden border border-border">
                       <Image fill src={activeProject.image} alt={activeProject.title} className="object-cover" />
                     </div>
                   )}
@@ -251,7 +251,7 @@ export function Projects() {
                           <button
                             key={imgIdx}
                             onClick={() => setLightbox({ list: activeProject.images!, index: imgIdx })}
-                            className="group relative aspect-video rounded-lg overflow-hidden border border-border/50 hover:border-primary/50 transition-all shadow-sm hover:shadow-md"
+                            className="group relative aspect-video rounded-sm overflow-hidden border border-border hover:border-primary transition-all"
                           >
                             <Image fill src={img} alt={`Gallery ${imgIdx}`} className="object-cover transition-transform duration-500 group-hover:scale-105" />
                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
@@ -267,7 +267,7 @@ export function Projects() {
                       <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
                         Video
                       </h3>
-                      <div className="relative aspect-video rounded-xl overflow-hidden border border-border shadow-sm bg-black">
+                      <div className="relative aspect-video rounded-sm overflow-hidden border border-border bg-black">
                         <iframe
                           src={`https://www.youtube.com/embed/${activeYtId}?rel=0`}
                           title="YouTube video demo"

@@ -47,7 +47,7 @@ export function Experience() {
         <div className="mt-12 relative">
           {/* Vertical line */}
           <div
-            className="absolute left-4 sm:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary/60 via-border to-transparent sm:-translate-x-1/2"
+            className="absolute left-4 sm:left-1/2 top-0 bottom-0 w-px bg-border sm:-translate-x-1/2"
             aria-hidden
           />
 
@@ -76,7 +76,7 @@ export function Experience() {
                         : "sm:ml-auto sm:pl-10 sm:pr-0")
                     }
                   >
-                    <Card className="p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/40 hover:-translate-y-1 hover:shadow-md transition-all duration-300 group">
+                    <Card className="p-5 border-border bg-card hover:border-primary transition-all duration-300 group">
                       <div
                         className={
                           "flex flex-wrap items-center gap-2 mb-2 " +

@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
+import { Alumni_Sans, Albert_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/cv/theme-provider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const alumniSans = Alumni_Sans({
+  variable: "--font-alumni-sans",
   subsets: ["latin"],
+  weight: ["100", "300", "400"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const albertSans = Albert_Sans({
+  variable: "--font-albert-sans",
   subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -59,14 +61,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" suppressHydrationWarning className="overflow-x-clip">
+    <html lang="vi" suppressHydrationWarning className="overflow-x-clip dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${jetbrainsMono.variable} antialiased bg-background text-foreground overflow-x-clip`}
+        className={`${alumniSans.variable} ${albertSans.variable} ${jetbrainsMono.variable} antialiased bg-background text-foreground overflow-x-clip font-sans`}
       >
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          enableSystem
+          forcedTheme="dark"
+          enableSystem={false}
           disableTransitionOnChange
         >
           {children}

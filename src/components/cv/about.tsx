@@ -100,9 +100,9 @@ export function About() {
                 key={i}
                 className="relative rounded-xl border border-border/60 bg-card/40 backdrop-blur p-5 overflow-hidden group"
               >
-                <div className="absolute inset-0 bg-dots opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative">
-                  <div className="text-3xl sm:text-4xl font-bold text-gradient-emerald font-mono">
+                <div className="absolute inset-0 bg-background opacity-0 group-hover:opacity-10 transition-opacity" />
+                <div className="relative flex flex-col items-center gap-2">
+                  <div className="text-3xl sm:text-4xl font-bold text-primary font-mono tracking-wider">
                     {s.value}
                   </div>
                   <div className="mt-1 text-sm text-muted-foreground">

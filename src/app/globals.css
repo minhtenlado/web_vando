@@ -86,38 +86,38 @@ html, body {
 }
 
 .dark {
-  /* Dark theme: deep slate with emerald circuit glow */
-  --background: oklch(0.16 0.015 200);
-  --foreground: oklch(0.96 0.01 165);
-  --card: oklch(0.21 0.02 200);
-  --card-foreground: oklch(0.96 0.01 165);
-  --popover: oklch(0.21 0.02 200);
-  --popover-foreground: oklch(0.96 0.01 165);
-  --primary: oklch(0.7 0.17 162);
-  --primary-foreground: oklch(0.16 0.015 200);
-  --secondary: oklch(0.27 0.025 200);
-  --secondary-foreground: oklch(0.96 0.01 165);
-  --muted: oklch(0.24 0.02 200);
-  --muted-foreground: oklch(0.7 0.015 200);
-  --accent: oklch(0.75 0.16 70);
-  --accent-foreground: oklch(0.18 0.03 70);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.7 0.17 162);
-  --chart-1: oklch(0.7 0.17 162);
-  --chart-2: oklch(0.75 0.16 70);
-  --chart-3: oklch(0.65 0.15 200);
-  --chart-4: oklch(0.7 0.18 40);
-  --chart-5: oklch(0.72 0.16 320);
-  --sidebar: oklch(0.18 0.015 200);
-  --sidebar-foreground: oklch(0.96 0.01 165);
-  --sidebar-primary: oklch(0.7 0.17 162);
-  --sidebar-primary-foreground: oklch(0.16 0.015 200);
-  --sidebar-accent: oklch(0.27 0.025 200);
-  --sidebar-accent-foreground: oklch(0.96 0.01 165);
-  --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: oklch(0.7 0.17 162);
+  /* Neo Kinpaku Design System Tokens */
+  --background: oklch(0.07 0.006 95); /* Lacquer Black */
+  --foreground: oklch(0.88 0 0); /* Body Text Warm */
+  --card: oklch(0.11 0.006 95); /* Raised Lacquer */
+  --card-foreground: oklch(0.88 0 0);
+  --popover: oklch(0.11 0.006 95);
+  --popover-foreground: oklch(0.88 0 0);
+  --primary: oklch(0.84 0.19 80.46); /* Kinpaku Gold */
+  --primary-foreground: oklch(0.14 0.018 95); /* Dark Ink */
+  --secondary: oklch(0.70 0.12 188); /* Verdigris Patina */
+  --secondary-foreground: oklch(0.14 0.018 95);
+  --muted: oklch(0.15 0.008 95); /* Graphite */
+  --muted-foreground: oklch(0.72 0 0); /* Muted Text */
+  --accent: oklch(0.19 0.008 95); /* Graphite 2 */
+  --accent-foreground: oklch(0.91 0 0); /* Champagne */
+  --destructive: oklch(0.58 0.15 35); /* Vermilion Warning */
+  --border: oklch(0.78 0 0 / 0.16); /* Default Hairline */
+  --input: oklch(0.15 0.008 95); /* Graphite */
+  --ring: oklch(0.84 0.19 80.46); /* Kinpaku Gold */
+  --chart-1: oklch(0.84 0.19 80.46);
+  --chart-2: oklch(0.70 0.12 188);
+  --chart-3: oklch(0.86 0.07 84);
+  --chart-4: oklch(0.61 0.085 78);
+  --chart-5: oklch(0.49 0.08 188);
+  --sidebar: oklch(0.07 0.006 95);
+  --sidebar-foreground: oklch(0.88 0 0);
+  --sidebar-primary: oklch(0.84 0.19 80.46);
+  --sidebar-primary-foreground: oklch(0.14 0.018 95);
+  --sidebar-accent: oklch(0.19 0.008 95);
+  --sidebar-accent-foreground: oklch(0.91 0 0);
+  --sidebar-border: oklch(0.78 0 0 / 0.16);
+  --sidebar-ring: oklch(0.84 0.19 80.46);
 }
 
 @layer base {
@@ -136,53 +136,25 @@ html, body {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: oklch(0.16 0.015 200 / 0.5);
+  background: oklch(0.07 0.006 95);
 }
 :root:not(.dark) ::-webkit-scrollbar-track {
-  background: oklch(0.96 0.008 165);
+  background: oklch(0.07 0.006 95); /* Forced dark mode style */
 }
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.55 0.15 162 / 0.6);
-  border-radius: 9999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
+  background: oklch(0.15 0.008 95);
+  border-radius: 2px;
+  border: 1px solid oklch(0.07 0.006 95);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.7 0.17 162 / 0.8);
-  background-clip: padding-box;
-  border: 2px solid transparent;
+  background: oklch(0.19 0.008 95);
 }
 
-/* Grid background pattern */
-.bg-grid {
-  background-image:
-    linear-gradient(to right, oklch(0.7 0.17 162 / 0.08) 1px, transparent 1px),
-    linear-gradient(to bottom, oklch(0.7 0.17 162 / 0.08) 1px, transparent 1px);
-  background-size: 48px 48px;
-}
-
-/* Circuit dot pattern */
-.bg-dots {
-  background-image: radial-gradient(oklch(0.7 0.17 162 / 0.18) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-/* Glow utility */
-.glow-emerald {
-  box-shadow: 0 0 0 1px oklch(0.7 0.17 162 / 0.2), 0 8px 40px -8px oklch(0.7 0.17 162 / 0.35);
-}
-
-.text-gradient-emerald {
-  background: linear-gradient(135deg, oklch(0.75 0.17 162) 0%, oklch(0.8 0.16 70) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
+/* Background patterns removed to favor simple dark lacquer */
 
 /* Animated underline */
 .link-underline {
@@ -193,9 +165,9 @@ html, body {
   position: absolute;
   left: 0;
   bottom: -2px;
-  height: 2px;
+  height: 1px;
   width: 0;
-  background: oklch(0.7 0.17 162);
+  background: oklch(0.84 0.19 80.46);
   transition: width 0.25s ease;
 }
 .link-underline:hover::after {
@@ -210,17 +182,7 @@ html, body {
 .cursor-blink::after {
   content: "_";
   animation: blink 1s steps(1) infinite;
-  color: oklch(0.7 0.17 162);
-}
-
-/* Subtle pulse for live indicator */
-@keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 oklch(0.7 0.17 162 / 0.6); }
-  70% { box-shadow: 0 0 0 8px oklch(0.7 0.17 162 / 0); }
-  100% { box-shadow: 0 0 0 0 oklch(0.7 0.17 162 / 0); }
-}
-.pulse-ring {
-  animation: pulse-ring 2s infinite;
+  color: oklch(0.84 0.19 80.46);
 }
 
 /* Quill Editor Display Classes */

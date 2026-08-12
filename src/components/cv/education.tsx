@@ -49,7 +49,7 @@ export function Education() {
                   className="relative"
                 >
                   <span className="absolute -left-[21px] sm:-left-[31px] top-4 grid place-items-center h-3.5 w-3.5 rounded-full bg-background border-2 border-primary ring-4 ring-background" />
-                  <Card className="p-4 sm:p-5 border-border/60 bg-card/40 backdrop-blur hover:border-primary/40 transition-colors hover:shadow-md">
+                  <Card className="p-4 sm:p-5 border-border bg-card hover:border-primary transition-colors">
                       <div className="flex flex-col-reverse sm:flex-row items-start justify-between gap-3 sm:gap-4">
                         <div className="flex-1 min-w-0 w-full">
                           <h4 className="font-semibold leading-tight text-base sm:text-lg">
@@ -66,7 +66,7 @@ export function Education() {
                         </div>
 
                         {edu.logo && (
-                          <div className="relative shrink-0 h-14 min-w-[70px] max-w-[160px] sm:h-20 sm:min-w-[100px] sm:max-w-[240px] rounded-xl border border-border/80 bg-background/90 p-2 sm:p-2.5 flex items-center justify-center overflow-hidden shadow-sm backdrop-blur self-start">
+                          <div className="relative shrink-0 h-14 min-w-[70px] max-w-[160px] sm:h-20 sm:min-w-[100px] sm:max-w-[240px] rounded-sm border border-border bg-background p-2 sm:p-2.5 flex items-center justify-center overflow-hidden self-start">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={edu.logo}

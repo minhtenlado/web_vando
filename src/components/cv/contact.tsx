@@ -117,7 +117,7 @@ export function Contact() {
 
             {/* Right Col: Status and Socials */}
             <div className="flex flex-col gap-6">
-              <Card className="p-6 sm:p-8 border-border/60 bg-gradient-to-br from-primary/5 to-accent/5 flex-1 flex flex-col justify-center">
+              <Card className="p-6 sm:p-8 border-border bg-card flex-1 flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="relative flex h-3 w-3">
                     <span className="absolute inset-0 rounded-full bg-primary opacity-75 pulse-ring" />
