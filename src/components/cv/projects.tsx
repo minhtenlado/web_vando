@@ -113,9 +113,9 @@ export function Projects() {
                         <FolderGit2 className="h-12 w-12" />
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-card opacity-50" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
                     <div className="absolute bottom-3 right-3 flex gap-2">
-                      <Badge variant="secondary" className="bg-background/80 backdrop-blur border-border/50">
+                      <Badge className="bg-black/70 text-primary border border-primary/30 font-mono text-[11px] backdrop-blur-md">
                         {p.category}
                       </Badge>
                     </div>
@@ -123,7 +123,7 @@ export function Projects() {
 
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-lg font-semibold leading-tight line-clamp-1">
+                      <h3 className="text-lg font-semibold leading-tight line-clamp-1 group-hover:text-primary transition-colors">
                         {p.title}
                       </h3>
                     </div>
@@ -133,12 +133,12 @@ export function Projects() {
                     />
                     <div className="mt-4 pt-4 border-t border-border/50">
                       <Button
-                        className="w-full justify-between hover:bg-primary hover:text-primary-foreground transition-colors"
-                        variant="secondary"
+                        variant="ghost"
+                        className="w-full justify-between border border-primary/30 bg-primary/10 hover:bg-primary hover:text-primary-foreground text-primary font-medium transition-all"
                         onClick={() => setActiveProject(p)}
                       >
                         {t("Xem chi tiết", "View Details")}
-                        <ExternalLink className="size-4 ml-2 opacity-50" />
+                        <ExternalLink className="size-4 ml-2" />
                       </Button>
                     </div>
                   </CardContent>
