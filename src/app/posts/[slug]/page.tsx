@@ -126,7 +126,12 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                </h3>
                <div className="w-full p-2 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer">
                  <div className="w-full min-h-[250px] overflow-hidden mix-blend-multiply dark:mix-blend-normal">
-                   <GoogleAd adClient="ca-pub-2941183923177148" adSlot="5044527787" />
+                   <GoogleAd 
+                   adClient="ca-pub-2941183923177148" 
+                   adSlot="6308337137" 
+                   format="fluid" 
+                   layoutKey="-ef+6k-30-ac+ty" 
+                 />
                  </div>
                </div>
             </div>

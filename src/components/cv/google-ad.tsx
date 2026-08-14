@@ -7,10 +7,11 @@ type GoogleAdProps = {
   adSlot: string
   format?: string
   responsive?: boolean
+  layoutKey?: string
   className?: string
 }
 
-export function GoogleAd({ adClient, adSlot, format = "auto", responsive = true, className = "" }: GoogleAdProps) {
+export function GoogleAd({ adClient, adSlot, format = "auto", responsive = true, layoutKey, className = "" }: GoogleAdProps) {
   const adRef = useRef<HTMLModElement>(null)
 
   useEffect(() => {
@@ -36,6 +37,7 @@ export function GoogleAd({ adClient, adSlot, format = "auto", responsive = true,
         data-ad-slot={adSlot}
         data-ad-format={format}
         data-full-width-responsive={responsive ? "true" : "false"}
+        {...(layoutKey ? { "data-ad-layout-key": layoutKey } : {})}
       />
     </div>
   )
