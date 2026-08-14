@@ -90,16 +90,19 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto max-w-[1800px] px-0 sm:px-4 md:px-8 py-3 sm:py-8 lg:py-12">
-        <div className="flex flex-col lg:flex-row gap-6 items-start">
+      <main className="flex-1 container mx-auto max-w-7xl px-0 sm:px-4 md:px-8 py-6 sm:py-8 lg:py-12">
+        <div className="flex flex-col lg:flex-row gap-6 items-start justify-center">
           
           {/* Left Sidebar: TOC (Sticky pinned when scrolling) */}
           <aside className="lg:w-64 lg:shrink-0 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto hidden lg:block">
-            <TableOfContents selector=".prose" />
+            <div className="bg-card/40 backdrop-blur border border-border/60 rounded-[2rem] p-5 shadow-sm">
+              <h3 className="font-bold mb-4 px-2">Table of Contents</h3>
+              <TableOfContents selector=".prose" />
+            </div>
           </aside>
 
           {/* Center Content: Article */}
-          <div className="flex-1 w-full min-w-0">
+          <div className="flex-1 w-full max-w-4xl min-w-0">
             <PostReader 
               title={post.title} 
               pubDate={pubDate} 
@@ -107,16 +110,19 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               contentHtml={post.content}
               pdfUrl={post.pdfUrl}
             >
+            {/* Next / Prev Navigation */}
             {relatedPosts.length > 0 && (
-              <div className="mt-16 pt-10 border-t border-border">
-                <h3 className="text-xl font-bold font-serif mb-6 text-foreground">Đọc thêm bài viết khác</h3>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {relatedPosts.map(rp => {
+              <div className="mt-8 pt-8 border-t border-border/40">
+                <h3 className="text-xl font-bold font-sans mb-6 text-foreground px-2">Đọc thêm</h3>
+                <div className="flex flex-col md:flex-row gap-4 w-full">
+                  {relatedPosts.slice(0, 2).map((rp, i) => {
                     const rpHref = `/posts/${rp.slug}`
                     return (
-                      <a key={rp.id} href={rpHref} target="_blank" rel="noopener noreferrer" className="group block bg-card border border-border/50 hover:border-primary/50 p-5 rounded-xl transition-all hover:shadow-md">
-                        <h4 className="font-semibold text-card-foreground group-hover:text-primary line-clamp-2 mb-2 transition-colors leading-snug">{rp.title}</h4>
-                        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{rp.excerpt}</p>
+                      <a key={rp.id} href={rpHref} target="_blank" rel="noopener noreferrer" className={`flex-1 bg-card/40 backdrop-blur border border-border/60 rounded-[2rem] p-6 flex flex-col justify-center transition-all hover:scale-[0.98] hover:shadow-md hover:border-primary/50 ${i === 0 ? "items-start text-left" : "items-end text-right"}`}>
+                         <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">
+                            {i === 0 ? "← Bài viết trước" : "Bài viết tiếp theo →"}
+                         </span>
+                         <h4 className="font-semibold text-card-foreground line-clamp-2 leading-snug">{rp.title}</h4>
                       </a>
                     )
                   })}
@@ -128,7 +134,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           
           {/* Right Sidebar: Ads */}
           <aside className="lg:w-[300px] xl:w-[336px] lg:shrink-0 lg:sticky lg:top-24 lg:self-start hidden lg:block">
-            <div className="bg-card border border-border rounded-xl p-4 min-h-[300px] flex flex-col items-center justify-center text-muted-foreground text-sm font-medium shadow-sm overflow-hidden">
+            <div className="bg-card/40 backdrop-blur border border-border/60 rounded-[2rem] p-4 min-h-[300px] flex flex-col items-center justify-center text-muted-foreground text-sm font-medium shadow-sm overflow-hidden">
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground/50 mb-4 font-mono">Quảng cáo</div>
               <GoogleAd 
                 adClient="ca-pub-2941183923177148"

@@ -91,12 +91,12 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, c
 
       {/* The "Paper" Document */}
       <div 
-        className="bg-card text-card-foreground border-0 sm:border rounded-none sm:rounded-xl shadow-none sm:shadow-2xl min-h-[80vh] overflow-hidden"
+        className="bg-card text-card-foreground border-0 sm:border rounded-none sm:rounded-[2rem] shadow-none sm:shadow-md min-h-[80vh] overflow-hidden transition-shadow hover:shadow-xl"
         style={{ fontSize: `${zoom}%`, transition: "font-size 0.15s ease-out" }}
       >
-        <div className="mx-auto w-full px-4 py-6 sm:px-8 sm:py-10 md:px-12 md:py-12">
+        <div className="mx-auto w-full px-6 py-6 sm:px-10 sm:py-10 md:px-12 md:py-12">
           <header className="mb-6 sm:mb-10 md:mb-12 border-b pb-6 sm:pb-8">
-            <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-[2.25em] leading-[1.3] sm:leading-[1.2] font-bold font-serif mb-4 sm:mb-6 tracking-tight text-foreground">
+            <h1 className="relative text-xl sm:text-3xl md:text-4xl lg:text-[2.25em] leading-[1.3] sm:leading-[1.2] font-bold font-sans mb-4 sm:mb-6 tracking-tight text-foreground before:absolute before:-left-6 before:top-1.5 before:w-1.5 before:h-[1.1em] before:bg-primary before:rounded-r-md">
               {title}
             </h1>
             <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-[0.875em] text-muted-foreground font-sans">
