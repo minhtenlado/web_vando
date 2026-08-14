@@ -39,11 +39,17 @@ export default async function Home() {
               <Education />
               <Footer />
             </div>
-            <div id="projects" className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative">
-              <Projects />
+            <div id="projects" className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative flex flex-col justify-between">
+              <div>
+                <Projects />
+              </div>
+              <Footer />
             </div>
-            <div id="posts" className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative">
-              <Posts />
+            <div id="posts" className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative flex flex-col justify-between">
+              <div>
+                <Posts />
+              </div>
+              <Footer />
             </div>
           </main>
         </div>
