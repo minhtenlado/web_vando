@@ -39,7 +39,7 @@ export function Navbar() {
           if (entry.isIntersecting) setActive(`/#${entry.target.id}`)
         })
       },
-      { rootMargin: "-45% 0px -50% 0px", threshold: 0 }
+      { threshold: 0.5 }
     )
     sections.forEach((s) => observer.observe(s))
     return () => observer.disconnect()

@@ -154,6 +154,16 @@ html, body {
   background: oklch(0.75 0.18 165 / 0.6);
 }
 
+@layer utilities {
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* Animated underline */
 .link-underline {
   position: relative;

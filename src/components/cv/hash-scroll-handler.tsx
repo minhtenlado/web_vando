@@ -15,7 +15,8 @@ export function HashScrollHandler() {
         if (el) {
           clearInterval(interval)
           setTimeout(() => {
-            el.scrollIntoView({ behavior: "smooth", block: "start" })
+            // Using nearest inline allows horizontal scrolling to snap exactly to the item
+            el.scrollIntoView({ behavior: "smooth", inline: "start", block: "start" })
           }, 100)
         }
         attempts++
