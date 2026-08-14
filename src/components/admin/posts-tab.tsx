@@ -43,6 +43,7 @@ type PostForm = {
   seoTitle: string;
   seoDescription: string;
   seoKeywords: string;
+  coverImage: string;
   pdfUrl: string;
 };
 
@@ -57,6 +58,7 @@ function getEmptyForm(): PostForm {
     seoTitle: "",
     seoDescription: "",
     seoKeywords: "",
+    coverImage: "",
     pdfUrl: "",
   };
 }
@@ -83,6 +85,7 @@ function toForm(p: SitePost): PostForm {
     seoTitle: p.seoTitle ?? "",
     seoDescription: p.seoDescription ?? "",
     seoKeywords: p.seoKeywords ?? "",
+    coverImage: p.coverImage ?? "",
     pdfUrl: p.pdfUrl ?? "",
   };
 }
@@ -184,6 +187,7 @@ export function PostsTab({ locale }: { locale: string }) {
       seoTitle: form.seoTitle.trim(),
       seoDescription: form.seoDescription.trim(),
       seoKeywords: form.seoKeywords.trim(),
+      coverImage: form.coverImage.trim(),
       pdfUrl: form.pdfUrl,
     };
     try {

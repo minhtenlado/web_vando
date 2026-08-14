@@ -12,6 +12,7 @@ type PostInput = {
   seoTitle?: string;
   seoDescription?: string;
   seoKeywords?: string;
+  coverImage?: string;
   pdfUrl?: string;
 };
 
@@ -88,6 +89,8 @@ export async function PUT(
   if (typeof body.seoTitle === "string") data.seoTitle = body.seoTitle.slice(0, 300);
   if (typeof body.seoDescription === "string") data.seoDescription = body.seoDescription.slice(0, 600);
   if (typeof body.seoKeywords === "string") data.seoKeywords = body.seoKeywords.slice(0, 300);
+  if (typeof body.coverImage === "string") data.coverImage = sanitizeUrl(body.coverImage);
+  if (body.coverImage === null || body.coverImage === "") data.coverImage = null;
   if (typeof body.pdfUrl === "string") data.pdfUrl = sanitizeUrl(body.pdfUrl);
   if (body.pdfUrl === null || body.pdfUrl === "") data.pdfUrl = null;
   if (typeof body.createdAt === "string") data.createdAt = new Date(body.createdAt);

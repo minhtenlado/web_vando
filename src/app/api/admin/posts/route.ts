@@ -27,6 +27,7 @@ type PostInput = {
   seoTitle?: string;
   seoDescription?: string;
   seoKeywords?: string;
+  coverImage?: string;
   pdfUrl?: string;
 };
 
@@ -102,6 +103,7 @@ export async function POST(req: NextRequest) {
       seoTitle: typeof body.seoTitle === "string" ? body.seoTitle.slice(0, 300) : undefined,
       seoDescription: typeof body.seoDescription === "string" ? body.seoDescription.slice(0, 600) : undefined,
       seoKeywords: typeof body.seoKeywords === "string" ? body.seoKeywords.slice(0, 300) : undefined,
+      coverImage: sanitizeUrl(body.coverImage),
       pdfUrl: sanitizeUrl(body.pdfUrl),
       ...(body.createdAt ? { createdAt: new Date(body.createdAt) } : {}),
     },

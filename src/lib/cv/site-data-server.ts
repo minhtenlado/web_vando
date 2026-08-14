@@ -53,6 +53,7 @@ export type SitePost = {
   seoTitle?: string | null
   seoDescription?: string | null
   seoKeywords?: string | null
+  coverImage?: string | null
   pdfUrl?: string | null
 }
 
@@ -98,6 +99,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
           seoTitle: true,
           seoDescription: true,
           seoKeywords: true,
+          coverImage: true,
           pdfUrl: true,
         }
       }),
@@ -220,6 +222,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
       seoTitle: po.seoTitle,
       seoDescription: po.seoDescription,
       seoKeywords: po.seoKeywords,
+      coverImage: po.coverImage,
       pdfUrl: po.pdfUrl,
     }))
   } catch (e) {
