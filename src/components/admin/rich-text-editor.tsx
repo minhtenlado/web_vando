@@ -15,7 +15,7 @@ const ReactQuill = dynamic(
   async () => {
     const { default: RQ } = await import("react-quill-new");
     return function ForwardedQuill({ forwardedRef, ...props }: any) {
-      return <RQ ref={forwardedRef} {...props} />;
+      return <RQ ref={forwardedRef} spellCheck={false} {...props} />;
     };
   },
   {
@@ -33,23 +33,41 @@ interface RichTextEditorProps {
 
 export function RichTextEditor({ value, onChange, placeholder, className }: RichTextEditorProps) {
   const reactQuillRef = useRef<any>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [rows, setRows] = useState(3);
   const [cols, setCols] = useState(3);
 
   // Disable spellcheck to remove red squiggly lines under Vietnamese words
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (reactQuillRef.current) {
-        const quill = reactQuillRef.current.getEditor?.() || reactQuillRef.current.editor;
-        if (quill?.root) {
-          quill.root.setAttribute("spellcheck", "false");
-          quill.root.setAttribute("autocorrect", "off");
-          quill.root.setAttribute("autocapitalize", "off");
-        }
+    const disableSpellCheck = () => {
+      if (containerRef.current) {
+        const editors = containerRef.current.querySelectorAll('[contenteditable="true"], .ql-editor');
+        editors.forEach((el) => {
+          if (el.getAttribute("spellcheck") !== "false") {
+            el.setAttribute("spellcheck", "false");
+            el.setAttribute("autocorrect", "off");
+            el.setAttribute("autocapitalize", "off");
+          }
+        });
       }
-    }, 200);
-    return () => clearTimeout(timer);
+    };
+
+    disableSpellCheck();
+
+    const observer = new MutationObserver(() => {
+      disableSpellCheck();
+    });
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+      });
+    }
+
+    return () => observer.disconnect();
   }, []);
 
   const insertCustomTable = (r: number, c: number) => {
@@ -105,7 +123,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
   ];
 
   return (
-    <div className={`rich-text-editor relative ${className || ""}`}>
+    <div ref={containerRef} spellCheck={false} className={`rich-text-editor relative ${className || ""}`}>
       {/* Sticky container pinned at top: 0 alongside .ql-toolbar so button moves synchronously when scrolling */}
       <div className="sticky top-0 z-50 h-0 flex justify-end pr-3 pt-2 pointer-events-none">
         <div className="pointer-events-auto">
