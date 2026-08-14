@@ -132,7 +132,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground/50 mb-4 font-mono">Quảng cáo</div>
               <GoogleAd 
                 adClient="ca-pub-2941183923177148"
-                adSlot="1234567890" /* THAY MÃ AD-SLOT CỦA BẠN VÀO ĐÂY SAU KHI ĐƯỢC DUYỆT */
+                adSlot="5044527787"
               />
             </div>
           </aside>
