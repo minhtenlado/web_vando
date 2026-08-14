@@ -1,13 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { ArrowLeft, Save, Plus, FileText, Check, Clock, Loader2 } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Sparkles, Globe, FileText, Settings, Eye } from "lucide-react";
 import { RichTextEditor } from "./rich-text-editor";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import type { SitePost } from "@/lib/cv/site-data-server";
 import { CATEGORIES, type PostForm } from "./post-types";
@@ -42,115 +37,160 @@ export function PostEditor({
     const text = form.content.replace(/<[^>]*>?/gm, " ").replace(/\s+/g, " ").trim();
     setWordCount(text ? text.split(" ").length : 0);
     setSaveStatus("Đang sửa...");
-    const timer = setTimeout(() => setSaveStatus("Đã lưu tự động"), 1500);
+    const timer = setTimeout(() => setSaveStatus("Đã lưu tự động"), 1200);
     return () => clearTimeout(timer);
-  }, [form.content]);
+  }, [form.content, form.title, form.excerpt]);
+
+  const readingTime = Math.max(1, Math.ceil(wordCount / 200));
 
   return (
-    <div className="fixed inset-0 z-[100] bg-gray-50 dark:bg-[#050807] text-gray-900 dark:text-[#f3f7f5] overflow-hidden font-sans flex flex-col
-      bg-[radial-gradient(circle_at_50%_-10%,rgba(54,226,160,0.08),transparent_28%)]">
+    <div className="fixed inset-0 z-[100] bg-gray-100 dark:bg-[#040806] text-gray-900 dark:text-[#e4ebe7] overflow-hidden font-sans flex flex-col">
       
       {/* TOP BAR */}
-      <header className="shrink-0 z-[1000] w-full h-[68px] flex items-center justify-between px-6 bg-gray-50 dark:bg-[#050807]/80 backdrop-blur-xl border-b border-border/20 dark:border-white/5">
+      <header className="shrink-0 z-[1000] w-full h-[64px] flex items-center justify-between px-6 bg-white/90 dark:bg-[#070e0b]/90 backdrop-blur-xl border-b border-gray-200 dark:border-white/10 shadow-xs">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 mr-3">
-            <div className="w-9 h-9 grid place-items-center rounded-[11px] bg-gradient-to-br from-[#42f0b0] to-[#087d5c] text-gray-900 dark:text-[#03110b] font-black shadow-[0_0_28px_rgba(54,226,160,0.2)]">
+          <button 
+            onClick={onClose} 
+            className="h-9 px-3.5 inline-flex items-center gap-2 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-gray-700 dark:text-[#a0afaa] hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white transition-all text-xs font-semibold"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Quay lại</span>
+          </button>
+
+          <div className="h-4 w-[1px] bg-gray-200 dark:bg-white/10 hidden sm:block" />
+
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 grid place-items-center rounded-lg bg-[#36e2a0]/15 text-[#36e2a0] font-black text-sm">
               R
             </div>
             <div className="hidden sm:flex flex-col leading-none">
-              <span className="text-[13px] font-extrabold">Research Admin</span>
-              <span className="text-[10px] text-muted-foreground dark:text-[#84918b] mt-1">Article Studio</span>
+              <span className="text-xs font-bold text-gray-900 dark:text-white">
+                {editing ? "Chỉnh sửa bài viết" : "Tạo bài viết mới"}
+              </span>
+              <span className="text-[10px] text-gray-500 dark:text-[#7d8c86] mt-0.5">
+                {form.title ? form.title.slice(0, 35) + (form.title.length > 35 ? "..." : "") : "Chưa có tiêu đề"}
+              </span>
             </div>
           </div>
-          
-          <button onClick={onClose} className="h-[38px] px-3 inline-flex items-center justify-center gap-2 border border-border/20 dark:border-white/5 rounded-xl bg-black/5 dark:bg-white/5 text-gray-600 dark:text-[#aab5b0] hover:-translate-y-[1px] hover:border-[#36e2a0]/30 hover:text-gray-900 dark:text-white hover:bg-primary/10 dark:bg-[#36e2a0]/10 transition-all text-sm font-medium">
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Quay lại</span>
-          </button>
 
-          <div className="hidden md:flex items-center gap-2 text-muted-foreground dark:text-[#84918b] text-xs ml-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#36e2a0] shadow-[0_0_12px_rgba(54,226,160,0.7)]" />
+          <div className="hidden md:flex items-center gap-2 text-[11px] text-gray-500 dark:text-[#84938d] ml-4 bg-gray-100 dark:bg-white/5 px-2.5 py-1 rounded-full border border-gray-200 dark:border-white/5">
+            <span className="w-2 h-2 rounded-full bg-[#36e2a0] animate-pulse" />
             {saveStatus}
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button onClick={() => window.open(`/posts/${slugify(form.slug || form.title)}`, "_blank")} className="h-[38px] px-3 inline-flex items-center justify-center gap-2 border border-border/20 dark:border-white/5 rounded-xl bg-black/5 dark:bg-white/5 text-gray-600 dark:text-[#aab5b0] hover:-translate-y-[1px] hover:border-[#36e2a0]/30 hover:text-gray-900 dark:text-white hover:bg-primary/10 dark:bg-[#36e2a0]/10 transition-all text-sm font-medium">
-            ◉ Xem trước
+        <div className="flex items-center gap-2.5">
+          <button 
+            type="button"
+            onClick={() => window.open(`/posts/${slugify(form.slug || form.title)}`, "_blank")} 
+            className="h-9 px-3.5 inline-flex items-center gap-1.5 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-gray-700 dark:text-[#a0afaa] hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white transition-all text-xs font-semibold"
+          >
+            <Eye className="w-3.5 h-3.5 text-[#36e2a0]" />
+            <span className="hidden sm:inline">Xem trước</span>
           </button>
-          <button onClick={(e) => onSubmit(e as any)} disabled={submitting} className="h-[38px] px-3 inline-flex items-center justify-center gap-2 border border-[#36e2a0]/20 rounded-xl bg-primary/10 dark:bg-[#36e2a0]/10 text-[#36e2a0] hover:-translate-y-[1px] hover:bg-[#36e2a0]/20 transition-all text-sm font-medium">
-            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-            Lưu
+          
+          <button 
+            type="button"
+            onClick={(e) => onSubmit(e as any)} 
+            disabled={submitting} 
+            className="h-9 px-4 inline-flex items-center gap-2 rounded-xl bg-[#36e2a0] text-gray-950 hover:bg-[#2fcb8f] font-bold transition-all text-xs shadow-md shadow-[#36e2a0]/10 disabled:opacity-50"
+          >
+            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 stroke-[2.5]" />}
+            <span>Lưu</span>
           </button>
         </div>
       </header>
 
-      {/* WORKSPACE */}
-      <main className="w-full max-w-[1700px] flex flex-col lg:flex-row gap-5 p-5 mx-auto flex-1 min-h-0 overflow-hidden">
+      {/* WORKSPACE CONTENT */}
+      <main className="w-full max-w-[1700px] flex flex-col lg:flex-row gap-6 p-6 mx-auto flex-1 min-h-0 overflow-hidden">
         
-        {/* MAIN COLUMN */}
-        <div className="flex-1 min-w-0 flex flex-col gap-4 min-h-0 overflow-y-auto custom-scrollbar pr-2">
+        {/* MAIN COLUMN (META + EDITOR) */}
+        <div className="flex-1 min-w-0 flex flex-col gap-6 min-h-0 overflow-y-auto custom-scrollbar pr-1">
           
-          {/* META CARD */}
-          <section className="shrink-0 p-6 border border-border/20 dark:border-[#4BFFBE]/10 rounded-[18px] bg-gradient-to-b from-white to-gray-50 dark:from-[#0d1713]/90 dark:to-[#080e0b]/90 shadow-[0_12px_45px_rgba(0,0,0,0.18)]">
-            <div className="inline-flex items-center gap-2 mb-4 text-gray-900 dark:text-[#76f7c5] text-[11px] font-extrabold tracking-widest uppercase">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#36e2a0] shadow-[0_0_10px_rgba(54,226,160,0.75)]" />
-              Thông tin bài viết
+          {/* ARTICLE METADATA CARD */}
+          <section className="shrink-0 p-6 border border-gray-200 dark:border-white/10 rounded-2xl bg-white dark:bg-[#0a120e] shadow-sm">
+            <div className="flex items-center justify-between mb-5">
+              <div className="inline-flex items-center gap-2 text-[#36e2a0] text-[11px] font-bold tracking-wider uppercase">
+                <Sparkles className="w-3.5 h-3.5" />
+                Thông tin bài viết
+              </div>
+              {form.published && (
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                  ● Đã xuất bản
+                </span>
+              )}
             </div>
 
             <div className="flex flex-col gap-5">
+              {/* Title & Slug */}
               <div className="flex flex-col md:flex-row gap-5">
                 <div className="flex-1">
-                  <label className="block mb-2 text-muted-foreground dark:text-[#84918b] text-[11px] font-semibold">Tiêu đề *</label>
+                  <label className="block mb-2 text-xs font-semibold text-gray-700 dark:text-[#a0afaa]">
+                    Tiêu đề bài viết <span className="text-red-500">*</span>
+                  </label>
                   <input
-                    className="w-full min-h-[44px] px-3 border border-border/20 dark:border-white/5 rounded-xl bg-black/5 dark:bg-white/5 text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10 font-medium"
-                    placeholder="Nhập tiêu đề bài viết..."
+                    className="w-full h-11 px-3.5 border border-gray-200 dark:border-white/10 rounded-xl bg-gray-50 dark:bg-[#101c16] text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0] focus:ring-2 focus:ring-[#36e2a0]/20 font-semibold text-sm placeholder:text-gray-400 dark:placeholder:text-gray-600"
+                    placeholder="Nhập tiêu đề hấp dẫn cho bài viết..."
                     value={form.title}
                     onChange={(e) => onTitleChange(e.target.value)}
                     required
                   />
                 </div>
+
                 <div className="flex-1">
-                  <label className="block mb-2 text-muted-foreground dark:text-[#84918b] text-[11px] font-semibold">Slug (tự động nếu để trống)</label>
+                  <label className="block mb-2 text-xs font-semibold text-gray-700 dark:text-[#a0afaa]">
+                    Đường dẫn (Slug)
+                  </label>
                   <input
-                    className="w-full min-h-[44px] px-3 border border-border/20 dark:border-white/5 rounded-xl bg-black/5 dark:bg-white/5 text-gray-600 dark:text-[#aab5b0] outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10"
+                    className="w-full h-11 px-3.5 border border-gray-200 dark:border-white/10 rounded-xl bg-gray-50 dark:bg-[#101c16] text-gray-800 dark:text-[#c4d1cb] outline-none transition-all focus:border-[#36e2a0] focus:ring-2 focus:ring-[#36e2a0]/20 text-sm font-mono"
+                    placeholder="tự-động-tạo-từ-tiêu-đề"
                     value={form.slug}
                     onChange={(e) => onSlugChange(e.target.value)}
                   />
-                  <div className="mt-1.5 text-[10px] text-muted-foreground dark:text-[#84918b] flex items-center gap-1.5">
-                    Sẽ lưu: <span className="text-[#36e2a0] bg-primary/10 dark:bg-[#36e2a0]/10 px-1.5 py-0.5 rounded text-[9px] truncate max-w-[200px]">/{slugify(form.slug || form.title)}</span>
+                  <div className="mt-1.5 text-[11px] text-gray-500 dark:text-[#7d8c86] flex items-center gap-1.5">
+                    URL xem bài: <span className="text-[#36e2a0] font-mono bg-[#36e2a0]/10 px-2 py-0.5 rounded text-[10px] truncate max-w-[240px]">/posts/{slugify(form.slug || form.title)}</span>
                   </div>
                 </div>
               </div>
 
+              {/* Category & Cover Image */}
               <div className="flex flex-col md:flex-row gap-5">
                 <div className="flex-1">
-                  <label className="block mb-2 text-muted-foreground dark:text-[#84918b] text-[11px] font-semibold">Chủ đề (Category)</label>
+                  <label className="block mb-2 text-xs font-semibold text-gray-700 dark:text-[#a0afaa]">
+                    Chủ đề (Category)
+                  </label>
                   <select
-                    className="w-full min-h-[44px] px-3 border border-border/20 dark:border-white/5 rounded-xl bg-black/5 dark:bg-white/5 text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10"
+                    className="w-full h-11 px-3.5 border border-gray-200 dark:border-white/10 rounded-xl bg-gray-50 dark:bg-[#101c16] text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0] focus:ring-2 focus:ring-[#36e2a0]/20 text-sm font-medium"
                     value={form.category}
                     onChange={(e) => setForm({ ...form, category: e.target.value })}
                   >
                     {CATEGORIES.map((c) => (
-                      <option key={c} value={c} className="bg-gray-50 dark:bg-[#050807]">{c}</option>
+                      <option key={c} value={c} className="bg-white dark:bg-[#0c1511] text-gray-900 dark:text-white">{c}</option>
                     ))}
                   </select>
                 </div>
+
                 <div className="flex-1">
-                  <label className="block mb-2 text-muted-foreground dark:text-[#84918b] text-[11px] font-semibold">Ảnh bìa (Cover Image URL)</label>
+                  <label className="block mb-2 text-xs font-semibold text-gray-700 dark:text-[#a0afaa]">
+                    Ảnh bìa (Cover Image URL)
+                  </label>
                   <input
-                    className="w-full min-h-[44px] px-3 border border-border/20 dark:border-white/5 rounded-xl bg-black/5 dark:bg-white/5 text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10"
-                    placeholder="https://..."
+                    className="w-full h-11 px-3.5 border border-gray-200 dark:border-white/10 rounded-xl bg-gray-50 dark:bg-[#101c16] text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0] focus:ring-2 focus:ring-[#36e2a0]/20 text-sm placeholder:text-gray-400 dark:placeholder:text-gray-600 font-mono text-xs"
+                    placeholder="https://images.unsplash.com/..."
                     value={form.coverImage}
                     onChange={(e) => setForm({ ...form, coverImage: e.target.value })}
                   />
                 </div>
               </div>
 
+              {/* Excerpt */}
               <div>
-                <label className="block mb-2 text-muted-foreground dark:text-[#84918b] text-[11px] font-semibold">Tóm tắt</label>
+                <label className="block mb-2 text-xs font-semibold text-gray-700 dark:text-[#a0afaa]">
+                  Tóm tắt ngắn (Excerpt)
+                </label>
                 <textarea
-                  className="w-full min-h-[80px] p-3 border border-border/20 dark:border-white/5 rounded-xl bg-black/5 dark:bg-white/5 text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10 leading-relaxed resize-y"
+                  className="w-full min-h-[76px] p-3.5 border border-gray-200 dark:border-white/10 rounded-xl bg-gray-50 dark:bg-[#101c16] text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0] focus:ring-2 focus:ring-[#36e2a0]/20 text-sm leading-relaxed resize-y placeholder:text-gray-400 dark:placeholder:text-gray-600"
+                  placeholder="Viết một vài câu mô tả ngắn gọn về nội dung bài viết..."
                   value={form.excerpt}
                   onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
                 />
@@ -158,117 +198,173 @@ export function PostEditor({
             </div>
           </section>
 
-          {/* EDITOR CARD */}
-          <section className="shrink-0 min-h-[400px] border border-border/20 dark:border-[#4BFFBE]/10 rounded-[18px] bg-white dark:bg-[#08100d] shadow-[0_30px_90px_rgba(0,0,0,0.45)] flex flex-col relative">
-            <div className="absolute inset-0 z-0 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-[#0a1210] dark:to-[#08100d] pointer-events-none rounded-[18px]" />
-            <div className="relative z-10 p-0 flex flex-col rounded-[18px]">
-              <RichTextEditor
-                value={form.content}
-                onChange={(v) => setForm({ ...form, content: v })}
-                className="flex flex-col [&_.ql-toolbar]:bg-gray-100/90 dark:bg-[#0e1814]/90 [&_.ql-toolbar]:backdrop-blur-md [&_.ql-toolbar]:border-b [&_.ql-toolbar]:border-border/20 dark:border-white/5 [&_.ql-toolbar]:shrink-0 [&_.ql-toolbar]:rounded-t-[18px] [&_.ql-container]:border-none [&_.ql-editor]:text-gray-800 dark:text-[#d9e0dc] [&_.ql-editor]:text-[17px] [&_.ql-editor]:leading-[1.8] [&_.ql-editor]:p-8 md:[&_.ql-editor]:p-12 lg:[&_.ql-editor]:p-16 [&_.ql-editor]:min-h-[300px]"
-              />
+          {/* RICH TEXT EDITOR CARD */}
+          <section className="shrink-0 rounded-2xl bg-white dark:bg-[#0a120e] border border-gray-200 dark:border-white/10 shadow-sm overflow-hidden">
+            <div className="p-4 bg-gray-50/70 dark:bg-[#0c1511] border-b border-gray-200 dark:border-white/10 flex items-center justify-between">
+              <span className="text-xs font-bold text-gray-800 dark:text-[#d1dcd7] flex items-center gap-2">
+                <FileText className="w-4 h-4 text-[#36e2a0]" />
+                Nội dung bài viết
+              </span>
+              <span className="text-[11px] text-gray-500 dark:text-[#7d8c86]">
+                Hỗ trợ định dạng văn bản, Chèn Bảng, Code block, Hình ảnh
+              </span>
             </div>
+            
+            <RichTextEditor
+              value={form.content}
+              onChange={(v) => setForm({ ...form, content: v })}
+              placeholder="Bắt đầu viết nội dung bài viết của bạn tại đây..."
+            />
           </section>
 
         </div>
 
-        {/* SIDE COLUMN */}
-        <aside className="w-full lg:w-[300px] shrink-0 flex flex-col gap-4 min-h-0 overflow-y-auto pr-2 custom-scrollbar">
+        {/* RIGHT SIDEBAR (SEO & PUBLISH) */}
+        <aside className="w-full lg:w-[320px] shrink-0 flex flex-col gap-5 min-h-0 overflow-y-auto pr-1 custom-scrollbar">
           
-          {/* SEO Preview */}
-          <div className="p-4 border border-border/20 dark:border-[#4BFFBE]/10 rounded-2xl bg-white dark:bg-[#0a1410]/80 shadow-[0_12px_30px_rgba(0,0,0,0.15)] shrink-0">
-            <h3 className="text-gray-900 dark:text-[#e7eee9] text-xs font-extrabold tracking-wider mb-3">Cấu hình SEO</h3>
-            <p className="text-muted-foreground dark:text-[#84918b] text-[10px] leading-relaxed mb-4">Tối ưu title, description và keywords trước khi xuất bản.</p>
+          {/* PUBLISH CARD */}
+          <div className="p-5 border border-gray-200 dark:border-white/10 rounded-2xl bg-white dark:bg-[#0a120e] shadow-sm">
+            <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Globe className="w-4 h-4 text-[#36e2a0]" />
+              Trạng thái xuất bản
+            </h3>
+
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-gray-50 dark:bg-[#101c16] border border-gray-200 dark:border-white/5">
+              <div>
+                <strong className="block text-xs font-bold text-gray-900 dark:text-white mb-0.5">
+                  Đăng ngay
+                </strong>
+                <span className="text-[10px] text-gray-500 dark:text-[#7d8c86]">
+                  {form.published ? "Bài viết hiển thị công khai" : "Lưu dạng bản nháp ẩn"}
+                </span>
+              </div>
+              <Switch 
+                checked={form.published} 
+                onCheckedChange={(v) => setForm({ ...form, published: v })} 
+                className="data-[state=checked]:bg-[#36e2a0]" 
+              />
+            </div>
+          </div>
+
+          {/* SEO PREVIEW CARD */}
+          <div className="p-5 border border-gray-200 dark:border-white/10 rounded-2xl bg-white dark:bg-[#0a120e] shadow-sm">
+            <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-1 flex items-center gap-2">
+              <Settings className="w-4 h-4 text-[#36e2a0]" />
+              Cấu hình SEO
+            </h3>
+            <p className="text-[11px] text-gray-500 dark:text-[#7d8c86] leading-relaxed mb-4">
+              Xem trước hiển thị kết quả tìm kiếm trên Google.
+            </p>
             
-            <div className="border border-border/20 dark:border-white/5 rounded-xl p-3 bg-gray-50 dark:bg-[#07100d]">
-              <div className="text-gray-500 dark:text-[#76857e] text-[9px] mb-2">🔎 Google Preview</div>
-              <div className="text-[#7cf5c2] text-[13px] font-bold leading-snug line-clamp-2">
-                {form.seoTitle || form.title || "Tiêu đề SEO"}
+            {/* Google Search Result Box */}
+            <div className="border border-gray-200 dark:border-white/10 rounded-xl p-3.5 bg-gray-50 dark:bg-[#0c1511]">
+              <div className="text-[10px] font-semibold text-gray-400 dark:text-[#5a6963] mb-2 flex items-center gap-1">
+                <span>🔍 Xem trước trên Google</span>
               </div>
-              <div className="text-[#45c392] text-[10px] my-1.5 truncate">
-                phanhuynh.dev/posts/{slugify(form.slug || form.title)}
+              <div className="text-blue-600 dark:text-[#4ee6b3] text-sm font-bold leading-snug line-clamp-2 hover:underline cursor-pointer">
+                {form.seoTitle || form.title || "Tiêu đề SEO chưa thiết lập"}
               </div>
-              <div className="text-gray-500 dark:text-[#a0aaa5] text-[10px] leading-relaxed line-clamp-3">
-                {form.seoDescription || form.excerpt || "Mô tả SEO cho bài viết này..."}
+              <div className="text-emerald-700 dark:text-[#2fcb8f] text-[11px] my-1 truncate font-mono">
+                phanhuynh.id.vn/posts/{slugify(form.slug || form.title)}
+              </div>
+              <div className="text-gray-600 dark:text-[#9eada7] text-xs leading-relaxed line-clamp-3">
+                {form.seoDescription || form.excerpt || "Nội dung mô tả ngắn sẽ xuất hiện tại đây khi bài viết hiển thị trên Google..."}
               </div>
             </div>
           </div>
 
-          {/* SEO Fields */}
-          <div className="p-4 border border-border/20 dark:border-[#4BFFBE]/10 rounded-2xl bg-white dark:bg-[#0a1410]/80 shadow-[0_12px_30px_rgba(0,0,0,0.15)] space-y-4 shrink-0">
+          {/* SEO INPUT FIELDS */}
+          <div className="p-5 border border-gray-200 dark:border-white/10 rounded-2xl bg-white dark:bg-[#0a120e] shadow-sm space-y-4">
             <div>
-              <h3 className="text-gray-900 dark:text-[#e7eee9] text-xs font-extrabold tracking-wider mb-3">SEO Title</h3>
+              <label className="block text-xs font-semibold text-gray-700 dark:text-[#a0afaa] mb-2">
+                SEO Title
+              </label>
               <input
-                className="w-full min-h-[40px] px-3 border border-border/20 dark:border-white/5 rounded-xl bg-black/5 dark:bg-white/5 text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10"
+                className="w-full h-10 px-3 border border-gray-200 dark:border-white/10 rounded-xl bg-gray-50 dark:bg-[#101c16] text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0] focus:ring-2 focus:ring-[#36e2a0]/20 text-xs font-medium"
+                placeholder="Tiêu đề hiển thị trên Google..."
                 value={form.seoTitle}
                 onChange={(e) => setForm({ ...form, seoTitle: e.target.value })}
               />
-              <div className="flex justify-between items-center mt-1.5 text-[10px] text-muted-foreground dark:text-[#84918b]">
-                <span>Khuyến nghị: 50–60 ký tự</span>
-                <span className={form.seoTitle.length > 60 ? "text-[#ffc857]" : "text-[#36e2a0] font-bold"}>
+              <div className="flex justify-between items-center mt-1.5 text-[10px] text-gray-500 dark:text-[#7d8c86]">
+                <span>Khuyên dùng: 50–60 ký tự</span>
+                <span className={form.seoTitle.length > 60 ? "text-amber-500 font-bold" : "text-[#36e2a0] font-bold"}>
                   {form.seoTitle.length}/60
                 </span>
               </div>
             </div>
 
             <div>
-              <h3 className="text-gray-900 dark:text-[#e7eee9] text-xs font-extrabold tracking-wider mb-3">Meta Description</h3>
+              <label className="block text-xs font-semibold text-gray-700 dark:text-[#a0afaa] mb-2">
+                Meta Description
+              </label>
               <textarea
-                className="w-full min-h-[90px] p-3 border border-border/20 dark:border-white/5 rounded-xl bg-black/5 dark:bg-white/5 text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10 resize-y"
+                className="w-full min-h-[85px] p-3 border border-gray-200 dark:border-white/10 rounded-xl bg-gray-50 dark:bg-[#101c16] text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0] focus:ring-2 focus:ring-[#36e2a0]/20 text-xs leading-relaxed resize-y"
+                placeholder="Mô tả tóm tắt nội dung cho công cụ tìm kiếm..."
                 value={form.seoDescription}
                 onChange={(e) => setForm({ ...form, seoDescription: e.target.value })}
               />
-              <div className="flex justify-between items-center mt-1.5 text-[10px] text-muted-foreground dark:text-[#84918b]">
-                <span>Khuyến nghị: 140–160</span>
-                <span className={form.seoDescription.length > 160 ? "text-[#ffc857]" : "text-[#36e2a0] font-bold"}>
+              <div className="flex justify-between items-center mt-1.5 text-[10px] text-gray-500 dark:text-[#7d8c86]">
+                <span>Khuyên dùng: 140–160 ký tự</span>
+                <span className={form.seoDescription.length > 160 ? "text-amber-500 font-bold" : "text-[#36e2a0] font-bold"}>
                   {form.seoDescription.length}/160
                 </span>
               </div>
             </div>
 
             <div>
-              <h3 className="text-gray-900 dark:text-[#e7eee9] text-xs font-extrabold tracking-wider mb-3">Keywords</h3>
+              <label className="block text-xs font-semibold text-gray-700 dark:text-[#a0afaa] mb-2">
+                Từ khóa (Keywords)
+              </label>
               <textarea
-                className="w-full min-h-[70px] p-3 border border-border/20 dark:border-white/5 rounded-xl bg-black/5 dark:bg-white/5 text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10 resize-y"
+                className="w-full min-h-[65px] p-3 border border-gray-200 dark:border-white/10 rounded-xl bg-gray-50 dark:bg-[#101c16] text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0] focus:ring-2 focus:ring-[#36e2a0]/20 text-xs leading-relaxed resize-y"
+                placeholder="từ khóa 1, từ khóa 2, AI, Edge Computing..."
                 value={form.seoKeywords}
                 onChange={(e) => setForm({ ...form, seoKeywords: e.target.value })}
               />
             </div>
           </div>
 
-          {/* Publish */}
-          <div className="p-4 border border-border/20 dark:border-[#4BFFBE]/10 rounded-2xl bg-white dark:bg-[#0a1410]/80 shadow-[0_12px_30px_rgba(0,0,0,0.15)] shrink-0">
-            <h3 className="text-gray-900 dark:text-[#e7eee9] text-xs font-extrabold tracking-wider mb-3">Xuất bản</h3>
-            <div className="flex items-center justify-between p-3 rounded-xl bg-black/5 dark:bg-white/5">
-              <div>
-                <strong className="block text-xs text-gray-900 dark:text-white mb-1">Đăng ngay</strong>
-                <span className="text-[9px] text-muted-foreground dark:text-[#84918b]">Hiển thị công khai sau khi lưu.</span>
-              </div>
-              <Switch checked={form.published} onCheckedChange={(v) => setForm({ ...form, published: v })} className="data-[state=checked]:bg-[#36e2a0]" />
-            </div>
-          </div>
-
         </aside>
       </main>
 
-      {/* BOTTOM BAR */}
-      <footer className="shrink-0 z-[500] w-full h-[64px] flex items-center justify-between px-6 bg-white/90 dark:bg-[#060a08]/90 backdrop-blur-xl border-t border-border/20 dark:border-white/5">
-        <div className="flex items-center gap-3 text-muted-foreground dark:text-[#84918b] text-[11px]">
-          <span>{wordCount.toLocaleString("vi-VN")} từ</span>
+      {/* BOTTOM FOOTER BAR */}
+      <footer className="shrink-0 z-[500] w-full h-[60px] flex items-center justify-between px-6 bg-white/90 dark:bg-[#070e0b]/90 backdrop-blur-xl border-t border-gray-200 dark:border-white/10">
+        <div className="flex items-center gap-3 text-gray-500 dark:text-[#7d8c86] text-xs">
+          <span className="font-semibold text-gray-700 dark:text-[#c4d1cb]">
+            {wordCount.toLocaleString("vi-VN")} từ
+          </span>
           <span>·</span>
-          <span>{saveStatus}</span>
+          <span>~{readingTime} phút đọc</span>
+          <span>·</span>
+          <span className="text-[#36e2a0]">{saveStatus}</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button onClick={onClose} className="min-h-[40px] px-4 inline-flex items-center justify-center rounded-xl bg-black/5 dark:bg-white/5 text-gray-700 dark:text-[#aeb8b3] border border-border/20 dark:border-white/5 hover:-translate-y-[1px] transition-all text-sm font-medium">
+        <div className="flex items-center gap-3">
+          <button 
+            type="button"
+            onClick={onClose} 
+            className="h-9 px-4 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-[#a0afaa] border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 transition-all text-xs font-semibold"
+          >
             Hủy
           </button>
-          <button onClick={() => { setForm({ ...form, published: false }); onSubmit(new Event('submit') as any); }} disabled={submitting} className="min-h-[40px] px-4 inline-flex items-center justify-center rounded-xl bg-black/5 dark:bg-white/5 text-gray-700 dark:text-[#aeb8b3] border border-border/20 dark:border-white/5 hover:-translate-y-[1px] transition-all text-sm font-medium">
+          
+          <button 
+            type="button"
+            onClick={() => { setForm({ ...form, published: false }); onSubmit(new Event('submit') as any); }} 
+            disabled={submitting} 
+            className="h-9 px-4 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-[#a0afaa] border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 transition-all text-xs font-semibold"
+          >
             Lưu nháp
           </button>
-          <button onClick={(e) => onSubmit(e as any)} disabled={submitting} className="min-h-[40px] px-4 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-[#55efb6] to-[#18be86] text-[#03110b] font-extrabold shadow-[0_10px_30px_rgba(24,190,134,0.2)] hover:-translate-y-[1px] transition-all text-sm">
-            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-            Lưu thay đổi
+          
+          <button 
+            type="button"
+            onClick={(e) => onSubmit(e as any)} 
+            disabled={submitting} 
+            className="h-9 px-5 inline-flex items-center gap-2 rounded-xl bg-[#36e2a0] text-gray-950 font-bold hover:bg-[#2fcb8f] transition-all text-xs shadow-md shadow-[#36e2a0]/15 disabled:opacity-50"
+          >
+            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 stroke-[2.5]" />}
+            <span>Lưu thay đổi</span>
           </button>
         </div>
       </footer>
