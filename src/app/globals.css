@@ -240,7 +240,55 @@ html, body {
   max-width: 100%;
   height: auto;
 }
-
+/* Better table styles for blog content */
+.prose table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 2rem 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+.dark .prose table {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+.prose thead {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+.dark .prose thead {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+.prose th {
+  padding: 14px 16px;
+  font-weight: 600;
+  text-align: left;
+  font-size: 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+.dark .prose th {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+.prose td {
+  padding: 14px 16px;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  vertical-align: top;
+}
+.dark .prose td {
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+.prose tbody tr:last-child td {
+  border-bottom: none;
+}
+.prose tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.015);
+}
+.dark .prose tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.015);
+}
 
 /* ===== Print styles (Save as PDF) ===== */
 @media print {
