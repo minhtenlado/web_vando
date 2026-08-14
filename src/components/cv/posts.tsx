@@ -135,14 +135,14 @@ export function Posts() {
                   rel="noopener noreferrer" 
                   className="block h-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-[1.2rem]"
                 >
-                  <Card className="group h-full flex flex-col overflow-hidden border-border/20 bg-[#0d120f] hover:border-primary/30 transition-all duration-300 rounded-[1.2rem] relative shadow-lg shadow-black/20">
+                  <Card className="group h-full flex flex-col overflow-hidden border-border/20 bg-white dark:bg-[#0d120f] hover:border-primary/30 transition-all duration-300 rounded-[1.2rem] relative shadow-lg shadow-black/5 dark:shadow-black/20">
                     
                     {/* Image Placeholder or Cover Image */}
-                    <div className="h-44 w-full bg-gradient-to-br from-[#121c17] to-[#0a0d0b] flex items-center justify-center relative overflow-hidden border-b border-white/5">
+                    <div className="h-44 w-full bg-gradient-to-br from-gray-100 to-gray-50 dark:from-[#121c17] dark:to-[#0a0d0b] flex items-center justify-center relative overflow-hidden border-b border-border/10 dark:border-white/5">
                       {post.coverImage ? (
                         <>
                           <img src={post.coverImage} alt={post.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                          <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-500"></div>
+                          <div className="absolute inset-0 bg-black/10 dark:bg-black/40 group-hover:bg-black/5 dark:group-hover:bg-black/20 transition-colors duration-500"></div>
                         </>
                       ) : (
                         <>
@@ -153,48 +153,46 @@ export function Posts() {
 
                       {/* Top Left Badge */}
                       <div className="absolute top-3 left-3">
-                        <Badge variant="outline" className="bg-[#0f1712] border-primary/20 text-primary text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full backdrop-blur-md">
+                        <Badge variant="outline" className="bg-white/80 dark:bg-[#0f1712] border-primary/20 text-primary text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full backdrop-blur-md">
                           {postCategory}
                         </Badge>
                       </div>
-
-                      {/* Top Right Badge - Removed */}
                     </div>
 
-                    <div className="p-5 flex flex-col flex-1 bg-gradient-to-b from-[#111713] to-[#0a0d0b]">
+                    <div className="p-5 flex flex-col flex-1 bg-gradient-to-b from-white to-gray-50 dark:from-[#111713] dark:to-[#0a0d0b]">
                       {/* Category Badge */}
                       <Badge className="bg-primary/90 hover:bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-sm mb-4 w-fit flex items-center gap-1.5 uppercase shadow-md shadow-primary/20">
                         {postCategory}
                       </Badge>
 
-                      <h3 className="text-base sm:text-lg font-semibold text-white/90 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white/90 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
                         {post.title}
                       </h3>
-                      <p className="mt-2.5 text-[13px] text-muted-foreground/80 leading-relaxed line-clamp-2 flex-1">
+                      <p className="mt-2.5 text-[13px] text-muted-foreground leading-relaxed line-clamp-2 flex-1">
                         {post.excerpt}
                       </p>
 
                       {/* Author */}
                       <div className="flex items-center justify-between mt-6">
                         <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-full bg-[#1e2923] flex items-center justify-center overflow-hidden shrink-0 border border-white/10">
+                          <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-[#1e2923] flex items-center justify-center overflow-hidden shrink-0 border border-border/10 dark:border-white/10">
                             {profile?.avatar ? (
                               <img src={profile.avatar} alt={profile.name} className="h-full w-full object-cover" />
                             ) : (
-                              <span className="text-xs font-bold text-white">Z</span>
+                              <span className="text-xs font-bold text-gray-900 dark:text-white">Z</span>
                             )}
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-[13px] font-medium text-white/80 leading-none">{profile?.name || "Nguyễn Minh Đức"}</span>
-                            <span className="text-[11px] text-muted-foreground/60 mt-1">Chief Executive Officer</span>
+                            <span className="text-[13px] font-medium text-gray-900 dark:text-white/80 leading-none">{profile?.name || "Nguyễn Minh Đức"}</span>
+                            <span className="text-[11px] text-muted-foreground mt-1">Chief Executive Officer</span>
                           </div>
                         </div>
                         <ArrowUpRight className="w-4 h-4 text-muted-foreground/50 group-hover:text-primary transition-colors" />
                       </div>
 
                       {/* Footer Stats */}
-                      <div className="flex items-center justify-between mt-5 pt-4 border-t border-white/5">
-                        <div className="flex items-center gap-3 text-[11px] text-muted-foreground/70">
+                      <div className="flex items-center justify-between mt-5 pt-4 border-t border-border/10 dark:border-white/5">
+                        <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                           <div className="flex items-center gap-1.5">
                             <Clock className="w-3.5 h-3.5" /> {mockReadTime}
                           </div>
@@ -202,15 +200,15 @@ export function Posts() {
                             <Eye className="w-3.5 h-3.5" /> {mockViews}
                           </div>
                         </div>
-                        <span className="text-[11px] text-muted-foreground/70">{formatDate(post.createdAt, locale)}</span>
+                        <span className="text-[11px] text-muted-foreground">{formatDate(post.createdAt, locale)}</span>
                       </div>
 
                       {/* Actions */}
                       <div className="flex items-center gap-2 mt-4">
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-white/5 text-[11px] text-muted-foreground/60 hover:bg-white/5 hover:text-white transition-colors cursor-pointer">
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border/20 dark:border-white/5 text-[11px] text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground dark:hover:text-white transition-colors cursor-pointer">
                           <Heart className="w-3 h-3" /> {mockLikes}
                         </div>
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-white/5 text-[11px] text-muted-foreground/60 hover:bg-white/5 hover:text-white transition-colors cursor-pointer">
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border/20 dark:border-white/5 text-[11px] text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground dark:hover:text-white transition-colors cursor-pointer">
                           <Bookmark className="w-3 h-3" /> {mockBookmarks}
                         </div>
                       </div>

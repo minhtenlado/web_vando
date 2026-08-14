@@ -249,12 +249,12 @@ export function PostsTab({ locale }: { locale: string }) {
           >
             Tất cả
           </Button>
-          {CATEGORIES.map(cat => (
+          {CATEGORIES.map((cat, i) => (
             <Button 
-              key={cat} 
+              key={i} 
               variant="outline" 
               onClick={() => setActiveCategory(cat)}
-              className={`rounded-full h-8 px-4 text-xs font-medium border-border/40 hover:bg-white/5 ${activeCategory === cat ? 'bg-primary/20 text-primary border-primary/30' : 'bg-transparent text-muted-foreground'}`}
+              className={`rounded-full h-8 px-4 text-xs font-medium border-border/40 transition-colors ${activeCategory === cat ? 'bg-primary/20 text-primary border-primary/30' : 'bg-transparent text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground dark:hover:text-white'}`}
             >
               {cat}
             </Button>
@@ -272,7 +272,7 @@ export function PostsTab({ locale }: { locale: string }) {
             />
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="h-8 rounded-md border-border/40 hover:bg-white/5 bg-transparent text-xs px-3 text-muted-foreground" onClick={fetchItems} disabled={loading}>
+            <Button variant="outline" className="h-8 rounded-md border-border/40 hover:bg-black/5 dark:hover:bg-white/5 bg-transparent text-xs px-3 text-muted-foreground hover:text-foreground dark:hover:text-white transition-colors" onClick={fetchItems} disabled={loading}>
               <RefreshCw className={`size-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} /> Tải lại
             </Button>
             <Button className="h-8 rounded-md text-xs px-3" onClick={openCreate}>
@@ -318,14 +318,14 @@ export function PostsTab({ locale }: { locale: string }) {
                 transition={{ duration: 0.4, delay: (i % 3) * 0.06 }}
                 className="h-full"
               >
-                <Card className="group h-full flex flex-col overflow-hidden border-border/20 bg-[#0d120f] hover:border-primary/30 transition-all duration-300 rounded-[1.2rem] relative shadow-lg shadow-black/20">
+                <Card className="group h-full flex flex-col overflow-hidden border-border/20 bg-white dark:bg-[#0d120f] hover:border-primary/30 transition-all duration-300 rounded-[1.2rem] relative shadow-lg shadow-black/5 dark:shadow-black/20">
                   
                   {/* Image Placeholder or Cover Image */}
-                  <div className="h-44 w-full bg-gradient-to-br from-[#121c17] to-[#0a0d0b] flex items-center justify-center relative overflow-hidden border-b border-white/5">
+                  <div className="h-44 w-full bg-gradient-to-br from-gray-100 to-gray-50 dark:from-[#121c17] dark:to-[#0a0d0b] flex items-center justify-center relative overflow-hidden border-b border-border/10 dark:border-white/5">
                     {post.coverImage ? (
                       <>
                         <img src={post.coverImage} alt={post.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-500"></div>
+                        <div className="absolute inset-0 bg-black/10 dark:bg-black/40 group-hover:bg-black/5 dark:group-hover:bg-black/20 transition-colors duration-500"></div>
                       </>
                     ) : (
                       <>
@@ -337,18 +337,18 @@ export function PostsTab({ locale }: { locale: string }) {
                     {/* Status Badge */}
                     <div className="absolute top-3 left-3">
                       {post.published ? (
-                        <Badge variant="outline" className="bg-[#0f1712]/90 border-primary/30 text-primary text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full backdrop-blur-md flex items-center gap-1">
+                        <Badge variant="outline" className="bg-white/90 dark:bg-[#0f1712]/90 border-primary/30 text-primary text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full backdrop-blur-md flex items-center gap-1">
                           <Eye className="w-3 h-3" /> Đã đăng
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="bg-black/60 border-white/10 text-white/70 text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full backdrop-blur-md flex items-center gap-1">
+                        <Badge variant="outline" className="bg-gray-100/90 dark:bg-black/60 border-border/20 dark:border-white/10 text-gray-700 dark:text-white/70 text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full backdrop-blur-md flex items-center gap-1">
                           <EyeOff className="w-3 h-3" /> Bản nháp
                         </Badge>
                       )}
                     </div>
                   </div>
 
-                  <div className="p-5 flex flex-col flex-1 bg-gradient-to-b from-[#111713] to-[#0a0d0b]">
+                  <div className="p-5 flex flex-col flex-1 bg-gradient-to-b from-white to-gray-50 dark:from-[#111713] dark:to-[#0a0d0b]">
                     <div className="flex items-start justify-between mb-4">
                       {/* Category Badge */}
                       <Badge className="bg-primary/90 hover:bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-sm w-fit uppercase shadow-md shadow-primary/20">
@@ -357,11 +357,11 @@ export function PostsTab({ locale }: { locale: string }) {
 
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-6 w-6 rounded-md hover:bg-white/10 -mr-2">
+                          <Button variant="ghost" size="icon" className="h-6 w-6 rounded-md hover:bg-black/5 dark:hover:bg-white/10 -mr-2">
                             <MoreVertical className="h-4 w-4 text-muted-foreground" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-32 bg-[#0d120f] border-border/20">
+                        <DropdownMenuContent align="end" className="w-32 bg-white dark:bg-[#0d120f] border-border/20">
                           <DropdownMenuItem onClick={() => openEdit(post)} className="cursor-pointer">
                             <Pencil className="mr-2 h-4 w-4" /> Sửa bài
                           </DropdownMenuItem>
@@ -372,16 +372,16 @@ export function PostsTab({ locale }: { locale: string }) {
                       </DropdownMenu>
                     </div>
 
-                    <h3 className="text-base sm:text-lg font-semibold text-white/90 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white/90 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
                       {post.title}
                     </h3>
-                    <p className="mt-2.5 text-[13px] text-muted-foreground/80 leading-relaxed line-clamp-2 flex-1">
+                    <p className="mt-2.5 text-[13px] text-muted-foreground leading-relaxed line-clamp-2 flex-1">
                       {post.excerpt || "Không có mô tả."}
                     </p>
 
                     {/* Footer Stats */}
-                    <div className="flex items-center justify-between mt-5 pt-4 border-t border-white/5">
-                      <div className="flex items-center gap-3 text-[11px] text-muted-foreground/70">
+                    <div className="flex items-center justify-between mt-5 pt-4 border-t border-border/10 dark:border-white/5">
+                      <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                         <div className="flex items-center gap-1.5">
                           <Clock className="w-3.5 h-3.5" /> {mockReadTime}
                         </div>
@@ -389,8 +389,8 @@ export function PostsTab({ locale }: { locale: string }) {
                           <Eye className="w-3.5 h-3.5" /> {mockViews}
                         </div>
                       </div>
-                      <a href={`/posts/${post.slug}`} target="_blank" rel="noreferrer" className="flex items-center justify-center w-6 h-6 rounded-full border border-white/10 hover:border-primary/50 hover:bg-primary/10 transition-colors">
-                        <ArrowUpRight className="w-3 h-3 text-muted-foreground/70 group-hover:text-primary" />
+                      <a href={`/posts/${post.slug}`} target="_blank" rel="noreferrer" className="flex items-center justify-center w-6 h-6 rounded-full border border-border/20 dark:border-white/10 hover:border-primary/50 hover:bg-primary/10 transition-colors">
+                        <ArrowUpRight className="w-3 h-3 text-muted-foreground group-hover:text-primary" />
                       </a>
                     </div>
                   </div>
