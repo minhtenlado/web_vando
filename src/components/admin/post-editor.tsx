@@ -86,10 +86,10 @@ export function PostEditor({
       </header>
 
       {/* WORKSPACE */}
-      <main className="w-full max-w-[1700px] flex flex-col lg:flex-row gap-5 p-5 mx-auto flex-1 min-h-0 overflow-y-auto lg:overflow-hidden">
+      <main className="w-full max-w-[1700px] flex flex-col lg:flex-row gap-5 p-5 mx-auto flex-1 min-h-0 overflow-hidden">
         
         {/* MAIN COLUMN */}
-        <div className="flex-1 min-w-0 flex flex-col gap-4 min-h-0 lg:overflow-hidden">
+        <div className="flex-1 min-w-0 flex flex-col gap-4 min-h-0 overflow-y-auto custom-scrollbar pr-2">
           
           {/* META CARD */}
           <section className="shrink-0 p-6 border border-[#4BFFBE]/10 rounded-[18px] bg-gradient-to-b from-[#0d1713]/90 to-[#080e0b]/90 shadow-[0_12px_45px_rgba(0,0,0,0.18)]">
@@ -159,13 +159,13 @@ export function PostEditor({
           </section>
 
           {/* EDITOR CARD */}
-          <section className="flex-1 min-h-[400px] border border-[#4BFFBE]/10 rounded-[18px] bg-[#08100d] shadow-[0_30px_90px_rgba(0,0,0,0.45)] overflow-hidden flex flex-col relative">
-            <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0a1210] to-[#08100d] pointer-events-none" />
-            <div className="relative z-10 flex-1 p-0 flex flex-col min-h-0">
+          <section className="shrink-0 min-h-[400px] border border-[#4BFFBE]/10 rounded-[18px] bg-[#08100d] shadow-[0_30px_90px_rgba(0,0,0,0.45)] flex flex-col relative">
+            <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0a1210] to-[#08100d] pointer-events-none rounded-[18px]" />
+            <div className="relative z-10 p-0 flex flex-col rounded-[18px]">
               <RichTextEditor
                 value={form.content}
                 onChange={(v) => setForm({ ...form, content: v })}
-                className="flex-1 flex flex-col min-h-0 [&_.ql-toolbar]:bg-[#0e1814]/90 [&_.ql-toolbar]:backdrop-blur-md [&_.ql-toolbar]:border-b [&_.ql-toolbar]:border-white/5 [&_.ql-toolbar]:shrink-0 [&_.ql-container]:border-none [&_.ql-container]:flex-1 [&_.ql-container]:overflow-y-auto [&_.ql-editor]:text-[#d9e0dc] [&_.ql-editor]:text-[17px] [&_.ql-editor]:leading-[1.8] [&_.ql-editor]:p-8 md:[&_.ql-editor]:p-12 lg:[&_.ql-editor]:p-16"
+                className="flex flex-col [&_.ql-toolbar]:bg-[#0e1814]/90 [&_.ql-toolbar]:backdrop-blur-md [&_.ql-toolbar]:border-b [&_.ql-toolbar]:border-white/5 [&_.ql-toolbar]:shrink-0 [&_.ql-toolbar]:rounded-t-[18px] [&_.ql-container]:border-none [&_.ql-editor]:text-[#d9e0dc] [&_.ql-editor]:text-[17px] [&_.ql-editor]:leading-[1.8] [&_.ql-editor]:p-8 md:[&_.ql-editor]:p-12 lg:[&_.ql-editor]:p-16 [&_.ql-editor]:min-h-[300px]"
               />
             </div>
           </section>
@@ -173,7 +173,7 @@ export function PostEditor({
         </div>
 
         {/* SIDE COLUMN */}
-        <aside className="w-full lg:w-[300px] shrink-0 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
+        <aside className="w-full lg:w-[300px] shrink-0 flex flex-col gap-4 min-h-0 overflow-y-auto pr-2 custom-scrollbar">
           
           {/* SEO Preview */}
           <div className="p-4 border border-[#4BFFBE]/10 rounded-2xl bg-[#0a1410]/80 shadow-[0_12px_30px_rgba(0,0,0,0.15)] shrink-0">
