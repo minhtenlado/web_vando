@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation"
 import { db } from "@/lib/db"
 import { Metadata } from "next"
-import { Search } from "lucide-react"
+import { Search, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { TableOfContents } from "@/components/cv/table-of-contents"
 import { PostReader } from "@/components/cv/post-reader"
@@ -81,11 +81,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
       {/* TOPBAR */}
       <header className="sticky top-0 z-[500] h-[66px] flex items-center justify-between px-4 sm:px-8 bg-white/80 dark:bg-[#080a0d]/75 border-b border-black/5 dark:border-white/5 backdrop-blur-[22px]">
-        <Link href="/posts" className="flex items-center gap-3 font-bold text-sm hover:opacity-80 transition-opacity">
-          <div className="w-[31px] h-[31px] grid place-items-center rounded-[9px] bg-gradient-to-br from-[#7b88ff] to-[#9c6dff] shadow-[0_8px_30px_rgba(111,101,255,0.25)] text-white text-[13px] font-sans">
-            R
-          </div>
-          <span className="hidden sm:inline-block">Research Reader</span>
+        <Link href="/posts" className="flex items-center gap-2 text-[13px] font-medium text-gray-500 hover:text-gray-900 dark:text-[#aeb4c0] dark:hover:text-white transition-colors">
+          <ArrowLeft className="w-4 h-4" />
+          <span>Trở về</span>
         </Link>
         <div className="flex items-center gap-2">
            <ScientificSearchTrigger />
