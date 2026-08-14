@@ -58,7 +58,7 @@ export function Posts() {
   }
 
   return (
-    <section id="posts" className="relative py-8 sm:py-12 scroll-mt-16 md:scroll-mt-20">
+    <section className="relative py-8 sm:py-12 scroll-mt-16 md:scroll-mt-20">
       <div className="container mx-auto max-w-[1000px] px-4 md:px-8 lg:px-12">
         <SectionHeader
           index="07 / posts"

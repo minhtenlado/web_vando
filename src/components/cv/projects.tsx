@@ -77,7 +77,7 @@ export function Projects() {
   }, [lightbox, activeProject])
 
   return (
-    <section id="projects" className="relative py-8 sm:py-12 scroll-mt-16 md:scroll-mt-20 bg-muted/20">
+    <section className="py-8 sm:py-12 scroll-mt-16 md:scroll-mt-20 bg-muted/20">
       <div className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
         <SectionHeader
           index="04 / projects"

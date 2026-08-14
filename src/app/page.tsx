@@ -31,27 +31,19 @@ export default async function Home() {
           <CommandPalette />
           <Navbar />
           <main className="flex-1 flex flex-row overflow-x-auto overflow-y-hidden snap-x snap-mandatory h-screen w-full scroll-smooth hide-scrollbar relative">
-            <div className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative">
+            <div id="about" className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative flex flex-col justify-start">
               <Hero />
-            </div>
-            <div className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative">
               <About />
-            </div>
-            <div className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative">
               <Skills />
-            </div>
-            <div className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative">
               <Experience />
-            </div>
-            <div className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative">
-              <Projects />
-            </div>
-            <div className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative">
-              <Posts />
-            </div>
-            <div className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative flex flex-col justify-between">
               <Education />
               <Footer />
+            </div>
+            <div id="projects" className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative">
+              <Projects />
+            </div>
+            <div id="posts" className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative">
+              <Posts />
             </div>
           </main>
         </div>
