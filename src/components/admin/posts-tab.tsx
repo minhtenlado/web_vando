@@ -120,6 +120,10 @@ export function PostsTab({ locale }: { locale: string }) {
   const [uploadingCoverImage, setUploadingCoverImage] = React.useState(false);
   // Post type state to separate normal posts from PDF uploads
   const [postType, setPostType] = React.useState<"text" | "pdf">("text");
+  
+  // Filter states
+  const [activeCategory, setActiveCategory] = React.useState("Tất cả");
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   async function fetchItems() {
     setLoading(true);
