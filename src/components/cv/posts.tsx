@@ -1,16 +1,14 @@
 'use client'
 
 import * as React from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { FileText, Clock, ArrowRight, X, Calendar, Search } from "lucide-react"
+import { motion } from "framer-motion"
+import { Clock, Eye, Heart, Bookmark, Search, Star, Crown, ArrowUpRight } from "lucide-react"
 import { SectionHeader } from "./section-header"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import Link from "next/link"
 import { useSiteData } from "@/components/cv/site-data-context"
-import type { SitePost } from "@/lib/cv/site-data-server"
 import { useLocale } from "@/components/cv/locale-context"
 
 function formatDate(iso: string, locale: string): string {
@@ -26,10 +24,13 @@ function formatDate(iso: string, locale: string): string {
   }
 }
 
+const CATEGORIES = ["CEO Editorial", "Incident Report", "Security", "Leadership", "Awareness"]
+
 export function Posts() {
   const { posts, profile } = useSiteData()
   const { t, locale } = useLocale()
   const [searchQuery, setSearchQuery] = React.useState("")
+  const [activeCategory, setActiveCategory] = React.useState("Tất cả")
   
   const published = posts.filter((p) => {
     if (!p.published) return false
@@ -39,8 +40,8 @@ export function Posts() {
 
   if (posts.filter((p) => p.published).length === 0) {
     return (
-      <section id="posts" className="relative py-8 sm:py-12 scroll-mt-16 md:scroll-mt-20">
-        <div className="container mx-auto max-w-5xl px-4 md:px-8 lg:px-12">
+      <section className="relative py-8 sm:py-12 scroll-mt-16 md:scroll-mt-20">
+        <div className="container mx-auto max-w-7xl px-4 md:px-8 lg:px-12">
           <SectionHeader
             index="07 / posts"
             title={t("Bài viết", "Posts")}
@@ -59,7 +60,7 @@ export function Posts() {
 
   return (
     <section className="relative py-8 sm:py-12 scroll-mt-16 md:scroll-mt-20">
-      <div className="container mx-auto max-w-[1000px] px-4 md:px-8 lg:px-12">
+      <div className="container mx-auto max-w-7xl px-4 md:px-8 lg:px-12">
         <SectionHeader
           index="07 / posts"
           title={t("Bài viết", "Posts")}
@@ -70,31 +71,59 @@ export function Posts() {
         />
 
         {/* Toolbar */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-          <div className="flex-1 max-w-md w-full relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t("Tìm bài viết...", "Search posts...")} 
-              className="w-full pl-9 rounded-full border-border/60 bg-background/50 focus-visible:ring-primary/20"
-            />
+        <div className="mt-8 flex flex-col xl:flex-row items-center justify-between gap-4 mb-8">
+          <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto">
+            <Button 
+              variant="default" 
+              onClick={() => setActiveCategory("Tất cả")}
+              className={`rounded-full h-8 px-4 text-xs font-medium border-none ${activeCategory === "Tất cả" ? 'bg-primary/20 text-primary hover:bg-primary/30' : 'bg-transparent text-muted-foreground hover:bg-white/5'}`}
+            >
+              Tất cả
+            </Button>
+            {CATEGORIES.map(cat => (
+              <Button 
+                key={cat} 
+                variant="outline" 
+                onClick={() => setActiveCategory(cat)}
+                className={`rounded-full h-8 px-4 text-xs font-medium border-border/40 hover:bg-white/5 ${activeCategory === cat ? 'bg-primary/20 text-primary border-primary/30' : 'bg-transparent text-muted-foreground'}`}
+              >
+                {cat}
+              </Button>
+            ))}
           </div>
 
-          <div className="flex items-center gap-2 sm:w-auto w-full justify-center">
-            <Button variant="outline" className="rounded-full border-border/60 hover:bg-primary/5 flex-1 sm:flex-none">
-              👑 {t("CEO", "CEO")}
-            </Button>
-            <Button variant="outline" className="rounded-full border-border/60 hover:bg-primary/5 flex-1 sm:flex-none">
-              ⭐ {t("Nổi bật", "Featured")}
-            </Button>
+          <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto justify-end">
+            <div className="relative w-full sm:w-56">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t("Tìm bài viết...", "Search posts...")} 
+                className="w-full pl-9 h-8 rounded-md border-border/40 bg-transparent text-xs focus-visible:ring-1 focus-visible:ring-primary/20"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="h-8 rounded-md border-border/40 hover:bg-white/5 bg-transparent text-xs px-3 text-muted-foreground">
+                <Crown className="w-3.5 h-3.5 mr-1.5" /> CEO
+              </Button>
+              <Button variant="outline" className="h-8 rounded-md border-border/40 hover:bg-white/5 bg-transparent text-xs px-3 text-muted-foreground">
+                <Star className="w-3.5 h-3.5 mr-1.5" /> Nổi bật
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Post Grid */}
-        <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {published.map((post, i) => {
             const targetHref = `/posts/${post.slug}`
+            // Mock data for UI showcase
+            const mockCategory = CATEGORIES[i % CATEGORIES.length]
+            const mockReadTime = `${Math.floor(Math.random() * 10) + 1} phút đọc`
+            const mockViews = `${(Math.random() * 20).toFixed(1)}K`
+            const mockLikes = Math.floor(Math.random() * 50)
+            const mockBookmarks = Math.floor(Math.random() * 10)
+
             return (
               <motion.div
                 key={post.id}
@@ -108,47 +137,85 @@ export function Posts() {
                   href={targetHref} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="block h-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-[2rem]"
+                  className="block h-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-[1.2rem]"
                 >
-                  <Card className="group h-full flex flex-col overflow-hidden border-border/60 bg-card/40 backdrop-blur hover:border-primary/50 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10 rounded-[2rem]">
+                  <Card className="group h-full flex flex-col overflow-hidden border-border/20 bg-[#0d120f] hover:border-primary/30 transition-all duration-300 rounded-[1.2rem] relative shadow-lg shadow-black/20">
                     
                     {/* Image Placeholder */}
-                    <div className="h-48 w-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center relative overflow-hidden border-b border-border/40">
-                      <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/40 via-transparent to-transparent"></div>
-                      <FileText className="h-10 w-10 text-primary/30" />
+                    <div className="h-44 w-full bg-gradient-to-br from-[#121c17] to-[#0a0d0b] flex items-center justify-center relative overflow-hidden border-b border-white/5">
+                      <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/30 via-transparent to-transparent"></div>
+                      
+                      <span className="text-7xl font-bold text-primary/10 font-serif group-hover:scale-110 transition-transform duration-500">Z</span>
+
+                      {/* Top Left Badge */}
+                      <div className="absolute top-3 left-3">
+                        <Badge variant="outline" className="bg-[#0f1712] border-primary/20 text-primary text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full backdrop-blur-md">
+                          {mockCategory}
+                        </Badge>
+                      </div>
+
+                      {/* Top Right Badge */}
+                      <div className="absolute top-3 right-3">
+                        <Badge className="bg-[#4d3215]/90 text-[#e6a861] border-none text-[10px] px-2 py-0.5 rounded-sm flex items-center gap-1 backdrop-blur-md">
+                          <Star className="w-3 h-3 fill-current" /> Nổi bật
+                        </Badge>
+                      </div>
                     </div>
 
-                    <div className="p-5 flex flex-col flex-1">
-                      <h3 className="text-lg font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                    <div className="p-5 flex flex-col flex-1 bg-gradient-to-b from-[#111713] to-[#0a0d0b]">
+                      {/* Crown Badge */}
+                      <Badge className="bg-primary/90 hover:bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-sm mb-4 w-fit flex items-center gap-1.5 uppercase shadow-md shadow-primary/20">
+                        <Crown className="w-3.5 h-3.5" /> {mockCategory}
+                      </Badge>
+
+                      <h3 className="text-base sm:text-lg font-semibold text-white/90 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
                         {post.title}
                       </h3>
-                      <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-3 flex-1">
+                      <p className="mt-2.5 text-[13px] text-muted-foreground/80 leading-relaxed line-clamp-2 flex-1">
                         {post.excerpt}
                       </p>
 
-                      <hr className="my-4 border-border/60" />
-
-                      <div className="flex items-center justify-between mt-auto">
+                      {/* Author */}
+                      <div className="flex items-center justify-between mt-6">
                         <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/20 shrink-0">
+                          <div className="h-8 w-8 rounded-full bg-[#1e2923] flex items-center justify-center overflow-hidden shrink-0 border border-white/10">
                             {profile?.avatar ? (
                               <img src={profile.avatar} alt={profile.name} className="h-full w-full object-cover" />
                             ) : (
-                              <span className="text-xs font-bold text-primary">{profile?.name?.charAt(0) || "U"}</span>
+                              <span className="text-xs font-bold text-white">Z</span>
                             )}
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-sm font-semibold leading-none">{profile?.name || "Author"}</span>
-                            <span className="text-[11px] text-muted-foreground mt-1">{formatDate(post.createdAt, locale)}</span>
+                            <span className="text-[13px] font-medium text-white/80 leading-none">{profile?.name || "Nguyễn Minh Đức"}</span>
+                            <span className="text-[11px] text-muted-foreground/60 mt-1">Chief Executive Officer</span>
                           </div>
                         </div>
-                        
-                        {post.pdfUrl && (
-                          <Badge variant="secondary" className="font-mono text-[10px]">
-                            PDF
-                          </Badge>
-                        )}
+                        <ArrowUpRight className="w-4 h-4 text-muted-foreground/50 group-hover:text-primary transition-colors" />
                       </div>
+
+                      {/* Footer Stats */}
+                      <div className="flex items-center justify-between mt-5 pt-4 border-t border-white/5">
+                        <div className="flex items-center gap-3 text-[11px] text-muted-foreground/70">
+                          <div className="flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5" /> {mockReadTime}
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <Eye className="w-3.5 h-3.5" /> {mockViews}
+                          </div>
+                        </div>
+                        <span className="text-[11px] text-muted-foreground/70">{formatDate(post.createdAt, locale)}</span>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-2 mt-4">
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-white/5 text-[11px] text-muted-foreground/60 hover:bg-white/5 hover:text-white transition-colors cursor-pointer">
+                          <Heart className="w-3 h-3" /> {mockLikes}
+                        </div>
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-white/5 text-[11px] text-muted-foreground/60 hover:bg-white/5 hover:text-white transition-colors cursor-pointer">
+                          <Bookmark className="w-3 h-3" /> {mockBookmarks}
+                        </div>
+                      </div>
+
                     </div>
                   </Card>
                 </a>
