@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, Plus, Pencil, Trash2, FileText, RefreshCw, Eye, EyeOff, Upload } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, FileText, RefreshCw, Eye, EyeOff, Upload, Search, Clock, ArrowUpRight, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,6 +31,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { motion } from "framer-motion";
 import type { SitePost } from "@/lib/cv/site-data-server";
 
 type PostForm = {
@@ -239,30 +241,60 @@ export function PostsTab({ locale }: { locale: string }) {
     }
   }
 
+  const CATEGORIES = ["AI", "embedded", "IOT", "Robot", "ROS2"]
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold">Bài viết</h2>
-          <p className="text-sm text-muted-foreground">Blog cá nhân, hỗ trợ Markdown.</p>
+      {/* Toolbar */}
+      <div className="mt-2 flex flex-col xl:flex-row items-center justify-between gap-4 mb-6">
+        <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto">
+          <Button 
+            variant="default" 
+            onClick={() => setActiveCategory("Tất cả")}
+            className={`rounded-full h-8 px-4 text-xs font-medium border-none ${activeCategory === "Tất cả" ? 'bg-primary/20 text-primary hover:bg-primary/30' : 'bg-transparent text-muted-foreground hover:bg-white/5'}`}
+          >
+            Tất cả
+          </Button>
+          {CATEGORIES.map(cat => (
+            <Button 
+              key={cat} 
+              variant="outline" 
+              onClick={() => setActiveCategory(cat)}
+              className={`rounded-full h-8 px-4 text-xs font-medium border-border/40 hover:bg-white/5 ${activeCategory === cat ? 'bg-primary/20 text-primary border-primary/30' : 'bg-transparent text-muted-foreground'}`}
+            >
+              {cat}
+            </Button>
+          ))}
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={fetchItems} disabled={loading}>
-            <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
-            Tải lại
-          </Button>
-          <Button size="sm" onClick={openCreate}>
-            <Plus className="size-4" />
-            Viết bài mới
-          </Button>
+
+        <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto justify-end">
+          <div className="relative w-full sm:w-56">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Tìm bài viết..." 
+              className="w-full pl-9 h-8 rounded-md border-border/40 bg-transparent text-xs focus-visible:ring-1 focus-visible:ring-primary/20"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" className="h-8 rounded-md border-border/40 hover:bg-white/5 bg-transparent text-xs px-3 text-muted-foreground" onClick={fetchItems} disabled={loading}>
+              <RefreshCw className={`size-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} /> Tải lại
+            </Button>
+            <Button className="h-8 rounded-md text-xs px-3" onClick={openCreate}>
+              <Plus className="size-3.5 mr-1.5" /> Viết bài mới
+            </Button>
+          </div>
         </div>
       </div>
 
       {loading ? (
         <div className="space-y-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-20 w-full rounded-xl" />
-          ))}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-64 w-full rounded-[1.2rem]" />
+            ))}
+          </div>
         </div>
       ) : items.length === 0 ? (
         <Card>
@@ -278,47 +310,100 @@ export function PostsTab({ locale }: { locale: string }) {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
-          {items.map((p) => (
-            <Card key={p.id}>
-              <CardHeader>
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div className="space-y-1">
-                    <CardTitle className="flex flex-wrap items-center gap-2 text-base">
-                      {p.title}
-                      {p.published ? (
-                        <Badge className="gap-1 bg-primary/15 text-primary border-primary/30">
-                          <Eye className="size-3" /> Đã đăng
+        <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {items.map((post, i) => {
+            const mockCategory = CATEGORIES[i % CATEGORIES.length]
+            const mockReadTime = `${Math.floor(Math.random() * 10) + 1} phút đọc`
+            const mockViews = `${(Math.random() * 20).toFixed(1)}K`
+
+            return (
+              <motion.div
+                key={post.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: (i % 3) * 0.06 }}
+                className="h-full"
+              >
+                <Card className="group h-full flex flex-col overflow-hidden border-border/20 bg-[#0d120f] hover:border-primary/30 transition-all duration-300 rounded-[1.2rem] relative shadow-lg shadow-black/20">
+                  
+                  {/* Image Placeholder or Cover Image */}
+                  <div className="h-44 w-full bg-gradient-to-br from-[#121c17] to-[#0a0d0b] flex items-center justify-center relative overflow-hidden border-b border-white/5">
+                    {post.coverImage ? (
+                      <>
+                        <img src={post.coverImage} alt={post.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-500"></div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/30 via-transparent to-transparent"></div>
+                        <span className="text-7xl font-bold text-primary/10 font-serif group-hover:scale-110 transition-transform duration-500">Z</span>
+                      </>
+                    )}
+
+                    {/* Status Badge */}
+                    <div className="absolute top-3 left-3">
+                      {post.published ? (
+                        <Badge variant="outline" className="bg-[#0f1712]/90 border-primary/30 text-primary text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full backdrop-blur-md flex items-center gap-1">
+                          <Eye className="w-3 h-3" /> Đã đăng
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="gap-1">
-                          <EyeOff className="size-3" /> Bản nháp
+                        <Badge variant="outline" className="bg-black/60 border-white/10 text-white/70 text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full backdrop-blur-md flex items-center gap-1">
+                          <EyeOff className="w-3 h-3" /> Bản nháp
                         </Badge>
                       )}
-                    </CardTitle>
-                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground font-mono">
-                      <span>/{p.slug}</span>
-                      {p.createdAt && <span>· {formatDate(p.createdAt)}</span>}
-                      {p.updatedAt && p.updatedAt !== p.createdAt && <span>· cập nhật {formatDate(p.updatedAt)}</span>}
                     </div>
                   </div>
-                  <div className="flex gap-1">
-                    <Button size="sm" variant="outline" className="h-8" onClick={() => openEdit(p)}>
-                      <Pencil className="size-3.5" /> Sửa
-                    </Button>
-                    <Button size="sm" variant="outline" className="h-8 text-destructive hover:text-destructive" onClick={() => setDeleteId(p.id)}>
-                      <Trash2 className="size-3.5" /> Xóa
-                    </Button>
+
+                  <div className="p-5 flex flex-col flex-1 bg-gradient-to-b from-[#111713] to-[#0a0d0b]">
+                    <div className="flex items-start justify-between mb-4">
+                      {/* Category Badge */}
+                      <Badge className="bg-primary/90 hover:bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-sm w-fit uppercase shadow-md shadow-primary/20">
+                        {mockCategory}
+                      </Badge>
+
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-6 w-6 rounded-md hover:bg-white/10 -mr-2">
+                            <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-32 bg-[#0d120f] border-border/20">
+                          <DropdownMenuItem onClick={() => openEdit(post)} className="cursor-pointer">
+                            <Pencil className="mr-2 h-4 w-4" /> Sửa bài
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setDeleteId(post.id)} className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
+                            <Trash2 className="mr-2 h-4 w-4" /> Xóa bài
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+
+                    <h3 className="text-base sm:text-lg font-semibold text-white/90 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                      {post.title}
+                    </h3>
+                    <p className="mt-2.5 text-[13px] text-muted-foreground/80 leading-relaxed line-clamp-2 flex-1">
+                      {post.excerpt || "Không có mô tả."}
+                    </p>
+
+                    {/* Footer Stats */}
+                    <div className="flex items-center justify-between mt-5 pt-4 border-t border-white/5">
+                      <div className="flex items-center gap-3 text-[11px] text-muted-foreground/70">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5" /> {mockReadTime}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Eye className="w-3.5 h-3.5" /> {mockViews}
+                        </div>
+                      </div>
+                      <a href={`/posts/${post.slug}`} target="_blank" rel="noreferrer" className="flex items-center justify-center w-6 h-6 rounded-full border border-white/10 hover:border-primary/50 hover:bg-primary/10 transition-colors">
+                        <ArrowUpRight className="w-3 h-3 text-muted-foreground/70 group-hover:text-primary" />
+                      </a>
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              {p.excerpt && (
-                <CardContent className="text-sm text-muted-foreground">
-                  <p className="line-clamp-2">{p.excerpt}</p>
-                </CardContent>
-              )}
-            </Card>
-          ))}
+                </Card>
+              </motion.div>
+            )
+          })}
         </div>
       )}
 
