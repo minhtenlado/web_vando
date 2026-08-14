@@ -81,7 +81,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
       {/* TOPBAR */}
       <header className="sticky top-0 z-[500] h-[66px] flex items-center justify-between px-4 sm:px-8 bg-white/80 dark:bg-[#080a0d]/75 border-b border-black/5 dark:border-white/5 backdrop-blur-[22px]">
-        <Link href="/posts" className="flex items-center gap-2 text-[13px] font-medium text-gray-500 hover:text-gray-900 dark:text-[#aeb4c0] dark:hover:text-white transition-colors">
+        <Link href="/" className="flex items-center gap-2 text-[13px] font-medium text-gray-500 hover:text-gray-900 dark:text-[#aeb4c0] dark:hover:text-white transition-colors">
           <ArrowLeft className="w-4 h-4" />
           <span>Trở về</span>
         </Link>
