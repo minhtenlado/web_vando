@@ -56,13 +56,15 @@ function sanitizePostContent(c: string): string {
     });
 }
 
-/** Chỉ cho phép URL an toàn (https) — chặn javascript:, data:, vbscript: */
+/** Chỉ cho phép URL an toàn — chặn javascript:, vbscript: */
 function sanitizeUrl(v: unknown): string | null {
   if (typeof v !== "string") return null;
   const s = v.trim();
   if (!s) return null;
-  if (/^(javascript|data|vbscript):/i.test(s)) return null;
-  if (!s.startsWith("https://")) return null;
+  if (/^(javascript|vbscript):/i.test(s)) return null;
+  if (s.startsWith("data:image/")) return s.slice(0, 5000000); // Cho phép base64 ảnh tới 5MB
+  if (s.startsWith("data:")) return null; // Chặn data url khác
+  if (!s.startsWith("https://") && !s.startsWith("http://") && !s.startsWith("/")) return null;
   return s.slice(0, 2000);
 }
 
