@@ -199,8 +199,8 @@ export function PostEditor({
           </section>
 
           {/* RICH TEXT EDITOR CARD */}
-          <section className="shrink-0 rounded-2xl bg-white dark:bg-[#0a120e] border border-gray-200 dark:border-white/10 shadow-sm overflow-hidden">
-            <div className="p-4 bg-gray-50/70 dark:bg-[#0c1511] border-b border-gray-200 dark:border-white/10 flex items-center justify-between">
+          <section className="shrink-0 rounded-2xl bg-white dark:bg-[#0a120e] border border-gray-200 dark:border-white/10 shadow-sm">
+            <div className="p-4 bg-gray-50/70 dark:bg-[#0c1511] border-b border-gray-200 dark:border-white/10 flex items-center justify-between rounded-t-2xl">
               <span className="text-xs font-bold text-gray-800 dark:text-[#d1dcd7] flex items-center gap-2">
                 <FileText className="w-4 h-4 text-[#36e2a0]" />
                 Nội dung bài viết
