@@ -47,11 +47,11 @@ export function PostEditor({
   }, [form.content]);
 
   return (
-    <div className="fixed inset-0 z-[100] bg-[#050807] text-[#f3f7f5] overflow-y-auto font-sans flex flex-col items-center
+    <div className="fixed inset-0 z-[100] bg-[#050807] text-[#f3f7f5] overflow-hidden font-sans flex flex-col
       bg-[radial-gradient(circle_at_50%_-10%,rgba(54,226,160,0.08),transparent_28%)]">
       
       {/* TOP BAR */}
-      <header className="sticky top-0 z-[1000] w-full h-[68px] flex items-center justify-between px-6 bg-[#050807]/80 backdrop-blur-xl border-b border-white/5">
+      <header className="shrink-0 z-[1000] w-full h-[68px] flex items-center justify-between px-6 bg-[#050807]/80 backdrop-blur-xl border-b border-white/5">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3 mr-3">
             <div className="w-9 h-9 grid place-items-center rounded-[11px] bg-gradient-to-br from-[#42f0b0] to-[#087d5c] text-[#03110b] font-black shadow-[0_0_28px_rgba(54,226,160,0.2)]">
@@ -86,97 +86,86 @@ export function PostEditor({
       </header>
 
       {/* WORKSPACE */}
-      <main className="w-full max-w-[1700px] flex flex-col lg:flex-row gap-5 p-5 mx-auto flex-1 min-h-0">
+      <main className="w-full max-w-[1700px] flex flex-col lg:flex-row gap-5 p-5 mx-auto flex-1 min-h-0 overflow-y-auto lg:overflow-hidden">
         
         {/* MAIN COLUMN */}
-        <div className="flex-1 min-w-0 flex flex-col gap-4">
+        <div className="flex-1 min-w-0 flex flex-col gap-4 min-h-0 lg:overflow-hidden">
           
           {/* META CARD */}
-          <section className="p-6 border border-[#4BFFBE]/10 rounded-[18px] bg-gradient-to-b from-[#0d1713]/90 to-[#080e0b]/90 shadow-[0_12px_45px_rgba(0,0,0,0.18)]">
+          <section className="shrink-0 p-6 border border-[#4BFFBE]/10 rounded-[18px] bg-gradient-to-b from-[#0d1713]/90 to-[#080e0b]/90 shadow-[0_12px_45px_rgba(0,0,0,0.18)]">
             <div className="inline-flex items-center gap-2 mb-4 text-[#76f7c5] text-[11px] font-extrabold tracking-widest uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-[#36e2a0] shadow-[0_0_10px_rgba(54,226,160,0.75)]" />
               Thông tin bài viết
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4 mb-4">
-              <div>
-                <label className="block mb-2 text-[#84918b] text-[11px] font-semibold">Tiêu đề</label>
-                <input
-                  className="w-full min-h-[44px] px-3 border border-white/5 rounded-xl bg-white/5 text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10"
-                  value={form.title}
-                  onChange={(e) => onTitleChange(e.target.value)}
-                  placeholder="Lượng tử hóa mô hình AI..."
-                />
-              </div>
-              <div>
-                <label className="block mb-2 text-[#84918b] text-[11px] font-semibold">Slug</label>
-                <input
-                  className="w-full min-h-[44px] px-3 border border-white/5 rounded-xl bg-white/5 text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10"
-                  value={form.slug}
-                  onChange={(e) => onSlugChange(e.target.value)}
-                />
-                <div className="mt-1.5 text-[10px] text-[#84918b]">
-                  {form.slug ? `/posts/${slugify(form.slug)}` : "Tự động sinh từ tiêu đề"}
+            <div className="flex flex-col gap-5">
+              <div className="flex flex-col md:flex-row gap-5">
+                <div className="flex-1">
+                  <label className="block mb-2 text-[#84918b] text-[11px] font-semibold">Tiêu đề *</label>
+                  <input
+                    className="w-full min-h-[44px] px-3 border border-white/5 rounded-xl bg-white/5 text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10 font-medium"
+                    placeholder="Nhập tiêu đề bài viết..."
+                    value={form.title}
+                    onChange={(e) => onTitleChange(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block mb-2 text-[#84918b] text-[11px] font-semibold">Slug (tự động nếu để trống)</label>
+                  <input
+                    className="w-full min-h-[44px] px-3 border border-white/5 rounded-xl bg-white/5 text-[#aab5b0] outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10"
+                    value={form.slug}
+                    onChange={(e) => onSlugChange(e.target.value)}
+                  />
+                  <div className="mt-1.5 text-[10px] text-[#84918b] flex items-center gap-1.5">
+                    Sẽ lưu: <span className="text-[#36e2a0] bg-[#36e2a0]/10 px-1.5 py-0.5 rounded text-[9px] truncate max-w-[200px]">/{slugify(form.slug || form.title)}</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_220px] gap-3 mb-4">
-              <div>
-                <label className="block mb-2 text-[#84918b] text-[11px] font-semibold">Ngày đăng</label>
-                <input
-                  type="date"
-                  className="w-full min-h-[44px] px-3 border border-white/5 rounded-xl bg-white/5 text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10 [color-scheme:dark]"
-                  value={form.createdAt}
-                  onChange={(e) => setForm({ ...form, createdAt: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="block mb-2 text-[#84918b] text-[11px] font-semibold">Ảnh bìa</label>
-                <div className="flex items-center gap-2">
-                  <div className="w-14 h-10 shrink-0 rounded-lg overflow-hidden border border-white/10 bg-gradient-to-br from-[#10251e] to-[#143e30]">
-                    {form.coverImage && <img src={form.coverImage} alt="" className="w-full h-full object-cover" />}
-                  </div>
+              <div className="flex flex-col md:flex-row gap-5">
+                <div className="flex-1">
+                  <label className="block mb-2 text-[#84918b] text-[11px] font-semibold">Chủ đề (Category)</label>
+                  <select
+                    className="w-full min-h-[44px] px-3 border border-white/5 rounded-xl bg-white/5 text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10 appearance-none"
+                    value={form.category}
+                    onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  >
+                    {CATEGORIES.map((c) => (
+                      <option key={c} value={c} className="bg-[#050807]">{c}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <label className="block mb-2 text-[#84918b] text-[11px] font-semibold">Ảnh bìa (Cover Image URL)</label>
                   <input
-                    className="flex-1 min-h-[44px] px-3 border border-white/5 rounded-xl bg-white/5 text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10"
+                    className="w-full min-h-[44px] px-3 border border-white/5 rounded-xl bg-white/5 text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10"
+                    placeholder="https://..."
                     value={form.coverImage}
                     onChange={(e) => setForm({ ...form, coverImage: e.target.value })}
-                    placeholder="https://..."
                   />
                 </div>
               </div>
-              <div>
-                <label className="block mb-2 text-[#84918b] text-[11px] font-semibold">Chủ đề</label>
-                <select
-                  className="w-full min-h-[44px] px-3 border border-white/5 rounded-xl bg-white/5 text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10 appearance-none"
-                  value={form.category}
-                  onChange={(e) => setForm({ ...form, category: e.target.value })}
-                >
-                  {CATEGORIES.map((c) => (
-                    <option key={c} value={c} className="bg-[#050807]">{c}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
 
-            <div>
-              <label className="block mb-2 text-[#84918b] text-[11px] font-semibold">Tóm tắt</label>
-              <textarea
-                className="w-full min-h-[120px] p-3 border border-white/5 rounded-xl bg-white/5 text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10 leading-relaxed resize-y"
-                value={form.excerpt}
-                onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
-              />
+              <div>
+                <label className="block mb-2 text-[#84918b] text-[11px] font-semibold">Tóm tắt</label>
+                <textarea
+                  className="w-full min-h-[80px] p-3 border border-white/5 rounded-xl bg-white/5 text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10 leading-relaxed resize-y"
+                  value={form.excerpt}
+                  onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
+                />
+              </div>
             </div>
           </section>
 
           {/* EDITOR CARD */}
-          <section className="flex-1 min-h-[600px] border border-[#4BFFBE]/10 rounded-[18px] bg-[#08100d] shadow-[0_30px_90px_rgba(0,0,0,0.45)] overflow-hidden flex flex-col relative">
+          <section className="flex-1 min-h-[400px] border border-[#4BFFBE]/10 rounded-[18px] bg-[#08100d] shadow-[0_30px_90px_rgba(0,0,0,0.45)] overflow-hidden flex flex-col relative">
             <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0a1210] to-[#08100d] pointer-events-none" />
-            <div className="relative z-10 flex-1 p-0 flex flex-col">
+            <div className="relative z-10 flex-1 p-0 flex flex-col min-h-0">
               <RichTextEditor
                 value={form.content}
                 onChange={(v) => setForm({ ...form, content: v })}
-                className="flex-1 flex flex-col [&_.ql-toolbar]:bg-[#0e1814]/90 [&_.ql-toolbar]:backdrop-blur-md [&_.ql-toolbar]:border-b [&_.ql-toolbar]:border-white/5 [&_.ql-toolbar]:sticky [&_.ql-toolbar]:top-0 [&_.ql-toolbar]:z-50 [&_.ql-toolbar]:px-3 [&_.ql-toolbar]:py-2 [&_.ql-container]:border-none [&_.ql-container]:flex-1 [&_.ql-editor]:text-[#d9e0dc] [&_.ql-editor]:text-[17px] [&_.ql-editor]:leading-[1.8] [&_.ql-editor]:p-8 md:[&_.ql-editor]:p-12 lg:[&_.ql-editor]:p-16"
+                className="flex-1 flex flex-col min-h-0 [&_.ql-toolbar]:bg-[#0e1814]/90 [&_.ql-toolbar]:backdrop-blur-md [&_.ql-toolbar]:border-b [&_.ql-toolbar]:border-white/5 [&_.ql-toolbar]:shrink-0 [&_.ql-container]:border-none [&_.ql-container]:flex-1 [&_.ql-container]:overflow-y-auto [&_.ql-editor]:text-[#d9e0dc] [&_.ql-editor]:text-[17px] [&_.ql-editor]:leading-[1.8] [&_.ql-editor]:p-8 md:[&_.ql-editor]:p-12 lg:[&_.ql-editor]:p-16"
               />
             </div>
           </section>
@@ -184,10 +173,10 @@ export function PostEditor({
         </div>
 
         {/* SIDE COLUMN */}
-        <aside className="w-full lg:w-[300px] shrink-0 lg:sticky lg:top-[86px] flex flex-col gap-4 self-start">
+        <aside className="w-full lg:w-[300px] shrink-0 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
           
           {/* SEO Preview */}
-          <div className="p-4 border border-[#4BFFBE]/10 rounded-2xl bg-[#0a1410]/80 shadow-[0_12px_30px_rgba(0,0,0,0.15)]">
+          <div className="p-4 border border-[#4BFFBE]/10 rounded-2xl bg-[#0a1410]/80 shadow-[0_12px_30px_rgba(0,0,0,0.15)] shrink-0">
             <h3 className="text-[#e7eee9] text-xs font-extrabold tracking-wider mb-3">Cấu hình SEO</h3>
             <p className="text-[#84918b] text-[10px] leading-relaxed mb-4">Tối ưu title, description và keywords trước khi xuất bản.</p>
             
@@ -206,7 +195,7 @@ export function PostEditor({
           </div>
 
           {/* SEO Fields */}
-          <div className="p-4 border border-[#4BFFBE]/10 rounded-2xl bg-[#0a1410]/80 shadow-[0_12px_30px_rgba(0,0,0,0.15)] space-y-4">
+          <div className="p-4 border border-[#4BFFBE]/10 rounded-2xl bg-[#0a1410]/80 shadow-[0_12px_30px_rgba(0,0,0,0.15)] space-y-4 shrink-0">
             <div>
               <h3 className="text-[#e7eee9] text-xs font-extrabold tracking-wider mb-3">SEO Title</h3>
               <input
@@ -248,7 +237,7 @@ export function PostEditor({
           </div>
 
           {/* Publish */}
-          <div className="p-4 border border-[#4BFFBE]/10 rounded-2xl bg-[#0a1410]/80 shadow-[0_12px_30px_rgba(0,0,0,0.15)]">
+          <div className="p-4 border border-[#4BFFBE]/10 rounded-2xl bg-[#0a1410]/80 shadow-[0_12px_30px_rgba(0,0,0,0.15)] shrink-0">
             <h3 className="text-[#e7eee9] text-xs font-extrabold tracking-wider mb-3">Xuất bản</h3>
             <div className="flex items-center justify-between p-3 rounded-xl bg-white/5">
               <div>
@@ -263,21 +252,21 @@ export function PostEditor({
       </main>
 
       {/* BOTTOM BAR */}
-      <footer className="sticky bottom-0 z-[500] w-full min-h-[64px] mt-auto flex flex-col sm:flex-row items-center justify-between gap-3 p-3 sm:px-6 bg-[#060a08]/90 backdrop-blur-xl border-t border-white/5">
+      <footer className="shrink-0 z-[500] w-full h-[64px] flex items-center justify-between px-6 bg-[#060a08]/90 backdrop-blur-xl border-t border-white/5">
         <div className="flex items-center gap-3 text-[#84918b] text-[11px]">
           <span>{wordCount.toLocaleString("vi-VN")} từ</span>
           <span>·</span>
           <span>{saveStatus}</span>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <button onClick={onClose} className="flex-1 sm:flex-none min-h-[40px] px-4 inline-flex items-center justify-center rounded-xl bg-white/5 text-[#aeb8b3] border border-white/5 hover:-translate-y-[1px] transition-all text-sm font-medium">
+        <div className="flex items-center gap-2">
+          <button onClick={onClose} className="min-h-[40px] px-4 inline-flex items-center justify-center rounded-xl bg-white/5 text-[#aeb8b3] border border-white/5 hover:-translate-y-[1px] transition-all text-sm font-medium">
             Hủy
           </button>
-          <button onClick={() => { setForm({ ...form, published: false }); onSubmit(new Event('submit') as any); }} disabled={submitting} className="flex-1 sm:flex-none min-h-[40px] px-4 inline-flex items-center justify-center rounded-xl bg-white/5 text-[#aeb8b3] border border-white/5 hover:-translate-y-[1px] transition-all text-sm font-medium">
+          <button onClick={() => { setForm({ ...form, published: false }); onSubmit(new Event('submit') as any); }} disabled={submitting} className="min-h-[40px] px-4 inline-flex items-center justify-center rounded-xl bg-white/5 text-[#aeb8b3] border border-white/5 hover:-translate-y-[1px] transition-all text-sm font-medium">
             Lưu nháp
           </button>
-          <button onClick={(e) => onSubmit(e as any)} disabled={submitting} className="flex-1 sm:flex-none min-h-[40px] px-4 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-[#55efb6] to-[#18be86] text-[#03110b] font-extrabold shadow-[0_10px_30px_rgba(24,190,134,0.2)] hover:-translate-y-[1px] transition-all text-sm">
+          <button onClick={(e) => onSubmit(e as any)} disabled={submitting} className="min-h-[40px] px-4 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-[#55efb6] to-[#18be86] text-[#03110b] font-extrabold shadow-[0_10px_30px_rgba(24,190,134,0.2)] hover:-translate-y-[1px] transition-all text-sm">
             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
             Lưu thay đổi
           </button>
