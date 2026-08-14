@@ -120,12 +120,14 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
          {/* RIGHT SIDEBAR */}
          <aside className="hidden xl:flex sticky top-[94px] h-[calc(100vh-120px)] flex-col justify-between">
             
-            <div className="flex-1 min-h-0 flex flex-col p-5 mb-4 border border-black/5 dark:border-white/5 rounded-[18px] bg-white/70 dark:bg-white/5 backdrop-blur-[18px]">
-               <div className="flex items-center gap-2 mb-4 font-sans text-[11px] font-extrabold tracking-[0.08em] text-[#8e96a5] uppercase">
-                 Advertisement
-               </div>
-               <div className="flex-1 flex items-center justify-center -mx-2 overflow-hidden bg-transparent rounded-lg mix-blend-multiply dark:mix-blend-normal min-h-[250px]">
-                 <GoogleAd adClient="ca-pub-2941183923177148" adSlot="5044527787" />
+            <div className="flex-1 min-h-0 flex flex-col mb-4 pt-1">
+               <h3 className="font-sans text-[14px] font-semibold text-[#65676b] dark:text-[#b0b3b8] mb-2 px-2">
+                 Được tài trợ
+               </h3>
+               <div className="w-full p-2 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer">
+                 <div className="w-full min-h-[250px] overflow-hidden mix-blend-multiply dark:mix-blend-normal">
+                   <GoogleAd adClient="ca-pub-2941183923177148" adSlot="5044527787" />
+                 </div>
                </div>
             </div>
 
