@@ -366,6 +366,15 @@ export function PostsTab({ locale }: { locale: string }) {
             </div>
 
             <div className="space-y-1.5">
+              <Label className="font-mono text-xs">Ảnh bìa (Cover Image URL)</Label>
+              <Input
+                value={form.coverImage}
+                onChange={(e) => setForm({ ...form, coverImage: e.target.value })}
+                placeholder="https://..."
+              />
+            </div>
+
+            <div className="space-y-1.5">
               <Label className="font-mono text-xs">Tóm tắt (excerpt)</Label>
               <Textarea
                 value={form.excerpt}
