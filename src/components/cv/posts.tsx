@@ -35,6 +35,8 @@ export function Posts() {
   const published = posts.filter((p) => {
     if (!p.published) return false
     if (searchQuery && !p.title.toLowerCase().includes(searchQuery.toLowerCase())) return false
+    const cat = p.category || CATEGORIES[0]
+    if (activeCategory !== "Tất cả" && activeCategory !== cat) return false
     return true
   })
 
@@ -112,7 +114,7 @@ export function Posts() {
           {published.map((post, i) => {
             const targetHref = `/posts/${post.slug}`
             // Mock data for UI showcase
-            const mockCategory = CATEGORIES[i % CATEGORIES.length]
+            const postCategory = post.category || CATEGORIES[0]
             const mockReadTime = `${Math.floor(Math.random() * 10) + 1} phút đọc`
             const mockViews = `${(Math.random() * 20).toFixed(1)}K`
             const mockLikes = Math.floor(Math.random() * 50)
@@ -152,7 +154,7 @@ export function Posts() {
                       {/* Top Left Badge */}
                       <div className="absolute top-3 left-3">
                         <Badge variant="outline" className="bg-[#0f1712] border-primary/20 text-primary text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full backdrop-blur-md">
-                          {mockCategory}
+                          {postCategory}
                         </Badge>
                       </div>
 
@@ -162,7 +164,7 @@ export function Posts() {
                     <div className="p-5 flex flex-col flex-1 bg-gradient-to-b from-[#111713] to-[#0a0d0b]">
                       {/* Category Badge */}
                       <Badge className="bg-primary/90 hover:bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-sm mb-4 w-fit flex items-center gap-1.5 uppercase shadow-md shadow-primary/20">
-                        {mockCategory}
+                        {postCategory}
                       </Badge>
 
                       <h3 className="text-base sm:text-lg font-semibold text-white/90 group-hover:text-primary transition-colors line-clamp-2 leading-snug">

@@ -70,6 +70,7 @@ model Post {
   excerpt   String   @default("")
   content   String   @default("") // markdown
   published Boolean  @default(true)
+  category  String   @default("")
   coverImage String?
   pdfUrl    String?
   seoTitle  String?

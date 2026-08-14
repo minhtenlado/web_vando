@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
 import type { SitePost } from "@/lib/cv/site-data-server";
 
@@ -41,6 +42,7 @@ type PostForm = {
   excerpt: string;
   content: string;
   published: boolean;
+  category: string;
   createdAt: string;
   seoTitle: string;
   seoDescription: string;
@@ -56,6 +58,7 @@ function getEmptyForm(): PostForm {
     excerpt: "",
     content: "",
     published: false,
+    category: "",
     createdAt: new Date().toISOString().slice(0, 10),
     seoTitle: "",
     seoDescription: "",
@@ -83,6 +86,7 @@ function toForm(p: SitePost): PostForm {
     excerpt: p.excerpt ?? "",
     content: p.content ?? "",
     published: !!p.published,
+    category: p.category ?? "",
     createdAt: p.createdAt ? new Date(p.createdAt).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
     seoTitle: p.seoTitle ?? "",
     seoDescription: p.seoDescription ?? "",
@@ -189,6 +193,7 @@ export function PostsTab({ locale }: { locale: string }) {
       excerpt: form.excerpt,
       content: form.content,
       published: form.published,
+      category: form.category,
       locale,
       createdAt: form.createdAt ? new Date(form.createdAt).toISOString() : undefined,
       seoTitle: form.seoTitle.trim(),
@@ -316,7 +321,7 @@ export function PostsTab({ locale }: { locale: string }) {
       ) : (
         <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map((post, i) => {
-            const mockCategory = CATEGORIES[i % CATEGORIES.length]
+            const postCategory = post.category || CATEGORIES[0]
             const mockReadTime = `${Math.floor(Math.random() * 10) + 1} phút đọc`
             const mockViews = `${(Math.random() * 20).toFixed(1)}K`
 
@@ -362,7 +367,7 @@ export function PostsTab({ locale }: { locale: string }) {
                     <div className="flex items-start justify-between mb-4">
                       {/* Category Badge */}
                       <Badge className="bg-primary/90 hover:bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-sm w-fit uppercase shadow-md shadow-primary/20">
-                        {mockCategory}
+                        {postCategory}
                       </Badge>
 
                       <DropdownMenu>
@@ -445,14 +450,29 @@ export function PostsTab({ locale }: { locale: string }) {
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="font-mono text-xs">Ngày đăng bài</Label>
-              <Input
-                type="date"
-                value={form.createdAt}
-                onChange={(e) => setForm({ ...form, createdAt: e.target.value })}
-                className="w-full sm:w-[200px]"
-              />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label className="font-mono text-xs">Chủ đề (Category)</Label>
+                <Select value={form.category} onValueChange={(val) => setForm({ ...form, category: val })}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Chọn chủ đề" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map(cat => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="font-mono text-xs">Ngày đăng bài</Label>
+                <Input
+                  type="date"
+                  value={form.createdAt}
+                  onChange={(e) => setForm({ ...form, createdAt: e.target.value })}
+                  className="w-full"
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">

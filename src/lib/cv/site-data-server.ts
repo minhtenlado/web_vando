@@ -42,13 +42,14 @@ export type SiteExperience = Experience & {
 }
 
 export type SitePost = {
-  id: string
-  title: string
-  slug: string
-  excerpt: string
-  content: string
-  published: boolean
-  createdAt: string
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  published: boolean;
+  category?: string;
+  createdAt: string;
   updatedAt: string
   seoTitle?: string | null
   seoDescription?: string | null

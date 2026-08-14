@@ -8,6 +8,7 @@ type PostInput = {
   excerpt?: string;
   content?: string;
   published?: boolean;
+  category?: string;
   createdAt?: string;
   seoTitle?: string;
   seoDescription?: string;
@@ -86,6 +87,7 @@ export async function PUT(
     data.slug = slug;
   }
   if (typeof body.excerpt === "string") data.excerpt = body.excerpt.slice(0, 600);
+  if (typeof body.category === "string") data.category = body.category.slice(0, 100);
   if (typeof body.content === "string") data.content = sanitizePostContent(body.content).slice(0, 5000000);
   if (typeof body.published === "boolean") data.published = body.published;
   if (typeof body.seoTitle === "string") data.seoTitle = body.seoTitle.slice(0, 300);

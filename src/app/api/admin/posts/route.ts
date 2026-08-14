@@ -23,6 +23,7 @@ type PostInput = {
   content?: string;
   published?: boolean;
   locale?: string;
+  category?: string;
   createdAt?: string;
   seoTitle?: string;
   seoDescription?: string;
@@ -100,6 +101,7 @@ export async function POST(req: NextRequest) {
       title,
       slug,
       excerpt: (body.excerpt ?? "").slice(0, 600),
+      category: typeof body.category === "string" ? body.category.slice(0, 100) : "",
       content: sanitizePostContent((body.content ?? "")).slice(0, 5000000),
       published: !!body.published,
       seoTitle: typeof body.seoTitle === "string" ? body.seoTitle.slice(0, 300) : undefined,
