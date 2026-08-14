@@ -118,9 +118,18 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
          </div>
 
          {/* RIGHT SIDEBAR */}
-         <aside className="hidden xl:block sticky top-[94px] self-start space-y-4 max-h-[calc(100vh-120px)] overflow-y-auto pr-3 custom-scrollbar">
+         <aside className="hidden xl:flex sticky top-[94px] h-[calc(100vh-120px)] flex-col justify-between">
             
-            <div className="p-5 border border-black/5 dark:border-white/5 rounded-[18px] bg-white/70 dark:bg-white/5 backdrop-blur-[18px]">
+            <div className="flex-1 min-h-0 flex flex-col p-5 mb-4 border border-black/5 dark:border-white/5 rounded-[18px] bg-white/70 dark:bg-white/5 backdrop-blur-[18px]">
+               <div className="flex items-center gap-2 mb-4 font-sans text-[11px] font-extrabold tracking-[0.08em] text-[#8e96a5] uppercase">
+                 Advertisement
+               </div>
+               <div className="flex-1 flex items-center justify-center -mx-2 overflow-hidden bg-transparent rounded-lg mix-blend-multiply dark:mix-blend-normal min-h-[250px]">
+                 <GoogleAd adClient="ca-pub-2941183923177148" adSlot="5044527787" />
+               </div>
+            </div>
+
+            <div className="p-5 border border-black/5 dark:border-white/5 rounded-[18px] bg-white/70 dark:bg-white/5 backdrop-blur-[18px] shrink-0">
                <div className="flex items-center gap-2 mb-4 font-sans text-[11px] font-extrabold tracking-[0.08em] text-[#8e96a5] uppercase">
                  AI Actions
                </div>
@@ -136,15 +145,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                <button className="w-full flex items-center justify-between mt-2 px-3 py-2.5 border border-black/5 dark:border-white/5 rounded-lg bg-white/50 dark:bg-white/5 text-xs text-gray-600 dark:text-[#bfc4ce] text-left transition-all hover:translate-x-1 hover:bg-primary/5 hover:border-primary/20 hover:text-primary">
                   ⊕ So sánh nghiên cứu <span>→</span>
                </button>
-            </div>
-
-            <div className="p-5 border border-black/5 dark:border-white/5 rounded-[18px] bg-white/70 dark:bg-white/5 backdrop-blur-[18px]">
-               <div className="flex items-center gap-2 mb-4 font-sans text-[11px] font-extrabold tracking-[0.08em] text-[#8e96a5] uppercase">
-                 Advertisement
-               </div>
-               <div className="flex items-center justify-center -mx-2 overflow-hidden bg-transparent rounded-lg mix-blend-multiply dark:mix-blend-normal min-h-[250px]">
-                 <GoogleAd adClient="ca-pub-2941183923177148" adSlot="5044527787" />
-               </div>
             </div>
          </aside>
       </main>
