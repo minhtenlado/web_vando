@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "react-quill-new/dist/quill.snow.css";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
   const [cols, setCols] = useState(3);
 
   // Disable spellcheck to remove red squiggly lines under Vietnamese words
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       if (reactQuillRef.current) {
         const quill = reactQuillRef.current.getEditor?.() || reactQuillRef.current.editor;
