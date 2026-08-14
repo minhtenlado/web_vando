@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, Plus, Pencil, Trash2, FileText, RefreshCw, Eye, EyeOff } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, FileText, RefreshCw, Eye, EyeOff, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -115,6 +115,7 @@ export function PostsTab({ locale }: { locale: string }) {
   const [slugTouched, setSlugTouched] = React.useState(false);
   const [uploadingPdf, setUploadingPdf] = React.useState(false);
   const [extractingPdf, setExtractingPdf] = React.useState(false);
+  const [uploadingCoverImage, setUploadingCoverImage] = React.useState(false);
   // Post type state to separate normal posts from PDF uploads
   const [postType, setPostType] = React.useState<"text" | "pdf">("text");
 
@@ -367,11 +368,49 @@ export function PostsTab({ locale }: { locale: string }) {
 
             <div className="space-y-1.5">
               <Label className="font-mono text-xs">Ảnh bìa (Cover Image URL)</Label>
-              <Input
-                value={form.coverImage}
-                onChange={(e) => setForm({ ...form, coverImage: e.target.value })}
-                placeholder="https://..."
-              />
+              <div className="flex items-center gap-2">
+                <Input
+                  value={form.coverImage}
+                  onChange={(e) => setForm({ ...form, coverImage: e.target.value })}
+                  placeholder="https://..."
+                  className="flex-1"
+                />
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  className="hidden" 
+                  id="cover-upload" 
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setUploadingCoverImage(true);
+                    try {
+                      const fd = new FormData();
+                      fd.append("file", file);
+                      const res = await fetch("/api/admin/upload-image", { method: "POST", body: fd });
+                      const data = await res.json().catch(() => ({}));
+                      if (!res.ok || !data.ok) throw new Error(data?.message || "Upload thất bại.");
+                      setForm(f => ({ ...f, coverImage: data.url }));
+                      toast({ title: "Đã tải lên ảnh bìa" });
+                    } catch (err) {
+                      toast({ title: "Lỗi tải ảnh", description: err instanceof Error ? err.message : "Upload thất bại.", variant: "destructive" });
+                    } finally {
+                      setUploadingCoverImage(false);
+                      e.target.value = ""; // reset input
+                    }
+                  }} 
+                />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="icon"
+                  className="shrink-0"
+                  onClick={() => document.getElementById("cover-upload")?.click()}
+                  disabled={uploadingCoverImage}
+                >
+                  {uploadingCoverImage ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+                </Button>
+              </div>
             </div>
 
             <div className="space-y-1.5">
