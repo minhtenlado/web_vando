@@ -92,8 +92,8 @@ export function PostEditor({
         <div className="flex-1 min-w-0 flex flex-col gap-4 min-h-0 overflow-y-auto custom-scrollbar pr-2">
           
           {/* META CARD */}
-          <section className="shrink-0 p-6 border border-border/20 dark:border-[#4BFFBE]/10 rounded-[18px] bg-gradient-to-b from-[#0d1713]/90 to-[#080e0b]/90 shadow-[0_12px_45px_rgba(0,0,0,0.18)]">
-            <div className="inline-flex items-center gap-2 mb-4 text-[#76f7c5] text-[11px] font-extrabold tracking-widest uppercase">
+          <section className="shrink-0 p-6 border border-border/20 dark:border-[#4BFFBE]/10 rounded-[18px] bg-gradient-to-b from-white to-gray-50 dark:from-[#0d1713]/90 dark:to-[#080e0b]/90 shadow-[0_12px_45px_rgba(0,0,0,0.18)]">
+            <div className="inline-flex items-center gap-2 mb-4 text-gray-900 dark:text-[#76f7c5] text-[11px] font-extrabold tracking-widest uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-[#36e2a0] shadow-[0_0_10px_rgba(54,226,160,0.75)]" />
               Thông tin bài viết
             </div>
@@ -266,7 +266,7 @@ export function PostEditor({
           <button onClick={() => { setForm({ ...form, published: false }); onSubmit(new Event('submit') as any); }} disabled={submitting} className="min-h-[40px] px-4 inline-flex items-center justify-center rounded-xl bg-black/5 dark:bg-white/5 text-gray-700 dark:text-[#aeb8b3] border border-border/20 dark:border-white/5 hover:-translate-y-[1px] transition-all text-sm font-medium">
             Lưu nháp
           </button>
-          <button onClick={(e) => onSubmit(e as any)} disabled={submitting} className="min-h-[40px] px-4 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-[#55efb6] to-[#18be86] text-gray-900 dark:text-[#03110b] font-extrabold shadow-[0_10px_30px_rgba(24,190,134,0.2)] hover:-translate-y-[1px] transition-all text-sm">
+          <button onClick={(e) => onSubmit(e as any)} disabled={submitting} className="min-h-[40px] px-4 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-[#55efb6] to-[#18be86] text-[#03110b] font-extrabold shadow-[0_10px_30px_rgba(24,190,134,0.2)] hover:-translate-y-[1px] transition-all text-sm">
             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
             Lưu thay đổi
           </button>
