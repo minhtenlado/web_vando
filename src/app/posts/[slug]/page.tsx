@@ -122,15 +122,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             
             <div className="p-5 border border-black/5 dark:border-white/5 rounded-[18px] bg-white/70 dark:bg-white/5 backdrop-blur-[18px]">
                <div className="flex items-center gap-2 mb-4 font-sans text-[11px] font-extrabold tracking-[0.08em] text-[#8e96a5] uppercase">
-                 Advertisement
-               </div>
-               <div className="flex items-center justify-center -mx-2 overflow-hidden bg-transparent rounded-lg mix-blend-multiply dark:mix-blend-normal min-h-[250px]">
-                 <GoogleAd adClient="ca-pub-2941183923177148" adSlot="5044527787" />
-               </div>
-            </div>
-
-            <div className="p-5 border border-black/5 dark:border-white/5 rounded-[18px] bg-white/70 dark:bg-white/5 backdrop-blur-[18px]">
-               <div className="flex items-center gap-2 mb-4 font-sans text-[11px] font-extrabold tracking-[0.08em] text-[#8e96a5] uppercase">
                  AI Actions
                </div>
                <button className="w-full flex items-center justify-between mt-2 px-3 py-2.5 border border-black/5 dark:border-white/5 rounded-lg bg-white/50 dark:bg-white/5 text-xs text-gray-600 dark:text-[#bfc4ce] text-left transition-all hover:translate-x-1 hover:bg-primary/5 hover:border-primary/20 hover:text-primary">
@@ -149,19 +140,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
             <div className="p-5 border border-black/5 dark:border-white/5 rounded-[18px] bg-white/70 dark:bg-white/5 backdrop-blur-[18px]">
                <div className="flex items-center gap-2 mb-4 font-sans text-[11px] font-extrabold tracking-[0.08em] text-[#8e96a5] uppercase">
-                 Metadata
+                 Advertisement
                </div>
-               <div className="py-2 text-xs leading-[1.6] text-gray-600 dark:text-[#aeb4c0]">
-                 Published<br/>
-                 <strong className="text-gray-900 dark:text-white">{pubDate}</strong>
-               </div>
-               <div className="py-2 text-xs leading-[1.6] text-gray-600 dark:text-[#aeb4c0]">
-                 Category<br/>
-                 <strong className="text-gray-900 dark:text-white">{post.category || "Artificial Intelligence"}</strong>
-               </div>
-               <div className="py-2 text-xs leading-[1.6] text-gray-600 dark:text-[#aeb4c0]">
-                 Keywords<br/>
-                 <strong className="text-gray-900 dark:text-white">{post.seoKeywords || "AI · Research · Technology"}</strong>
+               <div className="flex items-center justify-center -mx-2 overflow-hidden bg-transparent rounded-lg mix-blend-multiply dark:mix-blend-normal min-h-[250px]">
+                 <GoogleAd adClient="ca-pub-2941183923177148" adSlot="5044527787" />
                </div>
             </div>
          </aside>
