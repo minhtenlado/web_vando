@@ -118,22 +118,14 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
          </div>
 
          {/* RIGHT SIDEBAR */}
-         <aside className="hidden xl:block sticky top-[94px] self-start space-y-4">
+         <aside className="hidden xl:block sticky top-[94px] self-start space-y-4 max-h-[calc(100vh-120px)] overflow-y-auto pr-3 custom-scrollbar">
             
             <div className="p-5 border border-black/5 dark:border-white/5 rounded-[18px] bg-white/70 dark:bg-white/5 backdrop-blur-[18px]">
                <div className="flex items-center gap-2 mb-4 font-sans text-[11px] font-extrabold tracking-[0.08em] text-[#8e96a5] uppercase">
-                 <span className="w-[7px] h-[7px] rounded-full bg-[#8c98ff] shadow-[0_0_12px_#8996ff]"></span>
-                 Paper Intelligence
+                 Advertisement
                </div>
-               <div className="py-3 border-b border-black/5 dark:border-white/5 text-xs leading-[1.6] text-gray-600 dark:text-[#aeb4c0]">
-                 <strong className="text-gray-900 dark:text-white">Reading time</strong><br/>
-                 Khoảng {readingTime} phút
-               </div>
-               <div className="py-3 text-xs leading-[1.6] text-gray-600 dark:text-[#aeb4c0]">
-                  <strong className="text-gray-900 dark:text-white">Advertisement</strong><br/>
-                  <div className="mt-3 flex items-center justify-center -mx-2 overflow-hidden bg-transparent rounded-lg mix-blend-multiply dark:mix-blend-normal">
-                    <GoogleAd adClient="ca-pub-2941183923177148" adSlot="5044527787" />
-                  </div>
+               <div className="flex items-center justify-center -mx-2 overflow-hidden bg-transparent rounded-lg mix-blend-multiply dark:mix-blend-normal min-h-[250px]">
+                 <GoogleAd adClient="ca-pub-2941183923177148" adSlot="5044527787" />
                </div>
             </div>
 

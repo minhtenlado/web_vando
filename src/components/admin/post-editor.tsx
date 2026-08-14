@@ -127,7 +127,7 @@ export function PostEditor({
                 <div className="flex-1">
                   <label className="block mb-2 text-muted-foreground dark:text-[#84918b] text-[11px] font-semibold">Chủ đề (Category)</label>
                   <select
-                    className="w-full min-h-[44px] px-3 border border-border/20 dark:border-white/5 rounded-xl bg-black/5 dark:bg-white/5 text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10 appearance-none"
+                    className="w-full min-h-[44px] px-3 border border-border/20 dark:border-white/5 rounded-xl bg-black/5 dark:bg-white/5 text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0]/40 focus:bg-[#36e2a0]/5 focus:ring-2 focus:ring-[#36e2a0]/10"
                     value={form.category}
                     onChange={(e) => setForm({ ...form, category: e.target.value })}
                   >
