@@ -94,7 +94,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       </header>
 
       {/* LAYOUT */}
-      <main className="mx-auto max-w-[1560px] px-4 sm:px-9 py-8 sm:py-12 pb-[100px] grid grid-cols-1 xl:grid-cols-[250px_minmax(0,920px)_260px] xl:gap-[34px] lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8 items-start relative">
+      <main className="mx-auto max-w-[1560px] px-4 sm:px-9 py-8 sm:py-12 pb-[100px] grid grid-cols-1 xl:grid-cols-[250px_minmax(0,860px)_320px] xl:gap-[34px] lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8 items-start relative">
          
          {/* LEFT SIDEBAR */}
          <aside className="hidden lg:block sticky top-[94px] max-h-[calc(100vh-120px)] overflow-y-auto pr-3 custom-scrollbar">
