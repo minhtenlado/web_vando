@@ -7,6 +7,7 @@ import { TableOfContents } from "@/components/cv/table-of-contents"
 import { PostReader } from "@/components/cv/post-reader"
 import { PostThemeToggle } from "@/components/cv/post-theme-toggle"
 import { BackButton } from "@/components/cv/back-button"
+import { GoogleAd } from "@/components/cv/google-ad"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -127,8 +128,12 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           
           {/* Right Sidebar: Ads */}
           <aside className="lg:w-[300px] xl:w-[336px] lg:shrink-0 lg:sticky lg:top-24 lg:self-start hidden lg:block">
-            <div className="bg-card border border-border rounded-xl p-4 min-h-[600px] flex items-center justify-center text-muted-foreground text-sm font-medium shadow-sm">
-              [Vùng hiển thị Quảng Cáo]
+            <div className="bg-card border border-border rounded-xl p-4 min-h-[300px] flex flex-col items-center justify-center text-muted-foreground text-sm font-medium shadow-sm overflow-hidden">
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground/50 mb-4 font-mono">Quảng cáo</div>
+              <GoogleAd 
+                adClient="ca-pub-2941183923177148"
+                adSlot="1234567890" /* THAY MÃ AD-SLOT CỦA BẠN VÀO ĐÂY SAU KHI ĐƯỢC DUYỆT */
+              />
             </div>
           </aside>
           

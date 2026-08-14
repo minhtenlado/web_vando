@@ -3,6 +3,7 @@ import { Alumni_Sans, Albert_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/cv/theme-provider";
+import Script from "next/script";
 
 const alumniSans = Alumni_Sans({
   variable: "--font-alumni-sans",
@@ -71,6 +72,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <Script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2941183923177148"
+            crossOrigin="anonymous"
+            strategy="lazyOnload"
+          />
           {children}
           <Toaster />
         </ThemeProvider>
