@@ -182,6 +182,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
         modules={modules}
         formats={formats}
         placeholder={placeholder}
+        className="flex-1 flex flex-col min-h-0"
       />
 
       <style jsx global>{`
