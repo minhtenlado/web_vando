@@ -24,7 +24,7 @@ function formatDate(iso: string, locale: string): string {
   }
 }
 
-const CATEGORIES = ["CEO Editorial", "Incident Report", "Security", "Leadership", "Awareness"]
+const CATEGORIES = ["AI", "embedded", "IOT", "Robot", "ROS2"]
 
 export function Posts() {
   const { posts, profile } = useSiteData()
@@ -103,12 +103,6 @@ export function Posts() {
               />
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" className="h-8 rounded-md border-border/40 hover:bg-white/5 bg-transparent text-xs px-3 text-muted-foreground">
-                <Crown className="w-3.5 h-3.5 mr-1.5" /> CEO
-              </Button>
-              <Button variant="outline" className="h-8 rounded-md border-border/40 hover:bg-white/5 bg-transparent text-xs px-3 text-muted-foreground">
-                <Star className="w-3.5 h-3.5 mr-1.5" /> Nổi bật
-              </Button>
             </div>
           </div>
         </div>
@@ -162,18 +156,13 @@ export function Posts() {
                         </Badge>
                       </div>
 
-                      {/* Top Right Badge */}
-                      <div className="absolute top-3 right-3">
-                        <Badge className="bg-[#4d3215]/90 text-[#e6a861] border-none text-[10px] px-2 py-0.5 rounded-sm flex items-center gap-1 backdrop-blur-md">
-                          <Star className="w-3 h-3 fill-current" /> Nổi bật
-                        </Badge>
-                      </div>
+                      {/* Top Right Badge - Removed */}
                     </div>
 
                     <div className="p-5 flex flex-col flex-1 bg-gradient-to-b from-[#111713] to-[#0a0d0b]">
-                      {/* Crown Badge */}
+                      {/* Category Badge */}
                       <Badge className="bg-primary/90 hover:bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-sm mb-4 w-fit flex items-center gap-1.5 uppercase shadow-md shadow-primary/20">
-                        <Crown className="w-3.5 h-3.5" /> {mockCategory}
+                        {mockCategory}
                       </Badge>
 
                       <h3 className="text-base sm:text-lg font-semibold text-white/90 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
