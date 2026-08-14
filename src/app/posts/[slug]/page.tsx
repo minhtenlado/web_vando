@@ -89,16 +89,16 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto max-w-[1600px] px-0 sm:px-4 md:px-8 py-3 sm:py-8 lg:py-12">
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 items-start">
+      <main className="flex-1 container mx-auto max-w-[1800px] px-0 sm:px-4 md:px-8 py-3 sm:py-8 lg:py-12">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
           
           {/* Left Sidebar: TOC (Sticky pinned when scrolling) */}
           <aside className="lg:w-64 lg:shrink-0 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto hidden lg:block">
             <TableOfContents selector=".prose" />
           </aside>
 
-          {/* Right Content: Article */}
-          <div className="flex-1 w-full">
+          {/* Center Content: Article */}
+          <div className="flex-1 w-full min-w-0">
             <PostReader 
               title={post.title} 
               pubDate={pubDate} 
@@ -124,6 +124,13 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             )}
             </PostReader>
           </div>
+          
+          {/* Right Sidebar: Ads */}
+          <aside className="lg:w-[300px] xl:w-[336px] lg:shrink-0 lg:sticky lg:top-24 lg:self-start hidden lg:block">
+            <div className="bg-card border border-border rounded-xl p-4 min-h-[600px] flex items-center justify-center text-muted-foreground text-sm font-medium shadow-sm">
+              [Vùng hiển thị Quảng Cáo]
+            </div>
+          </aside>
           
         </div>
       </main>

@@ -71,7 +71,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, c
 
 
   return (
-    <article className="flex-1 w-full max-w-7xl mx-auto flex flex-col relative">
+    <article className="flex-1 w-full flex flex-col relative">
       
       {/* Zoom Controls Overlay (Visible on hover or large screens) */}
       <div className="fixed bottom-6 right-6 lg:absolute lg:top-0 lg:right-[-4rem] lg:bottom-auto z-50 flex lg:flex-col gap-2 bg-background/80 backdrop-blur-md p-1.5 rounded-full border shadow-sm opacity-50 hover:opacity-100 transition-opacity">
@@ -94,8 +94,8 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, c
         className="bg-card text-card-foreground border-0 sm:border rounded-none sm:rounded-xl shadow-none sm:shadow-2xl min-h-[80vh] overflow-hidden"
         style={{ fontSize: `${zoom}%`, transition: "font-size 0.15s ease-out" }}
       >
-        <div className="mx-auto w-full max-w-5xl px-3 py-5 sm:p-12 md:p-16 lg:p-20">
-          <header className="mb-6 sm:mb-10 md:mb-14 border-b pb-6 sm:pb-8">
+        <div className="mx-auto w-full px-4 py-6 sm:px-8 sm:py-10 md:px-12 md:py-12">
+          <header className="mb-6 sm:mb-10 md:mb-12 border-b pb-6 sm:pb-8">
             <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-[2.25em] leading-[1.3] sm:leading-[1.2] font-bold font-serif mb-4 sm:mb-6 tracking-tight text-foreground">
               {title}
             </h1>
