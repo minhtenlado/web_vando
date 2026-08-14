@@ -71,32 +71,30 @@ export function TableOfContents({ selector = ".prose" }: { selector?: string }) 
   if (items.length === 0) return null
 
   return (
-    <nav className="hidden lg:block pr-4">
-      <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-muted-foreground">
-        {t("Phụ lục", "Contents")}
-      </h4>
-      <ul className="space-y-2.5 text-sm">
+    <nav className="hidden lg:block">
+      <ul className="space-y-1">
         {items.map((item) => (
-          <li
-            key={item.id}
-            className={cn(
-              "transition-colors hover:text-foreground cursor-pointer line-clamp-2 leading-snug",
-              item.level === 1 ? "ml-0 font-medium" : item.level === 2 ? "ml-3" : "ml-6",
-              activeId === item.id
-                ? "text-primary font-medium"
-                : "text-muted-foreground"
-            )}
-          >
-            <a href={`#${item.id}`} onClick={(e) => {
-              e.preventDefault()
-              const element = document.getElementById(item.id)
-              if (element) {
-                const headerOffset = 100
-                const elementPosition = element.getBoundingClientRect().top
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset
-                window.scrollTo({ top: offsetPosition, behavior: "smooth" })
-              }
-            }}>
+          <li key={item.id}>
+            <a 
+              href={`#${item.id}`} 
+              onClick={(e) => {
+                e.preventDefault()
+                const element = document.getElementById(item.id)
+                if (element) {
+                  const headerOffset = 100
+                  const elementPosition = element.getBoundingClientRect().top
+                  const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+                  window.scrollTo({ top: offsetPosition, behavior: "smooth" })
+                }
+              }}
+              className={cn(
+                "relative block w-full px-3 py-2 border-0 rounded-lg text-left text-xs leading-[1.45] transition-all duration-300",
+                item.level >= 3 ? "pl-5" : "",
+                activeId === item.id
+                  ? "text-gray-900 dark:text-white bg-gradient-to-r from-primary/10 to-transparent before:absolute before:left-0 before:top-[7px] before:bottom-[7px] before:w-[2px] before:rounded-[4px] before:bg-gradient-to-b before:from-primary before:to-primary/60 before:shadow-sm dark:from-[rgba(124,140,255,0.13)] dark:before:from-[#8b96ff] dark:before:to-[#b36dff] dark:before:shadow-[0_0_10px_rgba(130,120,255,0.7)]"
+                  : "text-gray-500 dark:text-[#777f8e] hover:text-gray-900 dark:hover:text-[#d9dde6] hover:bg-black/5 dark:hover:bg-white/5 hover:translate-x-[2px]"
+              )}
+            >
               {item.text}
             </a>
           </li>

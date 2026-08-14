@@ -1,4 +1,5 @@
-'use client'
+with open('src/components/cv/post-reader.tsx', 'w') as f:
+    f.write('''\'use client\'
 
 import * as React from "react"
 import { sanitizePostHtml } from "@/lib/validation"
@@ -33,14 +34,14 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, a
 
     const highlightBlocks = () => {
       if ((window as any).hljs) {
-        document.querySelectorAll('.ql-editor-display pre').forEach((block) => {
+        document.querySelectorAll(\'.ql-editor-display pre\').forEach((block) => {
           (window as any).hljs.highlightElement(block);
         });
       }
     }
 
     let scriptElement: HTMLScriptElement | null = null;
-    if (!document.querySelector('script[src*="highlight.js"]')) {
+    if (!document.querySelector(\'script[src*="highlight.js"]\')) {
       const script = document.createElement("script")
       script.src = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"
       script.onload = highlightBlocks
@@ -58,16 +59,16 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, a
 
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === \'k\') {
         e.preventDefault()
         setSearchOpen(true)
       }
-      if (e.key === 'Escape') {
+      if (e.key === \'Escape\') {
         setSearchOpen(false)
       }
     }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    window.addEventListener(\'keydown\', handleKeyDown)
+    return () => window.removeEventListener(\'keydown\', handleKeyDown)
   }, [])
 
   React.useEffect(() => {
@@ -77,13 +78,13 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, a
   }, [searchOpen])
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && searchQuery.trim()) {
+    if (e.key === \'Enter\' && searchQuery.trim()) {
       const query = searchQuery.trim().toLowerCase()
       if (articleRef.current) {
-        const paragraphs = articleRef.current.querySelectorAll('p, h1, h2, h3, li')
+        const paragraphs = articleRef.current.querySelectorAll(\'p, h1, h2, h3, li\')
         for (const p of Array.from(paragraphs)) {
           if (p.textContent?.toLowerCase().includes(query)) {
-            p.scrollIntoView({ behavior: 'smooth' })
+            p.scrollIntoView({ behavior: \'smooth\' })
             break
           }
         }
@@ -93,20 +94,20 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, a
   }
 
   React.useEffect(() => {
-    const layout = document.querySelector('main') as HTMLElement
-    const leftAside = layout?.querySelector('aside:first-child') as HTMLElement
-    const rightAside = layout?.querySelector('aside:last-child') as HTMLElement
+    const layout = document.querySelector(\'main\') as HTMLElement
+    const leftAside = layout?.querySelector(\'aside:first-child\') as HTMLElement
+    const rightAside = layout?.querySelector(\'aside:last-child\') as HTMLElement
     
     if (readingMode && layout) {
-      if (leftAside) leftAside.style.display = 'none'
-      if (rightAside) rightAside.style.display = 'none'
-      layout.style.gridTemplateColumns = 'minmax(600px, 920px)'
-      layout.style.justifyContent = 'center'
+      if (leftAside) leftAside.style.display = \'none\'
+      if (rightAside) rightAside.style.display = \'none\'
+      layout.style.gridTemplateColumns = \'minmax(600px, 920px)\'
+      layout.style.justifyContent = \'center\'
     } else if (layout) {
-      if (leftAside) leftAside.style.display = ''
-      if (rightAside) rightAside.style.display = ''
-      layout.style.gridTemplateColumns = ''
-      layout.style.justifyContent = ''
+      if (leftAside) leftAside.style.display = \'\'
+      if (rightAside) rightAside.style.display = \'\'
+      layout.style.gridTemplateColumns = \'\'
+      layout.style.justifyContent = \'\'
     }
   }, [readingMode])
 
@@ -204,7 +205,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, a
         </button>
         <button 
           onClick={() => setReadingMode(!readingMode)}
-          className={`w-[34px] h-[34px] grid place-items-center border-0 rounded-[9px] cursor-pointer transition-all ${readingMode ? 'bg-black/10 dark:bg-white/20 text-gray-900 dark:text-white' : 'bg-transparent text-gray-500 dark:text-[#8e96a4] hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10'}`}
+          className={`w-[34px] h-[34px] grid place-items-center border-0 rounded-[9px] cursor-pointer transition-all ${readingMode ? \'bg-black/10 dark:bg-white/20 text-gray-900 dark:text-white\' : \'bg-transparent text-gray-500 dark:text-[#8e96a4] hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10\'}`}
           title="Reading mode"
         >
           ◐
@@ -228,3 +229,5 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, a
     </>
   )
 }
+''')
+

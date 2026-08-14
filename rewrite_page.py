@@ -1,4 +1,5 @@
-import { notFound, redirect } from "next/navigation"
+with open('src/app/posts/[slug]/page.tsx', 'w') as f:
+    f.write('''import { notFound, redirect } from "next/navigation"
 import { db } from "@/lib/db"
 import { Metadata } from "next"
 import { Search } from "lucide-react"
@@ -8,7 +9,6 @@ import { PostReader } from "@/components/cv/post-reader"
 import { PostThemeToggle } from "@/components/cv/post-theme-toggle"
 import { GoogleAd } from "@/components/cv/google-ad"
 import { ScientificProgress } from "@/components/cv/scientific-progress"
-import { ScientificSearchTrigger } from "@/components/cv/scientific-search-trigger"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -88,7 +88,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           <span className="hidden sm:inline-block">Research Reader</span>
         </Link>
         <div className="flex items-center gap-2">
-           <ScientificSearchTrigger />
            <PostThemeToggle />
         </div>
       </header>
@@ -110,10 +109,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               readingTime={readingTime} 
               contentHtml={post.content}
               pdfUrl={post.pdfUrl}
-              authorName="Phan Huỳnh Văn Đô"
-              authorRole="AI / Edge Computing"
               category={post.category || "Artificial Intelligence"}
-              excerpt={post.excerpt}
             />
          </div>
 
@@ -177,3 +173,4 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     </div>
   )
 }
+''')
