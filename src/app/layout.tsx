@@ -39,9 +39,6 @@ export const metadata: Metadata = {
     "Lập trình nhúng",
   ],
   authors: [{ name: "Phan Huỳnh Văn Đô" }],
-  icons: {
-    icon: "/uploads/avatar.jpg",
-  },
   openGraph: {
     title: "Phan Huỳnh Văn Đô — Embedded Software Engineer",
     description:

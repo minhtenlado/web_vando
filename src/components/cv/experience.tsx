@@ -38,10 +38,7 @@ export function Experience() {
         <SectionHeader
           index="03 / experience"
           title={t("Kinh nghiệm làm việc", "Work Experience")}
-          subtitle={profile.experienceSubtitle || t(
-            "Hơn 6 năm xây dựng sản phẩm nhúng thương mại — từ nguyên mẫu nghiên cứu đến triển khai hàng chục nghìn thiết bị ngoài thực địa.",
-            "Over 6 years of building commercial embedded products — from research prototypes to deploying tens of thousands of devices in the field."
-          )}
+          subtitle={profile.experienceSubtitle || ""}
         />
 
         <div className="mt-12 relative">

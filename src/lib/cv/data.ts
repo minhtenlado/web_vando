@@ -2,18 +2,18 @@
 // All content is in Vietnamese, tailored for an Embedded Software Engineer.
 
 export const profile = {
-  name: "Phan Huỳnh Văn Đô",
-  role: "Kỹ sư Lập trình Nhúng, IoT & Edge AI",
-  tagline: "Biến ý tưởng công nghệ thành những giải pháp thông minh và thực tế",
-  location: "Phường Bình Thạnh, TP. Hồ Chí Minh, Việt Nam",
-  email: "phanhuynhvando@gmail.com",
-  phone: "+84 352820680",
-  website: "phanhuynh.id.vn",
-  github: "github.com/minhtenlado",
-  linkedin: "linkedin.com/in/v%C4%83n-%C4%91%C3%B4/",
+  name: "",
+  role: "",
+  tagline: "",
+  location: "",
+  email: "",
+  phone: "",
+  website: "",
+  github: "",
+  linkedin: "",
   available: true,
-  avatar: "/uploads/avatar.jpg",
-  summary: "Xin chào! Tôi là Phan Huỳnh Văn Đô, sinh viên năm cuối ngành IoT và Trí tuệ nhân tạo ứng dụng tại Trường Đại học Công nghiệp TP.HCM. Là một người đam mê hệ thống nhúng, robotics và công nghệ AI, tôi luôn hướng tới việc xây dựng các hệ thống xử lý thông minh và tối ưu cục bộ (offline-first). Với kinh nghiệm thực tế từ các dự án nghiên cứu như Hệ thống bãi đỗ xe thông minh (Smart Parking) hay thiết kế robot mô phỏng, tôi luôn sẵn sàng đón nhận những thách thức công nghệ mới để tạo ra các giải pháp tự động hóa hữu ích trong thế giới thực."
+  avatar: "",
+  summary: ""
 }
 
 export const defaultProfile = profile

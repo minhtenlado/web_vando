@@ -25,13 +25,14 @@ const defaultRoles = [
 export function Hero() {
   const { profile } = useSiteData()
   const { t } = useLocale()
-  const displayRoles = profile.animatedRoles && profile.animatedRoles.length > 0 
+  const displayRoles = (profile.animatedRoles && profile.animatedRoles.length > 0)
     ? profile.animatedRoles 
-    : defaultRoles;
+    : (profile.role ? [profile.role] : []);
 
   const [roleIdx, setRoleIdx] = React.useState(0)
 
   React.useEffect(() => {
+    if (displayRoles.length === 0) return;
     const timer = setInterval(() => setRoleIdx((i) => (i + 1) % displayRoles.length), 2400)
     return () => clearInterval(timer)
   }, [displayRoles.length])
@@ -66,39 +67,40 @@ export function Hero() {
             </div>
 
             <div className="space-y-3">
-
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] break-words">
                 {profile.name}
               </h1>
-              <div className="min-h-[2.25rem] sm:min-h-[2.5rem] h-auto flex items-center">
-                <span className="text-xl sm:text-2xl lg:text-3xl font-semibold text-primary font-mono tracking-widest uppercase">
-                  {displayRoles[roleIdx]}
-                  <span className="cursor-blink" />
-                </span>
+              {displayRoles.length > 0 && (
+                <div className="min-h-[2.25rem] sm:min-h-[2.5rem] h-auto flex items-center">
+                  <span className="text-xl sm:text-2xl lg:text-3xl font-semibold text-primary font-mono tracking-widest uppercase">
+                    {displayRoles[roleIdx]}
+                    <span className="cursor-blink" />
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {profile.tagline && (
+              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl">
+                {profile.tagline}
+              </p>
+            )}
+
+            {profile.techBadges && profile.techBadges.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2">
+                {profile.techBadges.map((badge, idx) => {
+                  const iconKey = badge.icon ? badge.icon.toLowerCase() : "";
+                  const IconComponent = badgeIconMap[iconKey] || null;
+
+                  return (
+                    <Badge key={idx} variant="secondary" className="gap-1.5 py-1.5 border border-primary/25 bg-card hover:bg-accent text-foreground transition-colors font-mono text-xs shadow-sm">
+                      {IconComponent && <IconComponent className="h-3.5 w-3.5 text-primary" />}
+                      {badge.text}
+                    </Badge>
+                  );
+                })}
               </div>
-            </div>
-
-            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl">
-              {profile.tagline}
-            </p>
-
-            <div className="flex flex-wrap items-center gap-2">
-              {((profile.techBadges && profile.techBadges.length > 0) ? profile.techBadges : [
-                { icon: "cpu", text: "STM32 · ESP32 · nRF52" },
-                { icon: "radio", text: "FreeRTOS · Zephyr" },
-                { icon: "", text: "C / C++ / Python" }
-              ]).map((badge, idx) => {
-                const iconKey = badge.icon ? badge.icon.toLowerCase() : "";
-                const IconComponent = badgeIconMap[iconKey] || null;
-
-                return (
-                  <Badge key={idx} variant="secondary" className="gap-1.5 py-1.5 border border-primary/25 bg-card hover:bg-accent text-foreground transition-colors font-mono text-xs shadow-sm">
-                    {IconComponent && <IconComponent className="h-3.5 w-3.5 text-primary" />}
-                    {badge.text}
-                  </Badge>
-                );
-              })}
-            </div>
+            )}
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <Button asChild size="lg">
