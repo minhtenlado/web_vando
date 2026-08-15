@@ -4,6 +4,14 @@ import { db } from "@/lib/db";
 
 type ProjectInput = {
   title?: string;
+  subtitle?: string;
+  overviewQuote?: string;
+  year?: string;
+  role?: string;
+  highlight?: string;
+  projectType?: string;
+  responsibilities?: { title: string; subtitle: string; icon: string }[];
+  results?: { number: string; label: string }[];
   category?: string;
   description?: string;
   features?: string[];
@@ -44,15 +52,23 @@ export async function PUT(
 
   const data: Record<string, unknown> = {};
   if (typeof body.title === "string") data.title = body.title.trim();
+  if (typeof body.subtitle === "string") data.subtitle = body.subtitle.slice(0, 500);
+  if (typeof body.overviewQuote === "string") data.overviewQuote = body.overviewQuote.slice(0, 2000);
+  if (typeof body.year === "string") data.year = body.year.slice(0, 100);
+  if (typeof body.role === "string") data.role = body.role.slice(0, 200);
+  if (typeof body.highlight === "string") data.highlight = body.highlight.slice(0, 200);
+  if (typeof body.projectType === "string") data.projectType = body.projectType.slice(0, 200);
+  if (Array.isArray(body.responsibilities)) data.responsibilities = JSON.stringify(body.responsibilities);
+  if (Array.isArray(body.results)) data.results = JSON.stringify(body.results);
   if (typeof body.category === "string") data.category = body.category.slice(0, 200);
   if (typeof body.description === "string") data.description = body.description.slice(0, 5000000);
   if (Array.isArray(body.features)) data.features = JSON.stringify(body.features);
   if (Array.isArray(body.tech)) data.tech = JSON.stringify(body.tech);
   if (typeof body.image === "string") data.image = body.image.slice(0, 500);
   if (Array.isArray(body.images)) data.images = JSON.stringify(body.images);
-  if (typeof body.youtubeUrl === "string") data.youtubeUrl = normUrl(body.youtubeUrl);
-  if (typeof body.link === "string") data.link = normUrl(body.link);
-  if (typeof body.repo === "string") data.repo = normUrl(body.repo);
+  if (typeof body.youtubeUrl === "string" || body.youtubeUrl === null) data.youtubeUrl = normUrl(body.youtubeUrl);
+  if (typeof body.link === "string" || body.link === null) data.link = normUrl(body.link);
+  if (typeof body.repo === "string" || body.repo === null) data.repo = normUrl(body.repo);
   if (typeof body.order === "number") data.order = body.order;
 
   try {

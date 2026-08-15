@@ -170,11 +170,31 @@ export const experiences: Experience[] = [
   },
 ]
 
+export type ProjectResponsibility = {
+  title: string
+  subtitle: string
+  icon: string
+}
+
+export type ProjectResult = {
+  number: string
+  label: string
+}
+
 export type Project = {
   id?: string
   title: string
+  subtitle?: string
+  overviewQuote?: string
+  year?: string
+  role?: string
+  highlight?: string
+  projectType?: string
+  responsibilities?: ProjectResponsibility[]
+  results?: ProjectResult[]
   category: string
   image: string
+  images?: string[]
   description: string
   features: string[]
   tech: string[]

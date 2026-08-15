@@ -44,22 +44,29 @@ model Profile {
 }
 
 model Project {
-  id          String   @id @default(cuid())
-  locale      String   @default("vi")
-  title       String
-  category    String   @default("")
-  description String   @default("")
-  // JSON-encoded string[] for SQLite (no native array type)
-  features    String   @default("[]")
-  tech        String   @default("[]")
-  image       String   @default("")
-  images      String   @default("[]") // JSON string[] gallery
-  youtubeUrl  String?  // optional YouTube watch/embed URL
-  link        String?
-  repo        String?
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               String   @id @default(cuid())
+  locale           String   @default("vi")
+  title            String
+  subtitle         String   @default("")
+  overviewQuote    String   @default("")
+  year             String   @default("")
+  role             String   @default("")
+  highlight        String   @default("")
+  projectType      String   @default("")
+  responsibilities String   @default("[]") // JSON [{ title, subtitle, icon }]
+  results          String   @default("[]") // JSON [{ number, label }]
+  category         String   @default("")
+  description      String   @default("")
+  features         String   @default("[]") // JSON string[]
+  tech             String   @default("[]") // JSON string[]
+  image            String   @default("")
+  images           String   @default("[]") // JSON string[] gallery
+  youtubeUrl       String?  // optional YouTube watch/embed URL
+  link             String?
+  repo             String?
+  order            Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 model Post {

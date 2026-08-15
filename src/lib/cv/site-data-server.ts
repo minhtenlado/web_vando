@@ -31,6 +31,14 @@ export type SiteProfile = {
 
 export type SiteProject = Project & {
   id: string
+  subtitle?: string
+  overviewQuote?: string
+  year?: string
+  role?: string
+  highlight?: string
+  projectType?: string
+  responsibilities?: { title: string; subtitle: string; icon: string }[]
+  results?: { number: string; label: string }[]
   youtubeUrl?: string
   images?: string[]
 }
@@ -179,6 +187,14 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
       projects = finalProjects.map((p) => ({
         id: p.id,
         title: p.title,
+        subtitle: (p as any).subtitle ?? "",
+        overviewQuote: (p as any).overviewQuote ?? "",
+        year: (p as any).year ?? "",
+        role: (p as any).role ?? "",
+        highlight: (p as any).highlight ?? "",
+        projectType: (p as any).projectType ?? "",
+        responsibilities: safeParseResponsibilities((p as any).responsibilities),
+        results: safeParseResults((p as any).results),
         category: p.category,
         image: p.image,
         description: p.description,
@@ -248,5 +264,34 @@ function safeParseJsonObjArr(s: string): any[] {
     return Array.isArray(v) ? v : []
   } catch {
     return []
+  }
+}
+
+function safeParseResponsibilities(s: string | undefined | null): { title: string; subtitle: string; icon: string }[] {
+  if (!s) return [];
+  try {
+    const v = JSON.parse(s);
+    if (!Array.isArray(v)) return [];
+    return v.map((item) => ({
+      title: String(item?.title ?? ""),
+      subtitle: String(item?.subtitle ?? ""),
+      icon: String(item?.icon ?? ""),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+function safeParseResults(s: string | undefined | null): { number: string; label: string }[] {
+  if (!s) return [];
+  try {
+    const v = JSON.parse(s);
+    if (!Array.isArray(v)) return [];
+    return v.map((item) => ({
+      number: String(item?.number ?? item?.value ?? ""),
+      label: String(item?.label ?? ""),
+    }));
+  } catch {
+    return [];
   }
 }
