@@ -51,7 +51,11 @@ export async function PUT(req: NextRequest) {
     "aboutSubtitle", "skillsSubtitle", "experienceSubtitle"
   ] as const) {
     if (typeof body[key] === "string") {
-      data[key] = (body[key] as string).slice(0, 2000);
+      if (key === "avatar" || key === "summary") {
+        data[key] = body[key] as string;
+      } else {
+        data[key] = (body[key] as string).slice(0, 2000);
+      }
     }
   }
 
