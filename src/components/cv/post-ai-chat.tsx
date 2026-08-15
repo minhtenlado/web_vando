@@ -22,8 +22,10 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
   ])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [isTyping, setIsTyping] = useState(false)
   const [error, setError] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -31,10 +33,47 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
 
   useEffect(() => {
     scrollToBottom()
-  }, [messages])
+  }, [messages, isTyping])
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+  }, [])
+
+  const animateTypewriter = (fullText: string, baseMessages: Message[]) => {
+    setIsTyping(true)
+    let index = 0
+    const chunkSize = 3
+    const speed = 15 // ms per tick
+
+    // Initialize with empty assistant response
+    setMessages([...baseMessages, { role: "assistant", content: "" }])
+
+    if (timerRef.current) clearInterval(timerRef.current)
+
+    timerRef.current = setInterval(() => {
+      index += chunkSize
+      if (index >= fullText.length) {
+        index = fullText.length
+        if (timerRef.current) clearInterval(timerRef.current)
+        setIsLoading(false)
+        setIsTyping(false)
+      }
+
+      const revealed = fullText.slice(0, index)
+      setMessages((prev) => {
+        const next = [...prev]
+        if (next.length > 0 && next[next.length - 1].role === "assistant") {
+          next[next.length - 1] = { role: "assistant", content: revealed }
+        }
+        return next
+      })
+    }, speed)
+  }
 
   const sendPrompt = async (userMsg: string) => {
-    if (!userMsg.trim() || isLoading) return
+    if (!userMsg.trim() || isLoading || isTyping) return
 
     setInput("")
     setError("")
@@ -60,12 +99,13 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
         throw new Error(data.error || "Có lỗi xảy ra khi gọi AI.")
       }
 
-      setMessages([...newMessages, { role: "assistant", content: data.text }])
+      // Trigger typewriter effect
+      animateTypewriter(data.text || "", newMessages)
     } catch (err: any) {
       setError(err.message)
       setMessages([...newMessages, { role: "assistant", content: "Xin lỗi, đã xảy ra lỗi kết nối AI. Vui lòng thử lại sau." }])
-    } finally {
       setIsLoading(false)
+      setIsTyping(false)
     }
   }
 
@@ -82,11 +122,16 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
   }
 
   const handleClearChat = () => {
+    if (timerRef.current) clearInterval(timerRef.current)
+    setIsLoading(false)
+    setIsTyping(false)
     setMessages([
       { role: "assistant", content: "Đã làm mới cuộc trò chuyện. Bạn muốn hỏi điều gì tiếp theo?" }
     ])
     setError("")
   }
+
+  const isBusy = isLoading || isTyping
 
   return (
     <div className="p-4 border border-black/5 dark:border-white/5 rounded-[18px] bg-white/70 dark:bg-white/5 backdrop-blur-[18px] shrink-0 flex flex-col h-[520px] transition-all">
@@ -116,14 +161,14 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
                 : "bg-black/5 dark:bg-white/10 text-gray-800 dark:text-gray-200 rounded-tl-xs prose prose-sm dark:prose-invert prose-p:leading-snug prose-p:my-1 prose-ul:my-1 prose-li:my-0"
             }`}>
               {msg.role === "assistant" ? (
-                <ReactMarkdown>{msg.content}</ReactMarkdown>
+                <ReactMarkdown>{msg.content || "..."}</ReactMarkdown>
               ) : (
                 msg.content
               )}
             </div>
           </div>
         ))}
-        {isLoading && (
+        {isLoading && !isTyping && (
           <div className="flex flex-col items-start">
             <div className="px-3 py-2.5 rounded-[14px] bg-black/5 dark:bg-white/10 rounded-tl-xs flex items-center gap-2 text-xs text-muted-foreground">
               <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
@@ -135,7 +180,7 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
       </div>
 
       {/* Quick Prompt Suggestions */}
-      {messages.length <= 3 && !isLoading && (
+      {messages.length <= 3 && !isBusy && (
         <div className="mb-3 shrink-0 flex flex-wrap gap-1.5">
           {QUICK_PROMPTS.map((item, idx) => (
             <button
@@ -160,11 +205,11 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
           placeholder="Hỏi AI về bài viết..."
           className="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-[14px] pl-3 pr-10 py-2.5 text-[13px] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all resize-none min-h-[44px] max-h-[120px] overflow-hidden"
           rows={1}
-          disabled={isLoading}
+          disabled={isBusy}
         />
         <button
           onClick={handleSend}
-          disabled={!input.trim() || isLoading}
+          disabled={!input.trim() || isBusy}
           className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <Send className="w-3.5 h-3.5" />
