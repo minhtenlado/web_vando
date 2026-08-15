@@ -1,5 +1,15 @@
 import { db } from "@/lib/db";
-import { type Project, type Experience, projects as defaultProjects } from "@/lib/cv/data";
+import {
+  type Project,
+  type Experience,
+  profile as defaultProfile,
+  projects as defaultProjects,
+  defaultPosts,
+  stats as defaultStats,
+  skillGroups as defaultSkillGroups,
+  educations as defaultEducations,
+  certifications as defaultCertifications,
+} from "@/lib/cv/data";
 
 export type SiteProfile = {
   name: string
@@ -77,32 +87,93 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
   const loc = locale === "en" ? "en" : "vi"
   const profileId = `profile-${loc}`
 
+  const mappedDefaultStats = defaultStats.map((s) => ({
+    value: s.value,
+    label: typeof s.label === "object" ? (s.label[loc] || s.label.vi) : s.label,
+  }))
+  const mappedDefaultSkillGroups = defaultSkillGroups.map((g) => ({
+    title: typeof g.title === "object" ? (g.title[loc] || g.title.vi) : g.title,
+    icon: g.icon,
+    skills: g.skills,
+  }))
+  const mappedDefaultEducations = defaultEducations.map((e) => ({
+    degree: typeof e.degree === "object" ? (e.degree[loc] || e.degree.vi) : e.degree,
+    school: typeof e.school === "object" ? (e.school[loc] || e.school.vi) : e.school,
+    period: e.period,
+    detail: typeof e.detail === "object" ? (e.detail[loc] || e.detail.vi) : e.detail,
+  }))
+
   let profile: SiteProfile = {
-    name: "", role: "", tagline: "", location: "", email: "",
-    phone: "", website: "", github: "", linkedin: "", summary: "", avatar: "",
-    principles: [], stats: [], nowText: "", skillGroups: [], socials: [], 
-    aboutSubtitle: "", skillsSubtitle: "", experienceSubtitle: "", animatedRoles: [], techBadges: [],
-    educations: [], certifications: [], languages: [],
-    available: true
+    name: defaultProfile.name,
+    role: defaultProfile.role,
+    tagline: defaultProfile.tagline,
+    location: defaultProfile.location,
+    email: defaultProfile.email,
+    phone: defaultProfile.phone,
+    website: defaultProfile.website || "",
+    github: defaultProfile.github,
+    linkedin: defaultProfile.linkedin,
+    summary: defaultProfile.summary,
+    avatar: defaultProfile.avatar || "/uploads/avatar.jpg",
+    principles: [],
+    stats: mappedDefaultStats,
+    nowText: "",
+    skillGroups: mappedDefaultSkillGroups,
+    socials: [],
+    aboutSubtitle: "",
+    skillsSubtitle: "",
+    experienceSubtitle: "",
+    animatedRoles: [],
+    techBadges: [],
+    educations: mappedDefaultEducations,
+    certifications: defaultCertifications,
+    languages: [],
+    available: defaultProfile.available ?? true,
   }
   let projects: SiteProject[] = []
   let experiences: SiteExperience[] = []
   let posts: SitePost[] = []
 
   try {
-    const [pRowInitial, pRows, eRows, postRows] = await Promise.all([
+    const [pRowInitial, pRows, eRows] = await Promise.all([
       db.profile.findUnique({ where: { id: profileId } }),
       db.project.findMany({ where: { locale: loc }, orderBy: { order: "asc" } }),
       db.experience.findMany({ where: { locale: loc }, orderBy: { order: "asc" } }),
-      db.post.findMany({ 
-        where: { locale: loc, published: true }, 
+    ])
+
+    let postRows = await db.post.findMany({ 
+      where: { locale: loc, published: true }, 
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        excerpt: true,
+        content: true,
+        published: true,
+        category: true,
+        createdAt: true,
+        updatedAt: true,
+        seoTitle: true,
+        seoDescription: true,
+        seoKeywords: true,
+        coverImage: true,
+        pdfUrl: true,
+      }
+    })
+
+    if (!postRows || postRows.length === 0) {
+      postRows = await db.post.findMany({ 
+        where: { published: true }, 
         orderBy: { createdAt: "desc" },
         select: {
           id: true,
           title: true,
           slug: true,
           excerpt: true,
+          content: true,
           published: true,
+          category: true,
           createdAt: true,
           updatedAt: true,
           seoTitle: true,
@@ -111,76 +182,111 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
           coverImage: true,
           pdfUrl: true,
         }
-      }),
-    ])
+      })
+    }
+
+    if (!postRows || postRows.length === 0) {
+      postRows = await db.post.findMany({ 
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          excerpt: true,
+          content: true,
+          published: true,
+          category: true,
+          createdAt: true,
+          updatedAt: true,
+          seoTitle: true,
+          seoDescription: true,
+          seoKeywords: true,
+          coverImage: true,
+          pdfUrl: true,
+        }
+      })
+    }
 
     const [pRowEn, pRowVi, pRowLegacy] = await Promise.all([
       db.profile.findUnique({ where: { id: "profile-en" } }),
       db.profile.findUnique({ where: { id: "profile-vi" } }),
       db.profile.findUnique({ where: { id: "profile" } }),
-    ]);
+    ])
 
-    const primary = (loc === "en" ? pRowEn : pRowVi) || pRowVi || pRowEn || pRowLegacy;
-    const secondary = (loc === "en" ? pRowVi : pRowEn) || pRowLegacy;
+    const primary = (loc === "en" ? pRowEn : pRowVi) || pRowVi || pRowEn || pRowLegacy
+    const secondary = (loc === "en" ? pRowVi : pRowEn) || pRowLegacy
 
     if (primary || secondary) {
       const getVal = (key: string): any => {
-        const pVal = primary ? (primary as any)[key] : null;
+        const pVal = primary ? (primary as any)[key] : null
         if (pVal !== null && pVal !== undefined && pVal !== "") {
           if (typeof pVal === "string" && (pVal === "[]" || pVal === "{}")) {
-            const sVal = secondary ? (secondary as any)[key] : null;
-            if (sVal && sVal !== "[]" && sVal !== "{}") return sVal;
+            const sVal = secondary ? (secondary as any)[key] : null
+            if (sVal && sVal !== "[]" && sVal !== "{}") return sVal
           }
-          return pVal;
+          return pVal
         }
-        return secondary ? (secondary as any)[key] : null;
-      };
+        return secondary ? (secondary as any)[key] : null
+      }
+
+      const strVal = (key: string, fallback: string): string => {
+        const val = getVal(key)
+        if (val && typeof val === "string" && val.trim() !== "") {
+          return val.trim()
+        }
+        return fallback
+      }
 
       const getArrayVal = (key: string): any[] => {
-        const vArr = safeParseJsonObjArr(pRowVi ? (pRowVi as any)[key] : null);
-        const eArr = safeParseJsonObjArr(pRowEn ? (pRowEn as any)[key] : null);
-        const lArr = safeParseJsonObjArr(pRowLegacy ? (pRowLegacy as any)[key] : null);
-        if (vArr.length >= eArr.length && vArr.length >= lArr.length && vArr.length > 0) return vArr;
-        if (eArr.length >= lArr.length && eArr.length > 0) return eArr;
-        if (lArr.length > 0) return lArr;
-        return vArr.length ? vArr : eArr;
-      };
+        const vArr = safeParseJsonObjArr(pRowVi ? (pRowVi as any)[key] : null)
+        const eArr = safeParseJsonObjArr(pRowEn ? (pRowEn as any)[key] : null)
+        const lArr = safeParseJsonObjArr(pRowLegacy ? (pRowLegacy as any)[key] : null)
+        if (vArr.length >= eArr.length && vArr.length >= lArr.length && vArr.length > 0) return vArr
+        if (eArr.length >= lArr.length && eArr.length > 0) return eArr
+        if (lArr.length > 0) return lArr
+        return vArr.length ? vArr : eArr
+      }
+
+      const statsArr = getArrayVal("stats")
+      const skillGroupsArr = getArrayVal("skillGroups")
+      const educationsArr = getArrayVal("educations")
+      const certsArr = getArrayVal("certifications")
 
       profile = {
-        name: getVal("name") || "",
-        role: getVal("role") || "",
-        tagline: getVal("tagline") || "",
-        location: getVal("location") || "",
-        email: getVal("email") || "",
-        phone: getVal("phone") || "",
-        website: getVal("website") || "",
-        github: getVal("github") || "",
-        linkedin: getVal("linkedin") || "",
-        summary: getVal("summary") || "",
-        avatar: getVal("avatar") || "",
+        name: strVal("name", defaultProfile.name),
+        role: strVal("role", defaultProfile.role),
+        tagline: strVal("tagline", defaultProfile.tagline),
+        location: strVal("location", defaultProfile.location),
+        email: strVal("email", defaultProfile.email),
+        phone: strVal("phone", defaultProfile.phone),
+        website: strVal("website", defaultProfile.website || ""),
+        github: strVal("github", defaultProfile.github),
+        linkedin: strVal("linkedin", defaultProfile.linkedin),
+        summary: strVal("summary", defaultProfile.summary),
+        avatar: strVal("avatar", defaultProfile.avatar || "/uploads/avatar.jpg"),
         principles: getArrayVal("principles"),
-        stats: getArrayVal("stats"),
-        nowText: getVal("nowText") || "",
-        skillGroups: getArrayVal("skillGroups"),
+        stats: statsArr.length > 0 ? statsArr : mappedDefaultStats,
+        nowText: strVal("nowText", ""),
+        skillGroups: skillGroupsArr.length > 0 ? skillGroupsArr : mappedDefaultSkillGroups,
         socials: safeParseJsonObjArr(getVal("socials")),
-        aboutSubtitle: getVal("aboutSubtitle") || "",
-        skillsSubtitle: getVal("skillsSubtitle") || "",
-        experienceSubtitle: getVal("experienceSubtitle") || "",
+        aboutSubtitle: strVal("aboutSubtitle", ""),
+        skillsSubtitle: strVal("skillsSubtitle", ""),
+        experienceSubtitle: strVal("experienceSubtitle", ""),
         animatedRoles: getArrayVal("animatedRoles").map((i: any) => String(i)),
         techBadges: getArrayVal("techBadges").map((i: any) => ({
           icon: String(i?.icon ?? ""),
           text: String(i?.text ?? "")
         })),
-        educations: getArrayVal("educations"),
-        certifications: getArrayVal("certifications"),
+        educations: educationsArr.length > 0 ? educationsArr : mappedDefaultEducations,
+        certifications: certsArr.length > 0 ? certsArr : defaultCertifications,
         languages: getArrayVal("languages"),
         available: true,
       } as SiteProfile
     }
 
-    let finalProjects = pRows;
+    let finalProjects = pRows
     if (loc !== "vi" && finalProjects.length === 0) {
-      finalProjects = await db.project.findMany({ where: { locale: "vi" }, orderBy: { order: "asc" } });
+      finalProjects = await db.project.findMany({ where: { locale: "vi" }, orderBy: { order: "asc" } })
     }
 
     if (finalProjects.length) {
@@ -209,12 +315,12 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
       projects = defaultProjects.map((p, idx) => ({
         ...p,
         id: p.id || `default-project-${idx}`,
-      }));
+      }))
     }
 
-    let finalExperiences = eRows;
+    let finalExperiences = eRows
     if (loc !== "vi" && finalExperiences.length === 0) {
-      finalExperiences = await db.experience.findMany({ where: { locale: "vi" }, orderBy: { order: "asc" } });
+      finalExperiences = await db.experience.findMany({ where: { locale: "vi" }, orderBy: { order: "asc" } })
     }
 
     if (finalExperiences.length) {
@@ -232,23 +338,76 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
       }))
     }
 
-    posts = postRows.map((po) => ({
-      id: po.id,
-      title: po.title,
-      slug: po.slug,
-      excerpt: po.excerpt,
-      content: "",
-      published: po.published,
-      createdAt: po.createdAt.toISOString(),
-      updatedAt: po.updatedAt.toISOString(),
-      seoTitle: po.seoTitle,
-      seoDescription: po.seoDescription,
-      seoKeywords: po.seoKeywords,
-      coverImage: po.coverImage,
-      pdfUrl: po.pdfUrl,
-    }))
+    if (postRows && postRows.length > 0) {
+      posts = postRows.map((po) => ({
+        id: po.id,
+        title: po.title,
+        slug: po.slug,
+        excerpt: po.excerpt,
+        content: po.content || "",
+        published: po.published,
+        category: po.category || undefined,
+        createdAt: po.createdAt instanceof Date ? po.createdAt.toISOString() : String(po.createdAt),
+        updatedAt: po.updatedAt instanceof Date ? po.updatedAt.toISOString() : String(po.updatedAt),
+        seoTitle: po.seoTitle,
+        seoDescription: po.seoDescription,
+        seoKeywords: po.seoKeywords,
+        coverImage: (po.coverImage && po.coverImage.trim() !== "") ? po.coverImage : (profile.avatar || defaultProfile.avatar),
+        pdfUrl: po.pdfUrl,
+      }))
+    }
   } catch (e) {
     console.error("[site-data] Database error:", e)
+  }
+
+  if (!profile.avatar || profile.avatar.trim() === "") {
+    profile.avatar = defaultProfile.avatar || "/uploads/avatar.jpg"
+  }
+  if (!profile.name || profile.name.trim() === "") {
+    profile.name = defaultProfile.name
+  }
+  if (!profile.role || profile.role.trim() === "") {
+    profile.role = defaultProfile.role
+  }
+  if (!profile.summary || profile.summary.trim() === "") {
+    profile.summary = defaultProfile.summary
+  }
+  if (!profile.tagline || profile.tagline.trim() === "") {
+    profile.tagline = defaultProfile.tagline
+  }
+  if (!profile.location || profile.location.trim() === "") {
+    profile.location = defaultProfile.location
+  }
+  if (!profile.email || profile.email.trim() === "") {
+    profile.email = defaultProfile.email
+  }
+  if (!profile.phone || profile.phone.trim() === "") {
+    profile.phone = defaultProfile.phone
+  }
+  if (!profile.github || profile.github.trim() === "") {
+    profile.github = defaultProfile.github
+  }
+  if (!profile.linkedin || profile.linkedin.trim() === "") {
+    profile.linkedin = defaultProfile.linkedin
+  }
+
+  if (posts.length === 0) {
+    posts = defaultPosts.map((dp) => ({
+      id: dp.id,
+      slug: dp.slug,
+      title: dp.title,
+      excerpt: dp.excerpt,
+      content: dp.content || "",
+      published: dp.published ?? true,
+      category: dp.category,
+      createdAt: dp.createdAt,
+      updatedAt: dp.updatedAt,
+      seoTitle: dp.seoTitle ?? null,
+      seoDescription: dp.seoDescription ?? null,
+      seoKeywords: dp.seoKeywords ?? null,
+      coverImage: dp.coverImage || profile.avatar || defaultProfile.avatar,
+      pdfUrl: dp.pdfUrl ?? null,
+    }))
   }
 
   return { profile, projects, experiences, posts }

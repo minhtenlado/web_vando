@@ -16,6 +16,8 @@ export const profile = {
   summary: "Xin chào! Tôi là Phan Huỳnh Văn Đô, sinh viên năm cuối ngành IoT và Trí tuệ nhân tạo ứng dụng tại Trường Đại học Công nghiệp TP.HCM. Là một người đam mê hệ thống nhúng, robotics và công nghệ AI, tôi luôn hướng tới việc xây dựng các hệ thống xử lý thông minh và tối ưu cục bộ (offline-first). Với kinh nghiệm thực tế từ các dự án nghiên cứu như Hệ thống bãi đỗ xe thông minh (Smart Parking) hay thiết kế robot mô phỏng, tôi luôn sẵn sàng đón nhận những thách thức công nghệ mới để tạo ra các giải pháp tự động hóa hữu ích trong thế giới thực."
 }
 
+export const defaultProfile = profile
+
 export type StatItem = {
   value: string
   label: Record<"vi" | "en", string>
@@ -499,3 +501,381 @@ export const navLinks = [
 ]
 
 export type NavLink = (typeof navLinks)[number]
+
+export type Post = {
+  id: string
+  slug: string
+  title: string
+  excerpt: string
+  content: string
+  published: boolean
+  category: string
+  coverImage?: string | null
+  pdfUrl?: string | null
+  seoTitle?: string | null
+  seoDescription?: string | null
+  seoKeywords?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export const defaultPosts: Post[] = [
+  {
+    id: "default-post-1",
+    slug: "luong-tu-hoa-mo-hinh-ai-tren-thiet-bi-bien",
+    title: "Lượng tử hóa mô hình AI: Tối ưu và triển khai trên thiết bị biên",
+    category: "AI",
+    excerpt: "Phân tích kỹ thuật Post-Training Quantization (PTQ) và Quantization-Aware Training (QAT) để nén mô hình Computer Vision & Edge AI cho Raspberry Pi 5 và Jetson Nano.",
+    content: `<h2>1. Giới thiệu tổng quan về Quantization</h2>
+<p>Lượng tử hóa (Quantization) là kỹ thuật quan trọng giúp nén các mô hình Trí tuệ Nhân tạo (AI) bằng cách chuyển đổi trọng số (weights) và dữ liệu kích hoạt (activations) từ định dạng số thực dấu vết động 32-bit (FP32) sang định dạng số nguyên có độ chính xác thấp hơn như 8-bit (INT8) hoặc 4-bit (INT4).</p>
+
+<h2>2. So sánh PTQ (Post-Training Quantization) và QAT (Quantization-Aware Training)</h2>
+<ul>
+  <li><strong>Post-Training Quantization (PTQ):</strong> Thực hiện lượng tử hóa sau khi mô hình đã hoàn tất huấn luyện. Phương pháp này đơn giản, không yêu cầu huấn luyện lại nhưng có thể suy giảm độ chính xác với các mô hình nhỏ.</li>
+  <li><strong>Quantization-Aware Training (QAT):</strong> Mô phỏng sai số lượng tử hóa ngay trong quá trình huấn luyện mô hình. QAT giúp duy trì mAP (mean Average Precision) gần như tương đương với mô hình FP32 gốc.</li>
+</ul>
+
+<h2>3. Triển khai thực tế trên Raspberry Pi 5 với ONNX Runtime</h2>
+<p>Dưới đây là đoạn mã Python thực thi việc chuyển đổi và suy luận mô hình YOLOv8 INT8 trên thiết bị biên:</p>
+
+<pre><code class="language-python">import torch
+from ultralytics import YOLO
+
+# 1. Khởi tạo mô hình YOLOv8
+model = YOLO("yolov8n.pt")
+
+# 2. Export sang mô hình ONNX INT8 đã tối ưu hóa
+model.export(format="onnx", int8=True, simplify=True)
+print("Đã lượng tử hóa mô hình sang ONNX INT8 thành công!")
+</code></pre>
+
+<h2>4. Kết quả Thực nghiệm & Hiệu năng</h2>
+<p>Qua đánh giá thực tế trên vi xử lý ARM Cortex-A76 của Raspberry Pi 5:</p>
+<ul>
+  <li>Dung lượng mô hình giảm từ 12.5 MB (FP32) xuống còn 3.2 MB (INT8).</li>
+  <li>Tốc độ suy luận (Inference Speed) tăng từ 12 FPS lên 38 FPS.</li>
+  <li>Mức tiêu thụ năng lượng giảm hơn 40%, đáp ứng tốt các ứng dụng chạy pin/năng lượng mặt trời.</li>
+</ul>`,
+    published: true,
+    coverImage: "/uploads/avatar.jpg",
+    seoTitle: "Lượng tử hóa mô hình AI trên thiết bị biên — Phan Huỳnh Văn Đô",
+    seoDescription: "Hướng dẫn kỹ thuật nén mô hình AI với PTQ & QAT triển khai trên Raspberry Pi 5 và Jetson Nano.",
+    seoKeywords: "Quantization, Edge AI, Raspberry Pi 5, YOLOv8, ONNX, TensorRT, Embedded AI",
+    createdAt: "2026-02-01T08:00:00.000Z",
+    updatedAt: "2026-02-01T08:00:00.000Z",
+  },
+  {
+    id: "default-post-2",
+    slug: "toi-uu-hoa-freertos-tren-vi-dieu-khien-stm32",
+    title: "Xây dựng Firmware Hệ thống Nhúng Thời gian Thực với FreeRTOS và STM32",
+    category: "embedded",
+    excerpt: "Phương pháp thiết kế kiến trúc đa nhiệm, quản lý bộ nhớ Heap, cơ chế đồng bộ Semaphore/Mutex và chiến lược tối ưu năng lượng với Tickless Idle trên vi điều khiển STM32.",
+    content: `<h2>1. Đặt vấn đề trong Lập trình Nhúng Thời gian Thực</h2>
+<p>Khi ứng dụng nhúng phát triển phức tạp đòi hỏi xử lý nhiều nhiệm vụ đồng thời như đọc dữ liệu cảm biến, quản lý màn hình HMI và giao tiếp mạng, kiến trúc Super Loop (Bare-metal) trở nên khó duy trì và dễ bị nghẽn hệ thống. Hệ điều hành thời gian thực (FreeRTOS) giúp phân chia ứng dụng thành các Tác vụ (Tasks) độc lập với độ ưu tiên rõ ràng.</p>
+
+<h2>2. Quản lý Bộ nhớ Heap & Tránh Phân mảnh</h2>
+<p>Trong FreeRTOS, việc lựa chọn trình quản lý bộ nhớ phù hợp quyết định tính ổn định dài hạn của thiết bị nhúng:</p>
+<ul>
+  <li><strong>heap_4.c:</strong> Thuật toán First-Fit kết hợp gộp các ô nhớ trống kề nhau, tránh phân mảnh bộ nhớ hiệu quả cho ứng dụng cấp phát tĩnh/động linh hoạt.</li>
+  <li><strong>Stack Watermark Checking:</strong> Sử dụng hàm <code>uxTaskGetStackHighWaterMark()</code> để theo dõi mức tiêu thụ Stack thực tế của từng Task.</li>
+</ul>
+
+<h2>3. Ví dụ Mã nguồn: Đồng bộ hóa Task bằng Binary Semaphore</h2>
+<pre><code class="language-c">#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+
+SemaphoreHandle_t xSensorSemaphore;
+
+void vSensorISR_Handler(void) {
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    // Phát tín hiệu Semaphore từ ISR ngắt ngoại vi
+    xSemaphoreGiveFromISR(xSensorSemaphore, &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+void vProcessingTask(void *pvParameters) {
+    for (;;) {
+        if (xSemaphoreTake(xSensorSemaphore, portMAX_DELAY) == pdTRUE) {
+            // Xử lý dữ liệu ngay khi ngắt hoàn tất
+            HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
+        }
+    }
+}
+</code></pre>
+
+<h2>4. Kết luận</h2>
+<p>Áp dụng chuẩn thiết kế RTOS giúp nâng cao độ tin cậy của firmware trong các thiết bị công nghiệp và y tế đòi hỏi tiêu chuẩn khắt khe.</p>`,
+    published: true,
+    coverImage: "/uploads/avatar.jpg",
+    seoTitle: "Tối ưu hóa FreeRTOS trên STM32 — Phan Huỳnh Văn Đô",
+    seoDescription: "Hướng dẫn xây dựng firmware hệ thống nhúng thời gian thực với FreeRTOS và vi điều khiển STM32.",
+    seoKeywords: "FreeRTOS, STM32, Embedded Systems, RTOS, Firmware, C Language, Semaphore, Mutex",
+    createdAt: "2026-01-15T08:00:00.000Z",
+    updatedAt: "2026-01-15T08:00:00.000Z",
+  },
+  {
+    id: "default-post-3",
+    slug: "xay-dung-he-thong-iot-offline-first-mqtt-esp32",
+    title: "Xây dựng Hệ thống IoT Offline-First với Giao thức MQTT & ESP32",
+    category: "IOT",
+    excerpt: "Giải pháp kiến trúc mạng cảm biến không dây với cơ chế đệm dữ liệu cục bộ, đảm bảo hệ thống hoạt động ổn định và không mất dữ liệu khi mất kết nối Internet.",
+    content: `<h2>1. Thách thức Mạng trong IoT Công nghiệp</h2>
+<p>Trong các môi trường công nghiệp hoặc nông nghiệp thông minh, kết nối mạng Internet thường bị gián đoạn. Thiết kế hệ thống IoT phụ thuộc vào Cloud có thể gây mất mát dữ liệu cảm biến quan trọng. Kiến trúc Offline-First giải quyết triệt để vấn đề này.</p>
+
+<h2>2. Kiến trúc Publish/Subscribe và Local Gateway Bridge</h2>
+<ul>
+  <li><strong>ESP32 Sensor Nodes:</strong> Thu thập dữ liệu môi trường và gửi gói tin MQTT QoS 1 đến Local Broker.</li>
+  <li><strong>Local Broker (Mosquitto / EMQX):</strong> Chạy trên Local Gateway (Raspberry Pi) đóng vai trò trung gian lưu trữ đệm.</li>
+  <li><strong>MQTT Bridge:</strong> Tự động đẩy toàn bộ dữ liệu tồn đọng lên Cloud ngay khi đường truyền kết nối lại thành công.</li>
+</ul>
+
+<h2>3. Mã nguồn ESP32 Quản lý Đệm Dữ liệu khi Mất Mạng</h2>
+<pre><code class="language-cpp">#include &lt;WiFi.h&gt;
+#include &lt;PubSubClient.h&gt;
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+void connectToBroker() {
+    while (!client.connected()) {
+        if (client.connect("ESP32_Gateway_Node")) {
+            Serial.println("Đã kết nối thành công đến MQTT Broker cục bộ!");
+        } else {
+            delay(2000);
+        }
+    }
+}
+</code></pre>
+
+<h2>4. Kết luận</h2>
+<p>Mô hình Offline-First giúp gia tăng độ bền vững và tính sẵn sàng của toàn bộ hạ tầng IoT doanh nghiệp.</p>`,
+    published: true,
+    coverImage: "/uploads/avatar.jpg",
+    seoTitle: "Hệ thống IoT Offline-First với MQTT & ESP32 — Phan Huỳnh Văn Đô",
+    seoDescription: "Thiết kế kiến trúc IoT Offline-First với MQTT Broker cục bộ và vi điều khiển ESP32.",
+    seoKeywords: "IoT, MQTT, ESP32, Offline-First, Embedded IoT, Wireless Sensor Networks",
+    createdAt: "2026-01-05T08:00:00.000Z",
+    updatedAt: "2026-01-05T08:00:00.000Z",
+  },
+  {
+    id: "default-post-4",
+    slug: "dieu-huong-robot-amr-voi-ros2-humble-va-lidar",
+    title: "Điều hướng Robot Di động Tự hành (AMR) với ROS2 Humble và LiDAR",
+    category: "ROS2",
+    excerpt: "Quy trình thiết kế Nav2 pipeline, định vị SLAM Cartographer và giao tiếp micro-ROS với STM32 điều khiển động cơ PID cho robot AMR trong nhà kho thông minh.",
+    content: `<h2>1. Giới thiệu về Robot AMR và ROS2 Humble</h2>
+<p>Robot di động tự hành (AMR) trong logistics đòi hỏi khả năng định vị chính xác và quy hoạch đường đi linh hoạt trong môi trường nhà kho thay đổi liên tục. Khung làm việc ROS2 Humble tích hợp chuẩn giao tiếp DDS giúp truyền nhận dữ liệu cảm biến thời gian thực với độ trễ cực thấp.</p>
+
+<h2>2. Tích hợp SLAM Cartographer và Nav2 Stack</h2>
+<ul>
+  <li><strong>Cartographer SLAM:</strong> Tạo bản đồ 2D Grid Map từ dữ liệu quét của cảm biến 2D LiDAR.</li>
+  <li><strong>Nav2 Navigation:</strong> Quy hoạch đường đi toàn cục (Global Planner) và tránh vật cản cục bộ (Local Planner - DWB controller).</li>
+  <li><strong>micro-ROS Bridge:</strong> Gửi lệnh vận tốc <code>cmd_vel</code> xuống mạch điều khiển STM32.</li>
+</ul>
+
+<h2>3. Đoạn mã C++ micro-ROS trên STM32</h2>
+<pre><code class="language-cpp">#include &lt;rcl/rcl.h&gt;
+#include &lt;geometry_msgs/msg/twist.h&gt;
+
+// Hàm callback nhận lệnh cmd_vel từ ROS2 Nav2
+void cmd_vel_callback(const void * msincoming) {
+    const geometry_msgs__msg__Twist * msg = (const geometry_msgs__msg__Twist *)msincoming;
+    float linear_x = msg-&gt;linear.x;
+    float angular_z = msg-&gt;angular.z;
+    
+    // Điều khiển động cơ qua thuật toán PID vòng kín
+    update_motor_pwm(linear_x, angular_z);
+}
+</code></pre>
+
+<h2>4. Kết luận</h2>
+<p>Ứng dụng ROS2 và micro-ROS mang lại khả năng mở rộng tuyệt vời cho các hệ thống Robotics công nghiệp hiện đại.</p>`,
+    published: true,
+    coverImage: "/uploads/avatar.jpg",
+    seoTitle: "Điều hướng Robot AMR với ROS2 Humble — Phan Huỳnh Văn Đô",
+    seoDescription: "Hướng dẫn tích hợp ROS2 Humble, Cartographer SLAM và Nav2 cho Robot AMR tự hành.",
+    seoKeywords: "ROS2, AMR, Robotics, LiDAR, SLAM, Nav2, micro-ROS, STM32",
+    createdAt: "2025-12-20T08:00:00.000Z",
+    updatedAt: "2025-12-20T08:00:00.000Z",
+  },
+]
+
+export const defaultPostsEn: Post[] = [
+  {
+    id: "default-post-en-1",
+    slug: "ai-model-quantization-edge-optimization",
+    title: "AI Model Quantization: Edge Optimization and Deployment",
+    category: "AI",
+    excerpt: "An in-depth analysis of Post-Training Quantization (PTQ) and Quantization-Aware Training (QAT) to compress Computer Vision & Edge AI models for Raspberry Pi 5 and Jetson Nano.",
+    content: `<h2>1. Introduction to Model Quantization</h2>
+<p>Quantization is an essential compression technique that transforms Artificial Intelligence (AI) model weights and activations from 32-bit floating-point (FP32) to lower-precision integer representations such as 8-bit (INT8) or 4-bit (INT4).</p>
+
+<h2>2. PTQ (Post-Training Quantization) vs QAT (Quantization-Aware Training)</h2>
+<ul>
+  <li><strong>Post-Training Quantization (PTQ):</strong> Quantizes weights after full model training. Fast and straightforward, though slight accuracy degradation may occur on smaller architectures.</li>
+  <li><strong>Quantization-Aware Training (QAT):</strong> Simulates quantization error during training, preserving near-FP32 accuracy for INT8 deployments.</li>
+</ul>
+
+<h2>3. Raspberry Pi 5 Deployment with ONNX Runtime</h2>
+<p>Python snippet exporting and inferencing a INT8 YOLOv8 model on edge hardware:</p>
+
+<pre><code class="language-python">import torch
+from ultralytics import YOLO
+
+# 1. Initialize YOLOv8 model
+model = YOLO("yolov8n.pt")
+
+# 2. Export to optimized INT8 ONNX format
+model.export(format="onnx", int8=True, simplify=True)
+print("Successfully quantized model to INT8 ONNX!")
+</code></pre>
+
+<h2>4. Empirical Results & Performance Benchmark</h2>
+<p>Evaluated on the ARM Cortex-A76 processor of Raspberry Pi 5:</p>
+<ul>
+  <li>Model size reduced from 12.5 MB (FP32) to 3.2 MB (INT8).</li>
+  <li>Inference speed increased from 12 FPS to 38 FPS.</li>
+  <li>Power consumption decreased by over 40%, ideal for battery-powered setups.</li>
+</ul>`,
+    published: true,
+    coverImage: "/uploads/avatar.jpg",
+    seoTitle: "AI Model Quantization on Edge Devices — Phan Huỳnh Văn Đô",
+    seoDescription: "Technical guide on PTQ & QAT model compression for Raspberry Pi 5 and Jetson Nano.",
+    seoKeywords: "Quantization, Edge AI, Raspberry Pi 5, YOLOv8, ONNX, TensorRT, Embedded AI",
+    createdAt: "2026-02-01T08:00:00.000Z",
+    updatedAt: "2026-02-01T08:00:00.000Z",
+  },
+  {
+    id: "default-post-en-2",
+    slug: "real-time-embedded-firmware-freertos-stm32",
+    title: "Building Real-Time Embedded Systems Firmware with FreeRTOS and STM32",
+    category: "embedded",
+    excerpt: "Multitasking architecture design, Heap memory management, Semaphore/Mutex synchronization, and Low-Power Tickless Idle optimization on STM32 microcontrollers.",
+    content: `<h2>1. Real-Time Embedded Programming Challenges</h2>
+<p>As embedded applications grow complex—simultaneously managing sensor polling, HMI displays, and wireless protocol stacks—the traditional Bare-metal Super Loop architecture becomes difficult to maintain. FreeRTOS structures code into independent Tasks with explicit priorities.</p>
+
+<h2>2. Heap Memory Management & Fragmentation Avoidance</h2>
+<p>Selecting the right memory scheme ensures long-term system stability:</p>
+<ul>
+  <li><strong>heap_4.c:</strong> First-fit algorithm with adjacent free-block coalescing, minimizing fragmentation during dynamic memory allocations.</li>
+  <li><strong>Stack Watermark Monitoring:</strong> Utilizing <code>uxTaskGetStackHighWaterMark()</code> to verify real-time stack consumption per task.</li>
+</ul>
+
+<h2>3. Code Example: Task Synchronization via Binary Semaphore</h2>
+<pre><code class="language-c">#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+
+SemaphoreHandle_t xSensorSemaphore;
+
+void vSensorISR_Handler(void) {
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    xSemaphoreGiveFromISR(xSensorSemaphore, &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+void vProcessingTask(void *pvParameters) {
+    for (;;) {
+        if (xSemaphoreTake(xSensorSemaphore, portMAX_DELAY) == pdTRUE) {
+            HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
+        }
+    }
+}
+</code></pre>
+
+<h2>4. Conclusion</h2>
+<p>Adopting proper RTOS design patterns guarantees robust firmware execution across industrial and medical devices.</p>`,
+    published: true,
+    coverImage: "/uploads/avatar.jpg",
+    seoTitle: "FreeRTOS STM32 Optimization — Phan Huỳnh Văn Đô",
+    seoDescription: "Guide to building real-time embedded firmware using FreeRTOS and STM32 microcontrollers.",
+    seoKeywords: "FreeRTOS, STM32, Embedded Systems, RTOS, Firmware, C Language, Semaphore, Mutex",
+    createdAt: "2026-01-15T08:00:00.000Z",
+    updatedAt: "2026-01-15T08:00:00.000Z",
+  },
+  {
+    id: "default-post-en-3",
+    slug: "offline-first-iot-architecture-mqtt-esp32",
+    title: "Architecting Offline-First IoT Systems with MQTT & ESP32",
+    category: "IOT",
+    excerpt: "Designing resilient wireless sensor networks with local data buffering, ensuring reliable operation without data loss during network outages.",
+    content: `<h2>1. Networking Challenges in Industrial IoT</h2>
+<p>In industrial and smart agriculture environments, internet connectivity can be spotty. Cloud-dependent IoT architectures risk critical sensor data loss during dropouts. An Offline-First architecture solves this problem natively.</p>
+
+<h2>2. Publish/Subscribe Architecture & Local Gateway Bridge</h2>
+<ul>
+  <li><strong>ESP32 Sensor Nodes:</strong> Collect environmental metrics and publish MQTT QoS 1 packets to the local broker.</li>
+  <li><strong>Local Broker (Mosquitto / EMQX):</strong> Operates on a local Raspberry Pi gateway as a storage buffer.</li>
+  <li><strong>MQTT Bridge:</strong> Automatically flushes queued messages to the Cloud once WAN connectivity is restored.</li>
+</ul>
+
+<h2>3. ESP32 Offline Buffer Management Code</h2>
+<pre><code class="language-cpp">#include &lt;WiFi.h&gt;
+#include &lt;PubSubClient.h&gt;
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+void connectToBroker() {
+    while (!client.connected()) {
+        if (client.connect("ESP32_Gateway_Node")) {
+            Serial.println("Connected to local MQTT Broker!");
+        } else {
+            delay(2000);
+        }
+    }
+}
+</code></pre>
+
+<h2>4. Conclusion</h2>
+<p>The Offline-First approach significantly enhances system availability and resilience across enterprise IoT deployments.</p>`,
+    published: true,
+    coverImage: "/uploads/avatar.jpg",
+    seoTitle: "Offline-First IoT System with MQTT & ESP32 — Phan Huỳnh Văn Đô",
+    seoDescription: "Designing offline-first IoT architecture with local MQTT brokers and ESP32 nodes.",
+    seoKeywords: "IoT, MQTT, ESP32, Offline-First, Embedded IoT, Wireless Sensor Networks",
+    createdAt: "2026-01-05T08:00:00.000Z",
+    updatedAt: "2026-01-05T08:00:00.000Z",
+  },
+  {
+    id: "default-post-en-4",
+    slug: "autonomous-mobile-robot-navigation-ros2-humble",
+    title: "Autonomous Mobile Robot (AMR) Navigation with ROS2 Humble & LiDAR",
+    category: "ROS2",
+    excerpt: "Designing Nav2 pipelines, Cartographer SLAM, and micro-ROS communication with STM32 motor controllers for smart warehouse AMRs.",
+    content: `<h2>1. Overview of Autonomous Mobile Robots (AMR)</h2>
+<p>Logistics AMRs require precise indoor mapping and dynamic obstacle avoidance. ROS2 Humble built upon DDS infrastructure delivers low-latency real-time communication for robotic sub-systems.</p>
+
+<h2>2. Cartographer SLAM & Nav2 Stack Integration</h2>
+<ul>
+  <li><strong>Cartographer SLAM:</strong> Constructs 2D occupancy grid maps from 2D LiDAR scans.</li>
+  <li><strong>Nav2 Navigation:</strong> Handles global path planning and local obstacle avoidance (DWB controller).</li>
+  <li><strong>micro-ROS Bridge:</strong> Streams <code>cmd_vel</code> velocity commands to the STM32 motor driver.</li>
+</ul>
+
+<h2>3. C++ micro-ROS Driver Snippet on STM32</h2>
+<pre><code class="language-cpp">#include &lt;rcl/rcl.h&gt;
+#include &lt;geometry_msgs/msg/twist.h&gt;
+
+void cmd_vel_callback(const void * msincoming) {
+    const geometry_msgs__msg__Twist * msg = (const geometry_msgs__msg__Twist *)msincoming;
+    float linear_x = msg-&gt;linear.x;
+    float angular_z = msg-&gt;angular.z;
+    
+    update_motor_pwm(linear_x, angular_z);
+}
+</code></pre>
+
+<h2>4. Conclusion</h2>
+<p>Integrating ROS2 and micro-ROS provides unparalleled scalability for industrial mobile robotics.</p>`,
+    published: true,
+    coverImage: "/uploads/avatar.jpg",
+    seoTitle: "AMR Navigation with ROS2 Humble — Phan Huỳnh Văn Đô",
+    seoDescription: "Integrating ROS2 Humble, Cartographer SLAM, and Nav2 for autonomous mobile robots.",
+    seoKeywords: "ROS2, AMR, Robotics, LiDAR, SLAM, Nav2, micro-ROS, STM32",
+    createdAt: "2025-12-20T08:00:00.000Z",
+    updatedAt: "2025-12-20T08:00:00.000Z",
+  },
+]
+
