@@ -18,10 +18,15 @@ export async function POST(req: NextRequest) {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
-    const history = messages.slice(0, -1).map((msg: any) => ({
-      role: msg.role === "assistant" ? "model" : "user",
-      parts: [{ text: msg.content }],
-    }));
+    const rawHistory = messages.slice(0, -1);
+    const firstUserIdx = rawHistory.findIndex((m: any) => m.role === "user");
+
+    const history = firstUserIdx !== -1
+      ? rawHistory.slice(firstUserIdx).map((msg: any) => ({
+          role: msg.role === "assistant" ? "model" : "user",
+          parts: [{ text: msg.content }],
+        }))
+      : [];
 
     const chatSession = model.startChat({
       history,
