@@ -285,8 +285,8 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
     }
 
     let finalProjects = pRows
-    if (loc !== "vi" && finalProjects.length === 0) {
-      finalProjects = await db.project.findMany({ where: { locale: "vi" }, orderBy: { order: "asc" } })
+    if (finalProjects.length === 0) {
+      finalProjects = await db.project.findMany({ orderBy: { order: "asc" } })
     }
 
     if (finalProjects.length) {
@@ -316,8 +316,8 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
     }
 
     let finalExperiences = eRows
-    if (loc !== "vi" && finalExperiences.length === 0) {
-      finalExperiences = await db.experience.findMany({ where: { locale: "vi" }, orderBy: { order: "asc" } })
+    if (finalExperiences.length === 0) {
+      finalExperiences = await db.experience.findMany({ orderBy: { order: "asc" } })
     }
 
     if (finalExperiences.length) {

@@ -44,7 +44,7 @@ function getEmptyForm(): PostForm {
     slug: "",
     excerpt: "",
     content: "",
-    published: false,
+    published: true,
     category: "AI",
     createdAt: new Date().toISOString(),
     seoTitle: "",
