@@ -203,7 +203,113 @@ export type Project = {
   youtubeUrl?: string
 }
 
-export const projects: Project[] = [];
+export const projects: Project[] = [
+  {
+    id: "smart-parking-aiot",
+    title: "Nghiên cứu và triển khai hệ thống bãi đỗ xe thông minh ứng dụng AIoT",
+    subtitle: "Một hệ thống AIoT kết hợp Computer Vision, Edge AI, ESP32, Raspberry Pi và Cloud để tự động nhận diện phương tiện, quản lý vị trí đỗ và điều khiển barrier.",
+    category: "AIoT · Embedded",
+    year: "2025 — 2026",
+    role: "AIoT Engineer",
+    highlight: "Edge AI & Embedded RTOS",
+    projectType: "Research Project",
+    overviewQuote: "Mục tiêu chính của kiến trúc là giảm độ trễ, giảm lượng dữ liệu phải truyền lên cloud và cho phép hệ thống tiếp tục hoạt động ngay cả khi kết nối Internet không ổn định.",
+    description: "Dự án tập trung xây dựng một hệ thống bãi đỗ xe thông minh ứng dụng AIoT, trong đó phần xử lý AI được đưa xuống edge device thay vì phụ thuộc hoàn toàn vào cloud.\n\nCamera được sử dụng để thu thập hình ảnh phương tiện. Raspberry Pi thực hiện nhận diện phương tiện, xử lý biển số, xác định trạng thái vị trí đỗ và đưa ra quyết định điều khiển.",
+    responsibilities: [
+      {
+        title: "Computer Vision",
+        subtitle: "Xây dựng pipeline nhận diện phương tiện và xử lý hình ảnh.",
+        icon: "Camera"
+      },
+      {
+        title: "Edge AI",
+        subtitle: "Tối ưu và triển khai inference trực tiếp trên Raspberry Pi 5.",
+        icon: "Cpu"
+      },
+      {
+        title: "ESP32 / Sensors",
+        subtitle: "Kết nối cảm biến, barrier và các thiết bị ngoại vi.",
+        icon: "Layers"
+      },
+      {
+        title: "Cloud / Dashboard",
+        subtitle: "Đồng bộ dữ liệu qua MQTT và Firebase Realtime Database.",
+        icon: "Globe"
+      }
+    ],
+    results: [
+      { number: "93.0%", label: "Độ chính xác nhận diện" },
+      { number: "< 2s", label: "Phản hồi barrier" },
+      { number: "5+", label: "Thiết bị / node tích hợp" },
+      { number: "Edge", label: "AI inference cục bộ" }
+    ],
+    features: [
+      "Nhận diện phương tiện & biển số xe thời gian thực với YOLO",
+      "Điều khiển Barrier tự động qua ESP32 & Relay",
+      "Giám sát vị trí đỗ trống thời gian thực qua Web Dashboard",
+      "Hoạt động offline-first bền bỉ khi mất kết nối mạng"
+    ],
+    tech: [
+      "Raspberry Pi 5",
+      "ESP32",
+      "Python",
+      "YOLO",
+      "OpenCV",
+      "MQTT",
+      "Firebase",
+      "React"
+    ],
+    image: "",
+    images: [],
+    youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    link: "https://phanhuynh.id.vn",
+    repo: "https://github.com/minhtenlado"
+  },
+  {
+    id: "autonomous-robot-navigation",
+    title: "Hệ thống Robot tự động điều hướng thời gian thực",
+    subtitle: "Robot tự hành ứng dụng cảm biến ToF, STM32 và thuật toán điều hướng môi trường động.",
+    category: "Robotics",
+    year: "2024 — 2025",
+    role: "Robotics Engineer",
+    highlight: "Real-time Navigation & ToF",
+    projectType: "Hardware & Robotics",
+    overviewQuote: "Tự động né tránh vật cản động và quy hoạch đường đi tối ưu với tần số phản hồi 100Hz.",
+    description: "Robot sử dụng mảng cảm biến ToF kết hợp vi điều khiển STM32F4 để tính toán khoảng cách và phát hiện chướng ngại vật theo thời gian thực. Thuật toán điều hướng giúp robot di chuyển linh hoạt trong môi trường phức tạp.",
+    responsibilities: [
+      {
+        title: "Lập trình nhúng STM32",
+        subtitle: "Viết firmware điều khiển động cơ PID và đọc cảm biến ToF.",
+        icon: "Cpu"
+      },
+      {
+        title: "Thuật toán điều hướng",
+        subtitle: "Xây dựng ma trận khoảng cách và né tránh vật cản động.",
+        icon: "Layers"
+      }
+    ],
+    results: [
+      { number: "100Hz", label: "Tần số quét cảm biến" },
+      { number: "< 10ms", label: "Độ trễ xử lý điều hướng" }
+    ],
+    features: [
+      "Điều khiển động cơ với bộ điều khiển PID kín",
+      "Định vị và quy hoạch đường đi tối ưu",
+      "Truyền dữ liệu không dây qua NRF24L01 / Wi-Fi"
+    ],
+    tech: [
+      "STM32F4",
+      "ToF Sensors",
+      "FreeRTOS",
+      "C/C++",
+      "PID Control"
+    ],
+    image: "",
+    images: [],
+    link: "https://phanhuynh.id.vn",
+    repo: "https://github.com/minhtenlado"
+  }
+];
 
 export type EducationItem = {
   degree: Record<"vi" | "en", string>

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { type Project, type Experience } from "@/lib/cv/data";
+import { type Project, type Experience, projects as defaultProjects } from "@/lib/cv/data";
 
 export type SiteProfile = {
   name: string
@@ -205,6 +205,11 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         youtubeUrl: p.youtubeUrl ?? undefined,
         images: safeParseArr(p.images),
       }))
+    } else {
+      projects = defaultProjects.map((p, idx) => ({
+        ...p,
+        id: p.id || `default-project-${idx}`,
+      }));
     }
 
     let finalExperiences = eRows;
