@@ -144,15 +144,22 @@ export function Hero() {
             className="relative mx-auto w-full max-w-sm"
           >
             <div className="relative rounded-sm border border-border bg-card p-3">
-              <div className="relative aspect-square overflow-hidden rounded-xl">
-                <Image
-                  src={profile.avatar}
-                  alt={t(`Ảnh đại diện của ${profile.name}`, `Avatar of ${profile.name}`)}
-                  fill
-                  priority
-                  sizes="(max-width: 768px) 80vw, 400px"
-                  className="object-cover"
-                />
+              <div className="relative aspect-square overflow-hidden rounded-xl bg-muted/30">
+                {profile.avatar ? (
+                  <Image
+                    src={profile.avatar}
+                    alt={t(`Ảnh đại diện của ${profile.name}`, `Avatar of ${profile.name}`)}
+                    fill
+                    priority
+                    sizes="(max-width: 768px) 80vw, 400px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground/50 border border-dashed border-border/80">
+                    <Cpu className="h-16 w-16 mb-2 opacity-40 animate-pulse" />
+                    <span className="font-mono text-xs text-center px-4">No avatar set</span>
+                  </div>
+                )}
               </div>
 
               {/* Floating chips */}
