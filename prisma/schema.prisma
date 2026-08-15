@@ -78,6 +78,9 @@ model Post {
   content   String   @default("") // markdown
   published Boolean  @default(true)
   category  String   @default("")
+  views     Int      @default(0)
+  likes     Int      @default(0)
+  bookmarks Int      @default(0)
   coverImage String?
   pdfUrl    String?
   seoTitle  String?

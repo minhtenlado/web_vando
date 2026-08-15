@@ -4,6 +4,7 @@ import * as React from "react"
 import { sanitizePostHtml } from "@/lib/validation"
 
 type PostReaderProps = {
+  slug: string
   title: string
   pubDate: string
   readingTime: number
@@ -13,10 +14,13 @@ type PostReaderProps = {
   authorRole?: string
   category?: string
   excerpt?: string | null
+  views?: number
+  likes?: number
+  bookmarks?: number
   children?: React.ReactNode
 }
 
-export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, authorName, authorRole, category, excerpt, children }: PostReaderProps) {
+export function PostReader({ slug, title, pubDate, readingTime, contentHtml, pdfUrl, authorName, authorRole, category, excerpt, views = 0, likes = 0, bookmarks = 0, children }: PostReaderProps) {
   const [fontSize, setFontSize] = React.useState(18)
   const [searchOpen, setSearchOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState("")
@@ -24,6 +28,58 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, a
   const searchInputRef = React.useRef<HTMLInputElement>(null)
 
   const [readingMode, setReadingMode] = React.useState(false)
+
+  const [currentLikes, setCurrentLikes] = React.useState(likes)
+  const [currentBookmarks, setCurrentBookmarks] = React.useState(bookmarks)
+  const [currentViews, setCurrentViews] = React.useState(views)
+  const [hasLiked, setHasLiked] = React.useState(false)
+  const [hasBookmarked, setHasBookmarked] = React.useState(false)
+
+  React.useEffect(() => {
+    setHasLiked(localStorage.getItem(`like_${slug}`) === "true")
+    setHasBookmarked(localStorage.getItem(`bookmark_${slug}`) === "true")
+    
+    // Increment view once per session per post
+    if (!sessionStorage.getItem(`viewed_${slug}`)) {
+      sessionStorage.setItem(`viewed_${slug}`, "true")
+      fetch(`/api/posts/${slug}/stats`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "view" }),
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.views) setCurrentViews(data.views)
+      })
+      .catch(console.error)
+    }
+  }, [slug])
+
+  const handleInteract = async (type: "like" | "bookmark") => {
+    const isLike = type === "like"
+    const currentState = isLike ? hasLiked : hasBookmarked
+    const action = isLike ? (currentState ? "unlike" : "like") : (currentState ? "unbookmark" : "bookmark")
+
+    if (isLike) {
+      setHasLiked(!currentState)
+      setCurrentLikes(prev => currentState ? Math.max(0, prev - 1) : prev + 1)
+      localStorage.setItem(`like_${slug}`, (!currentState).toString())
+    } else {
+      setHasBookmarked(!currentState)
+      setCurrentBookmarks(prev => currentState ? Math.max(0, prev - 1) : prev + 1)
+      localStorage.setItem(`bookmark_${slug}`, (!currentState).toString())
+    }
+
+    try {
+      await fetch(`/api/posts/${slug}/stats`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      })
+    } catch (err) {
+      console.error(err)
+    }
+  }
   
   React.useEffect(() => {
     const link = document.createElement("link")

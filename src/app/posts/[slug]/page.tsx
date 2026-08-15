@@ -103,6 +103,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
          {/* PAPER CONTENT */}
          <div className="min-w-0 w-full relative z-10">
             <PostReader 
+              slug={post.slug}
               title={post.title} 
               pubDate={pubDate} 
               readingTime={readingTime} 
@@ -112,6 +113,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               authorRole="AI / Edge Computing"
               category={post.category || "Artificial Intelligence"}
               excerpt={post.excerpt}
+              views={post.views}
+              likes={post.likes}
+              bookmarks={post.bookmarks}
             />
          </div>
 

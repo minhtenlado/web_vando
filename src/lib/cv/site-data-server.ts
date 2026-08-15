@@ -67,6 +67,9 @@ export type SitePost = {
   content: string;
   published: boolean;
   category?: string;
+  views: number;
+  likes: number;
+  bookmarks: number;
   createdAt: string;
   updatedAt: string
   seoTitle?: string | null
@@ -152,6 +155,9 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         content: true,
         published: true,
         category: true,
+        views: true,
+        likes: true,
+        bookmarks: true,
         createdAt: true,
         updatedAt: true,
         seoTitle: true,
@@ -174,6 +180,9 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
           content: true,
           published: true,
           category: true,
+          views: true,
+          likes: true,
+          bookmarks: true,
           createdAt: true,
           updatedAt: true,
           seoTitle: true,
@@ -196,6 +205,9 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
           content: true,
           published: true,
           category: true,
+          views: true,
+          likes: true,
+          bookmarks: true,
           createdAt: true,
           updatedAt: true,
           seoTitle: true,
@@ -344,6 +356,9 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         content: po.content || "",
         published: po.published,
         category: po.category || undefined,
+        views: po.views || 0,
+        likes: po.likes || 0,
+        bookmarks: po.bookmarks || 0,
         createdAt: po.createdAt instanceof Date ? po.createdAt.toISOString() : String(po.createdAt),
         updatedAt: po.updatedAt instanceof Date ? po.updatedAt.toISOString() : String(po.updatedAt),
         seoTitle: po.seoTitle,

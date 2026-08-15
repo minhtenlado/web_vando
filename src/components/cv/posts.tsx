@@ -111,92 +111,9 @@ export function Posts() {
 
         {/* Post Grid */}
         <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {published.map((post, i) => {
-            const targetHref = `/posts/${post.slug}`
-            // Mock data for UI showcase
-            const postCategory = post.category || CATEGORIES[0]
-            const mockReadTime = `${Math.floor(Math.random() * 10) + 1} phút đọc`
-            const mockViews = `${(Math.random() * 20).toFixed(1)}K`
-            const mockLikes = Math.floor(Math.random() * 50)
-            const mockBookmarks = Math.floor(Math.random() * 10)
-
-            return (
-              <motion.div
-                key={post.id}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.4, delay: (i % 3) * 0.06 }}
-                className="h-full"
-              >
-                <a 
-                  href={targetHref} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="block h-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-[1.2rem]"
-                >
-                  <Card className="group h-full flex flex-col overflow-hidden border-border/20 bg-white dark:bg-[#0d120f] hover:border-primary/30 transition-all duration-300 rounded-[1.2rem] relative shadow-lg shadow-black/5 dark:shadow-black/20">
-                    
-                    <div className="p-5 flex flex-col flex-1 bg-gradient-to-b from-white to-gray-50 dark:from-[#111713] dark:to-[#0a0d0b]">
-                      {/* Category Badge */}
-                      <Badge className="bg-primary/90 hover:bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-sm mb-4 w-fit flex items-center gap-1.5 uppercase shadow-md shadow-primary/20">
-                        {postCategory}
-                      </Badge>
-
-                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white/90 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
-                        {post.title}
-                      </h3>
-                      <p className="mt-2.5 text-[13px] text-muted-foreground leading-relaxed line-clamp-2 flex-1">
-                        {post.excerpt}
-                      </p>
-
-                      {/* Author */}
-                      <div className="flex items-center justify-between mt-6">
-                        <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-[#1e2923] flex items-center justify-center overflow-hidden shrink-0 border border-border/10 dark:border-white/10">
-                            {profile?.avatar ? (
-                              <img src={profile.avatar} alt={profile.name} className="h-full w-full object-cover" />
-                            ) : (
-                              <span className="text-xs font-bold text-gray-900 dark:text-white">Z</span>
-                            )}
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-[13px] font-medium text-gray-900 dark:text-white/80 leading-none">{profile?.name || "Nguyễn Minh Đức"}</span>
-                            <span className="text-[11px] text-muted-foreground mt-1">Chief Executive Officer</span>
-                          </div>
-                        </div>
-                        <ArrowUpRight className="w-4 h-4 text-muted-foreground/50 group-hover:text-primary transition-colors" />
-                      </div>
-
-                      {/* Footer Stats */}
-                      <div className="flex items-center justify-between mt-5 pt-4 border-t border-border/10 dark:border-white/5">
-                        <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                          <div className="flex items-center gap-1.5">
-                            <Clock className="w-3.5 h-3.5" /> {mockReadTime}
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <Eye className="w-3.5 h-3.5" /> {mockViews}
-                          </div>
-                        </div>
-                        <span className="text-[11px] text-muted-foreground">{formatDate(post.createdAt, locale)}</span>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center gap-2 mt-4">
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border/20 dark:border-white/5 text-[11px] text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground dark:hover:text-white transition-colors cursor-pointer">
-                          <Heart className="w-3 h-3" /> {mockLikes}
-                        </div>
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border/20 dark:border-white/5 text-[11px] text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground dark:hover:text-white transition-colors cursor-pointer">
-                          <Bookmark className="w-3 h-3" /> {mockBookmarks}
-                        </div>
-                      </div>
-
-                    </div>
-                  </Card>
-                </a>
-              </motion.div>
-            )
-          })}
+          {published.map((post, i) => (
+            <PostCardItem key={post.id} post={post} i={i} />
+          ))}
         </div>
         
         {published.length === 0 && searchQuery && (
@@ -205,7 +122,135 @@ export function Posts() {
           </div>
         )}
       </div>
-
     </section>
+  )
+}
+
+function PostCardItem({ post, i }: { post: any, i: number }) {
+  const { profile } = useSiteData()
+  const { locale } = useLocale()
+  
+  const [likes, setLikes] = React.useState(post.likes || 0)
+  const [bookmarks, setBookmarks] = React.useState(post.bookmarks || 0)
+  const [hasLiked, setHasLiked] = React.useState(false)
+  const [hasBookmarked, setHasBookmarked] = React.useState(false)
+
+  React.useEffect(() => {
+    setHasLiked(localStorage.getItem(`like_${post.slug}`) === "true")
+    setHasBookmarked(localStorage.getItem(`bookmark_${post.slug}`) === "true")
+  }, [post.slug])
+
+  const handleInteract = async (e: React.MouseEvent, type: "like" | "bookmark") => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    const isLike = type === "like"
+    const currentState = isLike ? hasLiked : hasBookmarked
+    const action = isLike ? (currentState ? "unlike" : "like") : (currentState ? "unbookmark" : "bookmark")
+
+    if (isLike) {
+      setHasLiked(!currentState)
+      setLikes(prev => currentState ? Math.max(0, prev - 1) : prev + 1)
+      localStorage.setItem(`like_${post.slug}`, (!currentState).toString())
+    } else {
+      setHasBookmarked(!currentState)
+      setBookmarks(prev => currentState ? Math.max(0, prev - 1) : prev + 1)
+      localStorage.setItem(`bookmark_${post.slug}`, (!currentState).toString())
+    }
+
+    try {
+      await fetch(`/api/posts/${post.slug}/stats`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      })
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const targetHref = `/posts/${post.slug}`
+  const postCategory = post.category || CATEGORIES[0]
+  const readTime = `${Math.ceil((post.content?.length || 0) / 1000)} phút đọc`
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.4, delay: (i % 3) * 0.06 }}
+      className="h-full"
+    >
+      <a 
+        href={targetHref} 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="block h-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-[1.2rem]"
+      >
+        <Card className="group h-full flex flex-col overflow-hidden border-border/20 bg-white dark:bg-[#0d120f] hover:border-primary/30 transition-all duration-300 rounded-[1.2rem] relative shadow-lg shadow-black/5 dark:shadow-black/20">
+          <div className="p-5 flex flex-col flex-1 bg-gradient-to-b from-white to-gray-50 dark:from-[#111713] dark:to-[#0a0d0b]">
+            {/* Category Badge */}
+            <Badge className="bg-primary/90 hover:bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-sm mb-4 w-fit flex items-center gap-1.5 uppercase shadow-md shadow-primary/20">
+              {postCategory}
+            </Badge>
+
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white/90 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+              {post.title}
+            </h3>
+            <p className="mt-2.5 text-[13px] text-muted-foreground leading-relaxed line-clamp-2 flex-1">
+              {post.excerpt}
+            </p>
+
+            {/* Author */}
+            <div className="flex items-center justify-between mt-6">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-[#1e2923] flex items-center justify-center overflow-hidden shrink-0 border border-border/10 dark:border-white/10">
+                  {profile?.avatar ? (
+                    <img src={profile.avatar} alt={profile.name} className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-xs font-bold text-gray-900 dark:text-white">Z</span>
+                  )}
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[13px] font-medium text-gray-900 dark:text-white/80 leading-none">{profile?.name || "Nguyễn Minh Đức"}</span>
+                  <span className="text-[11px] text-muted-foreground mt-1">{profile?.role || "Chief Executive Officer"}</span>
+                </div>
+              </div>
+              <ArrowUpRight className="w-4 h-4 text-muted-foreground/50 group-hover:text-primary transition-colors" />
+            </div>
+
+            {/* Footer Stats */}
+            <div className="flex items-center justify-between mt-5 pt-4 border-t border-border/10 dark:border-white/5">
+              <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" /> {readTime}
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Eye className="w-3.5 h-3.5" /> {(post.views || 0)}
+                </div>
+              </div>
+              <span className="text-[11px] text-muted-foreground">{formatDate(post.createdAt, locale)}</span>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-2 mt-4">
+              <div 
+                onClick={(e) => handleInteract(e, "like")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border/20 dark:border-white/5 text-[11px] transition-colors cursor-pointer ${hasLiked ? 'bg-primary/10 text-primary dark:text-primary border-primary/20' : 'text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground dark:hover:text-white'}`}
+              >
+                <Heart className={`w-3 h-3 ${hasLiked ? 'fill-current' : ''}`} /> {likes}
+              </div>
+              <div 
+                onClick={(e) => handleInteract(e, "bookmark")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border/20 dark:border-white/5 text-[11px] transition-colors cursor-pointer ${hasBookmarked ? 'bg-primary/10 text-primary dark:text-primary border-primary/20' : 'text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground dark:hover:text-white'}`}
+              >
+                <Bookmark className={`w-3 h-3 ${hasBookmarked ? 'fill-current' : ''}`} /> {bookmarks}
+              </div>
+            </div>
+
+          </div>
+        </Card>
+      </a>
+    </motion.div>
   )
 }
