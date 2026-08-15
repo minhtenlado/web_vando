@@ -98,10 +98,12 @@ export async function PUT(req: NextRequest) {
   }
   if (existing && existing.avatar && data.avatar && existing.avatar !== data.avatar) {
     try {
-      const { deleteVercelBlob } = await import("@/lib/cv/blob");
-      await deleteVercelBlob(existing.avatar);
+      if (existing.avatar.includes("cloudinary.com")) {
+        const { deleteFromCloudinary } = await import("@/lib/cloudinary");
+        await deleteFromCloudinary(existing.avatar);
+      }
     } catch (error) {
-      console.error("Failed to delete old avatar from Vercel Blob:", error);
+      console.error("Failed to delete old avatar:", error);
     }
   }
 
