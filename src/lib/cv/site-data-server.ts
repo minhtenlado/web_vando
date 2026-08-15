@@ -312,10 +312,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         images: safeParseArr(p.images),
       }))
     } else {
-      projects = defaultProjects.map((p, idx) => ({
-        ...p,
-        id: p.id || `default-project-${idx}`,
-      }))
+      projects = []
     }
 
     let finalExperiences = eRows
@@ -361,53 +358,10 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
   }
 
   if (!profile.avatar || profile.avatar.trim() === "") {
-    profile.avatar = defaultProfile.avatar || "/uploads/avatar.jpg"
+    profile.avatar = "/uploads/avatar.jpg"
   }
   if (!profile.name || profile.name.trim() === "") {
-    profile.name = defaultProfile.name
-  }
-  if (!profile.role || profile.role.trim() === "") {
-    profile.role = defaultProfile.role
-  }
-  if (!profile.summary || profile.summary.trim() === "") {
-    profile.summary = defaultProfile.summary
-  }
-  if (!profile.tagline || profile.tagline.trim() === "") {
-    profile.tagline = defaultProfile.tagline
-  }
-  if (!profile.location || profile.location.trim() === "") {
-    profile.location = defaultProfile.location
-  }
-  if (!profile.email || profile.email.trim() === "") {
-    profile.email = defaultProfile.email
-  }
-  if (!profile.phone || profile.phone.trim() === "") {
-    profile.phone = defaultProfile.phone
-  }
-  if (!profile.github || profile.github.trim() === "") {
-    profile.github = defaultProfile.github
-  }
-  if (!profile.linkedin || profile.linkedin.trim() === "") {
-    profile.linkedin = defaultProfile.linkedin
-  }
-
-  if (posts.length === 0) {
-    posts = defaultPosts.map((dp) => ({
-      id: dp.id,
-      slug: dp.slug,
-      title: dp.title,
-      excerpt: dp.excerpt,
-      content: dp.content || "",
-      published: dp.published ?? true,
-      category: dp.category,
-      createdAt: dp.createdAt,
-      updatedAt: dp.updatedAt,
-      seoTitle: dp.seoTitle ?? null,
-      seoDescription: dp.seoDescription ?? null,
-      seoKeywords: dp.seoKeywords ?? null,
-      coverImage: dp.coverImage || profile.avatar || defaultProfile.avatar,
-      pdfUrl: dp.pdfUrl ?? null,
-    }))
+    profile.name = "Phan Huỳnh Văn Đô"
   }
 
   return { profile, projects, experiences, posts }
