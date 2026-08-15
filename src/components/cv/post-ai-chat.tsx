@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from "react"
-import { Send, Sparkles, Loader2, RefreshCw } from "lucide-react"
+import { Send, Sparkles, Loader2, RefreshCw, ChevronDown, MessageSquare } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 
 type Message = {
@@ -17,6 +17,7 @@ const QUICK_PROMPTS = [
 ]
 
 export function PostAiChat({ postTitle, postContent }: { postTitle: string, postContent: string }) {
+  const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", content: "Chào bạn! Mình là trợ lý AI. Bạn có thể chọn câu hỏi gợi ý bên dưới hoặc tự nhập thắc mắc về bài viết này nhé!" }
   ])
@@ -32,8 +33,10 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
   }
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages, isTyping])
+    if (isOpen) {
+      scrollToBottom()
+    }
+  }, [messages, isTyping, isOpen])
 
   useEffect(() => {
     return () => {
@@ -47,7 +50,6 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
     const chunkSize = 3
     const speed = 15 // ms per tick
 
-    // Initialize with empty assistant response
     setMessages([...baseMessages, { role: "assistant", content: "" }])
 
     if (timerRef.current) clearInterval(timerRef.current)
@@ -99,7 +101,6 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
         throw new Error(data.error || "Có lỗi xảy ra khi gọi AI.")
       }
 
-      // Trigger typewriter effect
       animateTypewriter(data.text || "", newMessages)
     } catch (err: any) {
       setError(err.message)
@@ -133,22 +134,61 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
 
   const isBusy = isLoading || isTyping
 
+  // Collapsed Button View
+  if (!isOpen) {
+    return (
+      <div className="p-4 border border-black/5 dark:border-white/5 rounded-[18px] bg-white/70 dark:bg-white/5 backdrop-blur-[18px] shrink-0 transition-all hover:border-primary/30">
+        <button
+          onClick={() => setIsOpen(true)}
+          className="w-full flex items-center justify-between gap-3 text-left group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-primary/10 dark:bg-primary/20 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <Sparkles className="w-4 h-4 animate-pulse" />
+            </div>
+            <div>
+              <div className="font-sans text-xs font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors flex items-center gap-1.5">
+                Hỏi AI về bài viết <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">New</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground line-clamp-1">
+                Tóm tắt, giải thích & hỏi đáp với Gemini
+              </p>
+            </div>
+          </div>
+          <div className="w-7 h-7 rounded-lg bg-black/5 dark:bg-white/5 flex items-center justify-center text-muted-foreground group-hover:text-primary transition-colors">
+            <MessageSquare className="w-3.5 h-3.5" />
+          </div>
+        </button>
+      </div>
+    )
+  }
+
+  // Expanded Full Chat View
   return (
-    <div className="p-4 border border-black/5 dark:border-white/5 rounded-[18px] bg-white/70 dark:bg-white/5 backdrop-blur-[18px] shrink-0 flex flex-col h-[520px] transition-all">
+    <div className="p-4 border border-primary/20 dark:border-primary/30 rounded-[18px] bg-white/80 dark:bg-white/5 backdrop-blur-[18px] shrink-0 flex flex-col h-[520px] transition-all shadow-lg dark:shadow-primary/5">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3 shrink-0">
+      <div className="flex items-center justify-between mb-3 shrink-0 pb-2 border-b border-black/5 dark:border-white/5">
         <div className="flex items-center gap-2 font-sans text-[11px] font-extrabold tracking-[0.08em] text-[#8e96a5] uppercase">
           <Sparkles className="w-3.5 h-3.5 text-primary" /> AI Assistant
         </div>
-        {messages.length > 1 && (
+        <div className="flex items-center gap-1">
+          {messages.length > 1 && (
+            <button
+              onClick={handleClearChat}
+              title="Làm mới đoạn chat"
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-1 rounded-md"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+            </button>
+          )}
           <button
-            onClick={handleClearChat}
-            title="Làm mới đoạn chat"
+            onClick={() => setIsOpen(false)}
+            title="Thu gọn đoạn chat"
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-1 rounded-md"
           >
-            <RefreshCw className="w-3 h-3" />
+            <ChevronDown className="w-4 h-4" />
           </button>
-        )}
+        </div>
       </div>
       
       {/* Messages List */}
