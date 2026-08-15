@@ -153,9 +153,9 @@ export function PostEditor({
                 </div>
               </div>
 
-              {/* Category & Cover Image */}
-              <div className="flex flex-col md:flex-row gap-5">
-                <div className="flex-1">
+              {/* Category, Publication Date & Cover Image */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div>
                   <label className="block mb-2 text-xs font-semibold text-gray-700 dark:text-[#a0afaa]">
                     Chủ đề (Category)
                   </label>
@@ -170,7 +170,41 @@ export function PostEditor({
                   </select>
                 </div>
 
-                <div className="flex-1">
+                <div>
+                  <label className="block mb-2 text-xs font-semibold text-gray-700 dark:text-[#a0afaa]">
+                    Ngày đăng bài (Publication Date)
+                  </label>
+                  <input
+                    type="datetime-local"
+                    className="w-full h-11 px-3.5 border border-gray-200 dark:border-white/10 rounded-xl bg-gray-50 dark:bg-[#101c16] text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0] focus:ring-2 focus:ring-[#36e2a0]/20 text-sm font-medium"
+                    value={(() => {
+                      if (!form.createdAt) return "";
+                      try {
+                        const d = new Date(form.createdAt);
+                        if (isNaN(d.getTime())) return "";
+                        const pad = (n: number) => n.toString().padStart(2, "0");
+                        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                      } catch {
+                        return "";
+                      }
+                    })()}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (!val) {
+                        setForm({ ...form, createdAt: new Date().toISOString() });
+                      } else {
+                        try {
+                          const d = new Date(val);
+                          setForm({ ...form, createdAt: d.toISOString() });
+                        } catch {
+                          setForm({ ...form, createdAt: new Date().toISOString() });
+                        }
+                      }
+                    }}
+                  />
+                </div>
+
+                <div>
                   <label className="block mb-2 text-xs font-semibold text-gray-700 dark:text-[#a0afaa]">
                     Ảnh bìa (Cover Image URL)
                   </label>
