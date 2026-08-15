@@ -5,6 +5,7 @@ import { Search, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { TableOfContents } from "@/components/cv/table-of-contents"
 import { PostReader } from "@/components/cv/post-reader"
+import { PostAiChat } from "@/components/cv/post-ai-chat"
 import { PostThemeToggle } from "@/components/cv/post-theme-toggle"
 import { GoogleAd } from "@/components/cv/google-ad"
 import { ScientificProgress } from "@/components/cv/scientific-progress"
@@ -138,23 +139,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                </div>
             </div>
 
-            <div className="p-5 border border-black/5 dark:border-white/5 rounded-[18px] bg-white/70 dark:bg-white/5 backdrop-blur-[18px] shrink-0">
-               <div className="flex items-center gap-2 mb-4 font-sans text-[11px] font-extrabold tracking-[0.08em] text-[#8e96a5] uppercase">
-                 AI Actions
-               </div>
-               <button className="w-full flex items-center justify-between mt-2 px-3 py-2.5 border border-black/5 dark:border-white/5 rounded-lg bg-white/50 dark:bg-white/5 text-xs text-gray-600 dark:text-[#bfc4ce] text-left transition-all hover:translate-x-1 hover:bg-primary/5 hover:border-primary/20 hover:text-primary">
-                  ✦ Tóm tắt bài viết <span>→</span>
-               </button>
-               <button className="w-full flex items-center justify-between mt-2 px-3 py-2.5 border border-black/5 dark:border-white/5 rounded-lg bg-white/50 dark:bg-white/5 text-xs text-gray-600 dark:text-[#bfc4ce] text-left transition-all hover:translate-x-1 hover:bg-primary/5 hover:border-primary/20 hover:text-primary">
-                  ◇ Giải thích phương pháp <span>→</span>
-               </button>
-               <button className="w-full flex items-center justify-between mt-2 px-3 py-2.5 border border-black/5 dark:border-white/5 rounded-lg bg-white/50 dark:bg-white/5 text-xs text-gray-600 dark:text-[#bfc4ce] text-left transition-all hover:translate-x-1 hover:bg-primary/5 hover:border-primary/20 hover:text-primary">
-                  ≋ Tìm điểm quan trọng <span>→</span>
-               </button>
-               <button className="w-full flex items-center justify-between mt-2 px-3 py-2.5 border border-black/5 dark:border-white/5 rounded-lg bg-white/50 dark:bg-white/5 text-xs text-gray-600 dark:text-[#bfc4ce] text-left transition-all hover:translate-x-1 hover:bg-primary/5 hover:border-primary/20 hover:text-primary">
-                  ⊕ So sánh nghiên cứu <span>→</span>
-               </button>
-            </div>
+            <PostAiChat postTitle={post.title} postContent={post.content} />
          </aside>
       </main>
     </div>
