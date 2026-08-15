@@ -100,7 +100,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, a
     if (readingMode && layout) {
       if (leftAside) leftAside.style.display = 'none'
       if (rightAside) rightAside.style.display = 'none'
-      layout.style.gridTemplateColumns = 'minmax(600px, 920px)'
+      layout.style.gridTemplateColumns = 'minmax(600px, 1200px)'
       layout.style.justifyContent = 'center'
     } else if (layout) {
       if (leftAside) leftAside.style.display = ''
@@ -112,7 +112,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, a
 
   return (
     <>
-      <article ref={articleRef} className="relative min-w-0 px-6 py-10 sm:px-14 sm:py-14 pb-[100px] border border-black/5 dark:border-white/5 rounded-[24px] bg-white dark:bg-gradient-to-b dark:from-[#101419]/96 dark:to-[#0a0c10]/98 shadow-[0_30px_90px_rgba(0,0,0,0.08)] dark:shadow-[0_30px_100px_rgba(0,0,0,0.25)] overflow-hidden">
+      <article ref={articleRef} className="relative min-w-0 px-6 py-10 sm:px-12 md:px-16 lg:px-20 sm:py-14 pb-[100px] border border-black/5 dark:border-white/5 rounded-[24px] bg-white dark:bg-gradient-to-b dark:from-[#101419]/96 dark:to-[#0a0c10]/98 shadow-[0_30px_90px_rgba(0,0,0,0.08)] dark:shadow-[0_30px_100px_rgba(0,0,0,0.25)] overflow-hidden">
         
         <div className="absolute top-[-180px] left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-[radial-gradient(circle,rgba(107,123,255,0.09),transparent_68%)] pointer-events-none hidden dark:block" />
 
@@ -122,7 +122,7 @@ export function PostReader({ title, pubDate, readingTime, contentHtml, pdfUrl, a
             Research Article
           </div>
           
-          <h1 className="m-0 max-w-[850px] font-serif text-[clamp(34px,4vw,52px)] leading-[1.08] tracking-[-0.035em] text-gray-900 dark:text-[#f4f5f7]">
+          <h1 className="m-0 max-w-none font-serif text-[clamp(34px,4vw,54px)] leading-[1.1] tracking-[-0.035em] text-gray-900 dark:text-[#f4f5f7]">
             {title}
           </h1>
 
