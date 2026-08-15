@@ -137,28 +137,6 @@ export function Posts() {
                 >
                   <Card className="group h-full flex flex-col overflow-hidden border-border/20 bg-white dark:bg-[#0d120f] hover:border-primary/30 transition-all duration-300 rounded-[1.2rem] relative shadow-lg shadow-black/5 dark:shadow-black/20">
                     
-                    {/* Image Placeholder or Cover Image */}
-                    <div className="h-44 w-full bg-gradient-to-br from-gray-100 to-gray-50 dark:from-[#121c17] dark:to-[#0a0d0b] flex items-center justify-center relative overflow-hidden border-b border-border/10 dark:border-white/5">
-                      {post.coverImage ? (
-                        <>
-                          <img src={post.coverImage} alt={post.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                          <div className="absolute inset-0 bg-black/10 dark:bg-black/40 group-hover:bg-black/5 dark:group-hover:bg-black/20 transition-colors duration-500"></div>
-                        </>
-                      ) : (
-                        <>
-                          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/30 via-transparent to-transparent"></div>
-                          <span className="text-7xl font-bold text-primary/10 font-serif group-hover:scale-110 transition-transform duration-500">Z</span>
-                        </>
-                      )}
-
-                      {/* Top Left Badge */}
-                      <div className="absolute top-3 left-3">
-                        <Badge variant="outline" className="bg-white/80 dark:bg-[#0f1712] border-primary/20 text-primary text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full backdrop-blur-md">
-                          {postCategory}
-                        </Badge>
-                      </div>
-                    </div>
-
                     <div className="p-5 flex flex-col flex-1 bg-gradient-to-b from-white to-gray-50 dark:from-[#111713] dark:to-[#0a0d0b]">
                       {/* Category Badge */}
                       <Badge className="bg-primary/90 hover:bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-sm mb-4 w-fit flex items-center gap-1.5 uppercase shadow-md shadow-primary/20">

@@ -153,8 +153,8 @@ export function PostEditor({
                 </div>
               </div>
 
-              {/* Category, Publication Date & Cover Image */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {/* Category & Publication Date */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="block mb-2 text-xs font-semibold text-gray-700 dark:text-[#a0afaa]">
                     Chủ đề (Category)
@@ -201,18 +201,6 @@ export function PostEditor({
                         }
                       }
                     }}
-                  />
-                </div>
-
-                <div>
-                  <label className="block mb-2 text-xs font-semibold text-gray-700 dark:text-[#a0afaa]">
-                    Ảnh bìa (Cover Image URL)
-                  </label>
-                  <input
-                    className="w-full h-11 px-3.5 border border-gray-200 dark:border-white/10 rounded-xl bg-gray-50 dark:bg-[#101c16] text-gray-900 dark:text-white outline-none transition-all focus:border-[#36e2a0] focus:ring-2 focus:ring-[#36e2a0]/20 text-sm placeholder:text-gray-400 dark:placeholder:text-gray-600 font-mono text-xs"
-                    placeholder="https://images.unsplash.com/..."
-                    value={form.coverImage}
-                    onChange={(e) => setForm({ ...form, coverImage: e.target.value })}
                   />
                 </div>
               </div>
