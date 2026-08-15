@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
 
     const rawHistory = messages.slice(0, -1);
     const firstUserIdx = rawHistory.findIndex((m: any) => m.role === "user");
