@@ -13,6 +13,7 @@ import { Posts } from "@/components/cv/posts"
 import { Education } from "@/components/cv/education"
 import { Footer } from "@/components/cv/footer"
 import { LocaleProvider } from "@/components/cv/locale-context"
+import { GlobalAiChatbot } from "@/components/cv/global-ai-chatbot"
 import { cookies } from "next/headers"
 
 export const dynamic = "force-dynamic"
@@ -30,6 +31,7 @@ export default async function Home() {
           <ScrollProgress />
           <CommandPalette />
           <Navbar />
+          <GlobalAiChatbot />
           <main className="flex-1 flex flex-row overflow-x-auto overflow-y-hidden snap-x snap-mandatory h-screen w-full scroll-smooth hide-scrollbar relative">
             <div id="about" className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative">
               <Hero />
