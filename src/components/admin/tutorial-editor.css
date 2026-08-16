@@ -199,8 +199,7 @@
 
 .tutorial-editor-root .app {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr) 270px;
-  max-width: 1550px;
+  grid-template-columns: 300px minmax(0, 1fr) 360px;
   width: 100%;
   margin: 0 auto;
   min-height: calc(100vh - 68px);
@@ -226,7 +225,7 @@
 .tutorial-editor-root .outline-title {
   padding: 0 9px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.13em;
   margin-bottom: 12px;
@@ -245,7 +244,7 @@
   padding: 9px;
   border-radius: 9px;
   color: #7e8e87;
-  font-size: 11px;
+  font-size: 14px;
   border: 1px solid transparent;
   text-align: left;
   background: transparent;
@@ -267,7 +266,7 @@
   width: 22px;
   color: inherit;
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .tutorial-editor-root .outline-item.add {
@@ -291,7 +290,7 @@
 }
 
 .tutorial-editor-root .editor-container {
-  width: min(1100px, 100%);
+  width: min(1300px, 100%);
   margin: 0 auto;
 }
 
@@ -913,7 +912,7 @@
 .tutorial-editor-root .settings-title {
   padding: 0 7px;
   color: #697a73;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 900;
   letter-spacing: .15em;
   margin-bottom: 12px;
@@ -934,7 +933,7 @@
   padding: 0 12px;
   border-bottom: 1px solid var(--border);
   color: #b4c2bc;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 800;
 }
 
@@ -954,7 +953,7 @@
   display: block;
   margin-bottom: 6px;
   color: #6e8078;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: .08em;
 }
@@ -968,7 +967,7 @@
   outline: 0;
   background: #09120f;
   color: #cbd6d1;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .tutorial-editor-root .input,
@@ -1001,7 +1000,7 @@
   background: rgba(255,255,255,.045);
   border: 1px solid var(--border);
   border-radius: 999px;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .tutorial-editor-root .difficulty {
@@ -1016,7 +1015,7 @@
   border-radius: 8px;
   background: #09120f;
   color: #65766f;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .tutorial-editor-root .difficulty button.active {
@@ -1031,7 +1030,7 @@
   justify-content: space-between;
   padding: 8px 0;
   color: #84958e;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .tutorial-editor-root .switch {
