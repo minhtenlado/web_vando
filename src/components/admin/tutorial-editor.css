@@ -130,7 +130,7 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--surface);
-  color: #a9b7b1;
+  color: var(--muted);
   display: grid;
   place-items: center;
 }
@@ -174,7 +174,7 @@
   align-items: center;
   gap: 7px;
   margin-left: 17px;
-  color: #63b998;
+  color: var(--green);
   font-size: 10px;
 }
 
@@ -801,7 +801,7 @@
   border: 0;
   outline: 0;
   resize: vertical;
-  color: #bce9d7;
+  color: var(--text);
   font: 14px/1.7 var(--mono);
 }
 
@@ -825,7 +825,7 @@
 }
 
 .tutorial-editor-root .callout.warning .callout-icon {
-  color: #e5c86d;
+  color: var(--yellow);
   background: rgba(229,200,109,.09);
 }
 
@@ -849,7 +849,7 @@
   border: 0;
   outline: 0;
   resize: vertical;
-  color: #b9c8c1;
+  color: var(--text);
   font-size: 11px;
   line-height: 1.7;
 }
@@ -882,12 +882,12 @@
     transparent 8px,
     transparent 16px
   );
-  color: #63736c;
+  color: var(--muted-2);
   font-size: 11px;
 }
 
 .tutorial-editor-root .image-placeholder strong {
-  color: #8a9a93;
+  color: var(--muted);
 }
 
 /* =========================================================
@@ -903,7 +903,7 @@
 }
 
 .tutorial-editor-root .result-title {
-  color: #a5b5ff;
+  color: var(--blue);
   font-size: 10px;
   font-weight: 900;
   letter-spacing: .12em;
@@ -917,7 +917,7 @@
   border: 0;
   outline: 0;
   resize: vertical;
-  color: #b9c7d0;
+  color: var(--text);
   font-size: 12px;
   line-height: 1.7;
 }
@@ -941,7 +941,7 @@
 
 .tutorial-editor-root .settings-title {
   padding: 0 7px;
-  color: #697a73;
+  color: var(--muted-2);
   font-size: 12px;
   font-weight: 900;
   letter-spacing: .15em;
@@ -962,7 +962,7 @@
   align-items: center;
   padding: 0 12px;
   border-bottom: 1px solid var(--border);
-  color: #b4c2bc;
+  color: var(--muted);
   font-size: 13px;
   font-weight: 800;
 }
@@ -982,7 +982,7 @@
 .tutorial-editor-root .field label {
   display: block;
   margin-bottom: 6px;
-  color: #6e8078;
+  color: var(--muted);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: .08em;
@@ -996,7 +996,7 @@
   border-radius: 9px;
   outline: 0;
   background: #09120f;
-  color: #cbd6d1;
+  color: var(--text);
   font-size: 13px;
 }
 
@@ -1026,7 +1026,7 @@
 
 .tutorial-editor-root .tag-item {
   padding: 5px 8px;
-  color: #8fa099;
+  color: var(--muted);
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 999px;
@@ -1044,7 +1044,7 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   background: #09120f;
-  color: #65766f;
+  color: var(--muted-2);
   font-size: 12px;
 }
 
@@ -1059,7 +1059,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 0;
-  color: #84958e;
+  color: var(--muted);
   font-size: 13px;
 }
 
@@ -1115,12 +1115,12 @@
 }
 
 .tutorial-editor-root .stats {
-  color: #64746d;
+  color: var(--muted-2);
   font-size: 10px;
 }
 
 .tutorial-editor-root .stats strong {
-  color: #74aa95;
+  color: var(--green);
 }
 
 .tutorial-editor-root .footer-actions {
