@@ -254,57 +254,30 @@ export function TutorialReader({ slug, title, pubDate, readingTime, contentHtml,
 
   return (
     <>
-      <article ref={articleRef} className="relative min-w-0 px-6 py-10 sm:px-12 md:px-16 lg:px-20 sm:py-14 pb-[100px] bg-white dark:bg-[#0a0c10] border border-black/5 dark:border-white/5 rounded-[24px] shadow-sm">
+      <article ref={articleRef} className="tutorial-layout-article">
         
-        <header className="relative z-10 pb-10 border-b border-black/5 dark:border-white/10">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold tracking-widest uppercase">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              Tutorial
-            </span>
-            {category && (
-              <span className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                {category}
-              </span>
-            )}
-          </div>
-          
-          <h1 className="m-0 max-w-[900px] font-sans font-bold text-[clamp(32px,4vw,48px)] leading-[1.2] tracking-tight text-gray-900 dark:text-white">
-            {title}
-          </h1>
-
-          <div className="flex flex-wrap items-center gap-4 mt-8 text-gray-600 dark:text-gray-400 text-sm font-sans">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center font-bold text-gray-700 dark:text-gray-300">
-                {authorName?.charAt(0) || 'A'}
-              </div>
-              <div className="flex flex-col">
-                <span className="font-semibold text-gray-900 dark:text-gray-200">{authorName}</span>
-                <span className="text-xs">{authorRole}</span>
-              </div>
-            </div>
-            
-            <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700 mx-2" />
-            
-            <div className="flex items-center gap-1.5">
-              ◷ {pubDate}
-            </div>
-            <div className="flex items-center gap-1.5">
-              ◴ {readingTime} phút đọc
-            </div>
-          </div>
-        </header>
+        <div className="tutorial-badge">
+          <span className="tutorial-dot" />
+          TUTORIAL
+        </div>
+        
+        <h1 className="tutorial-title">{title}</h1>
+        
+        <div className="tutorial-meta">
+          {category && <span className="tutorial-chip">{category}</span>}
+          <span className="tutorial-chip">~{readingTime} phút đọc</span>
+          <span className="tutorial-chip">{pubDate}</span>
+          <span className="tutorial-chip">{authorName}</span>
+        </div>
+        
+        {excerpt && <p className="tutorial-lead">{excerpt}</p>}
+        
+        <div className="tutorial-rule" />
 
         <div 
-          className="pt-12 font-sans tutorial-prose text-gray-800 dark:text-gray-200 leading-relaxed" 
+          className="tutorial-prose" 
           style={{ fontSize: `${fontSize}px` }}
         >
-          {excerpt && (
-            <p className="text-xl text-gray-600 dark:text-gray-400 mb-10 leading-relaxed font-medium">
-              {excerpt}
-            </p>
-          )}
-
           {pdfUrl && (
             <div className="mb-10 w-full flex flex-col items-center">
               <div className="w-full h-[500px] sm:h-[700px] lg:h-[900px] rounded-xl overflow-hidden border border-black/10 dark:border-white/10 shadow-inner bg-zinc-100 dark:bg-zinc-900/50 mb-6">
@@ -320,14 +293,7 @@ export function TutorialReader({ slug, title, pubDate, readingTime, contentHtml,
           )}
 
           <div 
-            className="prose dark:prose-invert max-w-none 
-              prose-p:my-6 prose-p:leading-relaxed 
-              prose-headings:font-sans prose-headings:font-bold prose-headings:tracking-tight 
-              prose-h2:mt-12 prose-h2:mb-6 prose-h2:text-3xl prose-h2:text-gray-900 dark:prose-h2:text-white 
-              prose-h3:mt-8 prose-h3:mb-4 prose-h3:text-2xl prose-h3:text-gray-800 dark:prose-h3:text-gray-100 
-              prose-strong:text-gray-900 dark:prose-strong:text-white prose-strong:font-bold 
-              prose-a:text-emerald-600 dark:prose-a:text-emerald-400 prose-a:no-underline hover:prose-a:underline
-              prose-img:rounded-xl prose-img:shadow-md prose-img:mx-auto ql-editor-display"
+            className="tutorial-content-wrapper"
             dangerouslySetInnerHTML={{ __html: sanitizePostHtml(contentHtml) }}
           />
 
