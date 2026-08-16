@@ -16,7 +16,7 @@ const QUICK_PROMPTS = [
   { label: "⊕ Ứng dụng thực tế", prompt: "Bài viết này có ứng dụng gì trong thực tế công việc Embedded / AI?" }
 ]
 
-export function PostAiChat({ postTitle, postContent }: { postTitle: string, postContent: string }) {
+export function PostAiChat({ postTitle, postContent, isFloating = false }: { postTitle: string, postContent: string, isFloating?: boolean }) {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", content: "Chào bạn! Mình là trợ lý AI. Bạn có thể chọn câu hỏi gợi ý bên dưới hoặc tự nhập thắc mắc về bài viết này nhé!" }
@@ -142,6 +142,18 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
 
   // Collapsed Button View
   if (!isOpen) {
+    if (isFloating) {
+      return (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="w-[50px] h-[50px] rounded-[16px] bg-primary text-primary-foreground shadow-[0_10px_40px_rgba(0,0,0,0.2)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
+          title="Hỏi AI về bài viết"
+        >
+          <Sparkles className="w-6 h-6 animate-pulse" />
+        </button>
+      )
+    }
+
     return (
       <div className="p-4 border border-black/5 dark:border-white/5 rounded-[18px] bg-white/70 dark:bg-white/5 backdrop-blur-[18px] shrink-0 transition-all hover:border-primary/30">
         <button
@@ -170,8 +182,12 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
   }
 
   // Expanded Full Chat View
+  const containerClasses = isFloating 
+    ? "p-4 border border-primary/20 dark:border-primary/30 rounded-[18px] bg-white/95 dark:bg-[#101419]/95 backdrop-blur-[24px] flex flex-col h-[500px] max-h-[calc(100vh-100px)] w-[calc(100vw-48px)] sm:w-[380px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.5)] origin-bottom-right transition-all"
+    : "p-4 border border-primary/20 dark:border-primary/30 rounded-[18px] bg-white/80 dark:bg-white/5 backdrop-blur-[18px] shrink-0 flex flex-col h-[520px] transition-all shadow-lg dark:shadow-primary/5"
+
   return (
-    <div className="p-4 border border-primary/20 dark:border-primary/30 rounded-[18px] bg-white/80 dark:bg-white/5 backdrop-blur-[18px] shrink-0 flex flex-col h-[520px] transition-all shadow-lg dark:shadow-primary/5">
+    <div className={containerClasses}>
       {/* Header */}
       <div className="flex items-center justify-between mb-3 shrink-0 pb-2 border-b border-black/5 dark:border-white/5">
         <div className="flex items-center gap-2 font-sans text-[11px] font-extrabold tracking-[0.08em] text-[#8e96a5] uppercase">

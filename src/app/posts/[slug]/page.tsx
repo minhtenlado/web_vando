@@ -146,10 +146,14 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                  </div>
                </div>
             </div>
-
-            <PostAiChat postTitle={post.title} postContent={post.content} />
+            <PostAiChat postTitle={post.title} postContent={post.content} isFloating={false} />
          </aside>
       </main>
+
+      {/* Floating AI Chat for mobile/tablet */}
+      <div className="xl:hidden fixed bottom-6 right-6 z-[600]">
+         <PostAiChat postTitle={post.title} postContent={post.content} isFloating={true} />
+      </div>
     </div>
   )
 }
