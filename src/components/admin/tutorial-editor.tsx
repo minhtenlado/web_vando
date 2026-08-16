@@ -22,7 +22,8 @@ export type Block =
   | { id: string; type: "tip"; content: string }
   | { id: string; type: "warning"; content: string }
   | { id: string; type: "result"; content: string }
-  | { id: string; type: "image"; url: string };
+  | { id: string; type: "image"; url: string }
+  | { id: string; type: "youtube"; url: string };
 
 interface TutorialEditorProps {
   form: PostForm;
@@ -108,6 +109,13 @@ function generateHTML(data: TutorialData) {
         html += `  <blockquote>[!NOTE]<br><strong>KẾT QUẢ:</strong> ${block.content}</blockquote>\n`;
       } else if (block.type === 'image') {
         html += `  <img src="${block.url}" alt="image" />\n`;
+      } else if (block.type === 'youtube') {
+        if (block.url) {
+          const videoId = block.url.split('v=')[1]?.split('&')[0] || block.url.split('youtu.be/')[1]?.split('?')[0];
+          if (videoId) {
+            html += `  <div class="my-6 w-full flex flex-col items-center"><div class="w-full max-w-[800px] aspect-video rounded-xl overflow-hidden border border-black/10 dark:border-white/10 shadow-lg bg-zinc-100 dark:bg-zinc-900/50"><iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen="allowfullscreen" class="w-full h-full border-0"></iframe></div></div>\n`;
+          }
+        }
       }
     }
   });
@@ -119,6 +127,18 @@ function generateHTML(data: TutorialData) {
   html += `</div>`;
   return html;
 }
+
+const MENU_ITEMS = [
+  { id: 'paragraph', icon: 'T', name: 'Đoạn văn', desc: 'Viết nội dung thông thường', group: 'BASIC' },
+  { id: 'heading', icon: 'H', name: 'Heading', desc: 'Tiêu đề section', group: 'BASIC' },
+  { id: 'step', icon: '01', name: 'Step', desc: 'Tạo một bước hướng dẫn', group: 'TUTORIAL' },
+  { id: 'code', icon: '</>', name: 'Code', desc: 'Thêm code có syntax', group: 'TUTORIAL' },
+  { id: 'tip', icon: '💡', name: 'Tip', desc: 'Mẹo hữu ích', group: 'CALLOUT' },
+  { id: 'warning', icon: '⚠', name: 'Warning', desc: 'Cảnh báo quan trọng', group: 'CALLOUT' },
+  { id: 'result', icon: '✓', name: 'Result', desc: 'Kết quả của bước', group: 'CALLOUT' },
+  { id: 'image', icon: '🖼', name: 'Hình ảnh', desc: 'Chèn ảnh từ URL', group: 'MEDIA' },
+  { id: 'youtube', icon: '▶', name: 'YouTube', desc: 'Chèn video từ YouTube', group: 'MEDIA' }
+] as const;
 
 export function TutorialEditor({
   form,
@@ -165,6 +185,8 @@ export function TutorialEditor({
       ? { id: generateId(), type: 'code', code: '', lang: 'Python' }
       : type === 'image'
       ? { id: generateId(), type: 'image', url: '' }
+      : type === 'youtube'
+      ? { id: generateId(), type: 'youtube', url: '' }
       : { id: generateId(), type, content: '' } as any;
 
     const newBlocks = [...data.blocks];
@@ -473,6 +495,31 @@ export function TutorialEditor({
                           </div>
                         </div>
                       )}
+
+                      {block.type === 'youtube' && (
+                        <div className="image-block">
+                          <input 
+                            className="w-full bg-transparent border-0 outline-none text-center text-[11px] text-gray-400 mb-2"
+                            placeholder="Nhập URL YouTube (vd: https://youtube.com/watch?v=...)"
+                            value={block.url}
+                            onChange={(e) => updateBlock(block.id, { url: e.target.value })}
+                          />
+                          <div className="image-placeholder" style={{ background: block.url ? 'transparent' : '' }}>
+                            {block.url ? (
+                              <iframe 
+                                src={`https://www.youtube.com/embed/${block.url.split('v=')[1]?.split('&')[0] || block.url.split('youtu.be/')[1]?.split('?')[0] || ''}`} 
+                                className="w-full aspect-video rounded-md border-0" 
+                                allowFullScreen 
+                              />
+                            ) : (
+                              <>
+                                <strong>▶ Chưa có video</strong>
+                                Nhập đường dẫn YouTube ở trên
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* INSERT BAR */}
@@ -490,55 +537,54 @@ export function TutorialEditor({
                         </button>
                       </div>
 
-                      {activeMenuIndex === index && (
-                        <div className="slash-menu open">
-                          <input 
-                            className="slash-search" 
-                            placeholder="Tìm block..." 
-                            value={searchMenu}
-                            onChange={(e) => setSearchMenu(e.target.value)}
-                            autoFocus
-                          />
-                          <div className="h-48 overflow-y-auto">
-                            <div className="menu-label">BASIC</div>
-                            <button type="button" className="menu-item" onClick={() => insertBlock(index, 'paragraph')}>
-                              <span className="menu-icon">T</span>
-                              <span className="menu-text"><strong>Đoạn văn</strong><span>Viết nội dung thông thường</span></span>
-                            </button>
-                            <button type="button" className="menu-item" onClick={() => insertBlock(index, 'heading')}>
-                              <span className="menu-icon">H</span>
-                              <span className="menu-text"><strong>Heading</strong><span>Tiêu đề section</span></span>
-                            </button>
-                            <div className="menu-label">TUTORIAL</div>
-                            <button type="button" className="menu-item" onClick={() => insertBlock(index, 'step')}>
-                              <span className="menu-icon">01</span>
-                              <span className="menu-text"><strong>Step</strong><span>Tạo một bước hướng dẫn</span></span>
-                            </button>
-                            <button type="button" className="menu-item" onClick={() => insertBlock(index, 'code')}>
-                              <span className="menu-icon">&lt;/&gt;</span>
-                              <span className="menu-text"><strong>Code</strong><span>Thêm code có syntax</span></span>
-                            </button>
-                            <div className="menu-label">CALLOUT</div>
-                            <button type="button" className="menu-item" onClick={() => insertBlock(index, 'tip')}>
-                              <span className="menu-icon">💡</span>
-                              <span className="menu-text"><strong>Tip</strong><span>Mẹo hữu ích</span></span>
-                            </button>
-                            <button type="button" className="menu-item" onClick={() => insertBlock(index, 'warning')}>
-                              <span className="menu-icon">⚠</span>
-                              <span className="menu-text"><strong>Warning</strong><span>Cảnh báo quan trọng</span></span>
-                            </button>
-                            <button type="button" className="menu-item" onClick={() => insertBlock(index, 'result')}>
-                              <span className="menu-icon">✓</span>
-                              <span className="menu-text"><strong>Result</strong><span>Kết quả của bước</span></span>
-                            </button>
-                            <div className="menu-label">MEDIA</div>
-                            <button type="button" className="menu-item" onClick={() => insertBlock(index, 'image')}>
-                              <span className="menu-icon">🖼</span>
-                              <span className="menu-text"><strong>Hình ảnh</strong><span>Chèn ảnh từ URL</span></span>
-                            </button>
+                      {activeMenuIndex === index && (() => {
+                        const filteredMenu = searchMenu.trim() 
+                          ? MENU_ITEMS.filter(m => 
+                              m.name.toLowerCase().includes(searchMenu.toLowerCase()) || 
+                              m.desc.toLowerCase().includes(searchMenu.toLowerCase()) ||
+                              m.id.toLowerCase().includes(searchMenu.toLowerCase())
+                            )
+                          : MENU_ITEMS;
+                        const groups = Array.from(new Set(filteredMenu.map(m => m.group)));
+
+                        return (
+                          <div className="slash-menu open">
+                            <input 
+                              className="slash-search" 
+                              placeholder="Tìm block..." 
+                              value={searchMenu}
+                              onChange={(e) => setSearchMenu(e.target.value)}
+                              autoFocus
+                            />
+                            <div className="max-h-[300px] overflow-y-auto pb-2">
+                              {groups.map(group => (
+                                <React.Fragment key={group}>
+                                  <div className="menu-label">{group}</div>
+                                  {filteredMenu.filter(m => m.group === group).map(item => (
+                                    <button 
+                                      key={item.id} 
+                                      type="button" 
+                                      className="menu-item" 
+                                      onClick={() => insertBlock(index, item.id as Block['type'])}
+                                    >
+                                      <span className="menu-icon">{item.icon}</span>
+                                      <span className="menu-text">
+                                        <strong>{item.name}</strong>
+                                        <span>{item.desc}</span>
+                                      </span>
+                                    </button>
+                                  ))}
+                                </React.Fragment>
+                              ))}
+                              {filteredMenu.length === 0 && (
+                                <div className="text-center p-4 text-gray-500 text-sm">
+                                  Không tìm thấy block phù hợp
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        );
+                      })()}
                     </div>
                   </React.Fragment>
                 );
