@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { LogOut, ExternalLink, Menu, X } from "lucide-react";
+import { LogOut, ExternalLink, Menu, X, ChevronDown, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LoginForm } from "@/components/admin/login-form";
 import { ProfileTab } from "@/components/admin/profile-tab";
@@ -41,6 +41,8 @@ function Dashboard({
   const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = React.useState<TabId>("experiences");
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
+  const [activeSettingsTab, setActiveSettingsTab] = React.useState("general");
 
   // Close sidebar on mobile when tab changes
   React.useEffect(() => {
@@ -59,6 +61,18 @@ function Dashboard({
   const sysItems = [
     { id: "settings" as TabId, icon: "⚙", label: "Cài đặt" },
     { id: "activity" as TabId, icon: "◐", label: "Activity Log" },
+  ];
+
+  
+  const settingsSubItems = [
+    { id: "general", label: "Tổng quan" },
+    { id: "account", label: "Tài khoản & Bảo mật" },
+    { id: "appearance", label: "Giao diện" },
+    { id: "portfolio", label: "Thông tin & SEO" },
+    { id: "navigation", label: "Điều hướng" },
+    { id: "integrations", label: "Tích hợp" },
+    { id: "notifications", label: "Thông báo" },
+    { id: "backup", label: "Hệ thống & Dữ liệu" },
   ];
 
   const currentTabLabel =
@@ -108,16 +122,47 @@ function Dashboard({
 
           <div className="admin-nav-title mt-4">SYSTEM</div>
           <nav className="admin-nav">
-            {sysItems.map((item) => (
-              <button
-                key={item.id}
-                className={`admin-nav-item ${activeTab === item.id ? "active" : ""}`}
-                onClick={() => setActiveTab(item.id)}
-              >
-                <span className="admin-nav-icon">{item.icon}</span>
-                <span className="admin-nav-label">{item.label}</span>
-              </button>
-            ))}
+            <button
+              className={`admin-nav-item ${activeTab === "settings" ? "active" : ""}`}
+              onClick={() => {
+                setActiveTab("settings");
+                setSettingsOpen(!settingsOpen);
+              }}
+            >
+              <span className="admin-nav-icon">⚙</span>
+              <span className="admin-nav-label">Cài đặt</span>
+              <ChevronDown className={`size-4 transition-transform ${settingsOpen ? "rotate-180" : ""}`} />
+            </button>
+            
+            {settingsOpen && (
+              <div className="flex flex-col gap-1 pl-11 pr-2 py-2">
+                {settingsSubItems.map((sub, index) => (
+                  <button
+                    key={sub.id}
+                    className={`text-left text-sm py-1.5 px-3 rounded-md transition-colors ${
+                      activeTab === "settings" && activeSettingsTab === sub.id
+                        ? "bg-[var(--admin-hover)] text-[var(--admin-green)] font-medium"
+                        : "text-[var(--admin-text-3)] hover:text-[var(--admin-text)] hover:bg-[var(--admin-hover)]"
+                    }`}
+                    onClick={() => {
+                      setActiveTab("settings");
+                      setActiveSettingsTab(sub.id);
+                    }}
+                  >
+                    <span className="mr-2 opacity-50">{index === settingsSubItems.length - 1 ? "└─" : "├─"}</span>
+                    {sub.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <button
+              className={`admin-nav-item ${activeTab === "activity" ? "active" : ""}`}
+              onClick={() => setActiveTab("activity")}
+            >
+              <span className="admin-nav-icon">◐</span>
+              <span className="admin-nav-label">Activity Log</span>
+            </button>
           </nav>
 
           <div className="admin-sidebar-footer">
@@ -192,7 +237,7 @@ function Dashboard({
             {activeTab === "projects" && <ProjectsTab locale={locale} />}
             {activeTab === "experiences" && <ExperiencesTab locale={locale} />}
             {activeTab === "posts" && <PostsTab locale={locale} />}
-            {activeTab === "settings" && <SettingsTab />}
+            {activeTab === "settings" && <SettingsTab activeTab={activeSettingsTab} />}
             {activeTab === "activity" && <ActivityLogTab />}
           </div>
         </main>

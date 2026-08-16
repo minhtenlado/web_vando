@@ -70,10 +70,9 @@ const initialSettings = {
 
 type SettingsType = typeof initialSettings;
 
-export function SettingsTab() {
+export function SettingsTab({ activeTab = 'general' }: { activeTab?: string }) {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = React.useState("general");
-  const [settings, setSettings] = React.useState<SettingsType>(initialSettings);
+    const [settings, setSettings] = React.useState<SettingsType>(initialSettings);
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
 
@@ -139,98 +138,7 @@ export function SettingsTab() {
 
   return (
     <div className="settings-layout-pro" id="settingsView">
-      <aside className="settings-nav-pro">
-        <button
-          className={`settings-nav-pro-item ${activeTab === "general" ? "active" : ""}`}
-          onClick={() => setActiveTab("general")}
-          type="button"
-        >
-          <span>◎</span>
-          <div>
-            <strong>Tổng quan</strong>
-            <small>General settings</small>
-          </div>
-        </button>
-        <button
-          className={`settings-nav-pro-item ${activeTab === "account" ? "active" : ""}`}
-          onClick={() => setActiveTab("account")}
-          type="button"
-        >
-          <span>◉</span>
-          <div>
-            <strong>Tài khoản & Bảo mật</strong>
-            <small>Admin profile & Security</small>
-          </div>
-        </button>
-        <button
-          className={`settings-nav-pro-item ${activeTab === "appearance" ? "active" : ""}`}
-          onClick={() => setActiveTab("appearance")}
-          type="button"
-        >
-          <span>◐</span>
-          <div>
-            <strong>Giao diện</strong>
-            <small>Theme & layout</small>
-          </div>
-        </button>
-        <button
-          className={`settings-nav-pro-item ${activeTab === "portfolio" ? "active" : ""}`}
-          onClick={() => setActiveTab("portfolio")}
-          type="button"
-        >
-          <span>◈</span>
-          <div>
-            <strong>Thông tin & SEO</strong>
-            <small>Website & Search engine</small>
-          </div>
-        </button>
-        <button
-          className={`settings-nav-pro-item ${activeTab === "navigation" ? "active" : ""}`}
-          onClick={() => setActiveTab("navigation")}
-          type="button"
-        >
-          <span>≡</span>
-          <div>
-            <strong>Điều hướng</strong>
-            <small>Menu & sections</small>
-          </div>
-        </button>
-
-        <button
-          className={`settings-nav-pro-item ${activeTab === "integrations" ? "active" : ""}`}
-          onClick={() => setActiveTab("integrations")}
-          type="button"
-        >
-          <span>↗</span>
-          <div>
-            <strong>Tích hợp</strong>
-            <small>API & services</small>
-          </div>
-        </button>
-        <button
-          className={`settings-nav-pro-item ${activeTab === "notifications" ? "active" : ""}`}
-          onClick={() => setActiveTab("notifications")}
-          type="button"
-        >
-          <span>◌</span>
-          <div>
-            <strong>Thông báo</strong>
-            <small>Alerts & email</small>
-          </div>
-        </button>
-
-        <button
-          className={`settings-nav-pro-item ${activeTab === "backup" ? "active" : ""}`}
-          onClick={() => setActiveTab("backup")}
-          type="button"
-        >
-          <span>↓</span>
-          <div>
-            <strong>Hệ thống & Dữ liệu</strong>
-            <small>Backup & Maintenance</small>
-          </div>
-        </button>
-      </aside>
+      
 
       <main className="settings-panel-pro">
         {/* GENERAL */}
