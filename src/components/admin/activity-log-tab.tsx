@@ -132,7 +132,7 @@ export function ActivityLogTab() {
   const failedEvents = filteredLogs.filter(l => l.status.toLowerCase() === "failed" || l.status.toLowerCase() === "error").length;
 
   return (
-    <div className="admin-view" data-view-panel="activity" id="activityView">
+    <div className="admin-view active" data-view-panel="activity" id="activityView">
       <div className="system-page-header">
         <div>
           <div className="page-kicker">
