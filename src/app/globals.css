@@ -358,3 +358,72 @@ html, body {
     margin: 14mm;
   }
 }
+
+/* =========================================================
+   CAREER CONSOLE PRO — Experience Section
+========================================================= */
+
+/* Pulse dot animation for active/current position */
+@keyframes career-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.5); }
+  50% { box-shadow: 0 0 0 8px hsl(var(--primary) / 0); }
+}
+
+.career-pro-pulse {
+  animation: career-pulse 2s ease-in-out infinite;
+}
+
+/* Status dot blink */
+@keyframes status-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.career-pro-status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: status-blink 1.5s ease-in-out infinite;
+}
+
+/* Timeline line gradient */
+.career-pro-timeline-line {
+  background: linear-gradient(
+    to bottom,
+    hsl(var(--primary)),
+    hsl(var(--primary) / 0.3),
+    hsl(var(--border))
+  );
+}
+
+/* Card glassmorphism */
+.career-pro-card {
+  background: hsl(var(--card) / 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--border));
+  transition: all 0.3s ease;
+}
+.career-pro-card:hover {
+  border-color: hsl(var(--primary) / 0.5);
+  box-shadow: 0 0 24px -6px hsl(var(--primary) / 0.15);
+}
+
+/* Status bar at bottom */
+.career-pro-statusbar {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  border-top: 1px solid hsl(var(--border));
+  background: hsl(var(--muted) / 0.5);
+  backdrop-filter: blur(8px);
+}
+
+/* Highlight arrow icon */
+.career-pro-arrow {
+  color: hsl(var(--primary));
+  flex-shrink: 0;
+  margin-top: 2px;
+}

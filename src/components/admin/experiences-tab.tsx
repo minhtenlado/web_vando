@@ -234,34 +234,48 @@ export function ExperiencesTab({ locale }: { locale: string }) {
         </Card>
       ) : (
         <div className="space-y-3">
-          {items.map((e) => (
-            <Card key={e.id}>
-              <CardHeader>
+          {items.map((e, idx) => (
+            <Card key={e.id} className="overflow-hidden">
+              <CardHeader className="pb-2">
                 <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div className="space-y-1">
-                    <CardTitle className="text-base">
-                      <span className="text-primary">{e.role}</span>
-                      <span className="text-muted-foreground"> @ </span>
-                      {e.companyUrl ? (
-                        <a
-                          href={e.companyUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1 hover:text-primary"
-                        >
-                          {e.company}
-                          <ExternalLink className="size-3" />
-                        </a>
-                      ) : (
-                        e.company
-                      )}
-                    </CardTitle>
-                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground font-mono">
-                      {e.period && <span>⏱ {e.period}</span>}
-                      {e.location && <span>📍 {e.location}</span>}
+                  <div className="flex items-start gap-3">
+                    {/* Timeline dot preview */}
+                    <div className="mt-1 shrink-0">
+                      <span className={
+                        "block h-3.5 w-3.5 rounded-full border-2 border-background ring-2 " +
+                        (idx === 0 ? "bg-primary ring-primary/30" : "bg-muted-foreground/30 ring-border")
+                      } />
+                    </div>
+                    <div className="space-y-1 min-w-0">
+                      <CardTitle className="text-base leading-tight">
+                        <span className="text-primary font-bold">{e.role}</span>
+                      </CardTitle>
+                      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                        {e.companyUrl ? (
+                          <a
+                            href={e.companyUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 hover:text-primary font-medium"
+                          >
+                            {e.company}
+                            <ExternalLink className="size-3" />
+                          </a>
+                        ) : (
+                          <span className="font-medium">{e.company}</span>
+                        )}
+                        {e.location && <span className="text-xs">📍 {e.location}</span>}
+                      </div>
+                      <div className="flex flex-wrap gap-2 text-xs text-muted-foreground font-mono">
+                        {e.period && (
+                          <Badge variant="secondary" className="gap-1 text-[10px]">
+                            ⏱ {e.period}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 shrink-0">
                     <Button size="sm" variant="outline" className="h-8" onClick={() => openEdit(e)}>
                       <Pencil className="size-3.5" /> Sửa
                     </Button>
@@ -271,15 +285,41 @@ export function ExperiencesTab({ locale }: { locale: string }) {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-1">
+              <CardContent className="space-y-2 pt-0">
                 {e.description && (
-                  <div className="text-sm text-muted-foreground whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: sanitizeHtml(e.description || "") }} />
+                  <div className="text-sm text-muted-foreground whitespace-pre-wrap pl-6" dangerouslySetInnerHTML={{ __html: sanitizeHtml(e.description || "") }} />
+                )}
+                {e.highlights && e.highlights.length > 0 && (
+                  <ul className="pl-6 space-y-1">
+                    {e.highlights.slice(0, 3).map((h, hi) => (
+                      <li key={hi} className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                        <span className="text-primary mt-0.5">→</span>
+                        <span className="line-clamp-1">{h}</span>
+                      </li>
+                    ))}
+                    {e.highlights.length > 3 && (
+                      <li className="text-xs text-muted-foreground/60 pl-4">
+                        +{e.highlights.length - 3} {e.highlights.length - 3 === 1 ? "mục" : "mục"} nữa
+                      </li>
+                    )}
+                  </ul>
                 )}
                 {e.stack && e.stack.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-1">
-                    {e.stack.map((s, i) => (
-                      <Badge key={i} variant="outline" className="font-mono text-[10px]">{s}</Badge>
+                  <div className="mt-2 flex flex-wrap gap-1 pl-6">
+                    {e.stack.map((s, si) => (
+                      <Badge key={si} variant="outline" className="font-mono text-[10px]">{s}</Badge>
                     ))}
+                  </div>
+                )}
+                {e.images && e.images.length > 0 && (
+                  <div className="mt-2 pl-6 flex gap-1.5 overflow-x-auto">
+                    {e.images.map((img, ii) => (
+                      <div key={ii} className="relative h-10 w-14 shrink-0 rounded border border-border/50 overflow-hidden">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={img} alt={`Gallery ${ii}`} className="h-full w-full object-cover" />
+                      </div>
+                    ))}
+                    <span className="text-[10px] text-muted-foreground font-mono self-center ml-1">{e.images.length} ảnh</span>
                   </div>
                 )}
               </CardContent>
