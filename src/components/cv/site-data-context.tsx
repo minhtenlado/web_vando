@@ -23,7 +23,7 @@ const defaultSettings = {
   navContactEnabled: true,
   showLocation: true,
   showDownloadCv: true,
-  availabilityText: "Sẵn sàng cho cơ hội mới",
+  availabilityText: "",
   compactMode: false,
   darkMode: true,
 }

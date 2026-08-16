@@ -47,10 +47,7 @@ export function Posts() {
           <SectionHeader
             index="07 / posts"
             title={t("Bài viết", "Posts")}
-            subtitle={t(
-              "Chia sẻ kỹ thuật và bài học từ thực chiến với hệ thống nhúng, RTOS và IoT.",
-              "Technical sharing and lessons from real-world embedded systems, RTOS, and IoT."
-            )}
+            subtitle=""
           />
           <div className="mt-10 text-center text-muted-foreground p-12 border border-dashed rounded-2xl border-border/60">
             {t("Chưa có bài viết nào được xuất bản.", "No posts published yet.")}
@@ -66,10 +63,7 @@ export function Posts() {
         <SectionHeader
           index="07 / posts"
           title={t("Bài viết", "Posts")}
-          subtitle={t(
-            "Chia sẻ kỹ thuật và bài học từ thực chiến với hệ thống nhúng, RTOS và IoT.",
-            "Technical sharing and lessons from real-world embedded systems, RTOS, and IoT."
-          )}
+          subtitle=""
         />
 
         {/* Toolbar */}

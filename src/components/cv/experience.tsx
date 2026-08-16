@@ -99,11 +99,7 @@ export function Experience() {
               {t("Kinh nghiệm làm việc", "Work Experience")}
             </h2>
             <p className="text-muted-foreground text-base sm:text-lg max-w-2xl">
-              {profile.experienceSubtitle ||
-                t(
-                  "Hành trình phát triển trong Embedded Linux, Firmware, IoT và Edge AI.",
-                  "My journey in Embedded Linux, Firmware, IoT, and Edge AI."
-                )}
+              {profile.experienceSubtitle || ""}
             </p>
           </div>
 

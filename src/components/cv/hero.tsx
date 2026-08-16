@@ -62,7 +62,7 @@ export function Hero() {
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
               </span>
               <span className="text-sm font-mono text-muted-foreground">
-                {profile.available ? (settings?.availabilityText || t("Sẵn sàng cho cơ hội mới", "Available for new opportunities")) : t("Đang bận", "Currently busy")}
+                {profile.available ? "" : t("Đang bận", "Currently busy")}
               </span>
             </div>
 

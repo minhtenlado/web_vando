@@ -448,10 +448,7 @@ export function Projects() {
         <SectionHeader
           index="04 / projects"
           title={t("Dự án tiêu biểu", "Featured Projects")}
-          subtitle={t(
-            "Một vài dự án tôi tự hào nhất — từ sản phẩm thương mại đến dự án nghiên cứu AIoT & hệ thống nhúng. Nhấn 'Xem chi tiết' hoặc phím 'P' để xem Case Study.",
-            "A few projects I'm most proud of — from commercial products to AIoT research projects. Click 'View Details' or press 'P' for full Case Study."
-          )}
+          subtitle=""
         />
 
         <div className="mt-10 grid md:grid-cols-2 gap-6">
