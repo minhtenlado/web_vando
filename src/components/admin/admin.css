@@ -340,9 +340,3 @@
   background: rgba(0,230,167,.055);
   border-color: rgba(0,230,167,.08);
 }
-.admin-subnav-tree {
-  color: var(--admin-text-3);
-  opacity: 0.5;
-  font-family: "DM Mono", monospace;
-  font-size: 14px;
-}

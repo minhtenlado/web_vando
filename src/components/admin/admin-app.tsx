@@ -145,7 +145,6 @@ function Dashboard({
                       setActiveSettingsTab(sub.id);
                     }}
                   >
-                    <span className="admin-subnav-tree">{index === settingsSubItems.length - 1 ? "└─" : "├─"}</span>
                     {sub.label}
                   </button>
                 ))}
