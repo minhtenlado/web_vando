@@ -710,6 +710,37 @@ export function TutorialEditor({
                   className="data-[state=checked]:bg-[#36e2a0]"
                 />
               </div>
+              <div className="field mt-4">
+                <label>NGÀY ĐĂNG BÀI</label>
+                <input
+                  type="datetime-local"
+                  className="input"
+                  value={(() => {
+                    if (!form.createdAt) return "";
+                    try {
+                      const d = new Date(form.createdAt);
+                      if (isNaN(d.getTime())) return "";
+                      const pad = (n: number) => n.toString().padStart(2, "0");
+                      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                    } catch {
+                      return "";
+                    }
+                  })()}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (!val) {
+                      setForm({ ...form, createdAt: new Date().toISOString() });
+                    } else {
+                      try {
+                        const d = new Date(val);
+                        setForm({ ...form, createdAt: d.toISOString() });
+                      } catch {
+                        setForm({ ...form, createdAt: new Date().toISOString() });
+                      }
+                    }
+                  }}
+                />
+              </div>
             </div>
           </section>
         </aside>
