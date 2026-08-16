@@ -200,7 +200,7 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
       {/* Messages List */}
       <div 
         ref={chatContainerRef}
-        className="flex-1 min-h-0 overflow-y-auto mb-3 space-y-3 pr-1 custom-scrollbar"
+        className="flex-1 min-h-0 overflow-y-auto mb-3 space-y-3 pr-1 scrollbar-hide"
       >
         {messages.map((msg, i) => (
           <div key={i} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
