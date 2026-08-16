@@ -369,7 +369,7 @@ html, body {
   50% { box-shadow: 0 0 0 8px hsl(var(--primary) / 0); }
 }
 
-.career-pro-pulse {
+.career-pulse {
   animation: career-pulse 2s ease-in-out infinite;
 }
 
@@ -379,17 +379,33 @@ html, body {
   50% { opacity: 0.4; }
 }
 
-.career-pro-status-dot {
+.career-status-dot {
   display: inline-block;
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #22c55e;
+  background: hsl(var(--primary));
   animation: status-blink 1.5s ease-in-out infinite;
 }
 
-/* Timeline line gradient */
-.career-pro-timeline-line {
+/* Main console container */
+.career-console {
+  background: hsl(var(--card) / 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.career-sidebar {
+  border-right: 1px solid hsl(var(--border));
+  background: hsl(var(--card) / 0.4);
+}
+
+/* Sidebar timeline line */
+.career-sidebar-line {
   background: linear-gradient(
     to bottom,
     hsl(var(--primary)),
@@ -398,32 +414,43 @@ html, body {
   );
 }
 
-/* Card glassmorphism */
-.career-pro-card {
-  background: hsl(var(--card) / 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid hsl(var(--border));
-  transition: all 0.3s ease;
+/* Sidebar timeline entry */
+.career-entry {
+  cursor: pointer;
+  padding: 12px 16px;
+  position: relative;
+  transition: background 0.2s ease;
 }
-.career-pro-card:hover {
-  border-color: hsl(var(--primary) / 0.5);
-  box-shadow: 0 0 24px -6px hsl(var(--primary) / 0.15);
+.career-entry:hover {
+  background: hsl(var(--primary) / 0.06);
+}
+.career-entry.active {
+  background: hsl(var(--primary) / 0.08);
 }
 
-/* Status bar at bottom */
-.career-pro-statusbar {
-  font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 11px;
-  letter-spacing: 0.04em;
+/* Detail panel */
+.career-detail {
+  background: transparent;
+}
+
+/* Contribution card */
+.career-contrib-card {
+  background: hsl(var(--primary) / 0.04);
+  border: 1px solid hsl(var(--primary) / 0.15);
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.25s ease;
+}
+.career-contrib-card:hover {
+  border-color: hsl(var(--primary) / 0.4);
+  background: hsl(var(--primary) / 0.08);
+}
+
+/* Status footer bar */
+.career-footer {
   border-top: 1px solid hsl(var(--border));
-  background: hsl(var(--muted) / 0.5);
-  backdrop-filter: blur(8px);
+  background: hsl(var(--card) / 0.3);
+  font-size: 12px;
+  letter-spacing: 0.04em;
 }
 
-/* Highlight arrow icon */
-.career-pro-arrow {
-  color: hsl(var(--primary));
-  flex-shrink: 0;
-  margin-top: 2px;
-}
