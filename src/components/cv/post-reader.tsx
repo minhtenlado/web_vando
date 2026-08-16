@@ -173,12 +173,7 @@ export function PostReader({ slug, title, pubDate, readingTime, contentHtml, pdf
         <div className="absolute top-[-180px] left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-[radial-gradient(circle,rgba(107,123,255,0.09),transparent_68%)] pointer-events-none hidden dark:block" />
 
         <header className="relative z-10 pb-8 border-b border-black/5 dark:border-white/10">
-          <div className="inline-flex items-center gap-2 mb-5 px-3 py-1.5 border border-[#7e8bff]/20 rounded-full bg-[#6e78ff]/10 text-[#9ca7ff] text-[10px] font-extrabold tracking-[0.12em] uppercase">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#8e9aff] shadow-[0_0_10px_#8e9aff]" />
-            Research Article
-          </div>
-          
-          <h1 className="m-0 max-w-none font-serif text-[clamp(34px,4vw,54px)] leading-[1.1] tracking-[-0.035em] text-gray-900 dark:text-[#f4f5f7]">
+          <h1 className="m-0 max-w-none font-sans text-[clamp(34px,4vw,54px)] font-extrabold leading-[1.1] tracking-[-0.035em] text-gray-900 dark:text-[#f4f5f7]">
             {title}
           </h1>
 
