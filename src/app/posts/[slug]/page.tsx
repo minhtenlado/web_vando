@@ -11,6 +11,7 @@ import { PostThemeToggle } from "@/components/cv/post-theme-toggle"
 import { GoogleAd } from "@/components/cv/google-ad"
 import { ScientificProgress } from "@/components/cv/scientific-progress"
 import { ScientificSearchTrigger } from "@/components/cv/scientific-search-trigger"
+import { RelatedPosts } from "@/components/cv/related-posts"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -122,6 +123,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               likes={post.likes}
               bookmarks={post.bookmarks}
             />
+            {relatedPosts && relatedPosts.length > 0 && (
+              <RelatedPosts posts={relatedPosts} />
+            )}
          </div>
 
          {/* RIGHT SIDEBAR */}
