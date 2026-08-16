@@ -21,6 +21,8 @@
   --red: #ff7b7b;
 
   --radius: 14px;
+  --bg-glow: rgba(57, 230, 168, 0.055);
+  --bg-topbar: rgba(7, 11, 9, 0.94);
 
   --font:
     Inter,
@@ -40,12 +42,40 @@
   background:
     radial-gradient(
       circle at 50% -20%,
-      rgba(57, 230, 168, 0.055),
+      var(--bg-glow),
       transparent 35%
     ),
     var(--bg);
   color: var(--text);
   font-family: var(--font);
+}
+
+:root.light .tutorial-editor-root,
+.light .tutorial-editor-root {
+  --bg: #f5f7f6;
+  --surface: #ffffff;
+  --surface-2: #f0f3f1;
+  --surface-3: #e6ebe8;
+
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(37, 165, 118, 0.4);
+
+  --text: #1a231f;
+  --muted: #5e6b65;
+  --muted-2: #7a8781;
+
+  --green: #29b885;
+  --green-soft: rgba(41, 184, 133, 0.1);
+
+  --blue: #4f6de0;
+  --yellow: #c89e30;
+  --red: #db5151;
+  
+  --bg-glow: rgba(41, 184, 133, 0.08);
+  --bg-topbar: rgba(245, 247, 246, 0.94);
+}
+
+.tutorial-editor-root {
   min-height: 100vh;
   position: fixed;
   inset: 0;
@@ -82,7 +112,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-  background: rgba(7, 11, 9, 0.94);
+  background: var(--bg-topbar);
   backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--border);
 }
