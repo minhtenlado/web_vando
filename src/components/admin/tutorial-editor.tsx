@@ -479,7 +479,7 @@ export function TutorialEditor({
                         <div className="image-block">
                           <div className="flex items-center gap-2 mb-3 w-full px-3 py-1.5 bg-[#09100d] rounded-md border border-white/10">
                             <input 
-                              className="flex-1 bg-transparent border-0 outline-none text-[11px] text-gray-400"
+                              className="flex-1 bg-transparent border-0 outline-none text-[11px] text-[var(--muted)]"
                               placeholder="Nhập URL hình ảnh (hoặc click 'Tải lên' bên cạnh)"
                               value={block.url}
                               onChange={(e) => updateBlock(block.id, { url: e.target.value })}
@@ -487,7 +487,7 @@ export function TutorialEditor({
                             <div className="w-[1px] h-3 bg-white/10" />
                             <button
                               type="button"
-                              className="text-[11px] text-[var(--green)] font-semibold hover:text-white transition-colors whitespace-nowrap"
+                              className="text-[11px] text-[var(--green)] font-semibold hover:text-[var(--text)] transition-colors whitespace-nowrap"
                               onClick={() => {
                                 const el = document.createElement('input');
                                 el.type = 'file';
@@ -538,10 +538,10 @@ export function TutorialEditor({
                       {block.type === 'youtube' && (
                         <div className="image-block">
                           <input 
-                            className="w-full bg-transparent border-0 outline-none text-center text-[11px] text-gray-400 mb-2"
-                            placeholder="Nhập URL YouTube (vd: https://youtube.com/watch?v=...)"
+                            placeholder="Dán đường dẫn YouTube vào đây (VD: https://youtube.com/watch?v=...)"
                             value={block.url}
                             onChange={(e) => updateBlock(block.id, { url: e.target.value })}
+                            className="w-full bg-transparent border-0 outline-none text-center text-[11px] text-[var(--muted)] mb-2"
                           />
                           <div className="image-placeholder" style={{ background: block.url ? 'transparent' : '' }}>
                             {block.url ? (
