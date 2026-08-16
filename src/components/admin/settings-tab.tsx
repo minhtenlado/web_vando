@@ -158,8 +158,8 @@ export function SettingsTab() {
         >
           <span>◉</span>
           <div>
-            <strong>Tài khoản</strong>
-            <small>Admin profile</small>
+            <strong>Tài khoản & Bảo mật</strong>
+            <small>Admin profile & Security</small>
           </div>
         </button>
         <button
@@ -180,8 +180,8 @@ export function SettingsTab() {
         >
           <span>◈</span>
           <div>
-            <strong>Portfolio</strong>
-            <small>Public website</small>
+            <strong>Thông tin & SEO</strong>
+            <small>Website & Search engine</small>
           </div>
         </button>
         <button
@@ -195,17 +195,7 @@ export function SettingsTab() {
             <small>Menu & sections</small>
           </div>
         </button>
-        <button
-          className={`settings-nav-pro-item ${activeTab === "seo" ? "active" : ""}`}
-          onClick={() => setActiveTab("seo")}
-          type="button"
-        >
-          <span>⌕</span>
-          <div>
-            <strong>SEO</strong>
-            <small>Search engine</small>
-          </div>
-        </button>
+
         <button
           className={`settings-nav-pro-item ${activeTab === "integrations" ? "active" : ""}`}
           onClick={() => setActiveTab("integrations")}
@@ -228,17 +218,7 @@ export function SettingsTab() {
             <small>Alerts & email</small>
           </div>
         </button>
-        <button
-          className={`settings-nav-pro-item ${activeTab === "security" ? "active" : ""}`}
-          onClick={() => setActiveTab("security")}
-          type="button"
-        >
-          <span>⌑</span>
-          <div>
-            <strong>Bảo mật</strong>
-            <small>Access & security</small>
-          </div>
-        </button>
+
         <button
           className={`settings-nav-pro-item ${activeTab === "backup" ? "active" : ""}`}
           onClick={() => setActiveTab("backup")}
@@ -246,19 +226,8 @@ export function SettingsTab() {
         >
           <span>↓</span>
           <div>
-            <strong>Dữ liệu</strong>
-            <small>Backup & restore</small>
-          </div>
-        </button>
-        <button
-          className={`settings-nav-pro-item ${activeTab === "maintenance" ? "active" : ""}`}
-          onClick={() => setActiveTab("maintenance")}
-          type="button"
-        >
-          <span>⚙</span>
-          <div>
-            <strong>Bảo trì</strong>
-            <small>Maintenance mode</small>
+            <strong>Hệ thống & Dữ liệu</strong>
+            <small>Backup & Maintenance</small>
           </div>
         </button>
       </aside>
@@ -451,7 +420,78 @@ export function SettingsTab() {
                 </button>
               </div>
             </div>
-          </div>
+
+<div className="form-section-pro">
+              <div className="setting-row-pro">
+                <div>
+                  <strong>Two-factor authentication</strong>
+                  <span>Yêu cầu xác thực hai bước khi đăng nhập.</span>
+                </div>
+                <label className="switch-pro">
+                  <input
+                    type="checkbox"
+                    checked={settings.twoFactorAuth}
+                    onChange={(e) => updateSetting("twoFactorAuth", e.target.checked)}
+                  />
+                  <span></span>
+                </label>
+              </div>
+              <div className="setting-row-pro">
+                <div>
+                  <strong>Login rate limit</strong>
+                  <span>Giới hạn số lần đăng nhập thất bại.</span>
+                </div>
+                <select
+                  className="small-select-pro"
+                  value={settings.loginRateLimit}
+                  onChange={(e) => updateSetting("loginRateLimit", e.target.value)}
+                >
+                  <option>5 attempts / 15m</option>
+                  <option>10 attempts / 15m</option>
+                  <option>20 attempts / 15m</option>
+                </select>
+              </div>
+              <div className="setting-row-pro">
+                <div>
+                  <strong>Session timeout</strong>
+                  <span>Tự động hết phiên khi không hoạt động.</span>
+                </div>
+                <select
+                  className="small-select-pro"
+                  value={settings.sessionTimeout}
+                  onChange={(e) => updateSetting("sessionTimeout", e.target.value)}
+                >
+                  <option>30 phút</option>
+                  <option>1 giờ</option>
+                  <option>4 giờ</option>
+                  <option>12 giờ</option>
+                </select>
+              </div>
+              <div className="setting-row-pro">
+                <div>
+                  <strong>Login history</strong>
+                  <span>Lưu IP, thiết bị và thời gian đăng nhập.</span>
+                </div>
+                <label className="switch-pro">
+                  <input
+                    type="checkbox"
+                    checked={settings.loginHistory}
+                    onChange={(e) => updateSetting("loginHistory", e.target.checked)}
+                  />
+                  <span></span>
+                </label>
+              </div>
+            </div>
+            <div className="danger-panel">
+              <div>
+                <strong>Danger Zone</strong>
+                <span>Các thao tác có thể ảnh hưởng quyền truy cập toàn hệ thống.</span>
+              </div>
+              <button className="danger-outline-btn" type="button">
+                Revoke all sessions
+              </button>
+            </div>
+                    </div>
         )}
 
         {/* APPEARANCE */}
@@ -638,7 +678,68 @@ export function SettingsTab() {
                 </label>
               </div>
             </div>
-          </div>
+
+<div className="form-section-pro">
+              <div className="form-grid-pro">
+                <label className="field-pro full">
+                  <span>Meta title</span>
+                  <input
+                    type="text"
+                    value={settings.metaTitle}
+                    onChange={(e) => updateSetting("metaTitle", e.target.value)}
+                  />
+                </label>
+                <label className="field-pro full">
+                  <span>Meta description</span>
+                  <textarea
+                    value={settings.metaDescription}
+                    onChange={(e) => updateSetting("metaDescription", e.target.value)}
+                  />
+                </label>
+                <label className="field-pro">
+                  <span>Canonical URL</span>
+                  <input
+                    type="url"
+                    value={settings.canonicalUrl}
+                    onChange={(e) => updateSetting("canonicalUrl", e.target.value)}
+                  />
+                </label>
+                <label className="field-pro">
+                  <span>Robots</span>
+                  <select
+                    value={settings.robots}
+                    onChange={(e) => updateSetting("robots", e.target.value)}
+                  >
+                    <option>index, follow</option>
+                    <option>index, nofollow</option>
+                    <option>noindex, follow</option>
+                    <option>noindex, nofollow</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+            <div className="form-section-pro">
+              <div className="form-section-title-pro">SOCIAL PREVIEW</div>
+              <div className="form-grid-pro">
+                <label className="field-pro">
+                  <span>OG title</span>
+                  <input
+                    type="text"
+                    value={settings.ogTitle}
+                    onChange={(e) => updateSetting("ogTitle", e.target.value)}
+                  />
+                </label>
+                <label className="field-pro">
+                  <span>OG image URL</span>
+                  <input
+                    type="url"
+                    value={settings.ogImageUrl}
+                    onChange={(e) => updateSetting("ogImageUrl", e.target.value)}
+                  />
+                </label>
+              </div>
+            </div>
+                    </div>
         )}
 
         {/* NAVIGATION */}
@@ -736,78 +837,6 @@ export function SettingsTab() {
                     <span></span>
                   </label>
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* SEO */}
-        {activeTab === "seo" && (
-          <div className="settings-panel-view active">
-            <div className="setting-panel-heading">
-              <div>
-                <h2>SEO</h2>
-                <p>Tối ưu thông tin tìm kiếm và chia sẻ liên kết.</p>
-              </div>
-            </div>
-            <div className="form-section-pro">
-              <div className="form-grid-pro">
-                <label className="field-pro full">
-                  <span>Meta title</span>
-                  <input
-                    type="text"
-                    value={settings.metaTitle}
-                    onChange={(e) => updateSetting("metaTitle", e.target.value)}
-                  />
-                </label>
-                <label className="field-pro full">
-                  <span>Meta description</span>
-                  <textarea
-                    value={settings.metaDescription}
-                    onChange={(e) => updateSetting("metaDescription", e.target.value)}
-                  />
-                </label>
-                <label className="field-pro">
-                  <span>Canonical URL</span>
-                  <input
-                    type="url"
-                    value={settings.canonicalUrl}
-                    onChange={(e) => updateSetting("canonicalUrl", e.target.value)}
-                  />
-                </label>
-                <label className="field-pro">
-                  <span>Robots</span>
-                  <select
-                    value={settings.robots}
-                    onChange={(e) => updateSetting("robots", e.target.value)}
-                  >
-                    <option>index, follow</option>
-                    <option>index, nofollow</option>
-                    <option>noindex, follow</option>
-                    <option>noindex, nofollow</option>
-                  </select>
-                </label>
-              </div>
-            </div>
-            <div className="form-section-pro">
-              <div className="form-section-title-pro">SOCIAL PREVIEW</div>
-              <div className="form-grid-pro">
-                <label className="field-pro">
-                  <span>OG title</span>
-                  <input
-                    type="text"
-                    value={settings.ogTitle}
-                    onChange={(e) => updateSetting("ogTitle", e.target.value)}
-                  />
-                </label>
-                <label className="field-pro">
-                  <span>OG image URL</span>
-                  <input
-                    type="url"
-                    value={settings.ogImageUrl}
-                    onChange={(e) => updateSetting("ogImageUrl", e.target.value)}
-                  />
-                </label>
               </div>
             </div>
           </div>
@@ -960,89 +989,6 @@ export function SettingsTab() {
           </div>
         )}
 
-        {/* SECURITY */}
-        {activeTab === "security" && (
-          <div className="settings-panel-view active">
-            <div className="setting-panel-heading">
-              <div>
-                <h2>Bảo mật</h2>
-                <p>Quản lý đăng nhập, session và các chính sách bảo vệ.</p>
-              </div>
-              <span className="setting-state-badge green">PROTECTED</span>
-            </div>
-            <div className="form-section-pro">
-              <div className="setting-row-pro">
-                <div>
-                  <strong>Two-factor authentication</strong>
-                  <span>Yêu cầu xác thực hai bước khi đăng nhập.</span>
-                </div>
-                <label className="switch-pro">
-                  <input
-                    type="checkbox"
-                    checked={settings.twoFactorAuth}
-                    onChange={(e) => updateSetting("twoFactorAuth", e.target.checked)}
-                  />
-                  <span></span>
-                </label>
-              </div>
-              <div className="setting-row-pro">
-                <div>
-                  <strong>Login rate limit</strong>
-                  <span>Giới hạn số lần đăng nhập thất bại.</span>
-                </div>
-                <select
-                  className="small-select-pro"
-                  value={settings.loginRateLimit}
-                  onChange={(e) => updateSetting("loginRateLimit", e.target.value)}
-                >
-                  <option>5 attempts / 15m</option>
-                  <option>10 attempts / 15m</option>
-                  <option>20 attempts / 15m</option>
-                </select>
-              </div>
-              <div className="setting-row-pro">
-                <div>
-                  <strong>Session timeout</strong>
-                  <span>Tự động hết phiên khi không hoạt động.</span>
-                </div>
-                <select
-                  className="small-select-pro"
-                  value={settings.sessionTimeout}
-                  onChange={(e) => updateSetting("sessionTimeout", e.target.value)}
-                >
-                  <option>30 phút</option>
-                  <option>1 giờ</option>
-                  <option>4 giờ</option>
-                  <option>12 giờ</option>
-                </select>
-              </div>
-              <div className="setting-row-pro">
-                <div>
-                  <strong>Login history</strong>
-                  <span>Lưu IP, thiết bị và thời gian đăng nhập.</span>
-                </div>
-                <label className="switch-pro">
-                  <input
-                    type="checkbox"
-                    checked={settings.loginHistory}
-                    onChange={(e) => updateSetting("loginHistory", e.target.checked)}
-                  />
-                  <span></span>
-                </label>
-              </div>
-            </div>
-            <div className="danger-panel">
-              <div>
-                <strong>Danger Zone</strong>
-                <span>Các thao tác có thể ảnh hưởng quyền truy cập toàn hệ thống.</span>
-              </div>
-              <button className="danger-outline-btn" type="button">
-                Revoke all sessions
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* BACKUP */}
         {activeTab === "backup" && (
           <div className="settings-panel-view active">
@@ -1091,19 +1037,8 @@ export function SettingsTab() {
               Last successful backup:
               <strong>16/08/2026 · 14:40</strong>
             </div>
-          </div>
-        )}
 
-        {/* MAINTENANCE */}
-        {activeTab === "maintenance" && (
-          <div className="settings-panel-view active">
-            <div className="setting-panel-heading">
-              <div>
-                <h2>Bảo trì hệ thống</h2>
-                <p>Điều khiển deploy, cache và maintenance mode.</p>
-              </div>
-            </div>
-            <div className="form-section-pro">
+<div className="form-section-pro">
               <div className="setting-row-pro">
                 <div>
                   <strong>Maintenance mode</strong>
@@ -1130,7 +1065,7 @@ export function SettingsTab() {
                 <button className="outline-btn-pro" type="button">Revalidate pages</button>
               </div>
             </div>
-          </div>
+                    </div>
         )}
 
         {/* SAVE BAR */}
