@@ -36,6 +36,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { motion } from "framer-motion";
 import type { SitePost } from "@/lib/cv/site-data-server";
 import { PostEditor } from "./post-editor";
+import { TutorialEditor } from "./tutorial-editor";
 import { CATEGORIES, POST_LAYOUTS, type PostForm } from "./post-types";
 
 function getEmptyForm(): PostForm {
@@ -420,17 +421,30 @@ export function PostsTab({ locale }: { locale: string }) {
       )}
 
       {dialogOpen && (
-        <PostEditor
-          form={form}
-          setForm={setForm}
-          editing={editing}
-          submitting={submitting}
-          onSubmit={handleSubmit}
-          onClose={() => setDialogOpen(false)}
-          onTitleChange={onTitleChange}
-          onSlugChange={onSlugChange}
-          slugify={slugify}
-        />
+        form.layout === 'tutorial' ? (
+          <TutorialEditor
+            form={form}
+            setForm={setForm}
+            editing={editing}
+            submitting={submitting}
+            onSubmit={handleSubmit}
+            onClose={() => setDialogOpen(false)}
+            onTitleChange={onTitleChange}
+            onSlugChange={onSlugChange}
+          />
+        ) : (
+          <PostEditor
+            form={form}
+            setForm={setForm}
+            editing={editing}
+            submitting={submitting}
+            onSubmit={handleSubmit}
+            onClose={() => setDialogOpen(false)}
+            onTitleChange={onTitleChange}
+            onSlugChange={onSlugChange}
+            slugify={slugify}
+          />
+        )
       )}
 
 
