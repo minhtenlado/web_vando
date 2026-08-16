@@ -15,6 +15,7 @@ import { ActivityLogTab } from "@/components/admin/activity-log-tab";
 import type { SiteProfile } from "@/lib/cv/site-data-server";
 
 import { useLocale } from "@/components/cv/locale-context";
+import { useTheme } from "next-themes";
 import "./admin.css";
 
 type Stage = "checking" | "login" | "dashboard";
@@ -37,6 +38,7 @@ function Dashboard({
   onLogout: () => void;
 }) {
   const { locale, setLocale, t } = useLocale();
+  const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = React.useState<TabId>("experiences");
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
@@ -159,16 +161,22 @@ function Dashboard({
                 ↗ Xem trang web
               </a>
               <button
-                className={`admin-top-button ${locale === "vi" ? "border-[var(--admin-border-strong)] text-[#c5d4cf]" : ""}`}
+                className={`admin-top-button ${locale === "vi" ? "primary" : ""}`}
                 onClick={() => setLocale("vi")}
               >
                 VI
               </button>
               <button
-                className={`admin-top-button ${locale === "en" ? "border-[var(--admin-border-strong)] text-[#c5d4cf]" : ""}`}
+                className={`admin-top-button ${locale === "en" ? "primary" : ""}`}
                 onClick={() => setLocale("en")}
               >
                 EN
+              </button>
+              <button
+                className="admin-top-button"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              >
+                {theme === "dark" ? "☀️ Sáng" : "🌙 Tối"}
               </button>
               <button className="admin-top-button hidden sm:flex" onClick={onLogout}>
                 ⇥ Đăng xuất
