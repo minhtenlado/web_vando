@@ -102,7 +102,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
          {/* LEFT SIDEBAR */}
          <aside className="hidden lg:block sticky top-[94px] max-h-[calc(100vh-120px)] overflow-y-auto pr-3 custom-scrollbar">
             <div className="text-[11px] font-extrabold tracking-[0.16em] text-[#737a88] mb-5 uppercase">Nội dung</div>
-            <TableOfContents selector=".prose" />
+            <TableOfContents selector=".prose, .tutorial-prose" />
          </aside>
          
          {/* PAPER CONTENT */}

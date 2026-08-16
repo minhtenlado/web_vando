@@ -298,19 +298,20 @@ export function TutorialReader({ slug, title, pubDate, readingTime, contentHtml,
           />
 
           {children}
-
-          <div className="tutorial-nav-cards">
-            <a href="#" className="tutorial-nav-card prev">
-              <span className="tutorial-nav-label">Bài trước</span>
-              <span className="tutorial-nav-title">Tính năng đang phát triển</span>
-            </a>
-            <a href="#" className="tutorial-nav-card next">
-              <span className="tutorial-nav-label">Bài sau</span>
-              <span className="tutorial-nav-title">Sắp ra mắt</span>
-            </a>
           </div>
         </div>
       </article>
+
+      <div className="tutorial-nav-cards">
+        <a href="#" className="tutorial-nav-card prev">
+          <span className="tutorial-nav-label">Bài trước</span>
+          <span className="tutorial-nav-title">Tính năng đang phát triển</span>
+        </a>
+        <a href="#" className="tutorial-nav-card next">
+          <span className="tutorial-nav-label">Bài sau</span>
+          <span className="tutorial-nav-title">Sắp ra mắt</span>
+        </a>
+      </div>
 
       <div className="fixed z-[600] left-1/2 bottom-[25px] -translate-x-1/2 flex items-center gap-1 p-1.5 border border-black/10 dark:border-white/10 rounded-2xl bg-white/90 dark:bg-[#101217]/90 shadow-xl backdrop-blur-xl">
         <button 
