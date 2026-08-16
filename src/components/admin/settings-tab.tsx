@@ -2,6 +2,14 @@
 
 import * as React from "react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export const initialSettings = {
   // General
@@ -72,9 +80,43 @@ type SettingsType = typeof initialSettings;
 
 export function SettingsTab({ activeTab = 'general' }: { activeTab?: string }) {
   const { toast } = useToast();
-    const [settings, setSettings] = React.useState<SettingsType>(initialSettings);
+  const [settings, setSettings] = React.useState<SettingsType>(initialSettings);
   const [loading, setLoading] = React.useState(true);
-  const [saving, setSaving] = React.useState(false);
+  const [saveStatus, setSaveStatus] = React.useState<"idle" | "saving" | "saved">("idle");
+  const [isSaving, setIsSaving] = React.useState(false);
+
+  // Change Password State
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = React.useState(false);
+  const [currentPassword, setCurrentPassword] = React.useState("");
+  const [newPassword, setNewPassword] = React.useState("");
+  const [confirmPassword, setConfirmPassword] = React.useState("");
+  const [isChangingPassword, setIsChangingPassword] = React.useState(false);
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsChangingPassword(true);
+    try {
+      const res = await fetch("/api/admin/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword, confirmPassword })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast({ title: "Thành công", description: data.message });
+        setIsPasswordModalOpen(false);
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        toast({ title: "Lỗi", description: data.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Lỗi", description: "Có lỗi xảy ra", variant: "destructive" });
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
 
   React.useEffect(() => {
     async function fetchSettings() {
@@ -100,7 +142,7 @@ export function SettingsTab({ activeTab = 'general' }: { activeTab?: string }) {
   }, [toast]);
 
   const handleSave = async () => {
-    setSaving(true);
+    setIsSaving(true);
     try {
       const res = await fetch("/api/admin/settings", {
         method: "POST",
@@ -120,7 +162,7 @@ export function SettingsTab({ activeTab = 'general' }: { activeTab?: string }) {
         variant: "destructive",
       });
     } finally {
-      setSaving(false);
+      setIsSaving(false);
     }
   };
 
@@ -138,8 +180,6 @@ export function SettingsTab({ activeTab = 'general' }: { activeTab?: string }) {
 
   return (
     <div className="settings-layout-pro" id="settingsView">
-      
-
       <main className="settings-panel-pro">
         {/* GENERAL */}
         {activeTab === "general" && (
@@ -314,7 +354,11 @@ export function SettingsTab({ activeTab = 'general' }: { activeTab?: string }) {
                   <strong>Đổi mật khẩu</strong>
                   <span>Sử dụng mật khẩu mạnh và không dùng lại mật khẩu cũ.</span>
                 </div>
-                <button className="outline-btn-pro" type="button">
+                <button 
+                  className="outline-btn-pro" 
+                  type="button"
+                  onClick={() => setIsPasswordModalOpen(true)}
+                >
                   Đổi mật khẩu
                 </button>
               </div>
@@ -329,7 +373,7 @@ export function SettingsTab({ activeTab = 'general' }: { activeTab?: string }) {
               </div>
             </div>
 
-<div className="form-section-pro">
+            <div className="form-section-pro">
               <div className="setting-row-pro">
                 <div>
                   <strong>Two-factor authentication</strong>
@@ -399,7 +443,7 @@ export function SettingsTab({ activeTab = 'general' }: { activeTab?: string }) {
                 Revoke all sessions
               </button>
             </div>
-                    </div>
+          </div>
         )}
 
         {/* APPEARANCE */}
@@ -587,7 +631,7 @@ export function SettingsTab({ activeTab = 'general' }: { activeTab?: string }) {
               </div>
             </div>
 
-<div className="form-section-pro">
+            <div className="form-section-pro">
               <div className="form-grid-pro">
                 <label className="field-pro full">
                   <span>Meta title</span>
@@ -647,7 +691,7 @@ export function SettingsTab({ activeTab = 'general' }: { activeTab?: string }) {
                 </label>
               </div>
             </div>
-                    </div>
+          </div>
         )}
 
         {/* NAVIGATION */}
@@ -946,7 +990,7 @@ export function SettingsTab({ activeTab = 'general' }: { activeTab?: string }) {
               <strong>16/08/2026 · 14:40</strong>
             </div>
 
-<div className="form-section-pro">
+            <div className="form-section-pro">
               <div className="setting-row-pro">
                 <div>
                   <strong>Maintenance mode</strong>
@@ -973,7 +1017,7 @@ export function SettingsTab({ activeTab = 'general' }: { activeTab?: string }) {
                 <button className="outline-btn-pro" type="button">Revalidate pages</button>
               </div>
             </div>
-                    </div>
+          </div>
         )}
 
         {/* SAVE BAR */}
@@ -987,14 +1031,76 @@ export function SettingsTab({ activeTab = 'general' }: { activeTab?: string }) {
               className="save-btn-pro"
               id="saveSettingsBtn"
               onClick={handleSave}
-              disabled={saving}
+              disabled={isSaving}
               type="button"
             >
-              {saving ? "Đang lưu..." : "Lưu thay đổi"}
+              {isSaving ? "Đang lưu..." : "Lưu thay đổi"}
             </button>
           </div>
         </div>
       </main>
+
+      <Dialog open={isPasswordModalOpen} onOpenChange={setIsPasswordModalOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-[#07100d] border border-[rgba(0,230,167,0.2)] text-white">
+          <DialogHeader>
+            <DialogTitle className="text-[#00e6a7]">Đổi mật khẩu</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Nhập mật khẩu hiện tại và mật khẩu mới để thay đổi.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleChangePassword}>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Mật khẩu hiện tại</label>
+                <input
+                  type="password"
+                  className="w-full bg-[#0a1512] border border-[rgba(0,230,167,0.1)] rounded p-2 text-white focus:outline-none focus:border-[#00e6a7]"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Mật khẩu mới</label>
+                <input
+                  type="password"
+                  className="w-full bg-[#0a1512] border border-[rgba(0,230,167,0.1)] rounded p-2 text-white focus:outline-none focus:border-[#00e6a7]"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Xác nhận mật khẩu mới</label>
+                <input
+                  type="password"
+                  className="w-full bg-[#0a1512] border border-[rgba(0,230,167,0.1)] rounded p-2 text-white focus:outline-none focus:border-[#00e6a7]"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <button
+                type="button"
+                className="px-4 py-2 text-sm text-gray-400 hover:text-white"
+                onClick={() => setIsPasswordModalOpen(false)}
+                disabled={isChangingPassword}
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 text-sm bg-[#00e6a7] text-black font-semibold rounded hover:bg-[#00c58e] disabled:opacity-50"
+                disabled={isChangingPassword}
+              >
+                {isChangingPassword ? "Đang xử lý..." : "Lưu thay đổi"}
+              </button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

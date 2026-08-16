@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
   await new Promise((r) => setTimeout(r, 300));
 
   // 4. Xác thực
-  if (!verifyPassword(password)) {
+  if (!(await verifyPassword(password))) {
     // Ghi nhận lần thử thất bại
     recordAttempt(ip);
 

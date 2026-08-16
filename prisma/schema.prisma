@@ -42,6 +42,7 @@ model Profile {
   languages          String @default("[]") // JSON string
   updatedAt DateTime @updatedAt
   settings  String   @default("{}") // JSON string for site configuration
+  passwordHash String? // Hashed password for admin
 }
 
 model Project {

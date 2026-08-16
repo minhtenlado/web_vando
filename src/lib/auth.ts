@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import crypto from "crypto";
+import { db } from "@/lib/db";
 
 const COOKIE_NAME = "admin_session";
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 7; // 7 days
@@ -71,7 +72,38 @@ function verify(token: string | undefined): boolean {
   }
 }
 
-export function verifyPassword(password: string): boolean {
+export function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const derivedKey = crypto.scryptSync(password, salt, 64).toString("hex");
+  return `${salt}:${derivedKey}`;
+}
+
+export function comparePassword(password: string, hash: string): boolean {
+  try {
+    const [salt, key] = hash.split(":");
+    if (!salt || !key) return false;
+    const derivedKey = crypto.scryptSync(password, salt, 64).toString("hex");
+    return safeEqual(key, derivedKey);
+  } catch {
+    return false;
+  }
+}
+
+export async function verifyPassword(password: string): Promise<boolean> {
+  try {
+    const pRowVi = await db.profile.findUnique({ where: { id: "profile-vi" } });
+    const pRowEn = await db.profile.findUnique({ where: { id: "profile-en" } });
+    const pRowLegacy = await db.profile.findUnique({ where: { id: "profile" } });
+    const profile = pRowVi || pRowEn || pRowLegacy;
+
+    if (profile && profile.passwordHash) {
+      return comparePassword(password, profile.passwordHash);
+    }
+  } catch (e) {
+    console.error("[auth] Error checking password hash in DB", e);
+  }
+  
+  // Fallback to env password
   return safeEqual(password, getPassword());
 }
 
