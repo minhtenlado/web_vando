@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+const CANDIDATE_MODELS = [
+  "gemini-3.5-flash",
+  "gemini-flash-latest",
+  "gemini-3.5-flash-lite",
+  "gemini-flash-lite-latest",
+];
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -74,10 +81,6 @@ QUY TẮC BẮT BUỘC KHI TRẢ LỜI:
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-3.6-flash",
-      systemInstruction,
-    });
 
     const rawHistory = messages.slice(0, -1);
     const firstUserIdx = rawHistory.findIndex((m: any) => m.role === "user");
@@ -89,14 +92,36 @@ QUY TẮC BẮT BUỘC KHI TRẢ LỜI:
         }))
       : [];
 
-    const chatSession = model.startChat({ history });
-
     const userMessage = messages[messages.length - 1].content;
-    const result = await chatSession.sendMessage(userMessage);
 
-    return NextResponse.json({ text: result.response.text() });
+    let lastError: any = null;
+
+    for (const modelName of CANDIDATE_MODELS) {
+      try {
+        const model = genAI.getGenerativeModel({
+          model: modelName,
+          systemInstruction,
+        });
+
+        const chatSession = model.startChat({ history });
+        const result = await chatSession.sendMessage(userMessage);
+        const text = result.response.text();
+        if (text && text.trim() !== "") {
+          return NextResponse.json({ text });
+        }
+      } catch (err: any) {
+        console.warn(`[chat api] Model ${modelName} failed:`, err?.message || err);
+        lastError = err;
+      }
+    }
+
+    throw lastError || new Error("Tất cả các model AI đang bận.");
   } catch (error: any) {
     console.error("[chat api error]", error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    const isQuota = error?.message?.includes("429") || error?.message?.includes("Quota");
+    const friendlyError = isQuota
+      ? "Hệ thống AI hiện đang bận hoặc đạt giới hạn truy cập tạm thời. Vui lòng chờ ít giây rồi thử lại."
+      : "Đã xảy ra lỗi khi kết nối với AI. Vui lòng thử lại sau.";
+    return NextResponse.json({ error: friendlyError }, { status: 500 });
   }
 }
