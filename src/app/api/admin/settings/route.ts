@@ -1,0 +1,53 @@
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+
+export async function GET() {
+  try {
+    const profile = await db.profile.findFirst({
+      where: { id: "profile-vi" },
+    });
+
+    if (!profile) {
+      return NextResponse.json({ settings: "{}" });
+    }
+
+    return NextResponse.json({ settings: profile.settings });
+  } catch (error) {
+    console.error("GET Settings error:", error);
+    return NextResponse.json(
+      { error: "Lỗi lấy dữ liệu cấu hình" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { settings } = body;
+
+    const profile = await db.profile.findFirst({
+      where: { id: "profile-vi" },
+    });
+
+    if (!profile) {
+      return NextResponse.json(
+        { error: "Không tìm thấy profile" },
+        { status: 404 }
+      );
+    }
+
+    const updatedProfile = await db.profile.update({
+      where: { id: profile.id },
+      data: { settings: JSON.stringify(settings) },
+    });
+
+    return NextResponse.json({ settings: updatedProfile.settings });
+  } catch (error) {
+    console.error("POST Settings error:", error);
+    return NextResponse.json(
+      { error: "Lỗi lưu cấu hình" },
+      { status: 500 }
+    );
+  }
+}
