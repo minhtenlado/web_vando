@@ -113,7 +113,7 @@ function generateHTML(data: TutorialData) {
         if (block.url) {
           const videoId = block.url.split('v=')[1]?.split('&')[0] || block.url.split('youtu.be/')[1]?.split('?')[0];
           if (videoId) {
-            html += `  <div class="my-6 w-full flex flex-col items-center"><div class="w-full max-w-[800px] aspect-video rounded-xl overflow-hidden border border-black/10 dark:border-white/10 shadow-lg bg-zinc-100 dark:bg-zinc-900/50"><iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen="allowfullscreen" class="w-full h-full border-0"></iframe></div></div>\n`;
+            html += `  <div class="my-6 w-full flex flex-col items-center"><div class="tutorial-video w-full max-w-[800px] rounded-xl overflow-hidden border border-black/10 dark:border-white/10 shadow-lg bg-zinc-100 dark:bg-zinc-900/50"><iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen="allowfullscreen" class="border-0"></iframe></div></div>\n`;
           }
         }
       }

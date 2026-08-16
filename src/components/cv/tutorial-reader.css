@@ -232,3 +232,17 @@
 .tutorial-prose h3:hover .heading-anchor {
   opacity: 1;
 }
+
+/* Video Embeds */
+.tutorial-video {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+}
+.tutorial-video iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
