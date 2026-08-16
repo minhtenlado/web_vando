@@ -101,13 +101,13 @@
 }
 .admin-brand-text strong {
   display: block;
-  color: #dce8e4;
+  color: var(--admin-text);
   font-size: 15px;
 }
 .admin-brand-text span {
   display: block;
   margin-top: 3px;
-  color: #455950;
+  color: var(--admin-text-3);
   font-family: "DM Mono", monospace;
   font-size: 11px;
 }
@@ -304,4 +304,45 @@
     width: min(100% - 28px, 1180px);
     padding-top: 20px;
   }
+}
+
+
+/* SETTINGS SUBNAV */
+.admin-subnav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 42px;
+  padding-right: 14px;
+  padding-bottom: 8px;
+}
+.admin-subnav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--admin-text-3);
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: .2s ease;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  text-align: left;
+}
+.admin-subnav-item:hover {
+  color: var(--admin-text);
+  background: var(--admin-hover);
+}
+.admin-subnav-item.active {
+  color: var(--admin-green);
+  background: rgba(0,230,167,.055);
+  border-color: rgba(0,230,167,.08);
+}
+.admin-subnav-tree {
+  color: var(--admin-text-3);
+  opacity: 0.5;
+  font-family: "DM Mono", monospace;
+  font-size: 14px;
 }

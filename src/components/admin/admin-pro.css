@@ -41,9 +41,6 @@
 }
 
 .settings-layout-pro {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  min-height: 700px;
   border: 1px solid var(--admin-border-light);
   border-radius: 15px;
   overflow: hidden;

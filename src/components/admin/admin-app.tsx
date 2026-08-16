@@ -135,21 +135,17 @@ function Dashboard({
             </button>
             
             {settingsOpen && (
-              <div className="flex flex-col gap-1 pl-11 pr-2 py-2">
+              <div className="admin-subnav">
                 {settingsSubItems.map((sub, index) => (
                   <button
                     key={sub.id}
-                    className={`text-left text-sm py-1.5 px-3 rounded-md transition-colors ${
-                      activeTab === "settings" && activeSettingsTab === sub.id
-                        ? "bg-[var(--admin-hover)] text-[var(--admin-green)] font-medium"
-                        : "text-[var(--admin-text-3)] hover:text-[var(--admin-text)] hover:bg-[var(--admin-hover)]"
-                    }`}
+                    className={`admin-subnav-item ${activeTab === "settings" && activeSettingsTab === sub.id ? "active" : ""}`}
                     onClick={() => {
                       setActiveTab("settings");
                       setActiveSettingsTab(sub.id);
                     }}
                   >
-                    <span className="mr-2 opacity-50">{index === settingsSubItems.length - 1 ? "└─" : "├─"}</span>
+                    <span className="admin-subnav-tree">{index === settingsSubItems.length - 1 ? "└─" : "├─"}</span>
                     {sub.label}
                   </button>
                 ))}
