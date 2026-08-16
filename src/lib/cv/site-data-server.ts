@@ -79,6 +79,7 @@ export type SitePost = {
   seoKeywords?: string | null
   coverImage?: string | null
   pdfUrl?: string | null
+  layout?: string
 }
 
 export type SiteData = {

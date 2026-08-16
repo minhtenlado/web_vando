@@ -9,6 +9,7 @@ type PostInput = {
   content?: string;
   published?: boolean;
   category?: string;
+  layout?: string;
   createdAt?: string;
   seoTitle?: string;
   seoDescription?: string;
@@ -98,6 +99,7 @@ export async function PUT(
   if (typeof body.pdfUrl === "string") data.pdfUrl = sanitizeUrl(body.pdfUrl);
   if (body.pdfUrl === null || body.pdfUrl === "") data.pdfUrl = null;
   if (typeof body.createdAt === "string") data.createdAt = new Date(body.createdAt);
+  if (typeof body.layout === "string" && ["article", "tutorial"].includes(body.layout)) data.layout = body.layout;
 
   try {
     const updated = await db.post.update({ where: { id }, data });

@@ -85,6 +85,7 @@ model Post {
   bookmarks Int      @default(0)
   coverImage String?
   pdfUrl    String?
+  layout    String   @default("article") // "article" | "tutorial"
   seoTitle  String?
   seoDescription String?
   seoKeywords String?

@@ -5,7 +5,7 @@ import { ArrowLeft, Check, Loader2, Sparkles, Globe, FileText, Settings, Eye } f
 import { RichTextEditor } from "./rich-text-editor";
 import { Switch } from "@/components/ui/switch";
 import type { SitePost } from "@/lib/cv/site-data-server";
-import { CATEGORIES, type PostForm } from "./post-types";
+import { CATEGORIES, POST_LAYOUTS, type PostForm } from "./post-types";
 
 interface PostEditorProps {
   form: PostForm;
@@ -244,6 +244,46 @@ export function PostEditor({
         {/* RIGHT SIDEBAR (SEO & PUBLISH) */}
         <aside className="w-full lg:w-[320px] shrink-0 flex flex-col gap-5 min-h-0 overflow-y-auto pr-1 custom-scrollbar">
           
+          {/* LAYOUT SELECTOR CARD */}
+          <div className="p-5 border border-gray-200 dark:border-white/10 rounded-2xl bg-white dark:bg-[#0a120e] shadow-sm">
+            <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-2">
+              <FileText className="w-4 h-4 text-[#36e2a0]" />
+              Kiểu bài viết
+            </h3>
+            <div className="grid grid-cols-2 gap-2.5">
+              {POST_LAYOUTS.map((layout) => {
+                const isActive = form.layout === layout.id;
+                return (
+                  <button
+                    key={layout.id}
+                    type="button"
+                    onClick={() => setForm({ ...form, layout: layout.id })}
+                    className={`relative flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all duration-200 text-center cursor-pointer ${
+                      isActive
+                        ? "border-[#36e2a0] bg-[#36e2a0]/5 dark:bg-[#36e2a0]/10 shadow-sm shadow-[#36e2a0]/10"
+                        : "border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#101c16] hover:border-gray-300 dark:hover:border-white/20 hover:bg-gray-100 dark:hover:bg-white/5"
+                    }`}
+                  >
+                    <span className="text-xl leading-none">{layout.icon}</span>
+                    <span className={`text-[11px] font-bold ${
+                      isActive ? "text-[#36e2a0]" : "text-gray-700 dark:text-[#c4d1cb]"
+                    }`}>
+                      {layout.label}
+                    </span>
+                    <span className="text-[9px] leading-tight text-gray-500 dark:text-[#7d8c86]">
+                      {layout.description}
+                    </span>
+                    {isActive && (
+                      <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#36e2a0] grid place-items-center">
+                        <Check className="w-2.5 h-2.5 text-gray-950 stroke-[3]" />
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* PUBLISH CARD */}
           <div className="p-5 border border-gray-200 dark:border-white/10 rounded-2xl bg-white dark:bg-[#0a120e] shadow-sm">
             <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-4 flex items-center gap-2">

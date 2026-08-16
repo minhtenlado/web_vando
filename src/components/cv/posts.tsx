@@ -183,10 +183,17 @@ function PostCardItem({ post, i }: { post: any, i: number }) {
       >
         <Card className="group h-full flex flex-col overflow-hidden border-border/20 bg-white dark:bg-[#0d120f] hover:border-primary/30 transition-all duration-300 rounded-[1.2rem] relative shadow-lg shadow-black/5 dark:shadow-black/20">
           <div className="p-5 flex flex-col flex-1 bg-gradient-to-b from-white to-gray-50 dark:from-[#111713] dark:to-[#0a0d0b]">
-            {/* Category Badge */}
-            <Badge className="bg-primary/90 hover:bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-sm mb-4 w-fit flex items-center gap-1.5 uppercase shadow-md shadow-primary/20">
-              {postCategory}
-            </Badge>
+            {/* Badges */}
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              <Badge className="bg-primary/90 hover:bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-sm w-fit flex items-center gap-1.5 uppercase shadow-md shadow-primary/20">
+                {postCategory}
+              </Badge>
+              {post.layout === "tutorial" && (
+                <Badge className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-sm w-fit flex items-center gap-1.5 uppercase shadow-sm">
+                  📘 Tutorial
+                </Badge>
+              )}
+            </div>
 
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white/90 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
               {post.title}

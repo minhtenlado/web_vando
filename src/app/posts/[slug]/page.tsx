@@ -5,6 +5,7 @@ import { Search, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { TableOfContents } from "@/components/cv/table-of-contents"
 import { PostReader } from "@/components/cv/post-reader"
+import { TutorialReader } from "@/components/cv/tutorial-reader"
 import { PostAiChat } from "@/components/cv/post-ai-chat"
 import { PostThemeToggle } from "@/components/cv/post-theme-toggle"
 import { GoogleAd } from "@/components/cv/google-ad"
@@ -62,6 +63,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const wordCount = post.content.replace(/<[^>]*>?/gm, "").trim().split(/\s+/).length
   const readingTime = Math.max(1, Math.ceil(wordCount / 200))
 
+  const isTutorial = post.layout === "tutorial"
+  const ContentReader = isTutorial ? TutorialReader : PostReader
+
   return (
     <div className="min-h-screen bg-[#f5f6f8] dark:bg-[#080a0d] text-[#181b21] dark:text-[#e7eaf0] transition-colors duration-500 font-sans">
       <script
@@ -69,7 +73,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "BlogPosting",
+            "@type": isTutorial ? "TechArticle" : "BlogPosting",
             "headline": post.title,
             "datePublished": post.createdAt,
             "description": post.excerpt,
@@ -103,7 +107,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
          
          {/* PAPER CONTENT */}
          <div className="min-w-0 w-full relative z-10">
-            <PostReader 
+            <ContentReader 
               slug={post.slug}
               title={post.title} 
               pubDate={pubDate} 

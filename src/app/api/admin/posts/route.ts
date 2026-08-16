@@ -24,6 +24,7 @@ type PostInput = {
   published?: boolean;
   locale?: string;
   category?: string;
+  layout?: string;
   createdAt?: string;
   seoTitle?: string;
   seoDescription?: string;
@@ -95,6 +96,10 @@ export async function POST(req: NextRequest) {
   });
   if (existing) slug = `${slug}-${Date.now().toString(36)}`;
 
+  const layout = typeof body.layout === "string" && ["article", "tutorial"].includes(body.layout)
+    ? body.layout
+    : "article";
+
   const created = await db.post.create({
     data: {
       locale,
@@ -104,6 +109,7 @@ export async function POST(req: NextRequest) {
       category: typeof body.category === "string" ? body.category.slice(0, 100) : "",
       content: sanitizePostContent((body.content ?? "")).slice(0, 5000000),
       published: !!body.published,
+      layout,
       seoTitle: typeof body.seoTitle === "string" ? body.seoTitle.slice(0, 300) : undefined,
       seoDescription: typeof body.seoDescription === "string" ? body.seoDescription.slice(0, 600) : undefined,
       seoKeywords: typeof body.seoKeywords === "string" ? body.seoKeywords.slice(0, 300) : undefined,

@@ -36,7 +36,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { motion } from "framer-motion";
 import type { SitePost } from "@/lib/cv/site-data-server";
 import { PostEditor } from "./post-editor";
-import { CATEGORIES, type PostForm } from "./post-types";
+import { CATEGORIES, POST_LAYOUTS, type PostForm } from "./post-types";
 
 function getEmptyForm(): PostForm {
   return {
@@ -46,6 +46,7 @@ function getEmptyForm(): PostForm {
     content: "",
     published: true,
     category: "AI",
+    layout: "article",
     createdAt: new Date().toISOString(),
     seoTitle: "",
     seoDescription: "",
@@ -74,6 +75,7 @@ function toForm(p: SitePost): PostForm {
     content: p.content ?? "",
     published: !!p.published,
     category: p.category ?? "AI",
+    layout: (p as any).layout ?? "article",
     createdAt: p.createdAt ? new Date(p.createdAt).toISOString() : new Date().toISOString(),
     seoTitle: p.seoTitle ?? "",
     seoDescription: p.seoDescription ?? "",
@@ -181,6 +183,7 @@ export function PostsTab({ locale }: { locale: string }) {
       content: form.content,
       published: form.published,
       category: form.category,
+      layout: form.layout,
       locale,
       createdAt: form.createdAt ? new Date(form.createdAt).toISOString() : undefined,
       seoTitle: form.seoTitle.trim(),
@@ -359,10 +362,16 @@ export function PostsTab({ locale }: { locale: string }) {
 
                   <div className="p-5 flex flex-col flex-1 bg-gradient-to-b from-white to-gray-50 dark:from-[#111713] dark:to-[#0a0d0b]">
                     <div className="flex items-start justify-between mb-4">
-                      {/* Category Badge */}
-                      <Badge className="bg-primary/90 hover:bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-sm w-fit uppercase shadow-md shadow-primary/20">
-                        {postCategory}
-                      </Badge>
+                      {/* Category & Layout Badges */}
+                      <div className="flex items-center gap-1.5">
+                        <Badge className="bg-primary/90 hover:bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-sm w-fit uppercase shadow-md shadow-primary/20">
+                          {postCategory}
+                        </Badge>
+                        <Badge variant="outline" className="text-[10px] font-semibold px-1.5 py-0.5 rounded-sm border-border/30 text-muted-foreground">
+                          {(POST_LAYOUTS.find(l => l.id === ((post as any).layout ?? "article"))?.icon ?? "📄")}{" "}
+                          {POST_LAYOUTS.find(l => l.id === ((post as any).layout ?? "article"))?.label ?? "Bài viết"}
+                        </Badge>
+                      </div>
 
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

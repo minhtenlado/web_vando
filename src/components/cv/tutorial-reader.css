@@ -1,0 +1,234 @@
+/* Tutorial Prose Overrides */
+.tutorial-prose {
+  font-family: var(--font-sans), sans-serif;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+/* Admonitions */
+.admonition {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  border-left: 4px solid;
+  border-radius: 0 0.5rem 0.5rem 0;
+  background-color: rgba(0, 0, 0, 0.03);
+  color: var(--foreground);
+}
+.dark .admonition {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.admonition-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admonition-content > p:first-child {
+  margin-top: 0;
+}
+.admonition-content > p:last-child {
+  margin-bottom: 0;
+}
+
+.admonition-note {
+  border-left-color: #3b82f6;
+}
+.admonition-note .admonition-title { color: #2563eb; }
+.dark .admonition-note .admonition-title { color: #60a5fa; }
+
+.admonition-tip {
+  border-left-color: #10b981;
+}
+.admonition-tip .admonition-title { color: #059669; }
+.dark .admonition-tip .admonition-title { color: #34d399; }
+
+.admonition-caution {
+  border-left-color: #f59e0b;
+}
+.admonition-caution .admonition-title { color: #d97706; }
+.dark .admonition-caution .admonition-title { color: #fbbf24; }
+
+.admonition-danger {
+  border-left-color: #ef4444;
+}
+.admonition-danger .admonition-title { color: #dc2626; }
+.dark .admonition-danger .admonition-title { color: #f87171; }
+
+/* Steps / Timeline */
+.tutorial-steps {
+  list-style: none !important;
+  padding-left: 0 !important;
+  counter-reset: tutorial-step;
+  position: relative;
+  margin: 2rem 0;
+}
+.tutorial-steps::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 17px;
+  width: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.tutorial-steps > li {
+  position: relative;
+  padding-left: 3.5rem !important;
+  margin-bottom: 2rem;
+}
+.tutorial-steps > li::before {
+  counter-increment: tutorial-step;
+  content: counter(tutorial-step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--background);
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  z-index: 1;
+  box-shadow: 0 0 0 4px var(--background);
+}
+
+/* Code Blocks Enhancements */
+.tutorial-code-block {
+  margin: 1.5rem 0;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0d1117;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+.dark .tutorial-code-block {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.tutorial-code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tutorial-code-lang {
+  color: #8b949e;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-family: var(--font-mono), monospace;
+}
+
+.tutorial-code-copy {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #c9d1d9;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  font-family: var(--font-sans), sans-serif;
+}
+.tutorial-code-copy:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.tutorial-code-block pre {
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 1rem 1.25rem !important;
+}
+
+/* Prev/Next Navigation Cards */
+.tutorial-nav-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+@media (max-width: 640px) {
+  .tutorial-nav-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tutorial-nav-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  text-decoration: none !important;
+  color: inherit;
+  transition: all 0.2s ease;
+  background: rgba(0, 0, 0, 0.015);
+}
+.dark .tutorial-nav-card {
+  background: rgba(255, 255, 255, 0.02);
+}
+.tutorial-nav-card:hover {
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+.tutorial-nav-card.next {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.tutorial-nav-label {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+.tutorial-nav-title {
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: var(--foreground);
+}
+.tutorial-nav-card:hover .tutorial-nav-title {
+  color: var(--primary);
+}
+
+/* Headings Anchors */
+.heading-anchor {
+  opacity: 0;
+  margin-left: 0.5rem;
+  color: var(--muted-foreground) !important;
+  text-decoration: none !important;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  font-weight: normal;
+  border-bottom: none !important;
+}
+.heading-anchor:hover {
+  color: var(--primary) !important;
+}
+.tutorial-prose h2:hover .heading-anchor,
+.tutorial-prose h3:hover .heading-anchor {
+  opacity: 1;
+}
