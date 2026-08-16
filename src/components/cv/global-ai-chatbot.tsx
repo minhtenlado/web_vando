@@ -105,6 +105,17 @@ export function GlobalAiChatbot() {
         linkedin: profile.linkedin || "",
         facebook: facebookSocial?.url || profile.website || "",
         summary: profile.summary,
+        educations: profile.educations && profile.educations.length > 0 ? profile.educations : [
+          {
+            degree: "Kỹ sư Internet of Things và Trí tuệ nhân tạo ứng dụng",
+            school: "Trường Đại học Công nghiệp Thành phố Hồ Chí Minh (IUH)",
+            period: "2022 – 2027",
+            detail: "Khoa Công nghệ Điện tử. Chuyên ngành đào tạo chuyên sâu về hệ thống nhúng, vi điều khiển, mạng kết nối IoT, thiết kế phần cứng và ứng dụng AI."
+          }
+        ],
+        certifications: profile.certifications,
+        principles: profile.principles,
+        stats: profile.stats,
         skillGroups: profile.skillGroups,
         experiences: experiences.map((e) => ({
           role: e.role,
