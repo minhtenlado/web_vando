@@ -26,10 +26,16 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
   const [isTyping, setIsTyping] = useState(false)
   const [error, setError] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const chatContainerRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: "smooth"
+      })
+    }
   }
 
   useEffect(() => {
@@ -192,7 +198,10 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
       </div>
       
       {/* Messages List */}
-      <div className="flex-1 min-h-0 overflow-y-auto mb-3 space-y-3 pr-1 custom-scrollbar">
+      <div 
+        ref={chatContainerRef}
+        className="flex-1 min-h-0 overflow-y-auto mb-3 space-y-3 pr-1 custom-scrollbar"
+      >
         {messages.map((msg, i) => (
           <div key={i} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
             <div className={`px-3 py-2.5 rounded-[14px] max-w-[92%] text-[13px] leading-relaxed ${
