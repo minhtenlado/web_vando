@@ -10,6 +10,7 @@ import {
   educations as defaultEducations,
   certifications as defaultCertifications,
 } from "@/lib/cv/data";
+import { initialSettings } from "@/components/admin/settings-tab";
 
 export type SiteProfile = {
   name: string
@@ -37,6 +38,7 @@ export type SiteProfile = {
   certifications: any[]
   languages: any[]
   available: boolean
+  settings?: any
 }
 
 export type SiteProject = Project & {
@@ -84,6 +86,7 @@ export type SiteData = {
   projects: SiteProject[]
   experiences: SiteExperience[]
   posts: SitePost[]
+  settings: any
 }
 
 export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
@@ -132,10 +135,12 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
     certifications: [],
     languages: [],
     available: true,
+    settings: {},
   }
   let projects: SiteProject[] = []
   let experiences: SiteExperience[] = []
   let posts: SitePost[] = []
+  let settings: any = { ...initialSettings }
 
   try {
     const [pRowInitial, pRows, eRows] = await Promise.all([
@@ -228,6 +233,18 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
     const primary = (loc === "en" ? pRowEn : pRowVi) || pRowVi || pRowEn || pRowLegacy
     const secondary = (loc === "en" ? pRowVi : pRowEn) || pRowLegacy
 
+    if (primary && (primary as any).settings) {
+      try {
+        const dbSettings = JSON.parse((primary as any).settings)
+        settings = { ...settings, ...dbSettings }
+      } catch (e) {}
+    } else if (secondary && (secondary as any).settings) {
+      try {
+        const dbSettings = JSON.parse((secondary as any).settings)
+        settings = { ...settings, ...dbSettings }
+      } catch (e) {}
+    }
+
     if (primary || secondary) {
       const getVal = (key: string): any => {
         const pVal = primary ? (primary as any)[key] : null
@@ -293,6 +310,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         certifications: certsArr,
         languages: getArrayVal("languages"),
         available: true,
+        settings: safeParseJsonObj(getVal("settings")),
       } as SiteProfile
     }
 
@@ -379,7 +397,17 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
     profile.name = "Phan Huỳnh Văn Đô"
   }
 
-  return { profile, projects, experiences, posts }
+  return { profile, projects, experiences, posts, settings }
+}
+
+function safeParseJsonObj(s: string | undefined | null): any {
+  if (!s) return {}
+  try {
+    const v = JSON.parse(s)
+    return typeof v === 'object' && v !== null && !Array.isArray(v) ? v : {}
+  } catch {
+    return {}
+  }
 }
 
 function safeParseArr(s: string): string[] {

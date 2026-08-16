@@ -3,7 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { MapPin, Mail, Github, Linkedin, ArrowDown, Cpu, Radio, Brain, Camera, Microchip, Network, Code, Terminal, Cloud, BookOpen, Lightbulb } from "lucide-react"
+import { MapPin, Mail, Github, Linkedin, ArrowDown, Cpu, Radio, Brain, Camera, Microchip, Network, Code, Terminal, Cloud, BookOpen, Lightbulb, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useSiteData } from "@/components/cv/site-data-context"
@@ -23,7 +23,7 @@ const defaultRoles = [
 ]
 
 export function Hero() {
-  const { profile } = useSiteData()
+  const { profile, settings } = useSiteData()
   const { t } = useLocale()
   const displayRoles = (profile.animatedRoles && profile.animatedRoles.length > 0)
     ? profile.animatedRoles 
@@ -62,7 +62,7 @@ export function Hero() {
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
               </span>
               <span className="text-sm font-mono text-muted-foreground">
-                {profile.available ? t("Sẵn sàng cho cơ hội mới", "Available for new opportunities") : t("Đang bận", "Currently busy")}
+                {profile.available ? (settings?.availabilityText || t("Sẵn sàng cho cơ hội mới", "Available for new opportunities")) : t("Đang bận", "Currently busy")}
               </span>
             </div>
 
@@ -113,6 +113,13 @@ export function Hero() {
                   <Mail className="h-4 w-4 mr-1.5" /> {t("Liên hệ", "Contact")}
                 </a>
               </Button>
+              {settings?.showDownloadCv !== false && (
+                <Button asChild size="lg" variant="secondary">
+                  <a href="/cv.pdf" target="_blank" rel="noopener noreferrer">
+                    <Download className="h-4 w-4 mr-1.5" /> {t("Tải CV", "Download CV")}
+                  </a>
+                </Button>
+              )}
             </div>
 
             <div className="flex items-center gap-4 pt-2 text-sm text-muted-foreground">
@@ -132,9 +139,11 @@ export function Hero() {
               >
                 <Linkedin className="h-4 w-4" /> LinkedIn
               </a>
-              <span className="flex items-center gap-1.5">
-                <MapPin className="h-4 w-4" /> {profile.location}
-              </span>
+              {settings?.showLocation !== false && (
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4" /> {profile.location}
+                </span>
+              )}
             </div>
           </motion.div>
 

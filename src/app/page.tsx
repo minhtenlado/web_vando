@@ -4,6 +4,7 @@ import { Navbar } from "@/components/cv/navbar"
 import { ScrollProgress } from "@/components/cv/scroll-progress"
 import { CommandPalette } from "@/components/cv/command-palette"
 import { SiteDataProvider } from "@/components/cv/site-data-context"
+import { CvSettingsApplier } from "@/components/cv/cv-settings-applier"
 import { Hero } from "@/components/cv/hero"
 import { About } from "@/components/cv/about"
 import { Skills } from "@/components/cv/skills"
@@ -26,6 +27,7 @@ export default async function Home() {
   return (
     <LocaleProvider initialLocale={locale}>
       <SiteDataProvider initialData={initialData}>
+        <CvSettingsApplier />
         <div className="relative min-h-screen flex flex-col bg-background">
           <HashScrollHandler />
           <ScrollProgress />

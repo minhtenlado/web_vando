@@ -14,11 +14,26 @@ type Ctx = SiteData & {
   refresh: () => Promise<void>
 }
 
+const defaultSettings = {
+  navAboutEnabled: true,
+  navSkillsEnabled: true,
+  navProjectsEnabled: true,
+  navExperienceEnabled: true,
+  navBlogEnabled: true,
+  navContactEnabled: true,
+  showLocation: true,
+  showDownloadCv: true,
+  availabilityText: "Sẵn sàng cho cơ hội mới",
+  compactMode: false,
+  darkMode: true,
+}
+
 const defaultData: SiteData = {
   profile: defaultProfile as unknown as SiteProfile,
   projects: defaultProjects as unknown as SiteProject[],
   experiences: defaultExperiences as unknown as SiteExperience[],
   posts: [],
+  settings: defaultSettings,
 }
 
 const SiteDataContext = React.createContext<Ctx>({
@@ -34,7 +49,11 @@ export function SiteDataProvider({
   children: React.ReactNode
   initialData?: SiteData
 }) {
-  const [data, setData] = React.useState<SiteData>(initialData || defaultData)
+  const [data, setData] = React.useState<SiteData>({
+    ...defaultData,
+    ...(initialData || {}),
+    settings: { ...defaultSettings, ...(initialData?.settings || {}) }
+  })
   const [loading, setLoading] = React.useState(!initialData)
   const { locale } = useLocale()
   const isFirstRun = React.useRef(true)
@@ -50,6 +69,7 @@ export function SiteDataProvider({
           projects: json.projects ?? defaultData.projects,
           experiences: json.experiences ?? defaultData.experiences,
           posts: json.posts ?? [],
+          settings: { ...defaultSettings, ...(json.settings || {}) },
         })
       }
     } catch {

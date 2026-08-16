@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useToast } from "@/hooks/use-toast";
 
-const initialSettings = {
+export const initialSettings = {
   // General
   autoSaveDraft: true,
   unsavedWarning: true,

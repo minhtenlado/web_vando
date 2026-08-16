@@ -13,7 +13,7 @@ import { LocaleToggle } from "@/components/cv/locale-toggle"
 import { cn } from "@/lib/utils"
 
 export function Navbar() {
-  const { profile } = useSiteData()
+  const { profile, settings } = useSiteData()
   const { t, locale } = useLocale()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
@@ -45,6 +45,17 @@ export function Navbar() {
     return () => observer.disconnect()
   }, [])
 
+  const filteredNavLinks = React.useMemo(() => {
+    return navLinks.filter(link => {
+      if (link.href === "/#about" && settings?.navAboutEnabled === false) return false
+      if (link.href === "/#skills" && settings?.navSkillsEnabled === false) return false
+      if (link.href === "/#projects" && settings?.navProjectsEnabled === false) return false
+      if (link.href === "/#experience" && settings?.navExperienceEnabled === false) return false
+      if (link.href === "/#posts" && settings?.navBlogEnabled === false) return false
+      return true
+    })
+  }, [settings])
+
   return (
     <header
       className={cn(
@@ -68,7 +79,7 @@ export function Navbar() {
 
         {/* Desktop nav */}
         <ul className="hidden lg:flex items-center gap-1">
-          {navLinks.map((link) => (
+          {filteredNavLinks.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}
@@ -118,11 +129,13 @@ export function Navbar() {
             )}
           </Button>
 
-          <Button asChild size="sm" className="hidden sm:inline-flex">
-            <a href="#contact">
-              <Download className="h-4 w-4 mr-1.5" /> {t("Liên hệ", "Contact")}
-            </a>
-          </Button>
+          {settings?.navContactEnabled !== false && (
+            <Button asChild size="sm" className="hidden sm:inline-flex">
+              <a href="#contact">
+                <Download className="h-4 w-4 mr-1.5" /> {t("Liên hệ", "Contact")}
+              </a>
+            </Button>
+          )}
 
           {/* Mobile menu */}
           <Sheet>
@@ -147,7 +160,7 @@ export function Navbar() {
                 </SheetClose>
               </div>
               <ul className="mt-6 flex flex-col gap-1">
-                {navLinks.map((link) => (
+                {filteredNavLinks.map((link) => (
                   <li key={link.href}>
                     <SheetClose asChild>
                       <Link
@@ -166,12 +179,13 @@ export function Navbar() {
                 ))}
               </ul>
               <div className="mt-6 pt-6 border-t border-border flex flex-col gap-2 no-print">
-
-                <Button asChild className="w-full">
-                  <a href="#contact">
-                    <Download className="h-4 w-4 mr-1.5" /> {t("Liên hệ ngay", "Contact now")}
-                  </a>
-                </Button>
+                {settings?.navContactEnabled !== false && (
+                  <Button asChild className="w-full">
+                    <a href="#contact">
+                      <Download className="h-4 w-4 mr-1.5" /> {t("Liên hệ ngay", "Contact now")}
+                    </a>
+                  </Button>
+                )}
               </div>
             </SheetContent>
           </Sheet>

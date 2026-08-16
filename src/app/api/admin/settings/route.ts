@@ -42,6 +42,16 @@ export async function POST(req: Request) {
       data: { settings: JSON.stringify(settings) },
     });
 
+    await db.activityLog.create({
+      data: {
+        category: "system",
+        action: "settings",
+        title: "Cập nhật cấu hình",
+        status: "success",
+        detail: "Quản trị viên đã thay đổi cài đặt hệ thống.",
+      }
+    });
+
     return NextResponse.json({ settings: updatedProfile.settings });
   } catch (error) {
     console.error("POST Settings error:", error);
