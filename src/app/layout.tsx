@@ -51,6 +51,9 @@ export const metadata: Metadata = {
     description:
       "Kỹ sư phần mềm nhúng · RTOS · ARM Cortex · IoT · Firmware Engineering",
   },
+  other: {
+    "google-adsense-account": "ca-pub-2941183923177148",
+  },
 };
 
 export default function RootLayout({
@@ -73,7 +76,7 @@ export default function RootLayout({
             async
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2941183923177148"
             crossOrigin="anonymous"
-            strategy="lazyOnload"
+            strategy="afterInteractive"
           />
           {children}
           <Toaster />
