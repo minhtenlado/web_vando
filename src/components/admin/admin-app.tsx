@@ -1,9 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { LogOut, ExternalLink, Terminal, ShieldCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LogOut, ExternalLink, Menu, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LoginForm } from "@/components/admin/login-form";
 import { ProfileTab } from "@/components/admin/profile-tab";
@@ -12,93 +10,187 @@ import { ProjectsTab } from "@/components/admin/projects-tab";
 import { ExperiencesTab } from "@/components/admin/experiences-tab";
 import { PostsTab } from "@/components/admin/posts-tab";
 import { EducationTab } from "@/components/admin/education-tab";
+import { SettingsTab } from "@/components/admin/settings-tab";
+import { ActivityLogTab } from "@/components/admin/activity-log-tab";
 import type { SiteProfile } from "@/lib/cv/site-data-server";
 
-import { AdminLocaleToggle } from "@/components/cv/locale-toggle";
-import { LocaleProvider, useLocale } from "@/components/cv/locale-context";
+import { useLocale } from "@/components/cv/locale-context";
+import "./admin.css";
 
 type Stage = "checking" | "login" | "dashboard";
 
-function Dashboard({ 
-  initialProfile, 
-  onLogout 
-}: { 
-  initialProfile: SiteProfile | null, 
-  onLogout: () => void 
-}) {
-  const { locale, setLocale, t } = useLocale()
-  
-  return (
-    <div className="min-h-screen flex flex-col bg-background">
-      {/* Background grid */}
-      <div className="absolute inset-0 bg-grid pointer-events-none [mask-image:linear-gradient(to_bottom,black,transparent_60%)]" />
+type TabId =
+  | "profile"
+  | "config"
+  | "education"
+  | "projects"
+  | "experiences"
+  | "posts"
+  | "settings"
+  | "activity";
 
-      <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-4">
-          <div className="flex items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-md bg-primary/15 border border-primary/30 text-primary">
-              <ShieldCheck className="size-4" />
+function Dashboard({
+  initialProfile,
+  onLogout,
+}: {
+  initialProfile: SiteProfile | null;
+  onLogout: () => void;
+}) {
+  const { locale, setLocale, t } = useLocale();
+  const [activeTab, setActiveTab] = React.useState<TabId>("experiences");
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+
+  // Close sidebar on mobile when tab changes
+  React.useEffect(() => {
+    setSidebarOpen(false);
+  }, [activeTab]);
+
+  const navItems = [
+    { id: "profile" as TabId, icon: "◎", label: "Hồ sơ" },
+    { id: "config" as TabId, icon: "◌", label: "Cấu hình trang" },
+    { id: "education" as TabId, icon: "▣", label: "Học vấn", count: "03" },
+    { id: "projects" as TabId, icon: "◆", label: "Dự án", count: "08" },
+    { id: "experiences" as TabId, icon: "◈", label: "Kinh nghiệm", count: "03" },
+    { id: "posts" as TabId, icon: "✦", label: "Bài viết", count: "06" },
+  ];
+
+  const sysItems = [
+    { id: "settings" as TabId, icon: "⚙", label: "Cài đặt" },
+    { id: "activity" as TabId, icon: "◐", label: "Activity Log" },
+  ];
+
+  const currentTabLabel =
+    [...navItems, ...sysItems].find((i) => i.id === activeTab)?.label || "Trang quản trị";
+
+  return (
+    <div className="admin-body">
+      <div className="admin-app">
+        {/* =====================================================
+             SIDEBAR
+        ====================================================== */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/50 md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+        <aside className={`admin-sidebar ${sidebarOpen ? "open" : ""}`}>
+          <div className="admin-brand">
+            <div className="admin-brand-logo">&lt;/&gt;</div>
+            <div className="admin-brand-text">
+              <strong>portfolio admin</strong>
+              <span>content management</span>
             </div>
-            <div className="leading-tight">
-              <div className="font-mono text-sm font-semibold">admin panel</div>
-              <div className="hidden text-[10px] text-muted-foreground sm:block">
-                <Terminal className="inline size-2.5 mr-1" />
-                quản trị nội dung
+            <button
+              className="md:hidden ml-auto text-muted-foreground p-1"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+
+          <div className="admin-nav-title">MANAGEMENT</div>
+          <nav className="admin-nav">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                className={`admin-nav-item ${activeTab === item.id ? "active" : ""}`}
+                onClick={() => setActiveTab(item.id)}
+              >
+                <span className="admin-nav-icon">{item.icon}</span>
+                <span className="admin-nav-label">{item.label}</span>
+                {item.count && <span className="admin-nav-count">{item.count}</span>}
+              </button>
+            ))}
+          </nav>
+
+          <div className="admin-nav-title mt-4">SYSTEM</div>
+          <nav className="admin-nav">
+            {sysItems.map((item) => (
+              <button
+                key={item.id}
+                className={`admin-nav-item ${activeTab === item.id ? "active" : ""}`}
+                onClick={() => setActiveTab(item.id)}
+              >
+                <span className="admin-nav-icon">{item.icon}</span>
+                <span className="admin-nav-label">{item.label}</span>
+              </button>
+            ))}
+          </nav>
+
+          <div className="admin-sidebar-footer">
+            <div className="admin-user-mini">
+              <div className="admin-user-avatar">
+                {initialProfile?.name ? initialProfile.name.charAt(0).toUpperCase() : "A"}
+              </div>
+              <div className="admin-user-info">
+                <strong>{initialProfile?.name || "Administrator"}</strong>
+                <span>Admin</span>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <AdminLocaleToggle locale={locale} onChange={setLocale} />
-            <div className="flex items-center gap-2 border-l pl-4">
-              <Button asChild variant="ghost" size="sm">
-                <a href="/" target="_blank" rel="noreferrer">
-                  <ExternalLink className="size-4" />
-                  <span className="hidden sm:inline">Xem trang web</span>
-                </a>
-              </Button>
-              <Button variant="outline" size="sm" onClick={onLogout}>
-                <LogOut className="size-4" />
-                <span className="hidden sm:inline">Đăng xuất</span>
-              </Button>
+        </aside>
+
+        {/* =====================================================
+             MAIN
+        ====================================================== */}
+        <main className="admin-main">
+          {/* TOPBAR */}
+          <header className="admin-topbar">
+            <div className="admin-page-context">
+              <button
+                className="md:hidden mr-2 text-muted-foreground"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <Menu className="size-4" />
+              </button>
+              <span className="hidden sm:inline">Admin</span>
+              <span className="hidden sm:inline">/</span>
+              <strong>{currentTabLabel}</strong>
             </div>
+
+            <div className="admin-top-actions">
+              <a
+                href="/"
+                target="_blank"
+                rel="noreferrer"
+                className="admin-top-button hidden sm:flex"
+              >
+                ↗ Xem trang web
+              </a>
+              <button
+                className={`admin-top-button ${locale === "vi" ? "border-[var(--admin-border-strong)] text-[#c5d4cf]" : ""}`}
+                onClick={() => setLocale("vi")}
+              >
+                VI
+              </button>
+              <button
+                className={`admin-top-button ${locale === "en" ? "border-[var(--admin-border-strong)] text-[#c5d4cf]" : ""}`}
+                onClick={() => setLocale("en")}
+              >
+                EN
+              </button>
+              <button className="admin-top-button hidden sm:flex" onClick={onLogout}>
+                ⇥ Đăng xuất
+              </button>
+            </div>
+          </header>
+
+          {/* PAGE CONTENT */}
+          <div className="admin-page-container">
+            {activeTab === "profile" && <ProfileTab initial={initialProfile} locale={locale} />}
+            {activeTab === "config" && <PageConfigTab initial={initialProfile} locale={locale} />}
+            {activeTab === "education" && <EducationTab initial={initialProfile} locale={locale} />}
+            {activeTab === "projects" && <ProjectsTab locale={locale} />}
+            {activeTab === "experiences" && <ExperiencesTab locale={locale} />}
+            {activeTab === "posts" && <PostsTab locale={locale} />}
+            {activeTab === "settings" && <SettingsTab />}
+            {activeTab === "activity" && <ActivityLogTab />}
           </div>
-        </div>
-      </header>
-
-      <main className="relative mx-auto w-full max-w-6xl flex-1 px-4 py-6">
-        <Tabs defaultValue="profile" className="gap-4">
-          <TabsList className="h-auto flex-wrap">
-            <TabsTrigger value="profile">Hồ sơ</TabsTrigger>
-            <TabsTrigger value="config">Cấu hình trang</TabsTrigger>
-            <TabsTrigger value="education">Học vấn & Chứng chỉ</TabsTrigger>
-            <TabsTrigger value="projects">Dự án</TabsTrigger>
-            <TabsTrigger value="experiences">Kinh nghiệm</TabsTrigger>
-            <TabsTrigger value="posts">Bài viết</TabsTrigger>
-          </TabsList>
-          <TabsContent value="profile" className="mt-4">
-            <ProfileTab initial={initialProfile} locale={locale} />
-          </TabsContent>
-          <TabsContent value="config" className="m-0 mt-6">
-            <PageConfigTab initial={initialProfile} locale={locale} />
-          </TabsContent>
-          
-          <TabsContent value="education" className="m-0 mt-6">
-            <EducationTab initial={initialProfile} locale={locale} />
-          </TabsContent>
-
-          <TabsContent value="projects" className="m-0 mt-6">
-            <ProjectsTab locale={locale} />
-          </TabsContent>
-          <TabsContent value="experiences" className="mt-4">
-            <ExperiencesTab locale={locale} />
-          </TabsContent>
-          <TabsContent value="posts" className="mt-4">
-            <PostsTab locale={locale} />
-          </TabsContent>
-        </Tabs>
-      </main>
+        </main>
+      </div>
     </div>
-  )
+  );
 }
 
 export function AdminApp() {
@@ -118,8 +210,7 @@ export function AdminApp() {
             const sd = await fetch("/api/site-data", { cache: "no-store" });
             const sdData = await sd.json().catch(() => ({}));
             if (!cancelled && sdData?.profile) setProfile(sdData.profile);
-          } catch {
-          }
+          } catch {}
           setStage("dashboard");
         } else {
           setStage("login");
@@ -148,35 +239,14 @@ export function AdminApp() {
   if (stage === "checking") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex items-center gap-2 font-mono text-sm text-muted-foreground">
-          <ShieldCheck className="size-4 text-primary animate-pulse" />
-          Đang kiểm tra phiên…
-        </div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
   }
 
   if (stage === "login") {
-    return (
-      <div className="min-h-screen flex flex-col bg-background">
-        <LoginForm
-          onSuccess={async () => {
-            try {
-              const sd = await fetch("/api/site-data", { cache: "no-store" });
-              const sdData = await sd.json().catch(() => ({}));
-              if (sdData?.profile) setProfile(sdData.profile);
-            } catch {
-            }
-            setStage("dashboard");
-          }}
-        />
-      </div>
-    );
+    return <LoginForm onSuccess={() => setStage("dashboard")} />;
   }
 
-  return (
-    <LocaleProvider>
-      <Dashboard initialProfile={profile} onLogout={handleLogout} />
-    </LocaleProvider>
-  );
+  return <Dashboard initialProfile={profile} onLogout={handleLogout} />;
 }
