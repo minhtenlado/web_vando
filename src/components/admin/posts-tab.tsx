@@ -237,6 +237,15 @@ export function PostsTab({ locale }: { locale: string }) {
     }
   }
 
+  const filteredItems = React.useMemo(() => {
+    return items.filter(post => {
+      const matchesSearch = post.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            post.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = activeCategory === "Tất cả" || post.category === activeCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [items, searchQuery, activeCategory]);
+
   return (
     <div className="space-y-4">
       {/* Toolbar */}
@@ -290,7 +299,7 @@ export function PostsTab({ locale }: { locale: string }) {
             ))}
           </div>
         </div>
-      ) : items.length === 0 ? (
+      ) : filteredItems.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center gap-3 py-12 text-center">
             <FileText className="size-10 text-muted-foreground" />
@@ -305,7 +314,7 @@ export function PostsTab({ locale }: { locale: string }) {
         </Card>
       ) : (
         <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.map((post, i) => {
+          {filteredItems.map((post, i) => {
             const postCategory = post.category || CATEGORIES[0]
             const mockReadTime = `${Math.floor(Math.random() * 10) + 1} phút đọc`
             const mockViews = `${(Math.random() * 20).toFixed(1)}K`

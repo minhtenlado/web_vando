@@ -255,13 +255,13 @@
   border: 1px solid var(--admin-border-light);
   border-radius: 8px;
   background: var(--admin-surface-2);
-  color: #81948d;
-  font-size: 9px;
+  color: var(--admin-text-3);
+  font-size: 12px;
   cursor: pointer;
   transition: .2s ease;
 }
 .admin-top-button:hover {
-  color: #c5d4cf;
+  color: var(--admin-text-2);
   border-color: var(--admin-border-strong);
 }
 .admin-top-button.primary {
