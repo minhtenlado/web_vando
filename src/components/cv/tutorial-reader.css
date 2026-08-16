@@ -135,9 +135,10 @@
 
 /* Images */
 .tutorial-prose img {
+  display: block;
   max-width: 100%;
   border-radius: 12px;
-  margin: 24px 0;
+  margin: 24px auto;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
