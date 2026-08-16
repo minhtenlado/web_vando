@@ -229,7 +229,6 @@ export function GlobalAiChatbot() {
               <div>
                 <h3 className="font-sans text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
                   AI Assistant
-                  <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-primary/10 text-primary font-mono">3.6 Flash</span>
                 </h3>
               </div>
             </div>
