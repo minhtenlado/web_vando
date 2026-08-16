@@ -567,7 +567,7 @@ export function TutorialEditor({
               <select 
                 className="select mb-2"
                 value={form.layout}
-                onChange={(e) => setForm({ ...form, layout: e.target.value })}
+                onChange={(e) => setForm({ ...form, layout: e.target.value as "article" | "tutorial" })}
               >
                 {POST_LAYOUTS.map(l => (
                   <option key={l.id} value={l.id}>{l.icon} {l.label}</option>
