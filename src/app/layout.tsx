@@ -64,8 +64,8 @@ export default async function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
-          enableSystem
+          defaultTheme={settings.darkMode === false ? "light" : "dark"}
+          enableSystem={false}
           disableTransitionOnChange
         >
           {settings.analyticsEnabled && settings.analyticsId && (

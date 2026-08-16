@@ -240,7 +240,7 @@
   font-size: 10px;
 }
 .admin-page-context strong {
-  color: #c8d6d1;
+  color: var(--admin-text);
   font-weight: 600;
 }
 .admin-top-actions {
@@ -256,13 +256,13 @@
   border: 1px solid var(--admin-border-light);
   border-radius: 8px;
   background: var(--admin-surface-2);
-  color: var(--admin-text-3);
+  color: var(--admin-text-2);
   font-size: 12px;
   cursor: pointer;
   transition: .2s ease;
 }
 .admin-top-button:hover {
-  color: var(--admin-text-2);
+  color: var(--admin-text);
   border-color: var(--admin-border-strong);
 }
 .admin-top-button.primary {

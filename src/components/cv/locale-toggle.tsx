@@ -35,6 +35,7 @@ export function LocaleToggle({ className }: { className?: string }) {
 
   function toggle() {
     setLocale(locale === "vi" ? "en" : "vi")
+    window.location.reload()
   }
 
   return (

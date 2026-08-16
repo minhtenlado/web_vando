@@ -49,7 +49,7 @@ export function GlobalAiChatbot() {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTo({
         top: chatContainerRef.current.scrollHeight,
-        behavior: "smooth"
+        behavior: "auto"
       })
     }
   }
@@ -251,7 +251,7 @@ export function GlobalAiChatbot() {
           {/* Messages List */}
           <div 
             ref={chatContainerRef}
-            className="flex-1 min-h-0 overflow-y-auto p-3.5 space-y-3 pr-2 scrollbar-hide"
+            className="flex-1 min-h-0 overflow-y-auto p-3.5 space-y-3 pr-2 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
             {messages.map((msg, i) => (
               <div key={i} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>

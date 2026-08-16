@@ -33,7 +33,7 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTo({
         top: chatContainerRef.current.scrollHeight,
-        behavior: "smooth"
+        behavior: "auto"
       })
     }
   }
@@ -200,7 +200,7 @@ export function PostAiChat({ postTitle, postContent }: { postTitle: string, post
       {/* Messages List */}
       <div 
         ref={chatContainerRef}
-        className="flex-1 min-h-0 overflow-y-auto mb-3 space-y-3 pr-1 scrollbar-hide"
+        className="flex-1 min-h-0 overflow-y-auto space-y-3 pr-2 scrollbar-hide my-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
       >
         {messages.map((msg, i) => (
           <div key={i} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
