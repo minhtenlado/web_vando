@@ -477,19 +477,58 @@ export function TutorialEditor({
 
                       {block.type === 'image' && (
                         <div className="image-block">
-                          <input 
-                            className="w-full bg-transparent border-0 outline-none text-center text-[11px] text-gray-400 mb-2"
-                            placeholder="Nhập URL hình ảnh (vd: https://...)"
-                            value={block.url}
-                            onChange={(e) => updateBlock(block.id, { url: e.target.value })}
-                          />
-                          <div className="image-placeholder" style={{ background: block.url ? 'transparent' : '' }}>
-                            {block.url ? (
+                          <div className="flex items-center gap-2 mb-3 w-full px-3 py-1.5 bg-[#09100d] rounded-md border border-white/10">
+                            <input 
+                              className="flex-1 bg-transparent border-0 outline-none text-[11px] text-gray-400"
+                              placeholder="Nhập URL hình ảnh (hoặc click 'Tải lên' bên cạnh)"
+                              value={block.url}
+                              onChange={(e) => updateBlock(block.id, { url: e.target.value })}
+                            />
+                            <div className="w-[1px] h-3 bg-white/10" />
+                            <button
+                              type="button"
+                              className="text-[11px] text-[var(--green)] font-semibold hover:text-white transition-colors whitespace-nowrap"
+                              onClick={() => {
+                                const el = document.createElement('input');
+                                el.type = 'file';
+                                el.accept = 'image/*';
+                                el.onchange = async (e) => {
+                                  const file = (e.target as HTMLInputElement).files?.[0];
+                                  if (!file) return;
+                                  
+                                  const fd = new FormData();
+                                  fd.append('file', file);
+                                  
+                                  const oldUrl = block.url;
+                                  updateBlock(block.id, { url: 'Đang tải ảnh lên...' });
+                                  
+                                  try {
+                                    const res = await fetch('/api/admin/upload-image', { method: 'POST', body: fd });
+                                    const data = await res.json();
+                                    if (data.ok) {
+                                      updateBlock(block.id, { url: data.url });
+                                    } else {
+                                      alert(data.message || 'Lỗi khi tải ảnh.');
+                                      updateBlock(block.id, { url: oldUrl });
+                                    }
+                                  } catch (err) {
+                                    alert('Lỗi mạng khi tải ảnh.');
+                                    updateBlock(block.id, { url: oldUrl });
+                                  }
+                                };
+                                el.click();
+                              }}
+                            >
+                              Tải lên
+                            </button>
+                          </div>
+                          <div className="image-placeholder" style={{ background: block.url && !block.url.startsWith('Đang tải') ? 'transparent' : '' }}>
+                            {block.url && !block.url.startsWith('Đang tải') ? (
                               <img src={block.url} alt="Image" className="max-w-full rounded-md object-contain" />
                             ) : (
                               <>
-                                <strong>🖼 Chưa có hình ảnh</strong>
-                                Nhập đường dẫn ảnh ở trên
+                                <strong>🖼 {block.url?.startsWith('Đang tải') ? 'Đang tải lên...' : 'Chưa có hình ảnh'}</strong>
+                                {!block.url?.startsWith('Đang tải') && 'Nhập đường dẫn hoặc tải ảnh lên'}
                               </>
                             )}
                           </div>
