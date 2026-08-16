@@ -256,10 +256,7 @@ export function TutorialReader({ slug, title, pubDate, readingTime, contentHtml,
     <>
       <article ref={articleRef} className="tutorial-layout-article">
         
-        <div className="tutorial-badge">
-          <span className="tutorial-dot" />
-          TUTORIAL
-        </div>
+
         
         <h1 className="tutorial-title">{title}</h1>
         

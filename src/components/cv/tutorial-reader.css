@@ -44,12 +44,12 @@
 }
 
 .tutorial-title {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(32px, 5vw, 66px);
-  line-height: 1.06;
-  font-weight: 400;
+  font-family: var(--sans);
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: 1.15;
+  font-weight: 800;
   letter-spacing: -0.035em;
-  margin: 24px 0 20px;
+  margin: 0 0 20px;
 }
 .light .tutorial-title {
   color: #000;
