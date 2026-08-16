@@ -221,21 +221,21 @@ export function ExperiencesTab({ locale }: { locale: string }) {
       {/* ========================= PAGE HEADER ========================== */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 font-mono text-[10px] text-primary tracking-widest mb-2">
+          <div className="flex items-center gap-2 font-mono text-base text-primary tracking-widest mb-2">
             <span className="h-px w-5 bg-primary" />
             CONTENT / EXPERIENCE
           </div>
           <h2 className="text-2xl font-bold tracking-tight">Kinh nghiệm</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-base text-muted-foreground">
             Quản lý các cột mốc nghề nghiệp hiển thị trên portfolio.
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={fetchItems} disabled={loading} className="gap-1.5 font-mono text-xs">
+          <Button variant="outline" size="sm" onClick={fetchItems} disabled={loading} className="gap-1.5 font-mono text-base">
             <RefreshCw className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
             Làm mới
           </Button>
-          <Button size="sm" onClick={openCreate} className="gap-1.5 font-mono text-xs bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button size="sm" onClick={openCreate} className="gap-1.5 font-mono text-base bg-primary text-primary-foreground hover:bg-primary/90">
             <Plus className="size-3.5" />
             Thêm kinh nghiệm
           </Button>
@@ -254,13 +254,13 @@ export function ExperiencesTab({ locale }: { locale: string }) {
             key={s.label}
             className="relative p-4 rounded-xl border border-border bg-card/60"
           >
-            <span className="block font-mono text-[9px] text-muted-foreground/60 tracking-widest">
+            <span className="block font-mono text-base text-muted-foreground/60 tracking-widest">
               {s.label}
             </span>
             <span className={`block mt-1.5 text-2xl font-bold ${s.green ? "text-primary" : "text-foreground/90"}`}>
               {s.value}
             </span>
-            <span className="block mt-0.5 text-[10px] text-muted-foreground/50">
+            <span className="block mt-0.5 text-base text-muted-foreground/50">
               {s.note}
             </span>
           </div>
@@ -275,7 +275,7 @@ export function ExperiencesTab({ locale }: { locale: string }) {
             placeholder="Tìm theo vị trí, công ty, công nghệ..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 h-9 text-xs bg-card/40 border-border font-mono"
+            className="pl-9 h-9 text-base bg-card/40 border-border font-mono"
           />
         </div>
       </div>
@@ -291,13 +291,13 @@ export function ExperiencesTab({ locale }: { locale: string }) {
         <div className="flex flex-col items-center justify-center gap-3 py-16 text-center rounded-xl border border-border bg-card/40">
           <Briefcase className="size-10 text-muted-foreground/30" />
           <div>
-            <p className="font-medium text-sm">{searchQuery ? "Không tìm thấy" : "Chưa có kinh nghiệm"}</p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="font-medium text-base">{searchQuery ? "Không tìm thấy" : "Chưa có kinh nghiệm"}</p>
+            <p className="text-base text-muted-foreground mt-1">
               {searchQuery ? "Thử từ khóa khác." : "Thêm vị trí làm việc đầu tiên."}
             </p>
           </div>
           {!searchQuery && (
-            <Button size="sm" onClick={openCreate} className="gap-1.5 text-xs">
+            <Button size="sm" onClick={openCreate} className="gap-1.5 text-base">
               <Plus className="size-3.5" /> Thêm kinh nghiệm
             </Button>
           )}
@@ -324,7 +324,7 @@ export function ExperiencesTab({ locale }: { locale: string }) {
                             : "bg-muted-foreground/30")
                         }
                       />
-                      <h3 className="text-sm font-bold text-foreground/90 truncate">
+                      <h3 className="text-base font-bold text-foreground/90 truncate">
                         {e.role}
                       </h3>
                     </div>
@@ -336,13 +336,13 @@ export function ExperiencesTab({ locale }: { locale: string }) {
                           href={e.companyUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center gap-1 text-primary text-[11px] font-semibold hover:underline"
+                          className="inline-flex items-center gap-1 text-primary text-base font-semibold hover:underline"
                         >
                           {e.company}
                           <ExternalLink className="size-2.5" />
                         </a>
                       ) : (
-                        <span className="text-primary/70 text-[11px] font-semibold">
+                        <span className="text-primary/70 text-base font-semibold">
                           {e.company}
                         </span>
                       )}
@@ -350,16 +350,16 @@ export function ExperiencesTab({ locale }: { locale: string }) {
 
                     {/* Meta chips */}
                     <div className="mt-2 ml-[18px] flex flex-wrap gap-1.5">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-mono border border-primary/10 text-primary/70 bg-primary/[0.03]">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-base font-mono border border-primary/10 text-primary/70 bg-primary/[0.03]">
                         PUBLISHED
                       </span>
                       {e.period && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-mono border border-border bg-background/50 text-muted-foreground/60">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-base font-mono border border-border bg-background/50 text-muted-foreground/60">
                           {e.period}
                         </span>
                       )}
                       {e.location && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-mono border border-border bg-background/50 text-muted-foreground/60">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-base font-mono border border-border bg-background/50 text-muted-foreground/60">
                           {e.location}
                         </span>
                       )}
@@ -370,13 +370,13 @@ export function ExperiencesTab({ locale }: { locale: string }) {
                   <div className="flex items-start gap-1.5 shrink-0">
                     <button
                       onClick={() => openEdit(e)}
-                      className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border bg-background/50 text-muted-foreground text-[10px] hover:text-foreground hover:border-primary/20 transition-colors"
+                      className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border bg-background/50 text-muted-foreground text-base hover:text-foreground hover:border-primary/20 transition-colors"
                     >
                       <Pencil className="size-3" /> Sửa
                     </button>
                     <button
                       onClick={() => setDeleteId(e.id)}
-                      className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border bg-background/50 text-muted-foreground text-[10px] hover:text-destructive hover:border-destructive/20 transition-colors"
+                      className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border bg-background/50 text-muted-foreground text-base hover:text-destructive hover:border-destructive/20 transition-colors"
                     >
                       <Trash2 className="size-3" /> Xóa
                     </button>
@@ -388,7 +388,7 @@ export function ExperiencesTab({ locale }: { locale: string }) {
                   {/* Summary */}
                   {e.description && (
                     <p
-                      className="text-[11px] text-muted-foreground/60 leading-relaxed line-clamp-2 max-w-3xl"
+                      className="text-base text-muted-foreground/60 leading-relaxed line-clamp-2 max-w-3xl"
                       dangerouslySetInnerHTML={{ __html: sanitizeHtml(e.description || "") }}
                     />
                   )}
@@ -399,7 +399,7 @@ export function ExperiencesTab({ locale }: { locale: string }) {
                       {e.stack.map((s, si) => (
                         <span
                           key={si}
-                          className="px-2 py-0.5 rounded-full text-[8px] font-mono border border-primary/[0.06] text-muted-foreground/50"
+                          className="px-2 py-0.5 rounded-full text-base font-mono border border-primary/[0.06] text-muted-foreground/50"
                         >
                           {s}
                         </span>
@@ -422,7 +422,7 @@ export function ExperiencesTab({ locale }: { locale: string }) {
               <DialogTitle className="text-base font-bold">
                 {editing ? "Chỉnh sửa kinh nghiệm" : "Thêm kinh nghiệm"}
               </DialogTitle>
-              <p className="text-[10px] text-muted-foreground/60 mt-0.5 font-mono">
+              <p className="text-base text-muted-foreground/60 mt-0.5 font-mono">
                 {editing ? `Đang chỉnh sửa: ${editing.role}` : "Cập nhật nội dung hiển thị trên portfolio."}
               </p>
             </div>
@@ -435,22 +435,22 @@ export function ExperiencesTab({ locale }: { locale: string }) {
               {/* Section 01: Basic Info */}
               <div className="rounded-xl border border-border/50 bg-card/30 p-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="font-mono text-[10px] text-primary">01</span>
-                  <span className="text-xs font-bold">Thông tin cơ bản</span>
+                  <span className="font-mono text-base text-primary">01</span>
+                  <span className="text-base font-bold">Thông tin cơ bản</span>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-1.5">
-                    <Label className="font-mono text-[10px] text-muted-foreground">Vị trí *</Label>
+                    <Label className="font-mono text-base text-muted-foreground">Vị trí *</Label>
                     <Input
                       value={form.role}
                       onChange={(e) => setForm({ ...form, role: e.target.value })}
                       placeholder="Embedded / AIoT Intern"
                       required
-                      className="h-9 text-xs bg-background/80"
+                      className="h-9 text-base bg-background/80"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="font-mono text-[10px] text-muted-foreground flex items-center gap-1.5">
+                    <Label className="font-mono text-base text-muted-foreground flex items-center gap-1.5">
                       <Building2 className="size-3" /> Công ty *
                     </Label>
                     <Input
@@ -458,34 +458,34 @@ export function ExperiencesTab({ locale }: { locale: string }) {
                       onChange={(e) => setForm({ ...form, company: e.target.value })}
                       placeholder="Công ty TNHH Công nghệ SkyTech"
                       required
-                      className="h-9 text-xs bg-background/80"
+                      className="h-9 text-base bg-background/80"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="font-mono text-[10px] text-muted-foreground">Thời gian</Label>
+                    <Label className="font-mono text-base text-muted-foreground">Thời gian</Label>
                     <Input
                       value={form.period}
                       onChange={(e) => setForm({ ...form, period: e.target.value })}
                       placeholder="04/2026 — 08/2026"
-                      className="h-9 text-xs bg-background/80"
+                      className="h-9 text-base bg-background/80"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="font-mono text-[10px] text-muted-foreground">Địa điểm</Label>
+                    <Label className="font-mono text-base text-muted-foreground">Địa điểm</Label>
                     <Input
                       value={form.location}
                       onChange={(e) => setForm({ ...form, location: e.target.value })}
                       placeholder="TP. Hồ Chí Minh, Việt Nam"
-                      className="h-9 text-xs bg-background/80"
+                      className="h-9 text-base bg-background/80"
                     />
                   </div>
                   <div className="space-y-1.5 sm:col-span-2">
-                    <Label className="font-mono text-[10px] text-muted-foreground">Website công ty</Label>
+                    <Label className="font-mono text-base text-muted-foreground">Website công ty</Label>
                     <Input
                       value={form.companyUrl}
                       onChange={(e) => setForm({ ...form, companyUrl: e.target.value })}
                       placeholder="https://skytechnology.vn/"
-                      className="h-9 text-xs bg-background/80"
+                      className="h-9 text-base bg-background/80"
                     />
                   </div>
                 </div>
@@ -494,8 +494,8 @@ export function ExperiencesTab({ locale }: { locale: string }) {
               {/* Section 02: Description */}
               <div className="rounded-xl border border-border/50 bg-card/30 p-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="font-mono text-[10px] text-primary">02</span>
-                  <span className="text-xs font-bold">Mô tả tổng quan</span>
+                  <span className="font-mono text-base text-primary">02</span>
+                  <span className="text-base font-bold">Mô tả tổng quan</span>
                 </div>
                 <RichTextEditor
                   value={form.description}
@@ -507,25 +507,25 @@ export function ExperiencesTab({ locale }: { locale: string }) {
               <div className="rounded-xl border border-border/50 bg-card/30 p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-[10px] text-primary">03</span>
-                    <span className="text-xs font-bold">Thành tích / Công việc</span>
+                    <span className="font-mono text-base text-primary">03</span>
+                    <span className="text-base font-bold">Thành tích / Công việc</span>
                   </div>
-                  <span className="text-[9px] text-muted-foreground/50 font-mono">Mỗi dòng = 1 mục</span>
+                  <span className="text-base text-muted-foreground/50 font-mono">Mỗi dòng = 1 mục</span>
                 </div>
                 <Textarea
                   value={form.highlights}
                   onChange={(e) => setForm({ ...form, highlights: e.target.value })}
                   rows={5}
                   placeholder={"Nghiên cứu và triển khai ứng dụng trên nền tảng Embedded Linux / ARM.\nLàm việc với thiết bị MediaTek MT8365 và môi trường Linux Embedded.\nNghiên cứu triển khai mô hình AI trên thiết bị biên."}
-                  className="font-mono text-xs bg-background/80 leading-relaxed"
+                  className="font-mono text-base bg-background/80 leading-relaxed"
                 />
               </div>
 
               {/* Section 04: Tech Stack */}
               <div className="rounded-xl border border-border/50 bg-card/30 p-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="font-mono text-[10px] text-primary">04</span>
-                  <span className="text-xs font-bold">Tech Stack</span>
+                  <span className="font-mono text-base text-primary">04</span>
+                  <span className="text-base font-bold">Tech Stack</span>
                 </div>
 
                 {/* Tag display */}
@@ -534,7 +534,7 @@ export function ExperiencesTab({ locale }: { locale: string }) {
                     {splitCommaOrLines(form.stack).map((tag, ti) => (
                       <span
                         key={ti}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono border border-primary/10 text-muted-foreground bg-primary/[0.02]"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-base font-mono border border-primary/10 text-muted-foreground bg-primary/[0.02]"
                       >
                         {tag}
                         <button
@@ -557,7 +557,7 @@ export function ExperiencesTab({ locale }: { locale: string }) {
                   onChange={(e) => setForm({ ...form, stack: e.target.value })}
                   rows={3}
                   placeholder={"Embedded Linux, MediaTek MT8365\nARM, C/C++, Python\nTensorFlow Lite, OpenCV, Edge AI"}
-                  className="font-mono text-xs bg-background/80"
+                  className="font-mono text-base bg-background/80"
                 />
               </div>
 
@@ -565,10 +565,10 @@ export function ExperiencesTab({ locale }: { locale: string }) {
               <div className="rounded-xl border border-border/50 bg-card/30 p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-[10px] text-primary">05</span>
-                    <span className="text-xs font-bold">Ảnh (Gallery)</span>
+                    <span className="font-mono text-base text-primary">05</span>
+                    <span className="text-base font-bold">Ảnh (Gallery)</span>
                   </div>
-                  <span className="text-[9px] text-muted-foreground/50 font-mono">{form.images.length} ảnh</span>
+                  <span className="text-base text-muted-foreground/50 font-mono">{form.images.length} ảnh</span>
                 </div>
 
                 {form.images.length > 0 && (
@@ -630,7 +630,7 @@ export function ExperiencesTab({ locale }: { locale: string }) {
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="w-full border-dashed text-xs"
+                    className="w-full border-dashed text-base"
                     onClick={() => document.getElementById("exp-gallery-upload")?.click()}
                   >
                     <Plus className="size-3.5 mr-1" /> Thêm ảnh
@@ -641,14 +641,14 @@ export function ExperiencesTab({ locale }: { locale: string }) {
 
             {/* Modal Footer */}
             <div className="sticky bottom-0 flex items-center justify-between px-5 py-3 border-t border-border bg-card">
-              <span className="font-mono text-[9px] text-muted-foreground/40">
+              <span className="font-mono text-base text-muted-foreground/40">
                 {editing ? `LAST SAVED · ${new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}` : "NEW ENTRY"}
               </span>
               <div className="flex gap-2">
-                <Button type="button" variant="outline" size="sm" onClick={() => setDialogOpen(false)} disabled={submitting} className="text-xs">
+                <Button type="button" variant="outline" size="sm" onClick={() => setDialogOpen(false)} disabled={submitting} className="text-base">
                   Hủy
                 </Button>
-                <Button type="submit" size="sm" disabled={submitting} className="text-xs bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
+                <Button type="submit" size="sm" disabled={submitting} className="text-base bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
                   {submitting ? <Loader2 className="size-3.5 animate-spin" /> : null}
                   {editing ? "Lưu thay đổi" : "Thêm"}
                 </Button>
