@@ -129,14 +129,14 @@
   height: 36px;
   border: 1px solid var(--border);
   border-radius: 10px;
-  background: #0b1210;
+  background: var(--surface);
   color: #a9b7b1;
   display: grid;
   place-items: center;
 }
 
 .tutorial-editor-root .back-btn:hover {
-  color: white;
+  color: var(--text);
   border-color: var(--border-hover);
 }
 
@@ -197,8 +197,8 @@
   padding: 0 13px;
   border: 1px solid var(--border);
   border-radius: 10px;
-  color: #aab8b2;
-  background: #0b1210;
+  color: var(--muted);
+  background: var(--surface);
   font-size: 11px;
   display: inline-flex;
   align-items: center;
@@ -212,12 +212,12 @@
 }
 
 .tutorial-editor-root .btn:hover:not(:disabled) {
-  color: white;
+  color: var(--text);
   border-color: var(--border-hover);
 }
 
 .tutorial-editor-root .btn-primary {
-  color: #00150e;
+  color: var(--surface);
   background: var(--green);
   border-color: var(--green);
   font-weight: 800;
@@ -273,7 +273,7 @@
   gap: 9px;
   padding: 9px;
   border-radius: 9px;
-  color: #7e8e87;
+  color: var(--muted);
   font-size: 14px;
   border: 1px solid transparent;
   text-align: left;
@@ -282,8 +282,8 @@
 }
 
 .tutorial-editor-root .outline-item:hover {
-  background: rgba(255,255,255,.025);
-  color: #d7e1dc;
+  background: var(--surface-2);
+  color: var(--text);
 }
 
 .tutorial-editor-root .outline-item.active {
@@ -300,7 +300,7 @@
 }
 
 .tutorial-editor-root .outline-item.add {
-  color: #628678;
+  color: var(--muted);
   margin-top: 8px;
 }
 
@@ -357,7 +357,7 @@
   background: transparent;
   border: 0;
   outline: 0;
-  color: #f2f7f4;
+  color: var(--text);
   font-size: 44px;
   line-height: 1.15;
   letter-spacing: -.035em;
@@ -365,7 +365,7 @@
 }
 
 .tutorial-editor-root .title-input::placeholder {
-  color: #3f4f49;
+  color: var(--muted-2);
 }
 
 .tutorial-editor-root .description-input {
@@ -376,7 +376,7 @@
   background: transparent;
   border: 0;
   outline: 0;
-  color: #80918a;
+  color: var(--muted);
   font-size: 15px;
   line-height: 1.7;
   resize: none;
@@ -392,10 +392,10 @@
 
 .tutorial-editor-root .meta-chip {
   padding: 6px 9px;
-  background: rgba(255,255,255,.045);
+  background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 999px;
-  color: #91a09a;
+  color: var(--muted);
   font-size: 10px;
 }
 
@@ -411,14 +411,14 @@
 
 .tutorial-editor-root .intro-panel {
   padding: 19px;
-  border: 1px solid rgba(126,156,255,.13);
+  border: 1px solid var(--border);
   border-radius: 14px;
-  background: rgba(126,156,255,.045);
+  background: var(--surface-2);
   margin-bottom: 30px;
 }
 
 .tutorial-editor-root .panel-kicker {
-  color: #8ea6ff;
+  color: var(--blue);
   font-size: 9px;
   font-weight: 900;
   letter-spacing: .13em;
@@ -433,7 +433,7 @@
   background: transparent;
   border: 0;
   outline: 0;
-  color: #c3ced8;
+  color: var(--text);
   font-size: 13px;
   line-height: 1.7;
 }
@@ -450,8 +450,8 @@
   align-items: center;
   gap: 9px;
   padding: 9px 10px;
-  background: rgba(8,15,12,.38);
-  border: 1px solid rgba(255,255,255,.05);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 9px;
 }
 
@@ -470,7 +470,7 @@
 .tutorial-editor-root .objective input {
   min-width: 0;
   flex: 1;
-  color: #aebdb6;
+  color: var(--text);
   border: 0;
   outline: 0;
   background: transparent;
@@ -515,14 +515,14 @@
   align-items: center;
   justify-content: center;
   border: 1px solid var(--border);
-  background: #0c1512;
-  color: #778880;
+  background: var(--surface);
+  color: var(--muted);
   border-radius: 8px;
   cursor: pointer;
 }
 
 .tutorial-editor-root .block-action:hover {
-  color: white;
+  color: var(--text);
   border-color: var(--border-hover);
 }
 
@@ -534,13 +534,13 @@
   background: transparent;
   border: 0;
   outline: 0;
-  color: #c4cec9;
+  color: var(--text);
   font-size: 16px;
   line-height: 1.9;
 }
 
 .tutorial-editor-root .paragraph::placeholder {
-  color: #4f625a;
+  color: var(--muted-2);
 }
 
 .tutorial-editor-root .heading-input {
@@ -549,14 +549,14 @@
   border: 0;
   outline: 0;
   background: transparent;
-  color: #f0f5f2;
+  color: var(--text);
   font-size: 28px;
   line-height: 1.3;
   font-weight: 700;
 }
 
 .tutorial-editor-root .heading-input::placeholder {
-  color: #45554f;
+  color: var(--muted-2);
 }
 
 /* =========================================================
@@ -566,7 +566,7 @@
 .tutorial-editor-root .step-block {
   margin-top: 14px;
   padding: 18px;
-  border: 1px solid rgba(57,230,168,.12);
+  border: 1px solid var(--border-hover);
   border-radius: 14px;
   background: linear-gradient(135deg, rgba(57,230,168,.035), rgba(255,255,255,.005));
 }
@@ -586,7 +586,7 @@
   justify-content: center;
   border-radius: 9px;
   background: var(--green-soft);
-  border: 1px solid rgba(57,230,168,.18);
+  border: 1px solid var(--border-hover);
   color: var(--green);
   font-family: var(--mono);
   font-size: 10px;
@@ -600,7 +600,7 @@
   border-bottom: 1px solid transparent;
   outline: 0;
   background: transparent;
-  color: white;
+  color: var(--text);
   font-size: 19px;
   font-weight: 700;
   padding: 6px 0;
@@ -618,7 +618,7 @@
   border: 0;
   outline: 0;
   background: transparent;
-  color: #aebcb6;
+  color: var(--muted);
   font-size: 15px;
   line-height: 1.8;
 }
@@ -654,8 +654,8 @@
   min-width: 33px;
   height: 27px;
   padding: 0 10px;
-  color: #688078;
-  background: #0c1512;
+  color: var(--muted);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 11px;
@@ -678,8 +678,8 @@
   width: 320px;
   z-index: 30;
   padding: 7px;
-  background: #0d1713;
-  border: 1px solid rgba(255,255,255,.10);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 13px;
   box-shadow: 0 25px 60px rgba(0,0,0,.42);
 }
@@ -696,14 +696,14 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   outline: 0;
-  background: #09100d;
-  color: white;
+  background: var(--bg);
+  color: var(--text);
   font-size: 12px;
 }
 
 .tutorial-editor-root .menu-label {
   padding: 7px 8px;
-  color: #5f7169;
+  color: var(--muted-2);
   font-size: 9px;
   letter-spacing: .09em;
   font-weight: 800;
@@ -718,13 +718,13 @@
   border: 0;
   border-radius: 9px;
   background: transparent;
-  color: #aebbb5;
+  color: var(--muted);
   text-align: left;
 }
 
 .tutorial-editor-root .menu-item:hover {
-  background: rgba(255,255,255,.045);
-  color: white;
+  background: var(--surface-2);
+  color: var(--text);
 }
 
 .tutorial-editor-root .menu-icon {
@@ -734,7 +734,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 7px;
-  background: rgba(255,255,255,.045);
+  background: var(--surface-2);
   font-size: 11px;
 }
 
@@ -746,7 +746,7 @@
 .tutorial-editor-root .menu-text span {
   display: block;
   margin-top: 2px;
-  color: #667770;
+  color: var(--muted-2);
   font-size: 9px;
 }
 
@@ -757,9 +757,9 @@
 .tutorial-editor-root .code-block {
   margin-top: 10px;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,.075);
+  border: 1px solid var(--border);
   border-radius: 12px;
-  background: #080e0c;
+  background: var(--surface);
 }
 
 .tutorial-editor-root .code-head {
@@ -768,8 +768,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255,255,255,.055);
-  background: #0b1411;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
 }
 
 .tutorial-editor-root .code-left {
@@ -779,7 +779,7 @@
 }
 
 .tutorial-editor-root .code-label {
-  color: #91a29a;
+  color: var(--muted);
   font-size: 10px;
 }
 
@@ -787,8 +787,8 @@
   padding: 5px 8px;
   border: 1px solid var(--border);
   border-radius: 7px;
-  background: #08100d;
-  color: #81918a;
+  background: var(--bg);
+  color: var(--muted);
   font-size: 9px;
 }
 
@@ -797,7 +797,7 @@
   min-height: 130px;
   display: block;
   padding: 15px;
-  background: #080e0c;
+  background: var(--surface);
   border: 0;
   outline: 0;
   resize: vertical;
@@ -816,7 +816,7 @@
   padding: 14px;
   border-radius: 12px;
   background: rgba(57,230,168,.045);
-  border: 1px solid rgba(57,230,168,.12);
+  border: 1px solid var(--border-hover);
 }
 
 .tutorial-editor-root .callout.warning {
@@ -899,7 +899,7 @@
   padding: 17px;
   border-radius: 13px;
   background: linear-gradient(135deg, rgba(126,156,255,.06), rgba(57,230,168,.025));
-  border: 1px solid rgba(126,156,255,.13);
+  border: 1px solid var(--border);
 }
 
 .tutorial-editor-root .result-title {
@@ -1027,7 +1027,7 @@
 .tutorial-editor-root .tag-item {
   padding: 5px 8px;
   color: #8fa099;
-  background: rgba(255,255,255,.045);
+  background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 999px;
   font-size: 12px;
@@ -1098,6 +1098,7 @@
 ========================================================= */
 
 .tutorial-editor-root .bottom-bar {
+  border-top: 1px solid var(--border);
   position: fixed;
   left: 0;
   right: 0;
