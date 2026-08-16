@@ -63,7 +63,7 @@ function Dashboard({
     [...navItems, ...sysItems].find((i) => i.id === activeTab)?.label || "Trang quản trị";
 
   return (
-    <div className="admin-body">
+    <div className="admin-theme admin-body">
       <div className="admin-app">
         {/* =====================================================
              SIDEBAR
