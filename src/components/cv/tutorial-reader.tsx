@@ -298,7 +298,6 @@ export function TutorialReader({ slug, title, pubDate, readingTime, contentHtml,
           />
 
           {children}
-          </div>
         </div>
       </article>
 
