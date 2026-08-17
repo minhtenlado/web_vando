@@ -76,37 +76,43 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
       const quill = reactQuillRef.current.getEditor();
       if (!quill) return;
 
-      // Focus editor to restore context
+      // 1. Force editor focus
       quill.focus();
 
-      // Get selection range index or default to the end of document
-      const selection = quill.getSelection(true);
-      const index = selection ? selection.index : Math.max(0, quill.getLength() - 1);
-
-      // Build HTML table string with borders and placeholder cell text
-      let tableHtml = '<table border="1" style="width: 100%; border-collapse: collapse; margin: 16px 0;"><tbody>';
-      for (let i = 0; i < r; i++) {
-        tableHtml += '<tr>';
-        for (let j = 0; j < c; j++) {
-          tableHtml += `<td style="border: 1px solid #e2e8f0; padding: 10px 14px; min-width: 80px;">Dữ liệu ${i + 1}-${j + 1}</td>`;
-        }
-        tableHtml += '</tr>';
+      // 2. Get selection range index or explicitly set cursor at end of document
+      let range = quill.getSelection(true);
+      if (!range) {
+        const lastIdx = Math.max(0, quill.getLength() - 1);
+        quill.setSelection(lastIdx, 0, "user");
+        range = { index: lastIdx, length: 0 };
       }
-      tableHtml += '</tbody></table><p><br></p>';
 
-      // Safely insert HTML table into Quill editor model
-      quill.clipboard.dangerouslyPasteHTML(index, tableHtml, "user");
-
-      // Balance table if table module exists
+      // 3. Try official tableModule.insertTable first
       const tableModule = quill.getModule("table");
-      if (tableModule && typeof tableModule.balanceTables === "function") {
-        tableModule.balanceTables();
+      if (tableModule && typeof tableModule.insertTable === "function") {
+        tableModule.insertTable(r, c);
+      } else {
+        // Fallback: Construct native Quill Table Delta directly
+        const ops: any[] = [];
+        if (range.index > 0) {
+          ops.push({ retain: range.index });
+        }
+        for (let i = 0; i < r; i++) {
+          const rowId = `row-${Math.random().toString(36).slice(2, 6)}`;
+          for (let j = 0; j < c; j++) {
+            ops.push({ insert: `Ô ${i + 1}-${j + 1}` });
+            ops.push({ insert: "\n", attributes: { table: rowId } });
+          }
+        }
+        ops.push({ insert: "\n" });
+        quill.updateContents({ ops }, "user");
       }
 
+      // 4. Close popover
       setPopoverOpen(false);
     } catch (err) {
       console.error("Error inserting table:", err);
-      alert("Có lỗi xảy ra khi chèn bảng: " + String(err));
+      alert("Có lỗi khi chèn bảng: " + String(err));
     }
   };
 
