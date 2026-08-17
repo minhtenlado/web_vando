@@ -154,16 +154,20 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
 
   return (
     <div ref={containerRef} spellCheck={false} className={`rich-text-editor relative ${className || ""}`}>
-      {/* Sticky container pinned at top: 0 alongside .ql-toolbar so button moves synchronously when scrolling */}
-      <div className="sticky top-0 z-50 h-0 flex justify-end pr-3 pt-2 pointer-events-none">
-        <div className="pointer-events-auto">
+      {/* Top Header Bar for Editor Actions */}
+      <div className="flex items-center justify-between px-3.5 py-2 bg-gray-100 dark:bg-[#0c1511] border border-gray-200 dark:border-white/10 rounded-t-xl sticky top-0 z-50">
+        <div className="text-xs font-semibold text-gray-500 dark:text-[#a0afaa] flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-[#36e2a0]"></span>
+          <span>Soạn thảo bài viết</span>
+        </div>
+        <div>
           <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
             <PopoverTrigger asChild>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="h-7 px-2.5 text-xs font-semibold bg-white dark:bg-[#16221c] border border-gray-200 dark:border-white/10 shadow-xs hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-[#a0afaa]"
+                className="h-7 px-3 text-xs font-semibold bg-white dark:bg-[#16221c] border border-gray-200 dark:border-white/10 shadow-xs hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-[#a0afaa]"
               >
                 <Table className="h-3.5 w-3.5 mr-1.5 text-[#36e2a0]" />
                 Chèn Bảng
@@ -250,13 +254,13 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
         /* Quill Container & Canvas */
         .rich-text-editor .ql-toolbar {
           position: sticky;
-          top: 0;
+          top: 37px;
           z-index: 40;
           background-color: #f8fafc;
           border: 1px solid #e2e8f0;
-          border-top-left-radius: 0.75rem;
-          border-top-right-radius: 0.75rem;
-          padding: 8px 120px 8px 12px !important;
+          border-top: none;
+          border-radius: 0;
+          padding: 8px 12px !important;
           transition: background-color 0.2s;
         }
         .rich-text-editor .ql-container {

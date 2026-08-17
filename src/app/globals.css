@@ -251,19 +251,36 @@ html, body {
   height: auto;
 }
 /* Better table styles for blog content */
-.prose table {
+.prose table, .tutorial-prose table, .tutorial-content-wrapper table, .ql-editor-display table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  margin: 2rem 0;
+  margin: 0.75rem 0 1.5rem 0 !important;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
-.dark .prose table {
+.dark .prose table, .dark .tutorial-prose table, .dark .tutorial-content-wrapper table, .dark .ql-editor-display table {
   border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+/* Tighten spacing for paragraphs and titles immediately preceding tables */
+.prose p + table,
+.tutorial-prose p + table,
+.tutorial-content-wrapper p + table,
+.ql-editor-display p + table,
+.prose h1 + table, .prose h2 + table, .prose h3 + table, .prose h4 + table,
+.tutorial-prose h1 + table, .tutorial-prose h2 + table, .tutorial-prose h3 + table, .tutorial-prose h4 + table {
+  margin-top: 0.35rem !important;
+}
+
+.prose p:has(+ table),
+.tutorial-prose p:has(+ table),
+.tutorial-content-wrapper p:has(+ table),
+.ql-editor-display p:has(+ table) {
+  margin-bottom: 0.35rem !important;
 }
 .prose thead {
   background-color: rgba(0, 0, 0, 0.03);
