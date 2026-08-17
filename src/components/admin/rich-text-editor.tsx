@@ -120,6 +120,9 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
     "image",
     "video",
     "table",
+    "table-row",
+    "table-cell",
+    "table-container",
   ];
 
   return (
