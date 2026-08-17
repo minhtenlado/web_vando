@@ -151,7 +151,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
     ])
 
     let postRows = await db.post.findMany({ 
-      where: { locale: loc, published: true }, 
+      where: { published: true }, 
       orderBy: { createdAt: "desc" },
       select: {
         id: true,

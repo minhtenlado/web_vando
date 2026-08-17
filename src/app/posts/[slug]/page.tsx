@@ -46,7 +46,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     where: {
       published: true,
       id: { not: post.id },
-      locale: post.locale,
     },
     take: 3,
     orderBy: { createdAt: "desc" }
