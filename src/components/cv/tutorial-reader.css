@@ -9,7 +9,7 @@
   font-family: Inter, system-ui, sans-serif;
   margin-top: 1rem;
 }
-.light .tutorial-layout-article {
+:root:not(.dark) .tutorial-layout-article {
   background: #ffffff;
   border-color: rgba(0, 0, 0, 0.08);
   color: #111;
@@ -51,7 +51,7 @@
   letter-spacing: -0.035em;
   margin: 0 0 20px;
 }
-.light .tutorial-title {
+:root:not(.dark) .tutorial-title {
   color: #000;
 }
 
@@ -68,7 +68,7 @@
   color: #9aa6b1;
   font-size: 10px;
 }
-.light .tutorial-chip {
+:root:not(.dark) .tutorial-chip {
   border-color: rgba(0, 0, 0, 0.08);
   background: rgba(0, 0, 0, 0.03);
   color: #555;
@@ -80,7 +80,7 @@
   line-height: 1.75;
   margin: 24px 0;
 }
-.light .tutorial-lead {
+:root:not(.dark) .tutorial-lead {
   color: #444;
 }
 
@@ -89,7 +89,7 @@
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
   margin: 28px 0;
 }
-.light .tutorial-rule {
+:root:not(.dark) .tutorial-rule {
   background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.08), transparent);
 }
 
@@ -99,7 +99,7 @@
   line-height: 1.9;
   color: #c3ccd6;
 }
-.light .tutorial-prose {
+:root:not(.dark) .tutorial-prose {
   color: #222;
 }
 @media (max-width: 768px) {
@@ -115,13 +115,13 @@
   color: #f0f4f7;
   margin: 4px 0 17px;
 }
-.light .tutorial-prose h2 { color: #111; }
+:root:not(.dark) .tutorial-prose h2 { color: #111; }
 .tutorial-prose h3 {
   font-size: 20px;
   color: #e8edf2;
   margin: 30px 0 10px;
 }
-.light .tutorial-prose h3 { color: #222; }
+:root:not(.dark) .tutorial-prose h3 { color: #222; }
 .tutorial-prose p {
   margin: 0 0 20px;
 }
@@ -142,7 +142,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
-.light .tutorial-prose img {
+:root:not(.dark) .tutorial-prose img {
   border-color: rgba(0, 0, 0, 0.08);
 }
 
@@ -154,7 +154,7 @@
   border-radius: 15px;
   margin-bottom: 52px;
 }
-.light .tutorial-intro {
+:root:not(.dark) .tutorial-intro {
   background: rgba(131, 146, 255, 0.08);
   border-color: rgba(131, 146, 255, 0.3);
 }
@@ -167,7 +167,7 @@
   letter-spacing: 0.14em;
   margin-bottom: 10px;
 }
-.light .tutorial-intro::before {
+:root:not(.dark) .tutorial-intro::before {
   color: #5a6cfc;
 }
 .tutorial-intro p {
@@ -176,7 +176,7 @@
   line-height: 1.7;
   margin: 0;
 }
-.light .tutorial-intro p {
+:root:not(.dark) .tutorial-intro p {
   color: #444;
 }
 .tutorial-intro ul.objectives {
@@ -200,7 +200,7 @@
   color: #aeb9c3;
   font-size: 11px;
 }
-.light .tutorial-intro ul.objectives li {
+:root:not(.dark) .tutorial-intro ul.objectives li {
   background: rgba(0, 0, 0, 0.02);
   border-color: rgba(0, 0, 0, 0.05);
   color: #555;
@@ -210,7 +210,7 @@
   color: #78e7b0;
   margin-right: 4px;
 }
-.light .tutorial-intro ul.objectives li::before {
+:root:not(.dark) .tutorial-intro ul.objectives li::before {
   color: #10b981;
 }
 
@@ -265,24 +265,24 @@ ol.tutorial-steps > li > h3 {
   border: 1px solid rgba(131, 146, 255, 0.13);
 }
 .admonition-note .admonition-title { color: #9ba8ff; }
-.light .admonition-note { background: rgba(131, 146, 255, 0.1); border-color: rgba(131, 146, 255, 0.3); }
-.light .admonition-note .admonition-title { color: #5a6cfc; }
+:root:not(.dark) .admonition-note { background: rgba(131, 146, 255, 0.1); border-color: rgba(131, 146, 255, 0.3); }
+:root:not(.dark) .admonition-note .admonition-title { color: #5a6cfc; }
 
 .admonition-tip {
   background: rgba(120, 231, 176, 0.05);
   border: 1px solid rgba(120, 231, 176, 0.13);
 }
 .admonition-tip .admonition-title { color: #78e7b0; }
-.light .admonition-tip { background: rgba(120, 231, 176, 0.1); border-color: rgba(120, 231, 176, 0.3); }
-.light .admonition-tip .admonition-title { color: #10b981; }
+:root:not(.dark) .admonition-tip { background: rgba(120, 231, 176, 0.1); border-color: rgba(120, 231, 176, 0.3); }
+:root:not(.dark) .admonition-tip .admonition-title { color: #10b981; }
 
 .admonition-caution, .admonition-danger {
   background: rgba(229, 200, 109, 0.05);
   border: 1px solid rgba(229, 200, 109, 0.13);
 }
 .admonition-caution .admonition-title, .admonition-danger .admonition-title { color: #e5c86d; }
-.light .admonition-caution, .light .admonition-danger { background: rgba(229, 200, 109, 0.1); border-color: rgba(229, 200, 109, 0.3); }
-.light .admonition-caution .admonition-title, .light .admonition-danger .admonition-title { color: #b45309; }
+:root:not(.dark) .admonition-caution, :root:not(.dark) .admonition-danger { background: rgba(229, 200, 109, 0.1); border-color: rgba(229, 200, 109, 0.3); }
+:root:not(.dark) .admonition-caution .admonition-title, :root:not(.dark) .admonition-danger .admonition-title { color: #b45309; }
 
 .admonition-content p {
   margin: 0;
@@ -297,7 +297,7 @@ ol.tutorial-steps > li > h3 {
   overflow: hidden;
   background: #090d12;
 }
-.light .tutorial-code-block {
+:root:not(.dark) .tutorial-code-block {
   border-color: rgba(0, 0, 0, 0.1);
   background: #1a1b26;
 }
@@ -337,7 +337,7 @@ ol.tutorial-steps > li > h3 {
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
-.light .tutorial-video iframe {
+:root:not(.dark) .tutorial-video iframe {
   border-color: rgba(0, 0, 0, 0.1);
 }
 
@@ -350,7 +350,7 @@ ol.tutorial-steps > li > h3 {
   padding-top: 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
-.light .tutorial-nav-cards {
+:root:not(.dark) .tutorial-nav-cards {
   border-top-color: rgba(0, 0, 0, 0.08);
 }
 @media (max-width: 640px) {
@@ -369,7 +369,7 @@ ol.tutorial-steps > li > h3 {
   transition: all 0.2s ease;
   background: rgba(0, 0, 0, 0.2);
 }
-.light .tutorial-nav-card {
+:root:not(.dark) .tutorial-nav-card {
   border-color: rgba(0, 0, 0, 0.08);
   background: rgba(0, 0, 0, 0.02);
 }
@@ -377,7 +377,7 @@ ol.tutorial-steps > li > h3 {
   border-color: #78e7b0;
   background: rgba(120, 231, 176, 0.05);
 }
-.light .tutorial-nav-card:hover {
+:root:not(.dark) .tutorial-nav-card:hover {
   border-color: #10b981;
   background: rgba(16, 185, 129, 0.05);
 }
@@ -398,13 +398,13 @@ ol.tutorial-steps > li > h3 {
   font-size: 1.125rem;
   color: #eef2f7;
 }
-.light .tutorial-nav-title {
+:root:not(.dark) .tutorial-nav-title {
   color: #111;
 }
 .tutorial-nav-card:hover .tutorial-nav-title {
   color: #78e7b0;
 }
-.light .tutorial-nav-card:hover .tutorial-nav-title {
+:root:not(.dark) .tutorial-nav-card:hover .tutorial-nav-title {
   color: #10b981;
 }
 

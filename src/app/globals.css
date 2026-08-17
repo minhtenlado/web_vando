@@ -252,12 +252,14 @@ html, body {
 }
 /* Better table styles for blog content */
 .prose table, .tutorial-prose table, .tutorial-content-wrapper table, .ql-editor-display table {
+  display: block;
   width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-collapse: separate;
   border-spacing: 0;
   margin: 0.75rem 0 1.5rem 0 !important;
   border-radius: 12px;
-  overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }

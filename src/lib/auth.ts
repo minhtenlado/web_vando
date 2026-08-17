@@ -48,19 +48,20 @@ function sign(payload: SessionPayload): string {
 
 function verify(token: string | undefined): boolean {
   if (!token) return false;
-  const parts = token.split(".");
-  if (parts.length !== 2) return false;
-  const [body, sig] = parts;
-  const expected = crypto
-    .createHmac("sha256", getSecret())
-    .update(body)
-    .digest("base64url");
-  // timing-safe compare of signatures
-  const a = Buffer.from(sig);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length) return false;
-  if (!crypto.timingSafeEqual(a, b)) return false;
   try {
+    const secret = getSecret();
+    const parts = token.split(".");
+    if (parts.length !== 2) return false;
+    const [body, sig] = parts;
+    const expected = crypto
+      .createHmac("sha256", secret)
+      .update(body)
+      .digest("base64url");
+    // timing-safe compare of signatures
+    const a = Buffer.from(sig);
+    const b = Buffer.from(expected);
+    if (a.length !== b.length) return false;
+    if (!crypto.timingSafeEqual(a, b)) return false;
     const payload = JSON.parse(
       Buffer.from(body, "base64url").toString("utf8")
     ) as SessionPayload;
@@ -91,10 +92,10 @@ export function comparePassword(password: string, hash: string): boolean {
 
 export async function verifyPassword(password: string): Promise<boolean> {
   try {
-    const pRowVi = await db.profile.findUnique({ where: { id: "profile-vi" } });
-    const pRowEn = await db.profile.findUnique({ where: { id: "profile-en" } });
-    const pRowLegacy = await db.profile.findUnique({ where: { id: "profile" } });
-    const profile = pRowVi || pRowEn || pRowLegacy;
+    const profiles = await db.profile.findMany({
+      where: { id: { in: ["profile-vi", "profile-en", "profile"] } },
+    });
+    const profile = profiles.find((p) => p.passwordHash);
 
     if (profile && profile.passwordHash) {
       return comparePassword(password, profile.passwordHash);
@@ -104,7 +105,11 @@ export async function verifyPassword(password: string): Promise<boolean> {
   }
   
   // Fallback to env password
-  return safeEqual(password, getPassword());
+  try {
+    return safeEqual(password, getPassword());
+  } catch {
+    return false;
+  }
 }
 
 export async function createSession(): Promise<void> {

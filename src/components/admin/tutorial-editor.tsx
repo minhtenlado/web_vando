@@ -56,18 +56,23 @@ function parseData(html: string): TutorialData {
   };
 }
 
+function escapeHtml(str: string): string {
+  if (!str) return "";
+  return str.replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m] || m));
+}
+
 function generateHTML(data: TutorialData) {
   let html = `<!--TUTORIAL_DATA: ${JSON.stringify(data)} -->\n`;
   html += `<div class="tutorial-content">\n`;
   
   if (data.intro || data.objectives.some(o => o.trim())) {
     html += `  <div class="tutorial-intro">\n`;
-    if (data.intro) html += `    <p>${data.intro}</p>\n`;
+    if (data.intro) html += `    <p>${escapeHtml(data.intro)}</p>\n`;
     const validObjs = data.objectives.filter(o => o.trim());
     if (validObjs.length > 0) {
       html += `    <ul class="objectives">\n`;
       validObjs.forEach(obj => {
-        html += `      <li>${obj}</li>\n`;
+        html += `      <li>${escapeHtml(obj)}</li>\n`;
       });
       html += `    </ul>\n`;
     }
@@ -83,10 +88,10 @@ function generateHTML(data: TutorialData) {
         inSteps = true;
       }
       html += `    <li>\n`;
-      html += `      <h3>${block.title || 'Bước'}</h3>\n`;
-      html += `      <p>${block.content}</p>\n`;
+      html += `      <h3>${escapeHtml(block.title || 'Bước')}</h3>\n`;
+      html += `      <p>${escapeHtml(block.content)}</p>\n`;
       if (block.code) {
-        html += `      <pre><code class="language-${block.lang.toLowerCase()}">${block.code}</code></pre>\n`;
+        html += `      <pre><code class="language-${(block.lang || 'text').toLowerCase()}">${escapeHtml(block.code)}</code></pre>\n`;
       }
       html += `    </li>\n`;
     } else {
@@ -96,22 +101,23 @@ function generateHTML(data: TutorialData) {
       }
       
       if (block.type === 'paragraph') {
-        html += `  <p>${block.content}</p>\n`;
+        html += `  <p>${escapeHtml(block.content)}</p>\n`;
       } else if (block.type === 'heading') {
-        html += `  <h2>${block.content}</h2>\n`;
+        html += `  <h2>${escapeHtml(block.content)}</h2>\n`;
       } else if (block.type === 'code') {
-        html += `  <pre><code class="language-${block.lang.toLowerCase()}">${block.code}</code></pre>\n`;
+        html += `  <pre><code class="language-${(block.lang || 'text').toLowerCase()}">${escapeHtml(block.code)}</code></pre>\n`;
       } else if (block.type === 'tip') {
-        html += `  <blockquote>[!TIP]<br>${block.content}</blockquote>\n`;
+        html += `  <blockquote>[!TIP]<br>${escapeHtml(block.content)}</blockquote>\n`;
       } else if (block.type === 'warning') {
-        html += `  <blockquote>[!CAUTION]<br>${block.content}</blockquote>\n`;
+        html += `  <blockquote>[!CAUTION]<br>${escapeHtml(block.content)}</blockquote>\n`;
       } else if (block.type === 'result') {
-        html += `  <blockquote>[!NOTE]<br><strong>KẾT QUẢ:</strong> ${block.content}</blockquote>\n`;
+        html += `  <blockquote>[!NOTE]<br><strong>KẾT QUẢ:</strong> ${escapeHtml(block.content)}</blockquote>\n`;
       } else if (block.type === 'image') {
-        html += `  <img src="${block.url}" alt="image" />\n`;
+        html += `  <img src="${escapeHtml(block.url)}" alt="image" />\n`;
       } else if (block.type === 'youtube') {
         if (block.url) {
-          const videoId = block.url.split('v=')[1]?.split('&')[0] || block.url.split('youtu.be/')[1]?.split('?')[0];
+          const match = block.url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/))([\w-]{11})/);
+          const videoId = match ? match[1] : null;
           if (videoId) {
             html += `  <div class="my-6 w-full flex flex-col items-center"><div class="tutorial-video w-full max-w-[800px] rounded-xl overflow-hidden border border-black/10 dark:border-white/10 shadow-lg bg-zinc-100 dark:bg-zinc-900/50"><iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen="allowfullscreen" class="border-0"></iframe></div></div>\n`;
           }

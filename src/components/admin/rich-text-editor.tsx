@@ -198,7 +198,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
                     min={1}
                     max={30}
                     value={rows}
-                    onChange={(e) => setRows(Math.max(1, parseInt(e.target.value) || 1))}
+                    onChange={(e) => setRows(Math.min(30, Math.max(1, parseInt(e.target.value) || 1)))}
                     className="h-8 text-xs font-mono bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10"
                   />
                 </div>
@@ -209,7 +209,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
                     min={1}
                     max={15}
                     value={cols}
-                    onChange={(e) => setCols(Math.max(1, parseInt(e.target.value) || 1))}
+                    onChange={(e) => setCols(Math.min(15, Math.max(1, parseInt(e.target.value) || 1)))}
                     className="h-8 text-xs font-mono bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10"
                   />
                 </div>

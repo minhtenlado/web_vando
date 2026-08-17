@@ -12,7 +12,7 @@ interface PostEditorProps {
   setForm: React.Dispatch<React.SetStateAction<PostForm>>;
   editing: SitePost | null;
   submitting: boolean;
-  onSubmit: (e: React.FormEvent) => Promise<void>;
+  onSubmit: (e: React.FormEvent, overridePublished?: boolean) => Promise<void>;
   onClose: () => void;
   onTitleChange: (v: string) => void;
   onSlugChange: (v: string) => void;
@@ -412,7 +412,7 @@ export function PostEditor({
           
           <button 
             type="button"
-            onClick={() => { setForm({ ...form, published: false }); onSubmit(new Event('submit') as any); }} 
+            onClick={(e) => { setForm({ ...form, published: false }); onSubmit(e as any, false); }} 
             disabled={submitting} 
             className="h-9 px-4 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-[#a0afaa] border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 transition-all text-xs font-semibold"
           >

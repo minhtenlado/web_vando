@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const db = new PrismaClient();
+import { db } from "@/lib/db";
 
 export async function POST(req: NextRequest, props: { params: Promise<{ slug: string }> }) {
   try {
@@ -13,9 +11,9 @@ export async function POST(req: NextRequest, props: { params: Promise<{ slug: st
       return NextResponse.json({ error: "Missing action" }, { status: 400 });
     }
 
-    const posts = await db.post.findMany({ where: { slug } });
+    const post = await db.post.findFirst({ where: { slug } });
     
-    if (posts.length === 0) {
+    if (!post) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
@@ -25,11 +23,11 @@ export async function POST(req: NextRequest, props: { params: Promise<{ slug: st
     } else if (action === "like") {
       updateData = { likes: { increment: 1 } };
     } else if (action === "unlike") {
-      updateData = { likes: { decrement: 1 } };
+      updateData = { likes: post.likes > 0 ? { decrement: 1 } : 0 };
     } else if (action === "bookmark") {
       updateData = { bookmarks: { increment: 1 } };
     } else if (action === "unbookmark") {
-      updateData = { bookmarks: { decrement: 1 } };
+      updateData = { bookmarks: post.bookmarks > 0 ? { decrement: 1 } : 0 };
     } else {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }

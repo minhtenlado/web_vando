@@ -156,7 +156,7 @@ export function PostReader({ slug, title, pubDate, readingTime, contentHtml, pdf
     if (readingMode && layout) {
       if (leftAside) leftAside.style.display = 'none'
       if (rightAside) rightAside.style.display = 'none'
-      layout.style.gridTemplateColumns = 'minmax(600px, 1200px)'
+      layout.style.gridTemplateColumns = 'minmax(0, 1200px)'
       layout.style.justifyContent = 'center'
     } else if (layout) {
       if (leftAside) leftAside.style.display = ''

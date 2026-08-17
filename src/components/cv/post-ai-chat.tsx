@@ -145,9 +145,11 @@ export function PostAiChat({ postTitle, postContent, isFloating = false }: { pos
     if (isFloating) {
       return (
         <button
+          type="button"
           onClick={() => setIsOpen(true)}
           className="w-[50px] h-[50px] rounded-[16px] bg-primary text-primary-foreground shadow-[0_10px_40px_rgba(0,0,0,0.2)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
           title="Hỏi AI về bài viết"
+          aria-label="Hỏi AI về bài viết"
         >
           <Sparkles className="w-6 h-6 animate-pulse" />
         </button>

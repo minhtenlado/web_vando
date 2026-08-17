@@ -170,19 +170,20 @@ export function PostsTab({ locale }: { locale: string }) {
     setForm((f) => ({ ...f, slug }));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent, overridePublished?: boolean) {
     e.preventDefault();
     if (!form.title.trim()) {
       toast({ title: "Thiếu tiêu đề", variant: "destructive" });
       return;
     }
     setSubmitting(true);
+    const isPublished = overridePublished !== undefined ? overridePublished : form.published;
     const payload = {
       title: form.title.trim(),
       slug: form.slug.trim() || slugify(form.title),
       excerpt: form.excerpt,
       content: form.content,
-      published: form.published,
+      published: isPublished,
       category: form.category,
       layout: form.layout,
       locale,
@@ -320,8 +321,10 @@ export function PostsTab({ locale }: { locale: string }) {
         <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredItems.map((post, i) => {
             const postCategory = post.category || CATEGORIES[0]
-            const mockReadTime = `${Math.floor(Math.random() * 10) + 1} phút đọc`
-            const mockViews = `${(Math.random() * 20).toFixed(1)}K`
+            const wordCount = (post.content || "").replace(/<[^>]*>?/gm, "").trim().split(/\s+/).filter(Boolean).length
+            const readTimeMinutes = Math.max(1, Math.ceil(wordCount / 200))
+            const readTimeText = `${readTimeMinutes} phút đọc`
+            const viewCountText = (post.views || 0) >= 1000 ? `${((post.views || 0) / 1000).toFixed(1)}K` : `${post.views || 0}`
 
             return (
               <motion.div
@@ -402,10 +405,10 @@ export function PostsTab({ locale }: { locale: string }) {
                     <div className="flex items-center justify-between mt-5 pt-4 border-t border-border/10 dark:border-white/5">
                       <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                         <div className="flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5" /> {mockReadTime}
+                          <Clock className="w-3.5 h-3.5" /> {readTimeText}
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <Eye className="w-3.5 h-3.5" /> {mockViews}
+                          <Eye className="w-3.5 h-3.5" /> {viewCountText}
                         </div>
                       </div>
                       <a href={`/posts/${post.slug}`} target="_blank" rel="noreferrer" className="flex items-center justify-center w-6 h-6 rounded-full border border-border/20 dark:border-white/10 hover:border-primary/50 hover:bg-primary/10 transition-colors">

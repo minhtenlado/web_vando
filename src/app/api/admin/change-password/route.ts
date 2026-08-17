@@ -37,15 +37,9 @@ export async function POST(req: NextRequest) {
 
   // 4. Update password
   try {
-    const profile = await db.profile.findFirst({});
-    if (!profile) {
-      return NextResponse.json({ ok: false, message: "Profile không tồn tại" }, { status: 404 });
-    }
-
     const newPasswordHash = hashPassword(newPassword);
 
-    await db.profile.update({
-      where: { id: profile.id },
+    await db.profile.updateMany({
       data: { passwordHash: newPasswordHash },
     });
 

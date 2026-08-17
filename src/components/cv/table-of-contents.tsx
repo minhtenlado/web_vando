@@ -71,7 +71,7 @@ export function TableOfContents({ selector = ".prose" }: { selector?: string }) 
   if (items.length === 0) return null
 
   return (
-    <nav className="hidden lg:block">
+    <nav className="hidden lg:block" aria-label="Mục lục bài viết">
       <ul className="space-y-1">
         {items.map((item) => (
           <li key={item.id}>
