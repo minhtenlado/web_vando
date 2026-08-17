@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 
-const ALLOWED = new Set(["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml"]);
+const ALLOWED = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
 export async function POST(req: NextRequest) {
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   }
 
   const ext = (file.name.split(".").pop() || "png").toLowerCase().slice(0, 5);
-  const ALLOWED_EXTS = new Set(["png", "jpg", "jpeg", "webp", "gif", "svg"]);
+  const ALLOWED_EXTS = new Set(["png", "jpg", "jpeg", "webp", "gif"]);
 
   if (!ALLOWED.has(file.type) && !ALLOWED_EXTS.has(ext)) {
     return NextResponse.json(

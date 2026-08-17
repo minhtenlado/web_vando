@@ -1,27 +1,101 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/auth';
 import PDFParser from 'pdf2json';
 
-export async function POST(req: Request) {
+// ===== SSRF Protection =====
+const ALLOWED_PDF_HOSTS = new Set([
+  // Vercel Blob Storage
+  /\.public\.blob\.vercel-storage\.com$/,
+  // Cloudinary
+  /^res\.cloudinary\.com$/,
+]);
+
+function isAllowedUrl(urlString: string): boolean {
+  try {
+    const url = new URL(urlString);
+    // Only allow HTTPS
+    if (url.protocol !== 'https:') return false;
+    // Block internal IPs
+    const hostname = url.hostname;
+    if (
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname === '0.0.0.0' ||
+      hostname.startsWith('10.') ||
+      hostname.startsWith('172.') ||
+      hostname.startsWith('192.168.') ||
+      hostname.startsWith('169.254.') ||
+      hostname === '[::1]' ||
+      hostname.endsWith('.internal') ||
+      hostname.endsWith('.local')
+    ) {
+      return false;
+    }
+    // Check against allowed host patterns
+    for (const pattern of ALLOWED_PDF_HOSTS) {
+      if (pattern.test(hostname)) return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+export async function POST(req: NextRequest) {
+  // Auth check
+  const guard = await requireAuth();
+  if (guard instanceof Response) return guard;
+
   try {
     const { url } = await req.json();
 
-    if (!url) {
+    if (!url || typeof url !== 'string') {
       return NextResponse.json({ error: 'URL is required' }, { status: 400 });
     }
 
-    // Fetch the PDF file
-    const response = await fetch(url);
+    // SSRF Protection: validate URL
+    if (!isAllowedUrl(url)) {
+      return NextResponse.json(
+        { error: 'URL không hợp lệ. Chỉ chấp nhận HTTPS từ các nguồn tin cậy (Vercel Blob, Cloudinary).' },
+        { status: 422 }
+      );
+    }
+
+    // Fetch the PDF file with timeout
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        signal: controller.signal,
+        headers: { 'Accept': 'application/pdf' },
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
+
     if (!response.ok) {
       return NextResponse.json({ error: 'Failed to fetch PDF from URL' }, { status: 400 });
     }
 
-    // Convert the response to an ArrayBuffer, then to a Buffer
+    // Validate content type
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('pdf') && !contentType.includes('octet-stream')) {
+      return NextResponse.json({ error: 'URL không trỏ tới file PDF hợp lệ.' }, { status: 422 });
+    }
+
+    // Limit file size (max 20MB)
+    const contentLength = parseInt(response.headers.get('content-length') || '0', 10);
+    if (contentLength > 20 * 1024 * 1024) {
+      return NextResponse.json({ error: 'File PDF quá lớn (tối đa 20MB).' }, { status: 422 });
+    }
+
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
     // Parse the PDF
     return new Promise<NextResponse>((resolve) => {
-      // 0 means we want the structured JSON data, not just raw text (which is 1)
       const pdfParser = new PDFParser(null, 0 as any);
       
       pdfParser.on("pdfParser_dataError", (errData: any) => {
@@ -37,9 +111,8 @@ export async function POST(req: Request) {
           pages.forEach((page: any) => {
             const texts = page.Texts || [];
             
-            // Sort texts by Y (top to bottom), then by X (left to right)
             texts.sort((a: any, b: any) => {
-              if (Math.abs(a.y - b.y) > 0.5) { // 0.5 threshold for "same line"
+              if (Math.abs(a.y - b.y) > 0.5) {
                 return a.y - b.y;
               }
               return a.x - b.x;
@@ -53,47 +126,37 @@ export async function POST(req: Request) {
               const rawStr = textItem.R?.[0]?.T || "";
               if (!rawStr) return;
               
-              // Decode URI component (pdf2json encodes text)
               let str = "";
               try {
                 str = decodeURIComponent(rawStr);
-              } catch (e) {
+              } catch {
                 str = unescape(rawStr);
               }
               
               if (!str.trim()) {
-                 // Keep space if it's just a space
                  if (str.includes(" ") && !pageText.endsWith(" ")) {
                     pageText += " ";
                  }
                  return;
               }
 
-              // Filter out obvious header/footer page numbers if needed (very short strings at the very top/bottom)
-              // But for now, just join them properly.
-
               if (lastY === -100) {
                 pageText += str;
               } else if (Math.abs(y - lastY) < 0.8) {
-                // Same line. 
                 if (!pageText.endsWith(" ") && !str.startsWith(" ")) {
                   pageText += " " + str;
                 } else {
                   pageText += str;
                 }
               } else {
-                // Different line
                 const yDiff = Math.abs(y - lastY);
                 
                 if (yDiff > 1.8) {
-                  // Large gap -> New paragraph
                   pageText += "\n\n" + str;
                 } else {
-                  // Small gap -> Wrap in the same paragraph (join with space)
                   if (!pageText.endsWith(" ") && !str.startsWith(" ") && !pageText.endsWith("-")) {
                     pageText += " " + str;
                   } else if (pageText.endsWith("-")) {
-                    // Hyphenated word break at the end of a line
                     pageText = pageText.slice(0, -1) + str;
                   } else {
                     pageText += str;
@@ -107,9 +170,8 @@ export async function POST(req: Request) {
             fullText += pageText + "\n\n";
           });
 
-          // Final cleanup
-          fullText = fullText.replace(/ {2,}/g, ' '); // Remove double spaces
-          fullText = fullText.replace(/\n{3,}/g, '\n\n'); // Max 2 newlines
+          fullText = fullText.replace(/ {2,}/g, ' ');
+          fullText = fullText.replace(/\n{3,}/g, '\n\n');
 
           resolve(NextResponse.json({ text: fullText.trim() }));
         } catch (e: any) {
@@ -123,6 +185,6 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error('PDF Extraction Error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to extract PDF' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to extract PDF' }, { status: 500 });
   }
 }

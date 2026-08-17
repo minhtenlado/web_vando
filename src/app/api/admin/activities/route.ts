@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
 export async function GET() {
+  const guard = await requireAuth();
+  if (guard instanceof Response) return guard;
+
   try {
     const logs = await db.activityLog.findMany({
       orderBy: { createdAt: "desc" },
@@ -16,6 +20,9 @@ export async function GET() {
 }
 
 export async function DELETE() {
+  const guard = await requireAuth();
+  if (guard instanceof Response) return guard;
+
   try {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);

@@ -1,7 +1,20 @@
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
 export async function GET() {
+  // Block in production
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json(
+      { error: "Debug endpoint is disabled in production." },
+      { status: 403 }
+    );
+  }
+
+  // Require admin authentication even in development
+  const guard = await requireAuth();
+  if (guard instanceof Response) return guard;
+
   const result: any = {};
   
   try {

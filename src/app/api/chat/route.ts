@@ -8,7 +8,49 @@ const CANDIDATE_MODELS = [
   "gemini-flash-lite-latest",
 ];
 
+// ===== Rate Limiting for Chat API =====
+const chatRateLimit = new Map<string, { count: number; windowStart: number }>();
+const CHAT_RATE_WINDOW = 60 * 1000;   // 1 minute
+const CHAT_MAX_REQUESTS = 10;         // max 10 requests per minute per IP
+
+// Cleanup old entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, data] of chatRateLimit) {
+    if (now - data.windowStart > CHAT_RATE_WINDOW * 2) {
+      chatRateLimit.delete(ip);
+    }
+  }
+}, 5 * 60 * 1000);
+
+function getChatClientIP(req: NextRequest): string {
+  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+    ?? req.headers.get("x-real-ip")
+    ?? "unknown";
+}
+
 export async function POST(req: NextRequest) {
+  // Rate limiting
+  const ip = getChatClientIP(req);
+  const now = Date.now();
+  const rateData = chatRateLimit.get(ip);
+
+  if (rateData) {
+    if (now - rateData.windowStart > CHAT_RATE_WINDOW) {
+      chatRateLimit.set(ip, { count: 1, windowStart: now });
+    } else {
+      rateData.count += 1;
+      if (rateData.count > CHAT_MAX_REQUESTS) {
+        const retryAfter = Math.ceil((CHAT_RATE_WINDOW - (now - rateData.windowStart)) / 1000);
+        return NextResponse.json(
+          { error: `Bạn đã gửi quá nhiều tin nhắn. Vui lòng đợi ${retryAfter} giây.` },
+          { status: 429, headers: { "Retry-After": String(retryAfter) } }
+        );
+      }
+    }
+  } else {
+    chatRateLimit.set(ip, { count: 1, windowStart: now });
+  }
   try {
     const body = await req.json();
     const { messages, postTitle, postContent, contextData } = body;
