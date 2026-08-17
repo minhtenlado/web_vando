@@ -71,22 +71,42 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
   }, []);
 
   const insertCustomTable = (r: number, c: number) => {
-    if (reactQuillRef.current) {
+    if (!reactQuillRef.current) return;
+    try {
       const quill = reactQuillRef.current.getEditor();
-      const tableModule = quill.getModule("table");
-      if (tableModule) {
-        quill.focus();
-        let range = quill.getSelection();
-        if (!range) {
-          range = { index: quill.getLength(), length: 0 };
-          quill.setSelection(range.index, 0);
+      if (!quill) return;
+
+      // Focus editor to restore context
+      quill.focus();
+
+      // Get selection range index or default to the end of document
+      const selection = quill.getSelection(true);
+      const index = selection ? selection.index : Math.max(0, quill.getLength() - 1);
+
+      // Build HTML table string with borders and placeholder cell text
+      let tableHtml = '<table border="1" style="width: 100%; border-collapse: collapse; margin: 16px 0;"><tbody>';
+      for (let i = 0; i < r; i++) {
+        tableHtml += '<tr>';
+        for (let j = 0; j < c; j++) {
+          tableHtml += `<td style="border: 1px solid #e2e8f0; padding: 10px 14px; min-width: 80px;">Dữ liệu ${i + 1}-${j + 1}</td>`;
         }
-        tableModule.insertTable(r, c);
-        setPopoverOpen(false);
-      } else {
-        alert("Lỗi: Không tìm thấy table module trong Quill.");
-        console.error("Table module not found in Quill.");
+        tableHtml += '</tr>';
       }
+      tableHtml += '</tbody></table><p><br></p>';
+
+      // Safely insert HTML table into Quill editor model
+      quill.clipboard.dangerouslyPasteHTML(index, tableHtml, "user");
+
+      // Balance table if table module exists
+      const tableModule = quill.getModule("table");
+      if (tableModule && typeof tableModule.balanceTables === "function") {
+        tableModule.balanceTables();
+      }
+
+      setPopoverOpen(false);
+    } catch (err) {
+      console.error("Error inserting table:", err);
+      alert("Có lỗi xảy ra khi chèn bảng: " + String(err));
     }
   };
 
