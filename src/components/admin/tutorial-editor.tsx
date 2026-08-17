@@ -687,14 +687,26 @@ export function TutorialEditor({
                   value={form.seoTitle}
                   onChange={(e) => setForm({ ...form, seoTitle: e.target.value })}
                 />
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4, fontSize: 10 }}>
+                  <span style={{ color: "var(--muted)" }}>Khuyên dùng: 50–60 ký tự</span>
+                  <span style={{ color: (form.seoTitle?.length || 0) > 60 ? "var(--red)" : "var(--green)", fontWeight: "bold" }}>
+                    {form.seoTitle?.length || 0}/60
+                  </span>
+                </div>
               </div>
-              <div className="field">
+              <div className="field mt-4">
                 <label>META DESCRIPTION</label>
                 <textarea 
                   className="setting-textarea"
                   value={form.seoDescription}
                   onChange={(e) => setForm({ ...form, seoDescription: e.target.value })}
                 />
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4, fontSize: 10 }}>
+                  <span style={{ color: "var(--muted)" }}>Khuyên dùng: 140–160 ký tự</span>
+                  <span style={{ color: (form.seoDescription?.length || 0) > 160 ? "var(--red)" : "var(--green)", fontWeight: "bold" }}>
+                    {form.seoDescription?.length || 0}/160
+                  </span>
+                </div>
               </div>
             </div>
           </section>
