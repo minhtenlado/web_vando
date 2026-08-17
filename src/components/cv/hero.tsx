@@ -113,13 +113,6 @@ export function Hero() {
                   <Mail className="h-4 w-4 mr-1.5" /> {t("Liên hệ", "Contact")}
                 </a>
               </Button>
-              {settings?.showDownloadCv !== false && (
-                <Button asChild size="lg" variant="secondary">
-                  <a href="/cv.pdf" target="_blank" rel="noopener noreferrer">
-                    <Download className="h-4 w-4 mr-1.5" /> {t("Tải CV", "Download CV")}
-                  </a>
-                </Button>
-              )}
             </div>
 
             <div className="flex items-center gap-4 pt-2 text-sm text-muted-foreground">
