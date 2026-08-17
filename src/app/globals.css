@@ -273,14 +273,14 @@ html, body {
 .ql-editor-display p + table,
 .prose h1 + table, .prose h2 + table, .prose h3 + table, .prose h4 + table,
 .tutorial-prose h1 + table, .tutorial-prose h2 + table, .tutorial-prose h3 + table, .tutorial-prose h4 + table {
-  margin-top: 0.35rem !important;
+  margin-top: 0.15rem !important;
 }
 
 .prose p:has(+ table),
 .tutorial-prose p:has(+ table),
 .tutorial-content-wrapper p:has(+ table),
 .ql-editor-display p:has(+ table) {
-  margin-bottom: 0.35rem !important;
+  margin-bottom: 0.15rem !important;
 }
 .prose thead {
   background-color: rgba(0, 0, 0, 0.03);

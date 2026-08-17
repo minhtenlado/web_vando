@@ -71,49 +71,49 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
   }, []);
 
   const insertCustomTable = (r: number, c: number) => {
-    if (!reactQuillRef.current) return;
-    try {
-      const quill = reactQuillRef.current.getEditor();
-      if (!quill) return;
+    setPopoverOpen(false); // Close popover first
 
-      // 1. Force editor focus
-      quill.focus();
+    setTimeout(() => {
+      if (!reactQuillRef.current) return;
+      try {
+        const quill = reactQuillRef.current.getEditor();
+        if (!quill) return;
 
-      // 2. Get selection range index or explicitly set cursor at end of document
-      let range = quill.getSelection(true);
-      if (!range) {
-        const lastIdx = Math.max(0, quill.getLength() - 1);
-        quill.setSelection(lastIdx, 0, "user");
-        range = { index: lastIdx, length: 0 };
-      }
+        // Force editor focus after popover closes
+        quill.focus();
 
-      // 3. Try official tableModule.insertTable first
-      const tableModule = quill.getModule("table");
-      if (tableModule && typeof tableModule.insertTable === "function") {
-        tableModule.insertTable(r, c);
-      } else {
-        // Fallback: Construct native Quill Table Delta directly
-        const ops: any[] = [];
-        if (range.index > 0) {
-          ops.push({ retain: range.index });
+        // Get selection range index or explicitly set cursor at end of document
+        let range = quill.getSelection(true);
+        if (!range) {
+          const lastIdx = Math.max(0, quill.getLength() - 1);
+          quill.setSelection(lastIdx, 0, "user");
+          range = { index: lastIdx, length: 0 };
         }
-        for (let i = 0; i < r; i++) {
-          const rowId = `row-${Math.random().toString(36).slice(2, 6)}`;
-          for (let j = 0; j < c; j++) {
-            ops.push({ insert: `Ô ${i + 1}-${j + 1}` });
-            ops.push({ insert: "\n", attributes: { table: rowId } });
+
+        const tableModule = quill.getModule("table");
+        if (tableModule && typeof tableModule.insertTable === "function") {
+          tableModule.insertTable(r, c);
+        } else {
+          // Fallback: Construct native Quill Table Delta directly
+          const ops: any[] = [];
+          if (range.index > 0) {
+            ops.push({ retain: range.index });
           }
+          for (let i = 0; i < r; i++) {
+            const rowId = `row-${Math.random().toString(36).slice(2, 6)}`;
+            for (let j = 0; j < c; j++) {
+              ops.push({ insert: `Ô ${i + 1}-${j + 1}` });
+              ops.push({ insert: "\n", attributes: { table: rowId } });
+            }
+          }
+          ops.push({ insert: "\n" });
+          quill.updateContents({ ops }, "user");
         }
-        ops.push({ insert: "\n" });
-        quill.updateContents({ ops }, "user");
+      } catch (err) {
+        console.error("Error inserting table:", err);
+        alert("Có lỗi khi chèn bảng: " + String(err));
       }
-
-      // 4. Close popover
-      setPopoverOpen(false);
-    } catch (err) {
-      console.error("Error inserting table:", err);
-      alert("Có lỗi khi chèn bảng: " + String(err));
-    }
+    }, 100);
   };
 
   const modules = useMemo(
