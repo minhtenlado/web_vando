@@ -75,9 +75,16 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
       const quill = reactQuillRef.current.getEditor();
       const tableModule = quill.getModule("table");
       if (tableModule) {
+        quill.focus();
+        let range = quill.getSelection();
+        if (!range) {
+          range = { index: quill.getLength(), length: 0 };
+          quill.setSelection(range.index, 0);
+        }
         tableModule.insertTable(r, c);
         setPopoverOpen(false);
       } else {
+        alert("Lỗi: Không tìm thấy table module trong Quill.");
         console.error("Table module not found in Quill.");
       }
     }
@@ -216,7 +223,6 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
         value={value || ""}
         onChange={onChange}
         modules={modules}
-        formats={formats}
         placeholder={placeholder}
       />
 
