@@ -90,30 +90,30 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
           range = { index: lastIdx, length: 0 };
         }
 
-        const tableModule = quill.getModule("table");
-        if (tableModule && typeof tableModule.insertTable === "function") {
-          tableModule.insertTable(r, c);
-        } else {
-          // Fallback: Construct native Quill Table Delta directly
-          const ops: any[] = [];
-          if (range.index > 0) {
-            ops.push({ retain: range.index });
-          }
-          for (let i = 0; i < r; i++) {
-            const rowId = `row-${Math.random().toString(36).slice(2, 6)}`;
-            for (let j = 0; j < c; j++) {
-              ops.push({ insert: `Ô ${i + 1}-${j + 1}` });
-              ops.push({ insert: "\n", attributes: { table: rowId } });
-            }
-          }
-          ops.push({ insert: "\n" });
-          quill.updateContents({ ops }, "user");
+        // Construct native Quill Table Delta directly
+        const ops: any[] = [];
+        if (range.index > 0) {
+          ops.push({ retain: range.index });
         }
+        for (let i = 0; i < r; i++) {
+          const rowId = `row-${Math.random().toString(36).slice(2, 6)}`;
+          for (let j = 0; j < c; j++) {
+            ops.push({ insert: `Ô ${i + 1}-${j + 1}` });
+            ops.push({ insert: "\n", attributes: { table: rowId } });
+          }
+        }
+        ops.push({ insert: "\n" });
+        quill.updateContents({ ops }, "user");
+        
+        // Ensure cursor is placed after the table
+        setTimeout(() => {
+          quill.setSelection(range.index + (r * c * 6) + 1, 0, "user");
+        }, 10);
       } catch (err) {
         console.error("Error inserting table:", err);
         alert("Có lỗi khi chèn bảng: " + String(err));
       }
-    }, 100);
+    }, 50);
   };
 
   const modules = useMemo(
@@ -179,7 +179,11 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
                 Chèn Bảng
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-64 p-3.5 space-y-3 bg-white dark:bg-[#0e1714] border-gray-200 dark:border-white/10 shadow-xl" align="end">
+            <PopoverContent 
+              className="w-64 p-3.5 space-y-3 bg-white dark:bg-[#0e1714] border-gray-200 dark:border-white/10 shadow-xl" 
+              align="end"
+              onCloseAutoFocus={(e) => e.preventDefault()}
+            >
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-xs flex items-center gap-1.5 text-gray-900 dark:text-white">
                   <Table className="h-4 w-4 text-[#36e2a0]" /> Chèn Bảng tùy chỉnh
