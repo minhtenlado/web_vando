@@ -89,6 +89,8 @@ type ProjectForm = {
   link: string;
   repo: string;
   images: string[];
+  visualsTitle: string;
+  videoTitle: string;
 };
 
 function toForm(p: SiteProject): ProjectForm {
@@ -122,6 +124,8 @@ function toForm(p: SiteProject): ProjectForm {
     link: p.link ?? "",
     repo: p.repo ?? "",
     images: Array.isArray(p.images) ? p.images : [],
+    visualsTitle: p.visualsTitle ?? "",
+    videoTitle: p.videoTitle ?? "",
   };
 }
 
@@ -144,6 +148,8 @@ const EMPTY: ProjectForm = {
   link: "",
   repo: "",
   images: [],
+  visualsTitle: "",
+  videoTitle: "",
 };
 
 function splitLines(s: string): string[] {
@@ -236,6 +242,8 @@ export function ProjectsTab({ locale }: { locale: string }) {
       link: form.link.trim(),
       repo: form.repo.trim(),
       images: form.images.filter(Boolean),
+      visualsTitle: form.visualsTitle.trim(),
+      videoTitle: form.videoTitle.trim(),
       locale,
     };
     try {
@@ -674,6 +682,26 @@ export function ProjectsTab({ locale }: { locale: string }) {
                         value={form.projectType}
                         onChange={(e) => setForm({ ...form, projectType: e.target.value })}
                         placeholder="e.g. Research Project / Commercial Product / Open Source"
+                        className="text-foreground bg-background border-input text-xs"
+                      />
+                    </div>
+                    
+                    <div className="space-y-1.5">
+                      <Label className="font-semibold text-xs text-foreground">Tiêu đề phần Hình ảnh & Sơ đồ</Label>
+                      <Input
+                        value={form.visualsTitle}
+                        onChange={(e) => setForm({ ...form, visualsTitle: e.target.value })}
+                        placeholder="e.g. Hình ảnh về cuộc thi (để trống sẽ dùng mặc định)"
+                        className="text-foreground bg-background border-input text-xs"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="font-semibold text-xs text-foreground">Tiêu đề phần Video & Demo</Label>
+                      <Input
+                        value={form.videoTitle}
+                        onChange={(e) => setForm({ ...form, videoTitle: e.target.value })}
+                        placeholder="e.g. Video chạy thực tế (để trống sẽ dùng mặc định)"
                         className="text-foreground bg-background border-input text-xs"
                       />
                     </div>

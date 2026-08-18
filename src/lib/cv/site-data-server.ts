@@ -53,6 +53,8 @@ export type SiteProject = Project & {
   results?: { number: string; label: string }[]
   youtubeUrl?: string
   images?: string[]
+  visualsTitle?: string
+  videoTitle?: string
 }
 
 export type SiteExperience = Experience & {
@@ -335,6 +337,8 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         category: p.category,
         image: p.image,
         description: p.description,
+        visualsTitle: (p as any).visualsTitle ?? "",
+        videoTitle: (p as any).videoTitle ?? "",
         features: safeParseArr(p.features),
         tech: safeParseArr(p.tech),
         link: p.link ?? undefined,

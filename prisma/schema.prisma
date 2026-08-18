@@ -59,6 +59,8 @@ model Project {
   results          String   @default("[]") // JSON [{ number, label }]
   category         String   @default("")
   description      String   @default("")
+  visualsTitle     String   @default("")
+  videoTitle       String   @default("")
   features         String   @default("[]") // JSON string[]
   tech             String   @default("[]") // JSON string[]
   image            String   @default("")

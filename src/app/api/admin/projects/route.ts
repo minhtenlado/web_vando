@@ -39,6 +39,8 @@ type ProjectInput = {
   repo?: string;
   order?: number;
   locale?: string;
+  visualsTitle?: string;
+  videoTitle?: string;
 };
 
 export async function POST(req: NextRequest) {
@@ -78,6 +80,8 @@ export async function POST(req: NextRequest) {
         tech: JSON.stringify(Array.isArray(body.tech) ? body.tech : []),
         image: (body.image ?? "").slice(0, 500),
         images: JSON.stringify(Array.isArray(body.images) ? body.images : []),
+        visualsTitle: (body.visualsTitle ?? "").slice(0, 200),
+        videoTitle: (body.videoTitle ?? "").slice(0, 200),
         youtubeUrl: normUrl(body.youtubeUrl),
         link: normUrl(body.link),
         repo: normUrl(body.repo),

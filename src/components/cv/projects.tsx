@@ -751,7 +751,7 @@ export function Projects() {
                     <section id="gallery" className="scroll-mt-24 space-y-4">
                       <div className="flex items-center gap-2 border-b border-border/60 pb-3">
                         <span className="text-xs font-mono text-primary font-bold tracking-widest uppercase">03 · Visuals</span>
-                        <h2 className="text-xl font-bold text-foreground">{t("Hình ảnh & Sơ đồ kiến trúc", "Visuals & Architecture")}</h2>
+                        <h2 className="text-xl font-bold text-foreground">{activeProject.visualsTitle || t("Hình ảnh & Sơ đồ kiến trúc", "Visuals & Architecture")}</h2>
                       </div>
 
                       {/* Gallery Grid (1 large + 2 stacked small images/diagrams) */}
@@ -808,7 +808,7 @@ export function Projects() {
                     <section id="demo" className="scroll-mt-24 space-y-4">
                       <div className="flex items-center gap-2 border-b border-border/60 pb-3">
                         <span className="text-xs font-mono text-primary font-bold tracking-widest uppercase">04 · Demo</span>
-                        <h2 className="text-xl font-bold text-foreground">{t("Video & Thử nghiệm Demo", "Video & Live Demo")}</h2>
+                        <h2 className="text-xl font-bold text-foreground">{activeProject.videoTitle || t("Video & Thử nghiệm Demo", "Video & Live Demo")}</h2>
                       </div>
 
                       {activeProject.youtubeUrl && activeYtId ? (
