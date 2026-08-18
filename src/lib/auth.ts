@@ -35,7 +35,7 @@ function safeEqual(a: string, b: string): boolean {
   return crypto.timingSafeEqual(ab, bb);
 }
 
-type SessionPayload = { exp: number };
+type SessionPayload = { exp: number; v?: string };
 
 function sign(payload: SessionPayload): string {
   const body = Buffer.from(JSON.stringify(payload)).toString("base64url");
@@ -46,12 +46,12 @@ function sign(payload: SessionPayload): string {
   return `${body}.${sig}`;
 }
 
-function verify(token: string | undefined): boolean {
-  if (!token) return false;
+function verify(token: string | undefined): SessionPayload | null {
+  if (!token) return null;
   try {
     const secret = getSecret();
     const parts = token.split(".");
-    if (parts.length !== 2) return false;
+    if (parts.length !== 2) return null;
     const [body, sig] = parts;
     const expected = crypto
       .createHmac("sha256", secret)
@@ -60,16 +60,16 @@ function verify(token: string | undefined): boolean {
     // timing-safe compare of signatures
     const a = Buffer.from(sig);
     const b = Buffer.from(expected);
-    if (a.length !== b.length) return false;
-    if (!crypto.timingSafeEqual(a, b)) return false;
+    if (a.length !== b.length) return null;
+    if (!crypto.timingSafeEqual(a, b)) return null;
     const payload = JSON.parse(
       Buffer.from(body, "base64url").toString("utf8")
     ) as SessionPayload;
-    if (typeof payload.exp !== "number") return false;
-    if (Date.now() > payload.exp) return false;
-    return true;
+    if (typeof payload.exp !== "number") return null;
+    if (Date.now() > payload.exp) return null;
+    return payload;
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -114,7 +114,21 @@ export async function verifyPassword(password: string): Promise<boolean> {
 
 export async function createSession(): Promise<void> {
   const exp = Date.now() + MAX_AGE_SECONDS * 1000;
-  const token = sign({ exp });
+  
+  let v = "";
+  try {
+    const profiles = await db.profile.findMany({
+      where: { id: { in: ["profile-vi", "profile-en", "profile"] } },
+    });
+    const profile = profiles.find((p) => p.passwordHash);
+    if (profile && profile.passwordHash) {
+      v = profile.passwordHash.substring(0, 10);
+    }
+  } catch (e) {
+    console.error("[auth] Error reading DB for createSession", e);
+  }
+
+  const token = sign({ exp, v });
   const store = await cookies();
   store.set(COOKIE_NAME, token, {
     httpOnly: true,
@@ -132,7 +146,29 @@ export async function clearSession(): Promise<void> {
 
 export async function isAuthed(): Promise<boolean> {
   const store = await cookies();
-  return verify(store.get(COOKIE_NAME)?.value);
+  const payload = verify(store.get(COOKIE_NAME)?.value);
+  if (!payload) return false;
+
+  try {
+    const profiles = await db.profile.findMany({
+      where: { id: { in: ["profile-vi", "profile-en", "profile"] } },
+    });
+    const profile = profiles.find((p) => p.passwordHash);
+    let currentV = "";
+    if (profile && profile.passwordHash) {
+      currentV = profile.passwordHash.substring(0, 10);
+    }
+
+    if (payload.v !== currentV) {
+      return false; // Password has changed, session invalidated
+    }
+  } catch (e) {
+    console.error("[auth] Error reading DB for isAuthed", e);
+    // In case of DB error, optionally fallback to just trusting the payload,
+    // but typically we want to be secure. We will allow it if DB fails to prevent lockout.
+  }
+
+  return true;
 }
 
 /** For use in API route handlers — returns a 401 JSON response if not authed. */
