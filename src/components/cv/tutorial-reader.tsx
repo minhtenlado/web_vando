@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { sanitizePostHtml } from "@/lib/validation"
+import { Heart, Bookmark, Share2, Eye, Check, ArrowUp } from "lucide-react"
 import './tutorial-reader.css'
 
 type TutorialReaderProps = {
@@ -10,6 +11,7 @@ type TutorialReaderProps = {
   pubDate: string
   readingTime: number
   contentHtml: string
+  coverImage?: string | null
   pdfUrl?: string | null
   authorName?: string
   authorRole?: string
@@ -21,10 +23,27 @@ type TutorialReaderProps = {
   children?: React.ReactNode
 }
 
-export function TutorialReader({ slug, title, pubDate, readingTime, contentHtml, pdfUrl, authorName, authorRole, category, excerpt, views = 0, likes = 0, bookmarks = 0, children }: TutorialReaderProps) {
+export function TutorialReader({ 
+  slug, 
+  title, 
+  pubDate, 
+  readingTime, 
+  contentHtml, 
+  coverImage,
+  pdfUrl, 
+  authorName, 
+  authorRole, 
+  category, 
+  excerpt, 
+  views = 0, 
+  likes = 0, 
+  bookmarks = 0, 
+  children 
+}: TutorialReaderProps) {
   const [fontSize, setFontSize] = React.useState(16)
   const [searchOpen, setSearchOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState("")
+  const [copiedLink, setCopiedLink] = React.useState(false)
   const articleRef = React.useRef<HTMLElement>(null)
   const searchInputRef = React.useRef<HTMLInputElement>(null)
 
@@ -252,11 +271,23 @@ export function TutorialReader({ slug, title, pubDate, readingTime, contentHtml,
     }
   }, [readingMode])
 
+  const handleShare = () => {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(window.location.href)
+      setCopiedLink(true)
+      setTimeout(() => setCopiedLink(false), 2500)
+    }
+  }
+
+  const scrollToTop = () => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    }
+  }
+
   return (
     <>
       <article ref={articleRef} className="tutorial-layout-article">
-        
-
         
         <h1 className="tutorial-title">{title}</h1>
         
@@ -265,7 +296,16 @@ export function TutorialReader({ slug, title, pubDate, readingTime, contentHtml,
           <span className="tutorial-chip">~{readingTime} phút đọc</span>
           <span className="tutorial-chip">{pubDate}</span>
           <span className="tutorial-chip">{authorName}</span>
+          <span className="tutorial-chip flex items-center gap-1">
+            <Eye className="w-3 h-3" /> {currentViews}
+          </span>
         </div>
+
+        {coverImage && coverImage.trim() !== "" && (
+          <div className="my-6 rounded-2xl overflow-hidden border border-border/40 shadow-lg max-h-[480px]">
+            <img src={coverImage} alt={title} className="w-full h-full object-cover" />
+          </div>
+        )}
         
         {excerpt && <p className="tutorial-lead">{excerpt}</p>}
         
@@ -295,6 +335,55 @@ export function TutorialReader({ slug, title, pubDate, readingTime, contentHtml,
           />
 
           {children}
+        </div>
+
+        {/* Interactive Post Footer Actions */}
+        <div className="mt-12 pt-6 border-t border-border/30 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => handleInteract("like")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border cursor-pointer ${
+                hasLiked 
+                  ? "bg-rose-500/10 border-rose-500/30 text-rose-500 shadow-sm" 
+                  : "bg-muted/60 border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              <Heart className={`w-4 h-4 ${hasLiked ? "fill-rose-500 text-rose-500" : ""}`} />
+              <span>{hasLiked ? "Đã thích" : "Thích"}</span>
+              <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">{currentLikes}</span>
+            </button>
+
+            <button
+              onClick={() => handleInteract("bookmark")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border cursor-pointer ${
+                hasBookmarked 
+                  ? "bg-amber-500/10 border-amber-500/30 text-amber-500 shadow-sm" 
+                  : "bg-muted/60 border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              <Bookmark className={`w-4 h-4 ${hasBookmarked ? "fill-amber-500 text-amber-500" : ""}`} />
+              <span>{hasBookmarked ? "Đã lưu" : "Lưu"}</span>
+              <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">{currentBookmarks}</span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleShare}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium border border-border/40 bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+            >
+              {copiedLink ? <Check className="w-4 h-4 text-emerald-500" /> : <Share2 className="w-4 h-4" />}
+              <span>{copiedLink ? "Đã sao chép link!" : "Chia sẻ"}</span>
+            </button>
+
+            <button
+              onClick={scrollToTop}
+              className="p-2 rounded-xl border border-border/40 bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+              title="Về đầu trang"
+            >
+              <ArrowUp className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </article>
 

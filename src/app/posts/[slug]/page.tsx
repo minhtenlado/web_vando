@@ -113,6 +113,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               pubDate={pubDate} 
               readingTime={readingTime} 
               contentHtml={post.content}
+              coverImage={post.coverImage}
               pdfUrl={post.pdfUrl}
               authorName="Phan Huỳnh Văn Đô"
               authorRole="AI / Edge Computing"

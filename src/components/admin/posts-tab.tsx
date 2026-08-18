@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, Plus, Pencil, Trash2, FileText, RefreshCw, Eye, EyeOff, Upload, Search, Clock, ArrowUpRight, MoreVertical } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, FileText, RefreshCw, Eye, EyeOff, Upload, Search, Clock, ArrowUpRight, MoreVertical, Heart, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -403,16 +403,28 @@ export function PostsTab({ locale }: { locale: string }) {
 
                     {/* Footer Stats */}
                     <div className="flex items-center justify-between mt-5 pt-4 border-t border-border/10 dark:border-white/5">
-                      <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                        <div className="flex items-center gap-1.5">
+                      <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
+                        <div className="flex items-center gap-1" title="Thời gian đọc ước tính">
                           <Clock className="w-3.5 h-3.5" /> {readTimeText}
                         </div>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1 text-sky-500/90" title="Lượt xem">
                           <Eye className="w-3.5 h-3.5" /> {viewCountText}
                         </div>
+                        <div className="flex items-center gap-1 text-rose-500/90" title="Lượt thích">
+                          <Heart className="w-3.5 h-3.5" /> {(post as any).likes || 0}
+                        </div>
+                        <div className="flex items-center gap-1 text-amber-500/90" title="Lượt lưu">
+                          <Bookmark className="w-3.5 h-3.5" /> {(post as any).bookmarks || 0}
+                        </div>
                       </div>
-                      <a href={`/posts/${post.slug}`} target="_blank" rel="noreferrer" className="flex items-center justify-center w-6 h-6 rounded-full border border-border/20 dark:border-white/10 hover:border-primary/50 hover:bg-primary/10 transition-colors">
-                        <ArrowUpRight className="w-3 h-3 text-muted-foreground group-hover:text-primary" />
+                      <a 
+                        href={`/posts/${post.slug}`} 
+                        target="_blank" 
+                        rel="noreferrer" 
+                        className="flex items-center justify-center w-7 h-7 rounded-full border border-border/20 dark:border-white/10 hover:border-primary/50 hover:bg-primary/10 transition-colors"
+                        title="Xem bài viết trên web"
+                      >
+                        <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary" />
                       </a>
                     </div>
                   </div>

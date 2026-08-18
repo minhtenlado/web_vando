@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { sanitizePostHtml } from "@/lib/validation"
+import { Heart, Bookmark, Share2, Eye, Clock, Calendar, Check, Copy, ArrowUp, Sparkles, User } from "lucide-react"
 
 type PostReaderProps = {
   slug: string
@@ -9,6 +10,7 @@ type PostReaderProps = {
   pubDate: string
   readingTime: number
   contentHtml: string
+  coverImage?: string | null
   pdfUrl?: string | null
   authorName?: string
   authorRole?: string
@@ -20,10 +22,27 @@ type PostReaderProps = {
   children?: React.ReactNode
 }
 
-export function PostReader({ slug, title, pubDate, readingTime, contentHtml, pdfUrl, authorName, authorRole, category, excerpt, views = 0, likes = 0, bookmarks = 0, children }: PostReaderProps) {
+export function PostReader({ 
+  slug, 
+  title, 
+  pubDate, 
+  readingTime, 
+  contentHtml, 
+  coverImage,
+  pdfUrl, 
+  authorName = "Phan Huỳnh Văn Đô", 
+  authorRole = "Embedded Software & AIoT Engineer", 
+  category, 
+  excerpt, 
+  views = 0, 
+  likes = 0, 
+  bookmarks = 0, 
+  children 
+}: PostReaderProps) {
   const [fontSize, setFontSize] = React.useState(18)
   const [searchOpen, setSearchOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState("")
+  const [copiedLink, setCopiedLink] = React.useState(false)
   const articleRef = React.useRef<HTMLElement>(null)
   const searchInputRef = React.useRef<HTMLInputElement>(null)
 
@@ -80,8 +99,58 @@ export function PostReader({ slug, title, pubDate, readingTime, contentHtml, pdf
       console.error(err)
     }
   }
+
+  const handleShare = () => {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(window.location.href)
+      setCopiedLink(true)
+      setTimeout(() => setCopiedLink(false), 2500)
+    }
+  }
+
+  const scrollToTop = () => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    }
+  }
   
   React.useEffect(() => {
+    // Process code blocks for syntax highlight and copy button
+    if (articleRef.current) {
+      const preElements = articleRef.current.querySelectorAll('pre')
+      preElements.forEach(pre => {
+        if (pre.closest('.code-block-wrapper')) return
+        
+        const wrapper = document.createElement('div')
+        wrapper.className = 'code-block-wrapper relative my-6 rounded-xl overflow-hidden border border-border/40 dark:border-zinc-800 bg-[#1e1e2e] shadow-lg'
+        
+        const header = document.createElement('div')
+        header.className = 'flex items-center justify-between px-4 py-2 bg-black/40 border-b border-white/5 text-[11px] font-mono text-zinc-400'
+        
+        header.innerHTML = `
+          <span class="flex items-center gap-1.5 font-semibold text-zinc-300">
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> Code Block
+          </span>
+          <button class="copy-code-btn flex items-center gap-1 px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-zinc-200 transition-colors cursor-pointer text-[11px]" title="Sao chép">
+            <span>Copy</span>
+          </button>
+        `
+        
+        const copyBtn = header.querySelector('.copy-code-btn')
+        if (copyBtn) {
+          copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(pre.textContent || '')
+            copyBtn.innerHTML = '<span>Đã sao chép!</span>'
+            setTimeout(() => { if (copyBtn) copyBtn.innerHTML = '<span>Copy</span>' }, 2000)
+          })
+        }
+        
+        pre.parentNode?.insertBefore(wrapper, pre)
+        wrapper.appendChild(header)
+        wrapper.appendChild(pre)
+      })
+    }
+
     const link = document.createElement("link")
     link.rel = "stylesheet"
     link.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
@@ -89,7 +158,7 @@ export function PostReader({ slug, title, pubDate, readingTime, contentHtml, pdf
 
     const highlightBlocks = () => {
       if ((window as any).hljs) {
-        document.querySelectorAll('.ql-editor-display pre').forEach((block) => {
+        document.querySelectorAll('.ql-editor-display pre, .code-block-wrapper pre').forEach((block) => {
           (window as any).hljs.highlightElement(block);
         });
       }
@@ -172,40 +241,82 @@ export function PostReader({ slug, title, pubDate, readingTime, contentHtml, pdf
         
         <div className="absolute top-[-180px] left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-[radial-gradient(circle,rgba(107,123,255,0.09),transparent_68%)] pointer-events-none hidden dark:block" />
 
+        {/* Post Category & Meta Badges */}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          {category && (
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
+              <Sparkles className="w-3 h-3" /> {category}
+            </span>
+          )}
+
+          <div className="flex items-center gap-4 text-xs font-medium text-muted-foreground">
+            <span className="inline-flex items-center gap-1">
+              <Eye className="w-3.5 h-3.5" /> {currentViews} lượt xem
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Heart className="w-3.5 h-3.5 text-rose-500" /> {currentLikes} thích
+            </span>
+          </div>
+        </div>
+
+        {/* Title */}
         <header className="relative z-10 pb-8 border-b border-black/5 dark:border-white/10">
-          <h1 className="m-0 max-w-none font-sans text-[clamp(34px,4vw,54px)] font-extrabold leading-[1.1] tracking-[-0.035em] text-gray-900 dark:text-[#f4f5f7]">
+          <h1 className="m-0 max-w-none font-sans text-[clamp(30px,3.8vw,50px)] font-extrabold leading-[1.15] tracking-[-0.035em] text-gray-900 dark:text-[#f4f5f7]">
             {title}
           </h1>
 
-          <div className="flex flex-wrap gap-5 mt-6 text-[#8c94a2] text-[13px] font-sans">
-            <div className="flex items-center gap-1.5 text-gray-600 dark:text-[#8c94a2]">
-              ◷ {pubDate}
+          {/* Author & Publication Info */}
+          <div className="flex flex-wrap items-center justify-between gap-4 mt-6 pt-5 border-t border-border/20 text-[13px]">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-emerald-400 p-0.5 flex items-center justify-center shadow-md">
+                <div className="w-full h-full rounded-full bg-background flex items-center justify-center font-bold text-xs text-primary">
+                  {authorName.charAt(0)}
+                </div>
+              </div>
+              <div>
+                <div className="font-semibold text-foreground flex items-center gap-1.5">
+                  {authorName}
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  {authorRole}
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 text-gray-600 dark:text-[#8c94a2]">
-              ◴ {readingTime} phút đọc
-            </div>
-          </div>
 
-          <div className="flex flex-wrap gap-2 mt-5 font-sans">
-            <span className="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/5 text-gray-700 dark:text-[#c8ccd5] text-[12px]">
-              {authorName}
-            </span>
-            <span className="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/5 text-gray-700 dark:text-[#c8ccd5] text-[12px]">
-              {authorRole}
-            </span>
+            <div className="flex flex-wrap items-center gap-4 text-muted-foreground text-xs font-mono">
+              <div className="flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5" /> {pubDate}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5" /> ~{readingTime} phút đọc
+              </div>
+            </div>
           </div>
         </header>
 
+        {/* Optional Cover Image */}
+        {coverImage && coverImage.trim() !== "" && (
+          <div className="mt-8 mb-6 rounded-2xl overflow-hidden border border-border/30 shadow-xl max-h-[500px] relative group bg-muted">
+            <img 
+              src={coverImage} 
+              alt={title} 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 pointer-events-none" />
+          </div>
+        )}
+
+        {/* Content Section */}
         <div 
-          className="pt-10 font-serif text-[#454a53] dark:text-[#c8ccd4] leading-[1.85]" 
+          className="pt-8 font-serif text-[#454a53] dark:text-[#c8ccd4] leading-[1.85]" 
           style={{ fontSize: `${fontSize}px` }}
         >
           {excerpt && (
-            <section id="abstract" className="relative mb-[60px] p-7 border border-[#828cff]/15 rounded-[18px] bg-gradient-to-br from-[#7c8cff]/5 to-transparent dark:from-[rgba(124,140,255,0.065)] dark:to-[rgba(255,255,255,0.02)]">
-              <div className="absolute -top-[9px] left-5 px-2 bg-white dark:bg-[#101419] text-[#8995ff] font-sans text-[9px] font-extrabold tracking-[0.16em]">
-                ABSTRACT
+            <section id="abstract" className="relative mb-[45px] p-6 sm:p-7 border border-primary/20 rounded-[18px] bg-primary/5 dark:bg-primary/5">
+              <div className="absolute -top-[9px] left-5 px-2 bg-white dark:bg-[#101419] text-primary font-sans text-[9px] font-extrabold tracking-[0.16em]">
+                TÓM TẮT BÀI VIẾT (ABSTRACT)
               </div>
-              <div className="font-serif">
+              <div className="font-serif italic text-foreground/90 leading-relaxed">
                 {excerpt}
               </div>
             </section>
@@ -233,30 +344,89 @@ export function PostReader({ slug, title, pubDate, readingTime, contentHtml, pdf
           {children}
         </div>
 
+        {/* Interactive Post Footer Actions */}
+        <div className="mt-14 pt-8 border-t border-border/30 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            {/* Like Button */}
+            <button
+              onClick={() => handleInteract("like")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 border cursor-pointer ${
+                hasLiked 
+                  ? "bg-rose-500/10 border-rose-500/30 text-rose-500 scale-105 shadow-sm shadow-rose-500/20" 
+                  : "bg-muted/60 border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              <Heart className={`w-4 h-4 ${hasLiked ? "fill-rose-500 text-rose-500" : ""}`} />
+              <span>{hasLiked ? "Đã thích" : "Thích"}</span>
+              <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">
+                {currentLikes}
+              </span>
+            </button>
+
+            {/* Bookmark Button */}
+            <button
+              onClick={() => handleInteract("bookmark")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 border cursor-pointer ${
+                hasBookmarked 
+                  ? "bg-amber-500/10 border-amber-500/30 text-amber-500 scale-105 shadow-sm shadow-amber-500/20" 
+                  : "bg-muted/60 border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              <Bookmark className={`w-4 h-4 ${hasBookmarked ? "fill-amber-500 text-amber-500" : ""}`} />
+              <span>{hasBookmarked ? "Đã lưu" : "Lưu"}</span>
+              <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">
+                {currentBookmarks}
+              </span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Share / Copy Link Button */}
+            <button
+              onClick={handleShare}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium border border-border/40 bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+            >
+              {copiedLink ? <Check className="w-4 h-4 text-emerald-500" /> : <Share2 className="w-4 h-4" />}
+              <span>{copiedLink ? "Đã sao chép link!" : "Chia sẻ"}</span>
+            </button>
+
+            {/* Scroll to Top */}
+            <button
+              onClick={scrollToTop}
+              className="p-2 rounded-xl border border-border/40 bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+              title="Về đầu trang"
+            >
+              <ArrowUp className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
       </article>
 
-      <div className="fixed z-[600] left-1/2 bottom-[25px] -translate-x-1/2 flex items-center gap-1 p-1.5 border border-black/10 dark:border-white/10 rounded-[15px] bg-white/80 dark:bg-[#101217]/80 shadow-[0_15px_60px_rgba(0,0,0,0.15)] dark:shadow-[0_15px_60px_rgba(0,0,0,0.45)] backdrop-blur-[24px]">
+      {/* Floating Reader Controls (Bottom Toolbar) */}
+      <div className="fixed z-[600] left-1/2 bottom-[25px] -translate-x-1/2 flex items-center gap-1.5 p-1.5 border border-black/10 dark:border-white/10 rounded-2xl bg-white/90 dark:bg-[#101217]/90 shadow-[0_15px_60px_rgba(0,0,0,0.15)] dark:shadow-[0_15px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl">
         <button 
           onClick={() => setFontSize(Math.max(15, fontSize - 1))}
-          className="w-[34px] h-[34px] grid place-items-center border-0 rounded-[9px] bg-transparent text-gray-500 dark:text-[#8e96a4] cursor-pointer transition-all hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10"
-          title="Giảm font"
+          className="w-8 h-8 grid place-items-center border-0 rounded-xl bg-transparent text-muted-foreground cursor-pointer transition-all hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10"
+          title="Giảm cỡ chữ"
         >
           A−
         </button>
-        <div className="min-w-[40px] text-center text-gray-500 dark:text-[#8e96a4] text-[11px] font-sans">
+        <div className="min-w-[36px] text-center text-muted-foreground text-xs font-mono">
           {fontSize}
         </div>
         <button 
           onClick={() => setFontSize(Math.min(26, fontSize + 1))}
-          className="w-[34px] h-[34px] grid place-items-center border-0 rounded-[9px] bg-transparent text-gray-500 dark:text-[#8e96a4] cursor-pointer transition-all hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10"
-          title="Tăng font"
+          className="w-8 h-8 grid place-items-center border-0 rounded-xl bg-transparent text-muted-foreground cursor-pointer transition-all hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10"
+          title="Tăng cỡ chữ"
         >
           A+
         </button>
+        <div className="w-px h-4 bg-border/60 mx-1" />
         <button 
           onClick={() => setReadingMode(!readingMode)}
-          className={`w-[34px] h-[34px] grid place-items-center border-0 rounded-[9px] cursor-pointer transition-all ${readingMode ? 'bg-black/10 dark:bg-white/20 text-gray-900 dark:text-white' : 'bg-transparent text-gray-500 dark:text-[#8e96a4] hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10'}`}
-          title="Reading mode"
+          className={`w-8 h-8 grid place-items-center border-0 rounded-xl cursor-pointer transition-all ${readingMode ? 'bg-primary/20 text-primary font-bold' : 'bg-transparent text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10'}`}
+          title="Chế độ tập trung đọc"
         >
           ◐
         </button>
@@ -279,3 +449,4 @@ export function PostReader({ slug, title, pubDate, readingTime, contentHtml, pdf
     </>
   )
 }
+
