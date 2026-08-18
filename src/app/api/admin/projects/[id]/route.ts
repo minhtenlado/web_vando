@@ -24,6 +24,7 @@ type ProjectInput = {
   order?: number;
   visualsTitle?: string;
   videoTitle?: string;
+  showVideoDemo?: boolean;
 };
 
 function normUrl(v: unknown): string | null {
@@ -70,6 +71,7 @@ export async function PUT(
   if (Array.isArray(body.images)) data.images = JSON.stringify(body.images);
   if (typeof body.visualsTitle === "string") data.visualsTitle = body.visualsTitle.slice(0, 200);
   if (typeof body.videoTitle === "string") data.videoTitle = body.videoTitle.slice(0, 200);
+  if (typeof body.showVideoDemo === "boolean") data.showVideoDemo = body.showVideoDemo;
   if (typeof body.youtubeUrl === "string" || body.youtubeUrl === null) data.youtubeUrl = normUrl(body.youtubeUrl);
   if (typeof body.link === "string" || body.link === null) data.link = normUrl(body.link);
   if (typeof body.repo === "string" || body.repo === null) data.repo = normUrl(body.repo);

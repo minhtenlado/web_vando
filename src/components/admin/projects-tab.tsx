@@ -91,6 +91,7 @@ type ProjectForm = {
   images: string[];
   visualsTitle: string;
   videoTitle: string;
+  showVideoDemo: boolean;
 };
 
 function toForm(p: SiteProject): ProjectForm {
@@ -126,6 +127,7 @@ function toForm(p: SiteProject): ProjectForm {
     images: Array.isArray(p.images) ? p.images : [],
     visualsTitle: p.visualsTitle ?? "",
     videoTitle: p.videoTitle ?? "",
+    showVideoDemo: p.showVideoDemo ?? true,
   };
 }
 
@@ -150,6 +152,7 @@ const EMPTY: ProjectForm = {
   images: [],
   visualsTitle: "",
   videoTitle: "",
+  showVideoDemo: true,
 };
 
 function splitLines(s: string): string[] {
@@ -244,6 +247,7 @@ export function ProjectsTab({ locale }: { locale: string }) {
       images: form.images.filter(Boolean),
       visualsTitle: form.visualsTitle.trim(),
       videoTitle: form.videoTitle.trim(),
+      showVideoDemo: form.showVideoDemo,
       locale,
     };
     try {
@@ -704,6 +708,30 @@ export function ProjectsTab({ locale }: { locale: string }) {
                         placeholder="e.g. Video chạy thực tế (để trống sẽ dùng mặc định)"
                         className="text-foreground bg-background border-input text-xs"
                       />
+                    </div>
+                    
+                    <div className="space-y-1.5 flex flex-col justify-center">
+                      <Label className="font-semibold text-xs text-foreground mb-2">Hiển thị phần Video & Demo</Label>
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          type="button"
+                          variant={form.showVideoDemo ? "default" : "outline"}
+                          size="sm"
+                          className="h-8"
+                          onClick={() => setForm({ ...form, showVideoDemo: true })}
+                        >
+                          Bật
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={!form.showVideoDemo ? "destructive" : "outline"}
+                          size="sm"
+                          className="h-8"
+                          onClick={() => setForm({ ...form, showVideoDemo: false })}
+                        >
+                          Tắt
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </TabsContent>

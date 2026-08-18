@@ -805,6 +805,7 @@ export function Projects() {
                     </section>
 
                     {/* SECTION 04: DEMO VIDEO */}
+                    {activeProject.showVideoDemo !== false && (
                     <section id="demo" className="scroll-mt-24 space-y-4">
                       <div className="flex items-center gap-2 border-b border-border/60 pb-3">
                         <span className="text-xs font-mono text-primary font-bold tracking-widest uppercase">04 · Demo</span>
@@ -825,6 +826,7 @@ export function Projects() {
                         <FakeDemoPlayer title={activeProject.title} />
                       )}
                     </section>
+                    )}
 
                     {/* SECTION 05: RESULTS & METRICS */}
                     <section id="results" className="scroll-mt-24 space-y-4">
@@ -863,7 +865,7 @@ export function Projects() {
                             { id: "overview", label: t("01. Tổng quan", "01. Overview") },
                             { id: "responsibility", label: t("02. Trách nhiệm", "02. Responsibilities") },
                             { id: "gallery", label: t("03. Visuals & Sơ đồ", "03. Visuals & Architecture") },
-                            { id: "demo", label: t("04. Video Demo", "04. Video Demo") },
+                            ...(activeProject.showVideoDemo !== false ? [{ id: "demo", label: t("04. Video Demo", "04. Video Demo") }] : []),
                             { id: "results", label: t("05. Kết quả", "05. Results & Metrics") },
                           ].map((item) => (
                             <button

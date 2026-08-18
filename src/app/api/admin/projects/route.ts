@@ -41,6 +41,7 @@ type ProjectInput = {
   locale?: string;
   visualsTitle?: string;
   videoTitle?: string;
+  showVideoDemo?: boolean;
 };
 
 export async function POST(req: NextRequest) {
@@ -82,6 +83,7 @@ export async function POST(req: NextRequest) {
         images: JSON.stringify(Array.isArray(body.images) ? body.images : []),
         visualsTitle: (body.visualsTitle ?? "").slice(0, 200),
         videoTitle: (body.videoTitle ?? "").slice(0, 200),
+        showVideoDemo: typeof body.showVideoDemo === "boolean" ? body.showVideoDemo : true,
         youtubeUrl: normUrl(body.youtubeUrl),
         link: normUrl(body.link),
         repo: normUrl(body.repo),

@@ -65,6 +65,7 @@ model Project {
   tech             String   @default("[]") // JSON string[]
   image            String   @default("")
   images           String   @default("[]") // JSON string[] gallery
+  showVideoDemo    Boolean  @default(true)
   youtubeUrl       String?  // optional YouTube watch/embed URL
   link             String?
   repo             String?

@@ -339,6 +339,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         description: p.description,
         visualsTitle: (p as any).visualsTitle ?? "",
         videoTitle: (p as any).videoTitle ?? "",
+        showVideoDemo: typeof p.showVideoDemo === "boolean" ? p.showVideoDemo : true,
         features: safeParseArr(p.features),
         tech: safeParseArr(p.tech),
         link: p.link ?? undefined,
