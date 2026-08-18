@@ -55,6 +55,7 @@ export type SiteProject = Project & {
   images?: string[]
   visualsTitle?: string
   videoTitle?: string
+  showVideoDemo?: boolean
 }
 
 export type SiteExperience = Experience & {
