@@ -520,7 +520,7 @@ export function Projects() {
                       className="w-full justify-between border border-primary/30 bg-primary/5 hover:bg-primary hover:text-primary-foreground text-primary font-semibold transition-all duration-200 group/btn shadow-sm"
                       onClick={() => setActiveProject(p)}
                     >
-                      <span>{t("Xem chi tiết ↗", "View Case Study ↗")}</span>
+                      <span>{t("Xem chi tiết", "View Case Study")}</span>
                       <ArrowUpRight className="size-4 ml-2 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
                     </Button>
                   </div>
@@ -948,7 +948,7 @@ export function Projects() {
                     <Button asChild variant="outline" size="sm" className="h-8 text-xs font-medium">
                       <a href={activeProject.repo} target="_blank" rel="noopener noreferrer">
                         <Github className="size-3.5 mr-1.5" />
-                        {t("GitHub ↗", "GitHub ↗")}
+                        {t("GitHub", "GitHub")}
                       </a>
                     </Button>
                   )}
@@ -957,7 +957,7 @@ export function Projects() {
                     <Button asChild size="sm" className="h-8 text-xs font-semibold">
                       <a href={activeProject.link} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="size-3.5 mr-1.5" />
-                        {t("Demo ↗", "Demo ↗")}
+                        {t("Demo", "Demo")}
                       </a>
                     </Button>
                   )}

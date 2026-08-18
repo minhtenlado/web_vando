@@ -198,7 +198,7 @@ function Dashboard({
                 rel="noreferrer"
                 className="admin-top-button hidden sm:flex"
               >
-                ↗ Xem trang web
+                <ExternalLink className="size-3.5 mr-1" /> Xem trang web
               </a>
               <button
                 className={`admin-top-button ${locale === "vi" ? "primary" : ""}`}
