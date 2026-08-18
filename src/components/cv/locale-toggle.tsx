@@ -4,6 +4,7 @@ import * as React from "react"
 import { useLocale, type Locale } from "./locale-context"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
 /* Inline SVG flags — tiny, no external deps */
 function VietnamFlag({ className }: { className?: string }) {
@@ -32,10 +33,11 @@ function UKFlag({ className }: { className?: string }) {
 
 export function LocaleToggle({ className }: { className?: string }) {
   const { locale, setLocale } = useLocale()
+  const router = useRouter()
 
   function toggle() {
     setLocale(locale === "vi" ? "en" : "vi")
-    window.location.reload()
+    router.refresh()
   }
 
   return (
