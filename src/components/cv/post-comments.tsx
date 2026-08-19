@@ -111,7 +111,7 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
     setStatusMsg(null)
 
     try {
-      const res = await fetch(`/api/posts/${slug}/comments`, {
+      const res = await fetch(`/api/posts/${encodeURIComponent(slug)}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -121,7 +121,7 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
         }),
       })
 
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}))
       if (res.ok && data.ok) {
         setStatusMsg({ text: "Bình luận của bạn đã được đăng thành công!", type: "success" })
         setContent("")
@@ -134,9 +134,10 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
         }
         setTimeout(() => setStatusMsg(null), 4000)
       } else {
-        setStatusMsg({ text: data.message || "Gửi bình luận thất bại.", type: "error" })
+        setStatusMsg({ text: data.message || `Lỗi (${res.status}): Không thể gửi bình luận.`, type: "error" })
       }
-    } catch {
+    } catch (err) {
+      console.error("[Submit Comment Error]", err)
       setStatusMsg({ text: "Đã xảy ra lỗi kết nối, vui lòng thử lại sau.", type: "error" })
     } finally {
       setSubmitting(false)

@@ -22,7 +22,9 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await params;
+    const rawParams = await params;
+    const slug = decodeURIComponent(rawParams.slug);
+
     const comments = await db.comment.findMany({
       where: { postSlug: slug },
       orderBy: { createdAt: "desc" },
@@ -32,7 +34,7 @@ export async function GET(
     return NextResponse.json({ ok: true, comments });
   } catch (error) {
     console.error("[Comments GET Error]", error);
-    return NextResponse.json({ ok: true, comments: [] });
+    return NextResponse.json({ ok: false, comments: [], message: String(error) }, { status: 500 });
   }
 }
 
@@ -41,7 +43,8 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await params;
+    const rawParams = await params;
+    const slug = decodeURIComponent(rawParams.slug);
     const ip = getClientIP(req);
     const now = Date.now();
 
