@@ -126,3 +126,16 @@ model ActivityLog {
   status    String   @default("success") // success, warning, danger
   createdAt DateTime @default(now())
 }
+
+model Comment {
+  id          String   @id @default(cuid())
+  postSlug    String
+  author      String   @default("Ẩn danh")
+  isAnonymous Boolean  @default(false)
+  content     String
+  avatarColor String   @default("emerald")
+  createdAt   DateTime @default(now())
+
+  @@index([postSlug])
+}
+

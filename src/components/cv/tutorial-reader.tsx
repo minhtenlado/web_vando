@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { sanitizePostHtml } from "@/lib/validation"
-import { Heart, Bookmark, Share2, Eye, Check, ArrowUp } from "lucide-react"
+import { Heart, MessageSquare, Share2, Eye, Check, ArrowUp } from "lucide-react"
 import './tutorial-reader.css'
 
 type TutorialReaderProps = {
@@ -19,7 +19,6 @@ type TutorialReaderProps = {
   excerpt?: string | null
   views?: number
   likes?: number
-  bookmarks?: number
   children?: React.ReactNode
 }
 
@@ -37,7 +36,6 @@ export function TutorialReader({
   excerpt, 
   views = 0, 
   likes = 0, 
-  bookmarks = 0, 
   children 
 }: TutorialReaderProps) {
   const [fontSize, setFontSize] = React.useState(16)
@@ -50,15 +48,21 @@ export function TutorialReader({
   const [readingMode, setReadingMode] = React.useState(false)
 
   const [currentLikes, setCurrentLikes] = React.useState(likes)
-  const [currentBookmarks, setCurrentBookmarks] = React.useState(bookmarks)
   const [currentViews, setCurrentViews] = React.useState(views)
   const [hasLiked, setHasLiked] = React.useState(false)
-  const [hasBookmarked, setHasBookmarked] = React.useState(false)
+  const [commentsCount, setCommentsCount] = React.useState(0)
 
   React.useEffect(() => {
     setHasLiked(localStorage.getItem(`like_${slug}`) === "true")
-    setHasBookmarked(localStorage.getItem(`bookmark_${slug}`) === "true")
     
+    // Fetch comments count
+    fetch(`/api/posts/${slug}/comments`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.comments) setCommentsCount(data.comments.length)
+      })
+      .catch(() => {})
+
     // Increment view once per session per post
     if (!sessionStorage.getItem(`viewed_${slug}`)) {
       sessionStorage.setItem(`viewed_${slug}`, "true")
@@ -75,29 +79,29 @@ export function TutorialReader({
     }
   }, [slug])
 
-  const handleInteract = async (type: "like" | "bookmark") => {
-    const isLike = type === "like"
-    const currentState = isLike ? hasLiked : hasBookmarked
-    const action = isLike ? (currentState ? "unlike" : "like") : (currentState ? "unbookmark" : "bookmark")
-
-    if (isLike) {
-      setHasLiked(!currentState)
-      setCurrentLikes(prev => currentState ? Math.max(0, prev - 1) : prev + 1)
-      localStorage.setItem(`like_${slug}`, (!currentState).toString())
-    } else {
-      setHasBookmarked(!currentState)
-      setCurrentBookmarks(prev => currentState ? Math.max(0, prev - 1) : prev + 1)
-      localStorage.setItem(`bookmark_${slug}`, (!currentState).toString())
-    }
+  const handleLike = async () => {
+    const currentState = hasLiked
+    setHasLiked(!currentState)
+    setCurrentLikes(prev => currentState ? Math.max(0, prev - 1) : prev + 1)
+    localStorage.setItem(`like_${slug}`, (!currentState).toString())
 
     try {
       await fetch(`/api/posts/${slug}/stats`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action: currentState ? "unlike" : "like" }),
       })
     } catch (err) {
       console.error(err)
+    }
+  }
+
+  const scrollToComments = () => {
+    const commentsEl = document.getElementById("comments")
+    if (commentsEl) {
+      commentsEl.scrollIntoView({ behavior: "smooth" })
+      const textarea = commentsEl.querySelector("textarea")
+      if (textarea) setTimeout(() => textarea.focus(), 400)
     }
   }
   
@@ -341,7 +345,7 @@ export function TutorialReader({
         <div className="mt-12 pt-6 border-t border-border/30 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => handleInteract("like")}
+              onClick={handleLike}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border cursor-pointer ${
                 hasLiked 
                   ? "bg-rose-500/10 border-rose-500/30 text-rose-500 shadow-sm" 
@@ -353,17 +357,16 @@ export function TutorialReader({
               <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">{currentLikes}</span>
             </button>
 
+            {/* Comment Button (Replaces Bookmark) */}
             <button
-              onClick={() => handleInteract("bookmark")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border cursor-pointer ${
-                hasBookmarked 
-                  ? "bg-amber-500/10 border-amber-500/30 text-amber-500 shadow-sm" 
-                  : "bg-muted/60 border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
+              onClick={scrollToComments}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border bg-muted/60 border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted hover:border-primary/40 cursor-pointer shadow-sm"
             >
-              <Bookmark className={`w-4 h-4 ${hasBookmarked ? "fill-amber-500 text-amber-500" : ""}`} />
-              <span>{hasBookmarked ? "Đã lưu" : "Lưu"}</span>
-              <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">{currentBookmarks}</span>
+              <MessageSquare className="w-4 h-4 text-primary" />
+              <span>Bình luận</span>
+              <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary font-bold">
+                {commentsCount}
+              </span>
             </button>
           </div>
 

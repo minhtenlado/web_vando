@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { sanitizePostHtml } from "@/lib/validation"
-import { Heart, Bookmark, Share2, Eye, Clock, Calendar, Check, Copy, ArrowUp, Sparkles, User } from "lucide-react"
+import { Heart, MessageSquare, Share2, Eye, Clock, Calendar, Check, ArrowUp, Sparkles } from "lucide-react"
 
 type PostReaderProps = {
   slug: string
@@ -18,7 +18,6 @@ type PostReaderProps = {
   excerpt?: string | null
   views?: number
   likes?: number
-  bookmarks?: number
   children?: React.ReactNode
 }
 
@@ -36,7 +35,6 @@ export function PostReader({
   excerpt, 
   views = 0, 
   likes = 0, 
-  bookmarks = 0, 
   children 
 }: PostReaderProps) {
   const [fontSize, setFontSize] = React.useState(18)
@@ -49,15 +47,21 @@ export function PostReader({
   const [readingMode, setReadingMode] = React.useState(false)
 
   const [currentLikes, setCurrentLikes] = React.useState(likes)
-  const [currentBookmarks, setCurrentBookmarks] = React.useState(bookmarks)
   const [currentViews, setCurrentViews] = React.useState(views)
   const [hasLiked, setHasLiked] = React.useState(false)
-  const [hasBookmarked, setHasBookmarked] = React.useState(false)
+  const [commentsCount, setCommentsCount] = React.useState(0)
 
   React.useEffect(() => {
     setHasLiked(localStorage.getItem(`like_${slug}`) === "true")
-    setHasBookmarked(localStorage.getItem(`bookmark_${slug}`) === "true")
     
+    // Fetch comments count
+    fetch(`/api/posts/${slug}/comments`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.comments) setCommentsCount(data.comments.length)
+      })
+      .catch(() => {})
+
     // Increment view once per session per post
     if (!sessionStorage.getItem(`viewed_${slug}`)) {
       sessionStorage.setItem(`viewed_${slug}`, "true")
@@ -74,29 +78,29 @@ export function PostReader({
     }
   }, [slug])
 
-  const handleInteract = async (type: "like" | "bookmark") => {
-    const isLike = type === "like"
-    const currentState = isLike ? hasLiked : hasBookmarked
-    const action = isLike ? (currentState ? "unlike" : "like") : (currentState ? "unbookmark" : "bookmark")
-
-    if (isLike) {
-      setHasLiked(!currentState)
-      setCurrentLikes(prev => currentState ? Math.max(0, prev - 1) : prev + 1)
-      localStorage.setItem(`like_${slug}`, (!currentState).toString())
-    } else {
-      setHasBookmarked(!currentState)
-      setCurrentBookmarks(prev => currentState ? Math.max(0, prev - 1) : prev + 1)
-      localStorage.setItem(`bookmark_${slug}`, (!currentState).toString())
-    }
+  const handleLike = async () => {
+    const currentState = hasLiked
+    setHasLiked(!currentState)
+    setCurrentLikes(prev => currentState ? Math.max(0, prev - 1) : prev + 1)
+    localStorage.setItem(`like_${slug}`, (!currentState).toString())
 
     try {
       await fetch(`/api/posts/${slug}/stats`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action: currentState ? "unlike" : "like" }),
       })
     } catch (err) {
       console.error(err)
+    }
+  }
+
+  const scrollToComments = () => {
+    const commentsEl = document.getElementById("comments")
+    if (commentsEl) {
+      commentsEl.scrollIntoView({ behavior: "smooth" })
+      const textarea = commentsEl.querySelector("textarea")
+      if (textarea) setTimeout(() => textarea.focus(), 400)
     }
   }
 
@@ -349,7 +353,7 @@ export function PostReader({
           <div className="flex items-center gap-3">
             {/* Like Button */}
             <button
-              onClick={() => handleInteract("like")}
+              onClick={handleLike}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 border cursor-pointer ${
                 hasLiked 
                   ? "bg-rose-500/10 border-rose-500/30 text-rose-500 scale-105 shadow-sm shadow-rose-500/20" 
@@ -363,19 +367,15 @@ export function PostReader({
               </span>
             </button>
 
-            {/* Bookmark Button */}
+            {/* Comment Button (Replaces Bookmark) */}
             <button
-              onClick={() => handleInteract("bookmark")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 border cursor-pointer ${
-                hasBookmarked 
-                  ? "bg-amber-500/10 border-amber-500/30 text-amber-500 scale-105 shadow-sm shadow-amber-500/20" 
-                  : "bg-muted/60 border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
+              onClick={scrollToComments}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 border bg-muted/60 border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted hover:border-primary/40 cursor-pointer shadow-sm"
             >
-              <Bookmark className={`w-4 h-4 ${hasBookmarked ? "fill-amber-500 text-amber-500" : ""}`} />
-              <span>{hasBookmarked ? "Đã lưu" : "Lưu"}</span>
-              <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">
-                {currentBookmarks}
+              <MessageSquare className="w-4 h-4 text-primary" />
+              <span>Bình luận</span>
+              <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary font-bold">
+                {commentsCount}
               </span>
             </button>
           </div>

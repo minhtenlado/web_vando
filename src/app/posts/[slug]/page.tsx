@@ -122,7 +122,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               excerpt={post.excerpt}
               views={post.views}
               likes={post.likes}
-              bookmarks={post.bookmarks}
             />
             <PostComments slug={post.slug} title={post.title} />
             {relatedPosts && relatedPosts.length > 0 && (
