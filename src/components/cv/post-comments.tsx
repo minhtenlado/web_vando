@@ -27,9 +27,9 @@ export function PostComments({ slug, title }: PostCommentsProps) {
     const script = document.createElement("script")
     script.src = "https://giscus.app/client.js"
     script.setAttribute("data-repo", "minhtenlado/web_vando")
-    script.setAttribute("data-repo-id", "R_kgDONq8Vew") // Default repo
-    script.setAttribute("data-category", "Announcements")
-    script.setAttribute("data-category-id", "DIC_kwDONq8Ve84CmG0L")
+    script.setAttribute("data-repo-id", "R_kgDOTUDL4g")
+    script.setAttribute("data-category", "General")
+    script.setAttribute("data-category-id", "DIC_kwDOTUDL4s4DDsu6")
     script.setAttribute("data-mapping", "pathname")
     script.setAttribute("data-strict", "0")
     script.setAttribute("data-reactions-enabled", "1")
