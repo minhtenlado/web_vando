@@ -29,6 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const name = data.profile.name || "Phan Huỳnh Văn Đô";
 
   return {
+    metadataBase: new URL("https://phanhuynh.id.vn"),
     title: settings.title || name,
     description: settings.description,
     keywords: settings.keywords,
@@ -37,6 +38,8 @@ export async function generateMetadata(): Promise<Metadata> {
       title: settings.title || name,
       description: settings.description,
       type: "website",
+      url: "https://phanhuynh.id.vn",
+      siteName: name,
     },
     twitter: {
       card: "summary_large_image",

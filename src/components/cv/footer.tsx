@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from "react"
+import Link from "next/link"
 import {
   Cpu,
   Github,
@@ -182,6 +183,16 @@ export function Footer() {
                       {t("Bảng lệnh (Cmd+K)", "Command Palette (Cmd+K)")}
                     </button>
                   </li>
+                  <li>
+                    <Link href="/privacy" className="hover:text-foreground transition-colors">
+                      {t("Chính sách bảo mật", "Privacy Policy")}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/terms" className="hover:text-foreground transition-colors">
+                      {t("Điều khoản dịch vụ", "Terms of Service")}
+                    </Link>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -191,9 +202,15 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-8 md:mt-12 pt-6 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
-          <p>
-            &copy; {profile.name || "Phan Huỳnh Văn Đô"}.
-          </p>
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1">
+            <span>&copy; {year} {profile.name || "Phan Huỳnh Văn Đô"}.</span>
+            <Link href="/privacy" className="hover:text-foreground transition-colors underline-offset-4 hover:underline">
+              {t("Bảo mật", "Privacy")}
+            </Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors underline-offset-4 hover:underline">
+              {t("Điều khoản", "Terms")}
+            </Link>
+          </div>
           <a
             href="#top"
             onClick={handleScrollTop}
