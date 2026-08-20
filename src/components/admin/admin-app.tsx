@@ -9,6 +9,7 @@ import { PageConfigTab } from "@/components/admin/page-config-tab";
 import { ProjectsTab } from "@/components/admin/projects-tab";
 import { ExperiencesTab } from "@/components/admin/experiences-tab";
 import { PostsTab } from "@/components/admin/posts-tab";
+import { CommentsTab } from "@/components/admin/comments-tab";
 import { EducationTab } from "@/components/admin/education-tab";
 import { SettingsTab } from "@/components/admin/settings-tab";
 import { ActivityLogTab } from "@/components/admin/activity-log-tab";
@@ -27,6 +28,7 @@ type TabId =
   | "projects"
   | "experiences"
   | "posts"
+  | "comments"
   | "settings"
   | "activity";
 
@@ -56,6 +58,7 @@ function Dashboard({
     { id: "projects" as TabId, icon: "◆", label: "Dự án", count: "08" },
     { id: "experiences" as TabId, icon: "◈", label: "Kinh nghiệm", count: "03" },
     { id: "posts" as TabId, icon: "✦", label: "Bài viết", count: "06" },
+    { id: "comments" as TabId, icon: "💬", label: "Bình luận" },
   ];
 
   const sysItems = [
@@ -232,6 +235,7 @@ function Dashboard({
             {activeTab === "projects" && <ProjectsTab locale={locale} />}
             {activeTab === "experiences" && <ExperiencesTab locale={locale} />}
             {activeTab === "posts" && <PostsTab locale={locale} />}
+            {activeTab === "comments" && <CommentsTab locale={locale} profile={initialProfile} />}
             {activeTab === "settings" && <SettingsTab activeTab={activeSettingsTab} />}
             {activeTab === "activity" && <ActivityLogTab />}
           </div>

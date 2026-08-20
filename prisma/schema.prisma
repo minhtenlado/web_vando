@@ -133,6 +133,8 @@ model Comment {
   parentId    String?  // null if top-level, comment.id if reply
   author      String   @default("Ẩn danh")
   isAnonymous Boolean  @default(false)
+  isAuthor    Boolean  @default(false) // True if replied by Admin / Site Author
+  avatarUrl   String?  // Author avatar image URL
   content     String
   avatarColor String   @default("emerald")
   likes       Int      @default(0)
