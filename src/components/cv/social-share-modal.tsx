@@ -212,12 +212,12 @@ export function SocialShareModal({
 
         {/* Social Platforms Grid */}
         <div className="grid grid-cols-3 gap-3">
-          {shareOptions.map((opt) => (
+          {shareOptions.map((opt, idx) => (
             <button
               key={opt.id}
               type="button"
               onClick={opt.onClick}
-              className="group flex flex-col items-center gap-2 p-3 rounded-2xl border border-transparent hover:border-border/50 hover:bg-muted/40 transition-all cursor-pointer"
+              className="group flex flex-col items-center gap-2.5 p-3 rounded-2xl border border-border/20 hover:border-primary/40 bg-card/40 hover:bg-card/90 transition-all duration-200 cursor-pointer active:scale-90 hover:shadow-lg hover:-translate-y-0.5"
             >
               {opt.icon}
               <span className="text-xs font-semibold text-foreground/90 group-hover:text-primary transition-colors">
