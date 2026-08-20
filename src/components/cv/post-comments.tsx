@@ -522,7 +522,7 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
                         <img
                           src={cmt.avatarUrl}
                           alt={cmt.author}
-                          className="w-8 h-8 rounded-full object-cover border-2 border-amber-500/60 shadow-sm shrink-0"
+                          className="w-8 h-8 rounded-full object-cover border border-primary/50 shadow-sm shrink-0"
                         />
                       ) : (
                         <div
@@ -537,8 +537,8 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
                           {cmt.author}
                         </span>
                         {cmt.isAuthor && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-500 border border-amber-500/30">
-                            ⭐ Tác giả
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/15 text-primary border border-primary/30">
+                            Tác giả
                           </span>
                         )}
                         {cmt.isAnonymous && (
@@ -609,7 +609,7 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
                   {replyToId === cmt.id && (
                     <form
                       onSubmit={(e) => handleReplySubmit(cmt.id, e)}
-                      className="mt-3 ml-4 sm:ml-10 p-4 rounded-2xl bg-muted/40 border border-border/60 space-y-3 animate-in fade-in zoom-in-95 duration-200"
+                      className="mt-3 ml-3 sm:ml-7 p-3.5 sm:p-4 rounded-2xl bg-card/70 border border-border/60 space-y-3 animate-in fade-in zoom-in-95 duration-200"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
@@ -618,14 +618,11 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
                         </span>
 
                         {isAdmin ? (
-                          <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40">
-                              <Sparkles className="w-3 h-3 text-amber-400" />
-                              <span>Phản hồi với tư cách Tác giả</span>
-                            </span>
-                          </div>
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary border border-primary/25">
+                            Phản hồi với tư cách Tác giả
+                          </span>
                         ) : (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5 text-xs">
                             <button
                               type="button"
                               onClick={() => setReplyIsAnonymous(!replyIsAnonymous)}
@@ -658,12 +655,12 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
                           onChange={(e) => setReplyContent(e.target.value)}
                           placeholder={
                             isAdmin
-                              ? `Nhập câu trả lời chính thức của Tác giả gửi đến ${cmt.author}...`
+                              ? `Nhập câu trả lời của Tác giả...`
                               : `Viết phản hồi cho ${cmt.author}...`
                           }
                           rows={2}
                           maxLength={1000}
-                          className="w-full px-3 py-2.5 rounded-xl border border-border/50 bg-background text-xs resize-none text-foreground focus:outline-none focus:ring-1 focus:ring-primary leading-relaxed"
+                          className="w-full px-3 py-2 rounded-xl border border-border/50 bg-background text-xs resize-none text-foreground focus:outline-none focus:ring-1 focus:ring-primary leading-relaxed"
                         />
                       </div>
 
@@ -678,18 +675,14 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
                         <button
                           type="submit"
                           disabled={replySubmitting || !replyContent.trim()}
-                          className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md ${
-                            isAdmin
-                              ? "bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:brightness-110 shadow-amber-500/20"
-                              : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/20"
-                          } disabled:opacity-50`}
+                          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-all cursor-pointer shadow-sm shadow-primary/20"
                         >
                           {replySubmitting ? (
                             <Sparkles className="w-3.5 h-3.5 animate-spin" />
                           ) : (
                             <Send className="w-3.5 h-3.5" />
                           )}
-                          <span>{isAdmin ? "Đăng phản hồi Tác giả" : "Gửi phản hồi"}</span>
+                          <span>Gửi phản hồi</span>
                         </button>
                       </div>
                     </form>
@@ -697,7 +690,7 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
 
                   {/* Nested Replies Thread (Collapsible) */}
                   {hasReplies && isExpanded && (
-                    <div className="mt-3 ml-3 sm:ml-8 space-y-2.5 border-l-2 border-primary/20 pl-3 sm:pl-4 pt-1 animate-in fade-in duration-200">
+                    <div className="mt-3 ml-3 sm:ml-7 space-y-2.5 border-l-2 border-border/50 pl-3 sm:pl-4 pt-1 animate-in fade-in duration-200">
                       {replies.map((rep) => {
                         const repBg = COLOR_MAP[rep.avatarColor] || COLOR_MAP.indigo
                         const repInitial = (rep.author || "A").charAt(0).toUpperCase()
@@ -709,25 +702,17 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
                             key={rep.id}
                             className={`p-3.5 sm:p-4 rounded-2xl transition-all space-y-2 border ${
                               isAuthorReply
-                                ? "border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent shadow-sm shadow-amber-500/10 dark:from-amber-500/15 dark:via-amber-500/5 dark:to-transparent"
-                                : "border-border/30 bg-muted/25 hover:bg-muted/40"
+                                ? "border-primary/30 bg-primary/[0.04] dark:bg-primary/[0.06]"
+                                : "border-border/30 bg-card/40 hover:bg-card/70"
                             }`}
                           >
-                            {/* Author Highlight Banner */}
-                            {isAuthorReply && (
-                              <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-500 pb-0.5">
-                                <Sparkles className="w-3.5 h-3.5" />
-                                <span>Phản hồi chính thức từ Tác giả bài viết</span>
-                              </div>
-                            )}
-
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-2.5">
                                 {rep.isAuthor && rep.avatarUrl ? (
                                   <img
                                     src={rep.avatarUrl}
                                     alt={rep.author}
-                                    className="w-7 h-7 rounded-full object-cover ring-2 ring-amber-500/80 shadow-sm shadow-amber-500/20 shrink-0"
+                                    className="w-6 h-6 rounded-full object-cover border border-primary/40 shadow-sm shrink-0"
                                   />
                                 ) : (
                                   <div
@@ -740,12 +725,12 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
                                   {rep.author}
                                 </span>
                                 {rep.isAuthor && (
-                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-sm">
-                                    ⭐ Tác giả
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/15 text-primary border border-primary/30">
+                                    Tác giả
                                   </span>
                                 )}
                                 {rep.isAnonymous && (
-                                  <span className="px-1.5 py-0.2 rounded-full text-[9px] font-medium bg-muted text-muted-foreground">
+                                  <span className="px-1.5 py-0.2 rounded-full text-[9px] font-medium bg-muted text-muted-foreground border border-border/30">
                                     Ẩn danh
                                   </span>
                                 )}
@@ -755,12 +740,12 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
                               </span>
                             </div>
 
-                            <p className="text-xs text-foreground/90 leading-relaxed pl-9">
+                            <p className="text-xs text-foreground/90 leading-relaxed pl-8">
                               {rep.content}
                             </p>
 
-                            {/* Reply Actions: Heart + Reply */}
-                            <div className="flex items-center gap-3 pl-9 pt-1">
+                            {/* Reply Actions: Heart + Reply back */}
+                            <div className="flex items-center gap-3 pl-8 pt-0.5">
                               <button
                                 type="button"
                                 onClick={() => handleLikeComment(rep.id)}
@@ -778,7 +763,7 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
                                 type="button"
                                 onClick={() => {
                                   setReplyToId(cmt.id)
-                                  setReplyAuthorName("")
+                                  setReplyAuthorName(authorName)
                                   setReplyContent(`@${rep.author} `)
                                 }}
                                 className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer hover:underline"
