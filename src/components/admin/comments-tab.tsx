@@ -441,9 +441,9 @@ export function CommentsTab({
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-3">
                       {/* Avatar */}
-                      {cmt.isAuthor && cmt.avatarUrl ? (
+                      {cmt.isAuthor || cmt.author === "Phan Huỳnh Văn Đô" ? (
                         <img
-                          src={cmt.avatarUrl}
+                          src={cmt.avatarUrl || authorAvatar || "https://res.cloudinary.com/s4sbshc3/image/upload/v1786817924/web_vando/avatars/eeyk5yoy39vx3iijwnbq.jpg"}
                           alt={cmt.author}
                           className="w-8 h-8 rounded-full object-cover border-2 border-amber-500/50 shadow-sm shrink-0"
                         />
@@ -538,9 +538,9 @@ export function CommentsTab({
                           >
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-2.5">
-                                {rep.isAuthor && rep.avatarUrl ? (
+                                {rep.isAuthor || rep.author === "Phan Huỳnh Văn Đô" ? (
                                   <img
-                                    src={rep.avatarUrl}
+                                    src={rep.avatarUrl || authorAvatar || "https://res.cloudinary.com/s4sbshc3/image/upload/v1786817924/web_vando/avatars/eeyk5yoy39vx3iijwnbq.jpg"}
                                     alt={rep.author}
                                     className="w-6 h-6 rounded-full object-cover border border-amber-500/50 shadow-sm shrink-0"
                                   />

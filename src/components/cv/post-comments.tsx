@@ -53,6 +53,7 @@ const COLOR_MAP: Record<string, string> = {
 
 const QUICK_EMOJIS = ["❤️", "👏", "💡", "🔥", "👍", "🚀", "🙌", "✨"]
 const PAGE_SIZE = 5
+const AUTHOR_AVATAR_FALLBACK = "https://res.cloudinary.com/s4sbshc3/image/upload/v1786817924/web_vando/avatars/eeyk5yoy39vx3iijwnbq.jpg"
 
 function formatRelativeTime(dateStr: string): string {
   try {
@@ -482,9 +483,9 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       {/* Avatar */}
-                      {(cmt.isAuthor || isAuthorOwner) && cmt.avatarUrl ? (
+                      {isAuthorOwner || cmt.isAuthor ? (
                         <img
-                          src={cmt.avatarUrl}
+                          src={cmt.avatarUrl || AUTHOR_AVATAR_FALLBACK}
                           alt={cmt.author}
                           className="w-8 h-8 rounded-full object-cover border-2 border-amber-500/60 shadow-sm shrink-0"
                         />
@@ -654,9 +655,9 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
                           >
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-2">
-                                {(rep.isAuthor || isRepAuthor) && rep.avatarUrl ? (
+                                {isRepAuthor || rep.isAuthor ? (
                                   <img
-                                    src={rep.avatarUrl}
+                                    src={rep.avatarUrl || AUTHOR_AVATAR_FALLBACK}
                                     alt={rep.author}
                                     className="w-6 h-6 rounded-full object-cover border border-amber-500/60 shadow-sm shrink-0"
                                   />

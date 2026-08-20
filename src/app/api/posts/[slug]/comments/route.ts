@@ -125,14 +125,22 @@ export async function POST(
       );
     }
 
+    let isAuthor = false;
+    let avatarUrl: string | null = null;
+
     if (isAnonymous || !author.trim()) {
       author = "Người đọc ẩn danh";
     } else {
       author = sanitizeText(author).slice(0, 50);
+      if (author.toLowerCase() === "phan huỳnh văn đô" || author.toLowerCase() === "phan huynh van do") {
+        author = "Phan Huỳnh Văn Đô";
+        isAuthor = true;
+        avatarUrl = "https://res.cloudinary.com/s4sbshc3/image/upload/v1786817924/web_vando/avatars/eeyk5yoy39vx3iijwnbq.jpg";
+      }
     }
 
     // Pick random avatar color
-    const avatarColor = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
+    const avatarColor = isAuthor ? "amber" : AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
 
     // 3. Save to Database
     const newComment = await db.comment.create({
@@ -141,6 +149,8 @@ export async function POST(
         parentId,
         author,
         isAnonymous,
+        isAuthor,
+        avatarUrl,
         content: sanitizedContent,
         avatarColor,
         likes: 0,
