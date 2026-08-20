@@ -130,12 +130,15 @@ model ActivityLog {
 model Comment {
   id          String   @id @default(cuid())
   postSlug    String
+  parentId    String?  // null if top-level, comment.id if reply
   author      String   @default("Ẩn danh")
   isAnonymous Boolean  @default(false)
   content     String
   avatarColor String   @default("emerald")
+  likes       Int      @default(0)
   createdAt   DateTime @default(now())
 
   @@index([postSlug])
+  @@index([parentId])
 }
 

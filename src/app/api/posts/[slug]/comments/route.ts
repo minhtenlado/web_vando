@@ -4,10 +4,10 @@ import { db } from "@/lib/db";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-// In-memory rate limiting for comments (max 5 comments / min / IP)
+// In-memory rate limiting for comments (max 10 actions / min / IP)
 const commentRateLimit = new Map<string, { count: number; lastReset: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000;
-const MAX_COMMENTS = 5;
+const MAX_ACTIONS = 10;
 
 const AVATAR_COLORS = ["emerald", "indigo", "rose", "amber", "sky", "purple", "teal", "pink"];
 
@@ -38,7 +38,7 @@ export async function GET(
     const comments = await db.comment.findMany({
       where: { postSlug: decodedSlug },
       orderBy: { createdAt: "desc" },
-      take: 100,
+      take: 200,
     });
 
     return NextResponse.json({ ok: true, comments });
@@ -71,17 +71,42 @@ export async function POST(
     }
     commentRateLimit.set(ip, rateData);
 
-    if (rateData.count > MAX_COMMENTS) {
+    if (rateData.count > MAX_ACTIONS) {
       return NextResponse.json(
-        { ok: false, message: "Bạn đang bình luận quá nhanh. Vui lòng thử lại sau 1 phút." },
+        { ok: false, message: "Bạn đang thao tác quá nhanh. Vui lòng thử lại sau 1 phút." },
         { status: 429 }
       );
     }
 
     // 2. Parse Body
     const body = await req.json().catch(() => ({}));
+    const action = body.action || "create";
+
+    // Handle Comment Like Action
+    if (action === "like" || action === "unlike") {
+      const commentId = body.commentId;
+      if (!commentId) {
+        return NextResponse.json({ ok: false, message: "Thiếu ID bình luận." }, { status: 400 });
+      }
+
+      const updated = await db.comment.update({
+        where: { id: commentId },
+        data: {
+          likes: action === "like" ? { increment: 1 } : { decrement: 1 },
+        },
+      });
+
+      return NextResponse.json({
+        ok: true,
+        likes: Math.max(0, updated.likes),
+        commentId,
+      });
+    }
+
+    // Handle Create Comment or Reply
     const rawContent = (body.content ?? "").toString();
     const isAnonymous = Boolean(body.isAnonymous);
+    const parentId = body.parentId ? String(body.parentId) : null;
     let author = (body.author ?? "").toString();
 
     const sanitizedContent = sanitizeText(rawContent);
@@ -113,16 +138,18 @@ export async function POST(
     const newComment = await db.comment.create({
       data: {
         postSlug: decodedSlug,
+        parentId,
         author,
         isAnonymous,
         content: sanitizedContent,
         avatarColor,
+        likes: 0,
       },
     });
 
     return NextResponse.json({
       ok: true,
-      message: "Gửi bình luận thành công!",
+      message: parentId ? "Đã gửi phản hồi thành công!" : "Gửi bình luận thành công!",
       comment: newComment,
     });
   } catch (error: any) {
