@@ -483,9 +483,9 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       {/* Avatar */}
-                      {isAuthorOwner || cmt.isAuthor ? (
+                      {cmt.isAuthor && cmt.avatarUrl ? (
                         <img
-                          src={cmt.avatarUrl || AUTHOR_AVATAR_FALLBACK}
+                          src={cmt.avatarUrl}
                           alt={cmt.author}
                           className="w-8 h-8 rounded-full object-cover border-2 border-amber-500/60 shadow-sm shrink-0"
                         />
@@ -501,7 +501,7 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
                         <span className="font-semibold text-sm text-foreground">
                           {cmt.author}
                         </span>
-                        {(cmt.isAuthor || isAuthorOwner) && (
+                        {cmt.isAuthor && (
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-500 border border-amber-500/30">
                             ⭐ Tác giả
                           </span>
@@ -655,9 +655,9 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
                           >
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-2">
-                                {isRepAuthor || rep.isAuthor ? (
+                                {rep.isAuthor && rep.avatarUrl ? (
                                   <img
-                                    src={rep.avatarUrl || AUTHOR_AVATAR_FALLBACK}
+                                    src={rep.avatarUrl}
                                     alt={rep.author}
                                     className="w-6 h-6 rounded-full object-cover border border-amber-500/60 shadow-sm shrink-0"
                                   />
@@ -671,7 +671,7 @@ export function PostComments({ slug, title, onCommentCountChange }: PostComments
                                 <span className="font-semibold text-xs text-foreground">
                                   {rep.author}
                                 </span>
-                                {(rep.isAuthor || isRepAuthor) && (
+                                {rep.isAuthor && (
                                   <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-amber-500/15 text-amber-500 border border-amber-500/30">
                                     ⭐ Tác giả
                                   </span>

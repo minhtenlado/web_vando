@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
       });
 
       const authorName = profile?.name || "Phan Huỳnh Văn Đô";
-      const avatarUrl = profile?.avatar || null;
+      const avatarUrl = profile?.avatar || "https://res.cloudinary.com/s4sbshc3/image/upload/v1786817924/web_vando/avatars/eeyk5yoy39vx3iijwnbq.jpg";
 
       const newReply = await db.comment.create({
         data: {
