@@ -3,6 +3,8 @@
 import * as React from "react"
 import { sanitizePostHtml } from "@/lib/validation"
 import { Heart, MessageSquare, Share2, Eye, Check, ArrowUp } from "lucide-react"
+import { PostEngagementBar } from "./post-engagement-bar"
+import { PostComments } from "./post-comments"
 import './tutorial-reader.css'
 
 type TutorialReaderProps = {
@@ -51,10 +53,16 @@ export function TutorialReader({
   const [currentViews, setCurrentViews] = React.useState(views)
   const [hasLiked, setHasLiked] = React.useState(false)
   const [commentsCount, setCommentsCount] = React.useState(0)
+  const [isCommentsOpen, setIsCommentsOpen] = React.useState(false)
 
   React.useEffect(() => {
     setHasLiked(localStorage.getItem(`like_${slug}`) === "true")
     
+    // Auto-open comments if URL hash is #comments
+    if (typeof window !== "undefined" && window.location.hash === "#comments") {
+      setIsCommentsOpen(true)
+    }
+
     // Fetch comments count
     fetch(`/api/posts/${slug}/comments`)
       .then((res) => res.json())
@@ -78,6 +86,21 @@ export function TutorialReader({
       .catch(console.error)
     }
   }, [slug])
+
+  const handleToggleComments = () => {
+    const next = !isCommentsOpen
+    setIsCommentsOpen(next)
+    if (next) {
+      setTimeout(() => {
+        const el = document.getElementById("comments-section")
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" })
+          const textarea = el.querySelector("textarea")
+          if (textarea) textarea.focus()
+        }
+      }, 150)
+    }
+  }
 
   const handleLike = async () => {
     const currentState = hasLiked
@@ -341,53 +364,26 @@ export function TutorialReader({
           {children}
         </div>
 
-        {/* Interactive Post Footer Actions */}
-        <div className="mt-12 pt-6 border-t border-border/30 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleLike}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border cursor-pointer ${
-                hasLiked 
-                  ? "bg-rose-500/10 border-rose-500/30 text-rose-500 shadow-sm" 
-                  : "bg-muted/60 border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
-            >
-              <Heart className={`w-4 h-4 ${hasLiked ? "fill-rose-500 text-rose-500" : ""}`} />
-              <span>{hasLiked ? "Đã thích" : "Thích"}</span>
-              <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">{currentLikes}</span>
-            </button>
+        {/* Interactive Social Engagement Bar (Facebook Style) */}
+        <PostEngagementBar
+          slug={slug}
+          title={title}
+          likes={currentLikes}
+          commentsCount={commentsCount}
+          isCommentsOpen={isCommentsOpen}
+          onToggleComments={handleToggleComments}
+        />
 
-            {/* Comment Button (Replaces Bookmark) */}
-            <button
-              onClick={scrollToComments}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border bg-muted/60 border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted hover:border-primary/40 cursor-pointer shadow-sm"
-            >
-              <MessageSquare className="w-4 h-4 text-primary" />
-              <span>Bình luận</span>
-              <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary font-bold">
-                {commentsCount}
-              </span>
-            </button>
+        {/* Collapsible Comments Section (Only appears when clicked) */}
+        {isCommentsOpen && (
+          <div id="comments-section" className="mt-6 animate-in fade-in slide-in-from-top-4 duration-300">
+            <PostComments
+              slug={slug}
+              title={title}
+              onCommentCountChange={setCommentsCount}
+            />
           </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleShare}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium border border-border/40 bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-            >
-              {copiedLink ? <Check className="w-4 h-4 text-emerald-500" /> : <Share2 className="w-4 h-4" />}
-              <span>{copiedLink ? "Đã sao chép link!" : "Chia sẻ"}</span>
-            </button>
-
-            <button
-              onClick={scrollToTop}
-              className="p-2 rounded-xl border border-border/40 bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-              title="Về đầu trang"
-            >
-              <ArrowUp className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+        )}
       </article>
 
       <div className="fixed z-[600] left-1/2 bottom-[25px] -translate-x-1/2 flex items-center gap-1 p-1.5 border border-black/10 dark:border-white/10 rounded-2xl bg-white/90 dark:bg-[#101217]/90 shadow-xl backdrop-blur-xl">

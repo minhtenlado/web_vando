@@ -12,7 +12,6 @@ import { GoogleAd } from "@/components/cv/google-ad"
 import { ScientificProgress } from "@/components/cv/scientific-progress"
 import { ScientificSearchTrigger } from "@/components/cv/scientific-search-trigger"
 import { RelatedPosts } from "@/components/cv/related-posts"
-import { PostComments } from "@/components/cv/post-comments"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -123,7 +122,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               views={post.views}
               likes={post.likes}
             />
-            <PostComments slug={post.slug} title={post.title} />
             {relatedPosts && relatedPosts.length > 0 && (
               <RelatedPosts posts={relatedPosts} />
             )}
