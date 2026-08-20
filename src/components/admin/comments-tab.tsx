@@ -142,6 +142,8 @@ export function CommentsTab({
     if (!replyingComment || !replyContent.trim()) return;
 
     setReplySubmitting(true);
+    const targetParentId = replyingComment.parentId || replyingComment.id;
+
     try {
       const res = await fetch("/api/admin/comments", {
         method: "POST",
@@ -149,7 +151,7 @@ export function CommentsTab({
         body: JSON.stringify({
           action: "reply",
           postSlug: replyingComment.postSlug,
-          parentId: replyingComment.id,
+          parentId: targetParentId,
           content: replyContent.trim(),
         }),
       });
@@ -445,7 +447,7 @@ export function CommentsTab({
                         <img
                           src={cmt.avatarUrl}
                           alt={cmt.author}
-                          className="w-8 h-8 rounded-full object-cover border-2 border-amber-500/50 shadow-sm shrink-0"
+                          className="w-8 h-8 rounded-full object-cover border border-primary/50 shadow-sm shrink-0"
                         />
                       ) : (
                         <div
@@ -458,8 +460,8 @@ export function CommentsTab({
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-semibold text-sm text-foreground">{cmt.author}</span>
                         {cmt.isAuthor && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-500 border border-amber-500/30">
-                            ⭐ Tác giả (Admin)
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/15 text-primary border border-primary/30">
+                            Tác giả
                           </span>
                         )}
                         {cmt.isAnonymous && (
@@ -509,7 +511,10 @@ export function CommentsTab({
                   {/* Action: Reply button */}
                   <div className="pl-11 pt-1 flex items-center gap-3">
                     <button
-                      onClick={() => setReplyingComment(cmt)}
+                      onClick={() => {
+                        setReplyingComment(cmt);
+                        setReplyContent("");
+                      }}
                       className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-primary/10 text-primary hover:bg-primary/20 border border-primary/25 transition-all cursor-pointer"
                     >
                       <CornerDownRight className="w-3.5 h-3.5" />
@@ -542,7 +547,7 @@ export function CommentsTab({
                                   <img
                                     src={rep.avatarUrl}
                                     alt={rep.author}
-                                    className="w-6 h-6 rounded-full object-cover border border-amber-500/50 shadow-sm shrink-0"
+                                    className="w-6 h-6 rounded-full object-cover border border-primary/40 shadow-sm shrink-0"
                                   />
                                 ) : (
                                   <div
@@ -556,8 +561,8 @@ export function CommentsTab({
                                   {rep.author}
                                 </span>
                                 {rep.isAuthor && (
-                                  <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-amber-500/15 text-amber-500 border border-amber-500/30">
-                                    ⭐ Tác giả
+                                  <span className="px-1.5 py-0.2 rounded-full text-[9px] font-semibold bg-primary/15 text-primary border border-primary/30">
+                                    Tác giả
                                   </span>
                                 )}
                                 {rep.isAnonymous && (
@@ -574,6 +579,20 @@ export function CommentsTab({
                                 <span className="inline-flex items-center gap-1 text-[11px] text-rose-500 font-mono">
                                   <Heart className="w-3 h-3 fill-rose-500" /> {rep.likes || 0}
                                 </span>
+                                <button
+                                  onClick={() => {
+                                    setReplyingComment({
+                                      ...rep,
+                                      parentId: cmt.id,
+                                    });
+                                    setReplyContent(`@${rep.author} `);
+                                  }}
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+                                  title="Trả lời phản hồi này"
+                                >
+                                  <CornerDownRight className="w-3 h-3" />
+                                  <span>Trả lời</span>
+                                </button>
                                 <button
                                   onClick={() => handleDeleteComment(rep.id)}
                                   disabled={deletingId === rep.id}
@@ -639,7 +658,7 @@ export function CommentsTab({
                 <img
                   src={authorAvatar}
                   alt={authorName}
-                  className="w-10 h-10 rounded-full object-cover border-2 border-primary/50 shadow-sm"
+                  className="w-10 h-10 rounded-full object-cover border border-primary/50 shadow-sm"
                 />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center font-bold text-sm text-primary">
@@ -649,8 +668,8 @@ export function CommentsTab({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-sm text-foreground">{authorName}</span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-500 border border-amber-500/30">
-                    ⭐ Tác giả
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/15 text-primary border border-primary/30">
+                    Tác giả
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
