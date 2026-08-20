@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { sanitizeHtml } from "@/lib/validation";
+
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 // In-memory rate limiting for comments (max 5 comments / min / IP)
 const commentRateLimit = new Map<string, { count: number; lastReset: number }>();
@@ -17,34 +19,45 @@ function getClientIP(req: NextRequest): string {
   );
 }
 
+function sanitizeText(str: string): string {
+  if (!str) return "";
+  return str
+    .replace(/<[^>]*>?/gm, "") // Strip any HTML tags
+    .replace(/javascript:/gi, "")
+    .trim();
+}
+
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  props: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const rawParams = await params;
-    const slug = decodeURIComponent(rawParams.slug);
+    const { slug } = await props.params;
+    const decodedSlug = decodeURIComponent(slug);
 
     const comments = await db.comment.findMany({
-      where: { postSlug: slug },
+      where: { postSlug: decodedSlug },
       orderBy: { createdAt: "desc" },
       take: 100,
     });
 
     return NextResponse.json({ ok: true, comments });
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Comments GET Error]", error);
-    return NextResponse.json({ ok: false, comments: [], message: String(error) }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, comments: [], message: error?.message || "Failed to fetch comments" },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  props: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const rawParams = await params;
-    const slug = decodeURIComponent(rawParams.slug);
+    const { slug } = await props.params;
+    const decodedSlug = decodeURIComponent(slug);
     const ip = getClientIP(req);
     const now = Date.now();
 
@@ -67,40 +80,39 @@ export async function POST(
 
     // 2. Parse Body
     const body = await req.json().catch(() => ({}));
-    const rawContent = (body.content ?? "").toString().trim();
+    const rawContent = (body.content ?? "").toString();
     const isAnonymous = Boolean(body.isAnonymous);
-    let author = (body.author ?? "").toString().trim();
+    let author = (body.author ?? "").toString();
 
-    if (!rawContent || rawContent.length < 2) {
+    const sanitizedContent = sanitizeText(rawContent);
+
+    if (!sanitizedContent || sanitizedContent.length < 2) {
       return NextResponse.json(
         { ok: false, message: "Nội dung bình luận quá ngắn (tối thiểu 2 ký tự)." },
         { status: 422 }
       );
     }
 
-    if (rawContent.length > 1000) {
+    if (sanitizedContent.length > 1000) {
       return NextResponse.json(
         { ok: false, message: "Nội dung bình luận không được vượt quá 1000 ký tự." },
         { status: 422 }
       );
     }
 
-    if (isAnonymous || !author) {
+    if (isAnonymous || !author.trim()) {
       author = "Người đọc ẩn danh";
     } else {
-      author = author.slice(0, 50);
+      author = sanitizeText(author).slice(0, 50);
     }
-
-    // 3. Sanitize HTML
-    const sanitizedContent = sanitizeHtml(rawContent);
 
     // Pick random avatar color
     const avatarColor = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
 
-    // 4. Save to Database
+    // 3. Save to Database
     const newComment = await db.comment.create({
       data: {
-        postSlug: slug,
+        postSlug: decodedSlug,
         author,
         isAnonymous,
         content: sanitizedContent,
@@ -113,10 +125,10 @@ export async function POST(
       message: "Gửi bình luận thành công!",
       comment: newComment,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Comments POST Error]", error);
     return NextResponse.json(
-      { ok: false, message: "Không thể lưu bình luận lúc này. Vui lòng thử lại sau." },
+      { ok: false, message: error?.message || "Không thể lưu bình luận lúc này. Vui lòng thử lại sau." },
       { status: 500 }
     );
   }
