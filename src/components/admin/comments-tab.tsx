@@ -50,7 +50,21 @@ type CommentStats = {
   totalTopLevel: number;
   totalReplies: number;
   totalLikes: number;
-  postStats: Record<string, { title: string; count: number; replyCount: number; lastActivity: string | null }>;
+  totalPostLikes: number;
+  totalCommentLikes: number;
+  totalViews: number;
+  postStats: Record<
+    string,
+    {
+      title: string;
+      postLikes: number;
+      postViews: number;
+      count: number;
+      replyCount: number;
+      commentLikes: number;
+      lastActivity: string | null;
+    }
+  >;
 };
 
 const COLOR_MAP: Record<string, string> = {
@@ -303,10 +317,13 @@ export function CommentsTab({
 
           <div className="p-5 rounded-2xl border border-border/50 bg-card/60 shadow-sm space-y-1">
             <div className="flex items-center justify-between text-muted-foreground">
-              <span className="text-xs font-medium uppercase tracking-wider">Tổng lượt thích</span>
-              <Heart className="w-4 h-4 text-rose-500" />
+              <span className="text-xs font-medium uppercase tracking-wider">Tổng lượt thả tim</span>
+              <Heart className="w-4 h-4 text-rose-500 fill-rose-500/20" />
             </div>
             <p className="text-3xl font-extrabold text-foreground font-mono">{stats.totalLikes}</p>
+            <p className="text-[11px] text-muted-foreground pt-0.5 font-medium">
+              ❤️ {stats.totalPostLikes} bài viết · {stats.totalCommentLikes} bình luận
+            </p>
           </div>
         </div>
       )}
@@ -316,7 +333,7 @@ export function CommentsTab({
         <div className="p-6 rounded-2xl border border-border/50 bg-card/40 shadow-sm space-y-4">
           <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
             <FileText className="w-4 h-4 text-primary" />
-            Thống kê bình luận theo bài viết
+            Thống kê tương tác theo bài viết
           </h2>
 
           <div className="overflow-x-auto">
@@ -324,6 +341,8 @@ export function CommentsTab({
               <thead>
                 <tr className="border-b border-border/40 text-muted-foreground">
                   <th className="py-2.5 px-3 font-semibold">Tên bài viết</th>
+                  <th className="py-2.5 px-3 font-semibold text-center">Lượt xem</th>
+                  <th className="py-2.5 px-3 font-semibold text-center">Thả tim</th>
                   <th className="py-2.5 px-3 font-semibold text-center">Bình luận</th>
                   <th className="py-2.5 px-3 font-semibold text-center">Phản hồi</th>
                   <th className="py-2.5 px-3 font-semibold">Hoạt động gần nhất</th>
@@ -335,6 +354,12 @@ export function CommentsTab({
                   <tr key={slug} className="hover:bg-muted/20 transition-colors">
                     <td className="py-3 px-3 font-medium text-foreground max-w-md truncate">
                       {data.title || slug}
+                    </td>
+                    <td className="py-3 px-3 text-center font-mono text-muted-foreground">
+                      {data.postViews || 0}
+                    </td>
+                    <td className="py-3 px-3 text-center font-mono font-bold text-rose-500">
+                      {data.postLikes || 0}
                     </td>
                     <td className="py-3 px-3 text-center font-mono font-bold text-foreground">
                       {data.count}

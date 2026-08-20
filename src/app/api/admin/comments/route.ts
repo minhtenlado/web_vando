@@ -24,7 +24,7 @@ export async function GET() {
 
     const posts = await db.post.findMany({
       where: { published: true },
-      select: { slug: true, title: true, category: true },
+      select: { slug: true, title: true, category: true, likes: true, views: true, bookmarks: true },
       orderBy: { createdAt: "desc" },
     });
 
@@ -32,19 +32,33 @@ export async function GET() {
     const totalComments = comments.length;
     const totalTopLevel = comments.filter((c) => !c.parentId).length;
     const totalReplies = comments.filter((c) => Boolean(c.parentId)).length;
-    const totalLikes = comments.reduce((acc, c) => acc + (c.likes || 0), 0);
+    const totalCommentLikes = comments.reduce((acc, c) => acc + (c.likes || 0), 0);
+    const totalPostLikes = posts.reduce((acc, p) => acc + (p.likes || 0), 0);
+    const totalLikes = totalPostLikes + totalCommentLikes;
+    const totalViews = posts.reduce((acc, p) => acc + (p.views || 0), 0);
 
     // Group stats per post slug
     const postStatsMap: Record<
       string,
-      { title: string; count: number; replyCount: number; lastActivity: string | null }
+      {
+        title: string;
+        postLikes: number;
+        postViews: number;
+        count: number;
+        replyCount: number;
+        commentLikes: number;
+        lastActivity: string | null;
+      }
     > = {};
 
     for (const p of posts) {
       postStatsMap[p.slug] = {
         title: p.title,
+        postLikes: p.likes || 0,
+        postViews: p.views || 0,
         count: 0,
         replyCount: 0,
+        commentLikes: 0,
         lastActivity: null,
       };
     }
@@ -53,12 +67,16 @@ export async function GET() {
       if (!postStatsMap[c.postSlug]) {
         postStatsMap[c.postSlug] = {
           title: c.postSlug,
+          postLikes: 0,
+          postViews: 0,
           count: 0,
           replyCount: 0,
+          commentLikes: 0,
           lastActivity: null,
         };
       }
       postStatsMap[c.postSlug].count += 1;
+      postStatsMap[c.postSlug].commentLikes += (c.likes || 0);
       if (c.parentId) {
         postStatsMap[c.postSlug].replyCount += 1;
       }
@@ -79,6 +97,9 @@ export async function GET() {
         totalTopLevel,
         totalReplies,
         totalLikes,
+        totalPostLikes,
+        totalCommentLikes,
+        totalViews,
         postStats: postStatsMap,
       },
     });
