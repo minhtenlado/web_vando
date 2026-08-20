@@ -7,7 +7,10 @@ import {
   Heart,
   ChevronDown,
   ChevronUp,
-  Sparkles
+  Sparkles,
+  ArrowUp,
+  Flame,
+  Radio
 } from "lucide-react"
 import { SocialShareModal } from "./social-share-modal"
 
@@ -27,16 +30,16 @@ type Particle = {
   y: number
   color: string
   size: number
-  delay: number
 }
 
 const PARTICLE_COLORS = [
   "#FF1493", // Deep Pink
   "#FF0055", // Crimson Rose
   "#FF4500", // Orange Red
-  "#FF69B4", // Hot Pink
-  "#FFA500", // Gold Orange
-  "#FF1744", // Vibrant Red
+  "#10B981", // Cyber Emerald
+  "#06B6D4", // Cyber Cyan
+  "#8B5CF6", // Cyber Violet
+  "#F59E0B", // Amber Gold
 ]
 
 export function PostEngagementBar({
@@ -75,11 +78,11 @@ export function PostEngagementBar({
   // Trigger Particle Explosion for Heart Reaction
   const triggerParticles = () => {
     const newParticles: Particle[] = []
-    const count = 12 // 12 burst particles in circle
+    const count = 14 // 14 burst particles in radial burst
 
     for (let i = 0; i < count; i++) {
       const angle = (i * 360) / count + (Math.random() * 20 - 10)
-      const distance = 30 + Math.random() * 25
+      const distance = 35 + Math.random() * 30
       const rad = (angle * Math.PI) / 180
       const x = Math.cos(rad) * distance
       const y = Math.sin(rad) * distance
@@ -90,7 +93,6 @@ export function PostEngagementBar({
         y,
         color: PARTICLE_COLORS[i % PARTICLE_COLORS.length],
         size: Math.random() * 4 + 4,
-        delay: Math.random() * 0.05,
       })
     }
 
@@ -149,6 +151,12 @@ export function PostEngagementBar({
     }
   }
 
+  const scrollToTop = () => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    }
+  }
+
   return (
     <>
       <style jsx>{`
@@ -157,13 +165,13 @@ export function PostEngagementBar({
             transform: scale(1);
           }
           20% {
-            transform: scale(0.75);
+            transform: scale(0.7);
           }
           50% {
-            transform: scale(1.4) rotate(-5deg);
+            transform: scale(1.45) rotate(-6deg);
           }
           75% {
-            transform: scale(0.95) rotate(3deg);
+            transform: scale(0.92) rotate(4deg);
           }
           100% {
             transform: scale(1) rotate(0deg);
@@ -176,7 +184,7 @@ export function PostEngagementBar({
             opacity: 1;
           }
           60% {
-            opacity: 0.9;
+            opacity: 0.95;
           }
           100% {
             transform: translate(var(--tx), var(--ty)) scale(0);
@@ -184,14 +192,14 @@ export function PostEngagementBar({
           }
         }
 
-        @keyframes ringPulse {
-          0% {
-            transform: scale(0.8);
-            opacity: 0.8;
+        @keyframes cyberPulse {
+          0%, 100% {
+            opacity: 1;
+            transform: scale(1);
           }
-          100% {
-            transform: scale(1.6);
-            opacity: 0;
+          50% {
+            opacity: 0.5;
+            transform: scale(0.85);
           }
         }
 
@@ -203,132 +211,157 @@ export function PostEngagementBar({
           animation: particleBurst 0.75s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
 
-        .animate-ring-pulse {
-          animation: ringPulse 0.6s ease-out forwards;
+        .animate-cyber-pulse {
+          animation: cyberPulse 2s ease-in-out infinite;
         }
       `}</style>
 
-      <div className="my-8 rounded-[28px] border border-black/5 dark:border-white/10 bg-gradient-to-b from-white/90 via-white/80 to-white/70 dark:from-[#13161d]/90 dark:via-[#11141a]/85 dark:to-[#0f1117]/80 shadow-[0_12px_45px_rgba(0,0,0,0.05)] dark:shadow-[0_12px_45px_rgba(0,0,0,0.35)] backdrop-blur-2xl p-4 sm:p-5 transition-all">
-        {/* TOP: Metric Counter Bar */}
-        <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground pb-3.5 border-b border-border/35 select-none">
-          {/* Left: Heart Badge + Likes count */}
-          <div className="flex items-center gap-2.5">
-            <div className="relative flex items-center justify-center">
-              <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#FF0055] via-[#FF1493] to-[#FF4500] text-white flex items-center justify-center shadow-md shadow-rose-500/30 ring-2 ring-rose-500/20">
-                <Heart className="w-3 h-3 fill-white text-white" />
+      {/* Futuristic High-Tech Engagement Console */}
+      <section className="my-10 relative group">
+        {/* Subtle Ambient Glow behind Console */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-rose-500/10 via-primary/10 to-cyan-500/10 rounded-[32px] blur-xl opacity-50 group-hover:opacity-80 transition-opacity duration-500 pointer-events-none" />
+
+        <div className="relative rounded-[28px] border border-black/10 dark:border-white/10 bg-white/80 dark:bg-[#0c1017]/85 shadow-[0_20px_50px_rgba(0,0,0,0.06)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-2xl p-4 sm:p-5 transition-all overflow-hidden">
+          
+          {/* TOP CONSOLE METRIC STRIP */}
+          <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground pb-3.5 border-b border-border/25 font-mono">
+            {/* Live Indicator */}
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="text-[11px] font-bold tracking-wider uppercase text-foreground/80 font-sans">
+                Tương tác & Thảo luận
+              </span>
+            </div>
+
+            {/* Quick Live Stats Pill */}
+            <div className="flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/5 border border-border/40 font-mono">
+                <Heart className="w-2.5 h-2.5 text-rose-500 fill-rose-500" />
+                <span>{likesCount}</span>
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/5 border border-border/40 font-mono">
+                <MessageSquare className="w-2.5 h-2.5 text-primary" />
+                <span>{commentsCount}</span>
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/5 border border-border/40 font-mono">
+                <Share2 className="w-2.5 h-2.5 text-cyan-500" />
+                <span>{sharesCount}</span>
+              </span>
+            </div>
+          </div>
+
+          {/* MAIN INTERACTIVE CAPSULES (Unibody Cyber Action Deck) */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-3.5">
+            {/* Left: Primary Reaction & Discussion Capsules */}
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 flex-1">
+              
+              {/* 1. Cyber Heart Pill */}
+              <div className="relative flex items-center justify-center">
+                {/* Burst Particles */}
+                {particles.map((p) => (
+                  <div
+                    key={p.id}
+                    className="absolute pointer-events-none z-30 particle-item"
+                    style={
+                      {
+                        "--tx": `${p.x}px`,
+                        "--ty": `${p.y}px`,
+                        width: `${p.size}px`,
+                        height: `${p.size}px`,
+                        backgroundColor: p.color,
+                        borderRadius: "50%",
+                        boxShadow: `0 0 8px ${p.color}`,
+                      } as React.CSSProperties
+                    }
+                  />
+                ))}
+
+                <button
+                  type="button"
+                  onClick={handleLikeClick}
+                  className={`group relative flex items-center gap-2.5 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer active:scale-95 select-none border ${
+                    hasLiked
+                      ? "text-rose-400 bg-rose-500/15 border-rose-500/40 shadow-[0_0_25px_rgba(244,63,94,0.25)]"
+                      : "text-muted-foreground hover:text-foreground bg-muted/40 hover:bg-muted/70 border-border/40 hover:border-rose-500/30"
+                  }`}
+                  title={hasLiked ? "Bỏ yêu thích" : "Thả tim bài viết"}
+                >
+                  <div className="relative flex items-center justify-center">
+                    <Heart 
+                      className={`w-4 h-4 transition-transform duration-300 ${
+                        hasLiked 
+                          ? "fill-rose-500 text-rose-500" 
+                          : "text-muted-foreground group-hover:text-rose-500 group-hover:scale-115"
+                      } ${isHeartPopping ? "animate-heart-pop" : ""}`} 
+                    />
+                  </div>
+                  <span>{hasLiked ? "Đã yêu thích" : "Thả tim"}</span>
+                  <span className="font-mono text-xs px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/10 font-bold ml-0.5">
+                    {likesCount}
+                  </span>
+                </button>
               </div>
-            </div>
 
-            <div className="flex items-baseline gap-1">
-              <span className="font-bold text-foreground font-mono text-[14px]">
-                {likesCount}
-              </span>
-              <span className="text-[12px] text-muted-foreground/90 font-medium">
-                yêu thích
-              </span>
-            </div>
-          </div>
-
-          {/* Right: Comments Count & Shares Count */}
-          <div className="flex items-center gap-3 text-[12px] sm:text-[13px]">
-            <button
-              type="button"
-              onClick={onToggleComments}
-              className="group flex items-center gap-1.5 font-medium hover:text-foreground text-muted-foreground transition-all duration-200 cursor-pointer"
-            >
-              <span className="group-hover:underline">{commentsCount} bình luận</span>
-              <span className="p-0.5 rounded-full bg-muted/60 group-hover:bg-primary/15 group-hover:text-primary transition-colors">
+              {/* 2. Cyber Discussion Pill */}
+              <button
+                type="button"
+                onClick={onToggleComments}
+                className={`group flex items-center gap-2.5 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer active:scale-95 select-none border ${
+                  isCommentsOpen
+                    ? "text-primary bg-primary/15 border-primary/40 shadow-[0_0_25px_rgba(16,185,129,0.2)]"
+                    : "text-muted-foreground hover:text-foreground bg-muted/40 hover:bg-muted/70 border-border/40 hover:border-primary/30"
+                }`}
+                title={isCommentsOpen ? "Thu gọn bình luận" : "Mở khung thảo luận"}
+              >
+                <MessageSquare className={`w-4 h-4 transition-transform duration-300 ${isCommentsOpen ? "text-primary scale-110" : "group-hover:scale-115 group-hover:text-primary"}`} />
+                <span>{isCommentsOpen ? "Đang thảo luận" : "Bình luận"}</span>
+                <span className={`font-mono text-xs px-2 py-0.5 rounded-full font-bold ml-0.5 ${
+                  isCommentsOpen ? "bg-primary/20 text-primary" : "bg-black/10 dark:bg-white/10"
+                }`}>
+                  {commentsCount}
+                </span>
                 {isCommentsOpen ? (
-                  <ChevronUp className="w-3 h-3 text-primary" />
+                  <ChevronUp className="w-3.5 h-3.5 text-primary ml-0.5" />
                 ) : (
-                  <ChevronDown className="w-3 h-3" />
+                  <ChevronDown className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground ml-0.5" />
                 )}
-              </span>
-            </button>
+              </button>
 
-            <span className="text-muted-foreground/40">•</span>
+            </div>
 
-            <button
-              type="button"
-              onClick={() => setIsShareModalOpen(true)}
-              className="font-medium hover:underline hover:text-foreground text-muted-foreground transition-colors cursor-pointer"
-            >
-              <span>{sharesCount} lượt chia sẻ</span>
-            </button>
-          </div>
-        </div>
+            {/* Right: Share Node & Top Anchor */}
+            <div className="flex items-center gap-2">
+              {/* Share Pill */}
+              <button
+                type="button"
+                onClick={handleShareClick}
+                className="group flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold text-muted-foreground hover:text-foreground bg-muted/40 hover:bg-muted/70 border border-border/40 hover:border-cyan-500/30 transition-all duration-200 cursor-pointer active:scale-95 select-none hover:shadow-sm"
+                title="Chia sẻ bài viết này"
+              >
+                <Share2 className="w-4 h-4 group-hover:scale-115 group-hover:text-cyan-400 transition-all duration-300" />
+                <span>Chia sẻ</span>
+                <span className="font-mono text-xs px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/10 font-bold ml-0.5">
+                  {sharesCount}
+                </span>
+              </button>
 
-        {/* BOTTOM: 3 Big Social Action Buttons */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-3">
-          {/* 1. Heart Reaction Button (with Twitter/Instagram-style Particle Explosion) */}
-          <div className="relative flex items-center justify-center">
-            {/* Burst Particles */}
-            {particles.map((p) => (
-              <div
-                key={p.id}
-                className="absolute pointer-events-none z-30 particle-item"
-                style={
-                  {
-                    "--tx": `${p.x}px`,
-                    "--ty": `${p.y}px`,
-                    width: `${p.size}px`,
-                    height: `${p.size}px`,
-                    backgroundColor: p.color,
-                    borderRadius: "50%",
-                    boxShadow: `0 0 8px ${p.color}`,
-                  } as React.CSSProperties
-                }
-              />
-            ))}
-
-            {/* Pulsing ring when clicked */}
-            {isHeartPopping && (
-              <div className="absolute inset-0 rounded-2xl border-2 border-rose-500 pointer-events-none animate-ring-pulse z-20" />
-            )}
-
-            <button
-              type="button"
-              onClick={handleLikeClick}
-              className={`group relative w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-2 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer active:scale-95 select-none ${
-                hasLiked
-                  ? "text-rose-500 bg-rose-500/10 dark:bg-rose-500/15 border border-rose-500/30 shadow-sm shadow-rose-500/15"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60 border border-transparent"
-              }`}
-            >
-              <Heart 
-                className={`w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform duration-300 ${
-                  hasLiked ? "fill-rose-500 text-rose-500" : "group-hover:scale-115 text-muted-foreground group-hover:text-rose-500"
-                } ${isHeartPopping ? "animate-heart-pop" : ""}`} 
-              />
-              <span className="truncate">{hasLiked ? "Đã thích" : "Thả tim"}</span>
-            </button>
+              {/* Scroll to Top Pill */}
+              <button
+                type="button"
+                onClick={scrollToTop}
+                className="p-2.5 rounded-2xl text-muted-foreground hover:text-foreground bg-muted/40 hover:bg-muted/70 border border-border/40 hover:border-primary/30 transition-all duration-200 cursor-pointer active:scale-95"
+                title="Về đầu bài viết"
+              >
+                <ArrowUp className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
-          {/* 2. Comment Button (Toggles Collapsible Comments) */}
-          <button
-            type="button"
-            onClick={onToggleComments}
-            className={`group flex items-center justify-center gap-2 py-2.5 sm:py-3 px-2 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer active:scale-95 select-none ${
-              isCommentsOpen
-                ? "text-primary bg-primary/10 dark:bg-primary/15 border border-primary/30 shadow-sm shadow-primary/10"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/60 border border-transparent"
-            }`}
-          >
-            <MessageSquare className={`w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform duration-300 ${isCommentsOpen ? "text-primary scale-110" : "group-hover:scale-115"}`} />
-            <span className="truncate">Bình luận</span>
-          </button>
-
-          {/* 3. Share Button */}
-          <button
-            type="button"
-            onClick={handleShareClick}
-            className="group flex items-center justify-center gap-2 py-2.5 sm:py-3 px-2 rounded-2xl text-xs sm:text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/60 border border-transparent transition-all duration-200 cursor-pointer active:scale-95 select-none"
-          >
-            <Share2 className="w-4 h-4 sm:w-4.5 sm:h-4.5 group-hover:scale-115 transition-transform duration-300" />
-            <span className="truncate">Chia sẻ</span>
-          </button>
         </div>
-      </div>
+      </section>
 
       {/* Social Share Modal Popup */}
       <SocialShareModal
