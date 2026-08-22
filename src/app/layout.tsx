@@ -30,10 +30,24 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL("https://phanhuynh.id.vn"),
+    alternates: {
+      canonical: "/",
+    },
     title: settings.title || name,
     description: settings.description,
     keywords: settings.keywords,
     authors: [{ name }],
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
     openGraph: {
       title: settings.title || name,
       description: settings.description,
@@ -46,7 +60,6 @@ export async function generateMetadata(): Promise<Metadata> {
       title: settings.title || name,
       description: settings.description,
     },
-    ...(settings.robots && { robots: settings.robots }),
     other: {
       "google-adsense-account": "ca-pub-2941183923177148",
     },

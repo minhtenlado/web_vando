@@ -18,6 +18,21 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [
+          {
+            type: "host",
+            value: "www.phanhuynh.id.vn",
+          },
+        ],
+        destination: "https://phanhuynh.id.vn/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

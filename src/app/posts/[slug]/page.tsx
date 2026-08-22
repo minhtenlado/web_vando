@@ -25,12 +25,25 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title,
     description,
     ...(post.seoKeywords ? { keywords: post.seoKeywords } : {}),
+    alternates: {
+      canonical: `/posts/${slug}`,
+    },
     openGraph: {
       title,
       description,
       type: "article",
-      url: `/posts/${slug}`,
-    }
+      url: `https://phanhuynh.id.vn/posts/${slug}`,
+      publishedTime: post.createdAt.toISOString(),
+      modifiedTime: (post.updatedAt || post.createdAt).toISOString(),
+      authors: ["Phan Huỳnh Văn Đô"],
+      ...(post.coverImage ? { images: [{ url: post.coverImage }] } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      ...(post.coverImage ? { images: [post.coverImage] } : {}),
+    },
   }
 }
 
@@ -76,8 +89,23 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             "@type": isTutorial ? "TechArticle" : "BlogPosting",
             "headline": post.title,
             "datePublished": post.createdAt,
-            "description": post.excerpt,
-            "author": { "@type": "Person", "name": "Phan Huỳnh Văn Đô" }
+            "dateModified": post.updatedAt || post.createdAt,
+            "description": post.excerpt || post.seoDescription,
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": `https://phanhuynh.id.vn/posts/${slug}`
+            },
+            "author": { 
+              "@type": "Person", 
+              "name": "Phan Huỳnh Văn Đô",
+              "url": "https://phanhuynh.id.vn" 
+            },
+            "publisher": {
+              "@type": "Person",
+              "name": "Phan Huỳnh Văn Đô",
+              "url": "https://phanhuynh.id.vn"
+            },
+            ...(post.coverImage ? { "image": [post.coverImage] } : {})
           })
         }}
       />

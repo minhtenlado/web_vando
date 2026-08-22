@@ -6,9 +6,13 @@ import { TermsContent } from "./terms-content";
 export const metadata: Metadata = {
   title: "Điều khoản dịch vụ (Terms of Service) — Phan Huỳnh Văn Đô",
   description: "Điều khoản sử dụng và quyền sở hữu trí tuệ trên website phanhuynh.id.vn của Phan Huỳnh Văn Đô.",
+  alternates: {
+    canonical: "/terms",
+  },
   openGraph: {
     title: "Điều khoản dịch vụ (Terms of Service) — Phan Huỳnh Văn Đô",
     description: "Điều khoản sử dụng website phanhuynh.id.vn",
+    url: "https://phanhuynh.id.vn/terms",
   },
 };
 
