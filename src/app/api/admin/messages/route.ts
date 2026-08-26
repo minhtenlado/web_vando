@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { cookies } from "next/headers";
-
-async function isAuthed(): Promise<boolean> {
-  const c = await cookies();
-  return c.get("admin-session")?.value === "true";
-}
+import { isAuthed } from "@/lib/auth";
 
 // GET: List all contact messages
 export async function GET(req: NextRequest) {
