@@ -13,6 +13,7 @@ import { CommentsTab } from "@/components/admin/comments-tab";
 import { EducationTab } from "@/components/admin/education-tab";
 import { SettingsTab } from "@/components/admin/settings-tab";
 import { ActivityLogTab } from "@/components/admin/activity-log-tab";
+import { InboxTab } from "@/components/admin/inbox-tab";
 import type { SiteProfile } from "@/lib/cv/site-data-server";
 
 import { useLocale } from "@/components/cv/locale-context";
@@ -29,6 +30,7 @@ type TabId =
   | "experiences"
   | "posts"
   | "comments"
+  | "inbox"
   | "settings"
   | "activity";
 
@@ -59,6 +61,7 @@ function Dashboard({
     { id: "experiences" as TabId, icon: "◈", label: "Kinh nghiệm", count: "03" },
     { id: "posts" as TabId, icon: "✦", label: "Bài viết", count: "06" },
     { id: "comments" as TabId, icon: "💬", label: "Bình luận" },
+    { id: "inbox" as TabId, icon: "📬", label: "Hộp thư" },
   ];
 
   const sysItems = [
@@ -236,6 +239,7 @@ function Dashboard({
             {activeTab === "experiences" && <ExperiencesTab locale={locale} />}
             {activeTab === "posts" && <PostsTab locale={locale} />}
             {activeTab === "comments" && <CommentsTab locale={locale} profile={initialProfile} />}
+            {activeTab === "inbox" && <InboxTab />}
             {activeTab === "settings" && <SettingsTab activeTab={activeSettingsTab} />}
             {activeTab === "activity" && <ActivityLogTab />}
           </div>

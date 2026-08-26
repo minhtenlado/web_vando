@@ -144,3 +144,16 @@ model Comment {
   @@index([parentId])
 }
 
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  topic     String   @default("")
+  message   String
+  ticket    String   @default("")
+  read      Boolean  @default(false)
+  starred   Boolean  @default(false)
+  archived  Boolean  @default(false)
+  ip        String   @default("")
+  createdAt DateTime @default(now())
+}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hasDangerousContent, DANGEROUS_CONTENT_MSG } from "@/lib/validation";
+import { db } from "@/lib/db";
 
 type ContactPayload = {
   name?: string;
@@ -13,7 +14,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // In-memory rate limiting (best-effort for serverless environments)
 const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const MAX_REQUESTS = 3;
+const MAX_REQUESTS = 5;
 
 export async function POST(req: NextRequest) {
   try {
@@ -62,41 +63,45 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const accessKey = process.env.WEB3FORMS_ACCESS_KEY;
-    if (!accessKey || accessKey.trim() === "") {
-      return NextResponse.json(
-        { ok: false, message: "Hệ thống chưa được cấu hình Access Key gửi mail." },
-        { status: 500 }
-      );
-    }
+    const ticket = `ST-${Date.now().toString(36).toUpperCase()}`;
 
-    const subject = topic ? `[Studio] [${topic}] Tin nhắn mới từ ${name}` : `[Studio] Tin nhắn mới từ ${name}`;
-
-    const response = await fetch("https://api.web3forms.com/submit", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
+    // Save to database first (primary storage)
+    await db.contactMessage.create({
+      data: {
+        name,
+        email,
+        topic,
+        message,
+        ticket,
+        ip: ip.split(",")[0]?.trim() || "unknown",
       },
-      body: JSON.stringify({
-        access_key: accessKey,
-        name: name,
-        email: email,
-        message: message,
-        subject: subject,
-      }),
     });
 
-    const result = await response.json();
-    if (!result.success) {
-      console.error("[Web3Forms Error]", result);
-      return NextResponse.json(
-        { ok: false, message: "Gửi tin nhắn thất bại, vui lòng thử lại sau." },
-        { status: 500 }
-      );
+    // Try Web3Forms email notification (best-effort, don't fail if it errors)
+    const accessKey = process.env.WEB3FORMS_ACCESS_KEY;
+    if (accessKey && accessKey.trim() !== "") {
+      const subject = topic
+        ? `[Studio] [${topic}] Tin nhắn mới từ ${name}`
+        : `[Studio] Tin nhắn mới từ ${name}`;
+      try {
+        await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            access_key: accessKey,
+            name,
+            email,
+            message,
+            subject,
+          }),
+        });
+      } catch (emailErr) {
+        console.warn("[Web3Forms] Email notification failed (non-critical):", emailErr);
+      }
     }
-
-    const ticket = `CV-${Date.now().toString(36).toUpperCase()}`;
 
     return NextResponse.json({
       ok: true,
@@ -104,7 +109,8 @@ export async function POST(req: NextRequest) {
       message: `Cảm ơn ${name}! Tôi đã nhận được tin nhắn của bạn (mã ${ticket}) và sẽ phản hồi sớm nhất có thể.`,
       received: { name, email, messageLength: message.length },
     });
-  } catch {
+  } catch (err) {
+    console.error("[Contact API Error]", err);
     return NextResponse.json(
       { ok: false, message: "Đã có lỗi xảy ra, vui lòng thử lại sau." },
       { status: 500 }
