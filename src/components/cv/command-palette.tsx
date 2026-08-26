@@ -98,6 +98,10 @@ export function CommandPalette() {
           
           {/* Group 1: Actions */}
           <CommandGroup heading={t("Thao tác nhanh", "Quick Actions")}>
+            <CommandItem onSelect={() => runCommand(() => window.dispatchEvent(new CustomEvent("open-contact-modal")))}>
+              <Mail className="mr-2 h-4 w-4 text-emerald-400" />
+              <span>{t("Gửi tin nhắn liên hệ (Write to Studio)", "Write to the Studio (Contact)")}</span>
+            </CommandItem>
             <CommandItem onSelect={() => runCommand(() => copyLink())}>
               <LinkIcon className="mr-2 h-4 w-4 text-primary" />
               <span>{t("Sao chép liên kết trang hiện tại", "Copy current page link")}</span>

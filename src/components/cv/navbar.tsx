@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
-import { Moon, Sun, Menu, X, Cpu, Download, Search, FileDown } from "lucide-react"
+import { Moon, Sun, Menu, X, Cpu, Download, Search, FileDown, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet"
 import { navLinks } from "@/lib/cv/data"
@@ -130,10 +130,12 @@ export function Navbar() {
           </Button>
 
           {settings?.navContactEnabled !== false && (
-            <Button asChild size="sm" className="hidden sm:inline-flex">
-              <a href="#contact">
-                <Download className="h-4 w-4 mr-1.5" /> {t("Liên hệ", "Contact")}
-              </a>
+            <Button
+              size="sm"
+              onClick={() => window.dispatchEvent(new CustomEvent("open-contact-modal"))}
+              className="hidden sm:inline-flex gap-1.5 cursor-pointer shadow-sm hover:shadow"
+            >
+              <Mail className="h-4 w-4 mr-0.5" /> {t("Liên hệ", "Contact")}
             </Button>
           )}
 
@@ -180,11 +182,16 @@ export function Navbar() {
               </ul>
               <div className="mt-6 pt-6 border-t border-border flex flex-col gap-2 no-print">
                 {settings?.navContactEnabled !== false && (
-                  <Button asChild className="w-full">
-                    <a href="#contact">
-                      <Download className="h-4 w-4 mr-1.5" /> {t("Liên hệ ngay", "Contact now")}
-                    </a>
-                  </Button>
+                  <SheetClose asChild>
+                    <Button
+                      onClick={() => {
+                        window.dispatchEvent(new CustomEvent("open-contact-modal"))
+                      }}
+                      className="w-full gap-2 cursor-pointer"
+                    >
+                      <Mail className="h-4 w-4 mr-0.5" /> {t("Liên hệ ngay", "Contact now")}
+                    </Button>
+                  </SheetClose>
                 )}
               </div>
             </SheetContent>

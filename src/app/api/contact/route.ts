@@ -4,6 +4,7 @@ import { hasDangerousContent, DANGEROUS_CONTENT_MSG } from "@/lib/validation";
 type ContactPayload = {
   name?: string;
   email?: string;
+  topic?: string;
   message?: string;
 };
 
@@ -38,6 +39,7 @@ export async function POST(req: NextRequest) {
     const body = (await req.json()) as ContactPayload;
     const name = (body.name ?? "").trim();
     const email = (body.email ?? "").trim();
+    const topic = (body.topic ?? "").trim();
     const message = (body.message ?? "").trim();
 
     const errors: Record<string, string> = {};
@@ -68,6 +70,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const subject = topic ? `[Studio] [${topic}] Tin nhắn mới từ ${name}` : `[Studio] Tin nhắn mới từ ${name}`;
+
     const response = await fetch("https://api.web3forms.com/submit", {
       method: "POST",
       headers: {
@@ -79,7 +83,7 @@ export async function POST(req: NextRequest) {
         name: name,
         email: email,
         message: message,
-        subject: `[Portfolio] Tin nhắn mới từ ${name}`,
+        subject: subject,
       }),
     });
 
