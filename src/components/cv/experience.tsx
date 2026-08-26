@@ -122,10 +122,10 @@ export function Experience() {
         >
           <div className="flex flex-col lg:flex-row min-h-[480px]">
             {/* ========== LEFT SIDEBAR — CAREER TIMELINE ========== */}
-            <div className="career-sidebar w-full lg:w-[240px] xl:w-[260px] shrink-0 flex flex-col">
+            <div className="career-sidebar w-full lg:w-[280px] xl:w-[320px] shrink-0 flex flex-col">
               {/* Sidebar header */}
-              <div className="px-4 py-3 border-b border-border">
-                <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+              <div className="px-5 py-3.5 border-b border-border">
+                <span className="font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground font-semibold">
                   {t("CAREER TIMELINE", "CAREER TIMELINE")}
                 </span>
               </div>
@@ -148,16 +148,16 @@ export function Experience() {
                         key={e.id || i}
                         onClick={() => setSelected(i)}
                         className={
-                          "career-entry w-full text-left pl-5 " +
+                          "career-entry group w-full text-left pl-5 pr-4 py-3.5 " +
                           (isCurrent ? "active" : "")
                         }
                       >
-                        <div className="flex items-start gap-3">
+                        <div className="flex items-start gap-3.5">
                           {/* Node */}
-                          <div className="relative z-10 mt-0.5">
+                          <div className="relative z-10 mt-1">
                             <span
                               className={
-                                "block h-[14px] w-[14px] rounded-full border-2 " +
+                                "block h-[14px] w-[14px] rounded-full border-2 transition-all " +
                                 (isCurrent
                                   ? "bg-primary border-primary career-pulse"
                                   : isOngoing
@@ -168,26 +168,33 @@ export function Experience() {
                           </div>
 
                           {/* Text */}
-                          <div className="min-w-0">
+                          <div className="min-w-0 flex-1 space-y-1">
                             <span
                               className={
-                                "block font-mono text-sm font-bold " +
+                                "block font-mono text-base font-extrabold tracking-tight " +
                                 (isCurrent
                                   ? "text-primary"
-                                  : "text-foreground/70")
+                                  : "text-foreground/80")
                               }
                             >
                               {year}
                             </span>
-                            <span className="block text-[11px] text-muted-foreground truncate">
+                            <span
+                              className={
+                                "block text-sm sm:text-[15px] leading-snug break-words transition-colors " +
+                                (isCurrent
+                                  ? "text-foreground font-bold"
+                                  : "text-muted-foreground font-medium group-hover:text-foreground")
+                              }
+                            >
                               {e.company}
                             </span>
                             <span
                               className={
-                                "block text-[10px] font-mono mt-0.5 " +
+                                "inline-flex items-center gap-1 text-xs font-mono font-medium pt-0.5 transition-colors " +
                                 (isCurrent
-                                  ? "text-primary"
-                                  : "text-muted-foreground/60")
+                                  ? "text-primary font-semibold"
+                                  : "text-muted-foreground/60 group-hover:text-primary")
                               }
                             >
                               {t("xem chi tiết", "details")} →
@@ -222,12 +229,12 @@ export function Experience() {
                 >
                   {/* Top row: period + type badge */}
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                    <span className="font-mono text-[11px] text-muted-foreground uppercase tracking-wider">
+                    <span className="font-mono text-xs text-muted-foreground uppercase tracking-wider">
                       {exp.period}
                     </span>
                     <Badge
                       variant="outline"
-                      className="font-mono text-[10px] uppercase tracking-wider text-primary border-primary/30"
+                      className="font-mono text-[11px] uppercase tracking-wider text-primary border-primary/30"
                     >
                       {roleType}
                     </Badge>
@@ -239,28 +246,28 @@ export function Experience() {
                   </h3>
 
                   {/* Company + Location */}
-                  <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-1.5 text-sm">
+                  <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-1.5 text-base">
                     {exp.companyUrl ? (
                       <a
                         href={exp.companyUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-primary font-medium hover:underline"
+                        className="flex items-center gap-2 text-primary font-semibold hover:underline"
                       >
-                        <Building2 className="h-3.5 w-3.5" />
+                        <Building2 className="h-4 w-4" />
                         {exp.company}
-                        <ExternalLink className="h-3 w-3 opacity-60" />
+                        <ExternalLink className="h-3.5 w-3.5 opacity-70" />
                       </a>
                     ) : (
-                      <span className="flex items-center gap-1.5 text-primary font-medium">
-                        <Building2 className="h-3.5 w-3.5" />
+                      <span className="flex items-center gap-2 text-primary font-semibold">
+                        <Building2 className="h-4 w-4" />
                         {exp.company}
                       </span>
                     )}
 
                     {exp.location && (
-                      <span className="flex items-center gap-1.5 text-muted-foreground">
-                        <MapPin className="h-3.5 w-3.5" />
+                      <span className="flex items-center gap-1.5 text-muted-foreground text-sm font-normal">
+                        <MapPin className="h-4 w-4 text-muted-foreground/70" />
                         {exp.location}
                       </span>
                     )}
