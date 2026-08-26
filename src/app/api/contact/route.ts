@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { hasDangerousContent, DANGEROUS_CONTENT_MSG } from "@/lib/validation";
 import { db } from "@/lib/db";
 
 type ContactPayload = {
@@ -10,6 +9,20 @@ type ContactPayload = {
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const DANGEROUS_INPUT_RE = /<\s*\/?\s*(script|iframe|object|embed|form|link|meta|style|svg|math|base)\b/i;
+const SQL_INJECTION_RE = /(';\s*(DROP|ALTER|DELETE|UPDATE|INSERT|SELECT|UNION|EXEC|EXECUTE)\b)|(--)|(;\s*(DROP|ALTER|DELETE|UPDATE|INSERT)\b)/i;
+const JS_PROTOCOL_RE = /^\s*javascript\s*:/i;
+
+function hasDangerousContent(value: string): boolean {
+  if (!value) return false;
+  return (
+    DANGEROUS_INPUT_RE.test(value) ||
+    SQL_INJECTION_RE.test(value) ||
+    JS_PROTOCOL_RE.test(value)
+  );
+}
+
+const DANGEROUS_CONTENT_MSG = "Dữ liệu không hợp lệ, vui lòng không nhập mã độc. / Invalid input — please do not enter malicious code.";
 
 // In-memory rate limiting (best-effort for serverless environments)
 const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
