@@ -799,12 +799,12 @@ export function Projects() {
 
                   {/* Hero Media / Diagram Fallback */}
                   {activeProject.image && !activeProject.image.endsWith(".svg") ? (
-                    <div className="relative aspect-video rounded-xl overflow-hidden border border-border/80 shadow-2xl bg-slate-950 group">
+                    <div className="relative aspect-video rounded-xl overflow-hidden border border-border/80 shadow-2xl bg-muted/30 group">
                       <Image
                         fill
                         src={activeProject.image}
                         alt={activeProject.title}
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="object-contain transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none" />
                       <div className="absolute bottom-3 right-3 text-[11px] font-mono text-white/80 bg-black/70 px-2.5 py-1 rounded border border-white/20 backdrop-blur-md">
@@ -888,13 +888,13 @@ export function Projects() {
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                           <button
                             onClick={() => setLightbox({ list: activeProject.images!, index: 0 })}
-                            className="sm:col-span-2 group relative aspect-video rounded-xl overflow-hidden border border-border/80 hover:border-primary transition-all bg-slate-950"
+                            className={`sm:col-span-2 group relative aspect-video rounded-xl overflow-hidden border border-border/80 hover:${activeTheme.border} transition-all bg-muted/30`}
                           >
                             <Image
                               fill
                               src={activeProject.images[0]}
                               alt="Gallery Main"
-                              className="object-cover transition-transform duration-500 group-hover:scale-105"
+                              className="object-contain transition-transform duration-500 group-hover:scale-105"
                             />
                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                             <span className="absolute bottom-2 left-2 text-[10px] font-mono text-white/90 bg-black/70 px-2 py-0.5 rounded backdrop-blur-md">
@@ -907,13 +907,13 @@ export function Projects() {
                               <button
                                 key={imgIdx + 1}
                                 onClick={() => setLightbox({ list: activeProject.images!, index: imgIdx + 1 })}
-                                className="flex-1 group relative aspect-video rounded-xl overflow-hidden border border-border/80 hover:border-primary transition-all bg-slate-950"
+                                className={`flex-1 group relative aspect-video rounded-xl overflow-hidden border border-border/80 hover:${activeTheme.border} transition-all bg-muted/30`}
                               >
                                 <Image
                                   fill
                                   src={img}
                                   alt={`Gallery ${imgIdx + 2}`}
-                                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                  className="object-contain transition-transform duration-500 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                               </button>
