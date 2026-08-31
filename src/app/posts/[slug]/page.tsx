@@ -8,7 +8,7 @@ import { PostReader } from "@/components/cv/post-reader"
 import { TutorialReader } from "@/components/cv/tutorial-reader"
 import { PostAiChat } from "@/components/cv/post-ai-chat"
 import { PostThemeToggle } from "@/components/cv/post-theme-toggle"
-import { GoogleAd } from "@/components/cv/google-ad"
+
 import { ScientificProgress } from "@/components/cv/scientific-progress"
 import { ScientificSearchTrigger } from "@/components/cv/scientific-search-trigger"
 import { RelatedPosts } from "@/components/cv/related-posts"
@@ -157,22 +157,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
          {/* RIGHT SIDEBAR */}
          <aside className="hidden xl:flex sticky top-[94px] h-[calc(100vh-120px)] flex-col justify-between">
-            
-            <div className="flex-1 min-h-0 flex flex-col mb-4 pt-1">
-               <h3 className="font-sans text-[14px] font-semibold text-[#65676b] dark:text-[#b0b3b8] mb-2 px-2">
-                 Được tài trợ
-               </h3>
-               <div className="w-full p-2 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer">
-                 <div className="w-full min-h-[250px] overflow-hidden mix-blend-multiply dark:mix-blend-normal">
-                   <GoogleAd 
-                   adClient="ca-pub-2941183923177148" 
-                   adSlot="6308337137" 
-                   format="fluid" 
-                   layoutKey="-ef+6k-30-ac+ty" 
-                 />
-                 </div>
-               </div>
-            </div>
             <PostAiChat postTitle={post.title} postContent={post.content} isFloating={false} />
          </aside>
       </main>
