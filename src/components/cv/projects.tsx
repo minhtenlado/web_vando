@@ -27,12 +27,14 @@ import {
   BarChart3,
   Radio,
   Wrench,
-  Info
+  Info,
+  Search
 } from "lucide-react"
 import { SectionHeader } from "./section-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { useSiteData } from "@/components/cv/site-data-context"
 import type { SiteProject } from "@/lib/cv/site-data-server"
 import { useLocale } from "@/components/cv/locale-context"
@@ -295,6 +297,25 @@ function FakeDemoPlayer({ title }: { title: string }) {
 export function Projects() {
   const { projects, profile } = useSiteData()
   const { t } = useLocale()
+  const [searchQuery, setSearchQuery] = React.useState("")
+  const [activeCategory, setActiveCategory] = React.useState("Tất cả")
+  
+  const categories = React.useMemo(() => {
+    const cats = new Set<string>()
+    projects.forEach(p => {
+      if (p.category) cats.add(p.category)
+    })
+    return Array.from(cats)
+  }, [projects])
+
+  const filteredProjects = React.useMemo(() => {
+    return projects.filter((p) => {
+      if (searchQuery && !p.title.toLowerCase().includes(searchQuery.toLowerCase())) return false
+      if (activeCategory !== "Tất cả" && activeCategory !== p.category) return false
+      return true
+    })
+  }, [projects, searchQuery, activeCategory])
+
   const [lightbox, setLightbox] = React.useState<{ list: string[]; index: number } | null>(null)
   const [activeProject, setActiveProject] = React.useState<SiteProject | null>(null)
   const [isFullscreen, setIsFullscreen] = React.useState<boolean>(false)
@@ -451,8 +472,43 @@ export function Projects() {
           subtitle=""
         />
 
+        {/* Toolbar */}
+        <div className="mt-8 flex flex-col xl:flex-row items-center justify-between gap-4 mb-8">
+          <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto">
+            <Button 
+              variant="default" 
+              onClick={() => setActiveCategory("Tất cả")}
+              className={`rounded-full h-8 px-4 text-xs font-medium border-none ${activeCategory === "Tất cả" ? 'bg-primary/20 text-primary hover:bg-primary/30' : 'bg-transparent text-muted-foreground hover:bg-white/5'}`}
+            >
+              Tất cả
+            </Button>
+            {categories.map(cat => (
+              <Button 
+                key={cat} 
+                variant="outline" 
+                onClick={() => setActiveCategory(cat)}
+                className={`rounded-full h-8 px-4 text-xs font-medium border-border/40 hover:bg-white/5 ${activeCategory === cat ? 'bg-primary/20 text-primary border-primary/30' : 'bg-transparent text-muted-foreground'}`}
+              >
+                {cat}
+              </Button>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto justify-end">
+            <div className="relative w-full sm:w-56">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t("Tìm dự án...", "Search projects...")} 
+                className="w-full pl-9 h-8 rounded-md border-border/40 bg-transparent text-xs focus-visible:ring-1 focus-visible:ring-primary/20"
+              />
+            </div>
+          </div>
+        </div>
+
         <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((p, i) => {
+          {filteredProjects.map((p, i) => {
             const hasValidImage = p.image && typeof p.image === "string" && p.image.trim().length > 0 && !p.image.endsWith(".svg")
 
             return (
@@ -529,6 +585,12 @@ export function Projects() {
             )
           })}
         </div>
+
+        {filteredProjects.length === 0 && searchQuery && (
+          <div className="mt-10 text-center text-muted-foreground p-12 border border-dashed rounded-3xl border-border/60">
+            {t("Không tìm thấy dự án nào phù hợp.", "No projects found matching your search.")}
+          </div>
+        )}
 
         <div className="mt-10 flex justify-center">
           <Button asChild variant="outline" size="lg" className="border-border hover:border-primary">
