@@ -451,7 +451,7 @@ export function Projects() {
           subtitle=""
         />
 
-        <div className="mt-10 grid md:grid-cols-2 gap-6">
+        <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((p, i) => {
             const hasValidImage = p.image && typeof p.image === "string" && p.image.trim().length > 0 && !p.image.endsWith(".svg")
 
