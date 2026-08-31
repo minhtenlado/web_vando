@@ -297,57 +297,57 @@ function FakeDemoPlayer({ title }: { title: string }) {
 
 const PROJECT_THEMES = [
   {
-    gradient: "from-cyan-900/20 via-background to-background",
+    gradient: "from-cyan-500/5 via-transparent to-transparent",
     text: "text-cyan-500",
     textDark: "text-cyan-400",
-    border: "border-cyan-500/30",
-    borderHover: "hover:border-cyan-500/60",
-    bg: "bg-cyan-500/10",
-    bgHover: "hover:bg-cyan-500/20",
+    border: "border-cyan-500/20",
+    borderHover: "hover:border-cyan-500/40",
+    bg: "bg-cyan-500/5",
+    bgHover: "hover:bg-cyan-500/10",
     btn: "bg-cyan-500 hover:bg-cyan-600 text-white",
     progress: "from-cyan-600 via-cyan-400 to-cyan-300",
   },
   {
-    gradient: "from-emerald-900/20 via-background to-background",
+    gradient: "from-emerald-500/5 via-transparent to-transparent",
     text: "text-emerald-500",
     textDark: "text-emerald-400",
-    border: "border-emerald-500/30",
-    borderHover: "hover:border-emerald-500/60",
-    bg: "bg-emerald-500/10",
-    bgHover: "hover:bg-emerald-500/20",
+    border: "border-emerald-500/20",
+    borderHover: "hover:border-emerald-500/40",
+    bg: "bg-emerald-500/5",
+    bgHover: "hover:bg-emerald-500/10",
     btn: "bg-emerald-500 hover:bg-emerald-600 text-white",
     progress: "from-emerald-600 via-emerald-400 to-emerald-300",
   },
   {
-    gradient: "from-violet-900/20 via-background to-background",
+    gradient: "from-violet-500/5 via-transparent to-transparent",
     text: "text-violet-500",
     textDark: "text-violet-400",
-    border: "border-violet-500/30",
-    borderHover: "hover:border-violet-500/60",
-    bg: "bg-violet-500/10",
-    bgHover: "hover:bg-violet-500/20",
+    border: "border-violet-500/20",
+    borderHover: "hover:border-violet-500/40",
+    bg: "bg-violet-500/5",
+    bgHover: "hover:bg-violet-500/10",
     btn: "bg-violet-500 hover:bg-violet-600 text-white",
     progress: "from-violet-600 via-violet-400 to-violet-300",
   },
   {
-    gradient: "from-rose-900/20 via-background to-background",
+    gradient: "from-rose-500/5 via-transparent to-transparent",
     text: "text-rose-500",
     textDark: "text-rose-400",
-    border: "border-rose-500/30",
-    borderHover: "hover:border-rose-500/60",
-    bg: "bg-rose-500/10",
-    bgHover: "hover:bg-rose-500/20",
+    border: "border-rose-500/20",
+    borderHover: "hover:border-rose-500/40",
+    bg: "bg-rose-500/5",
+    bgHover: "hover:bg-rose-500/10",
     btn: "bg-rose-500 hover:bg-rose-600 text-white",
     progress: "from-rose-600 via-rose-400 to-rose-300",
   },
   {
-    gradient: "from-amber-900/20 via-background to-background",
+    gradient: "from-amber-500/5 via-transparent to-transparent",
     text: "text-amber-500",
     textDark: "text-amber-400",
-    border: "border-amber-500/30",
-    borderHover: "hover:border-amber-500/60",
-    bg: "bg-amber-500/10",
-    bgHover: "hover:bg-amber-500/20",
+    border: "border-amber-500/20",
+    borderHover: "hover:border-amber-500/40",
+    bg: "bg-amber-500/5",
+    bgHover: "hover:bg-amber-500/10",
     btn: "bg-amber-500 hover:bg-amber-600 text-white",
     progress: "from-amber-600 via-amber-400 to-amber-300",
   }
@@ -752,7 +752,7 @@ export function Projects() {
                 id="modal-scroll"
                 ref={modalScrollRef}
                 onScroll={handleModalScroll}
-                className="flex-1 overflow-y-auto custom-scrollbar scroll-smooth p-4 sm:p-6 lg:p-8 space-y-10"
+                className="relative z-10 flex-1 overflow-y-auto custom-scrollbar scroll-smooth p-4 sm:p-6 lg:p-8 space-y-10"
               >
                 {/* HERO SECTION */}
                 <div className="space-y-6">
