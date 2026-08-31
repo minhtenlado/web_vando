@@ -852,8 +852,8 @@ export function Projects() {
                     {/* SECTION 02: RESPONSIBILITIES */}
                     <section id="responsibility" className="scroll-mt-24 space-y-4">
                       <div className="flex items-center gap-2 border-b border-border/60 pb-3">
-                        <span className={`text-xs font-mono ${activeTheme.text} font-bold tracking-widest uppercase`}>02 · Responsibilities</span>
-                        <h2 className="text-xl font-bold text-foreground">{t("Vai trò & Trách nhiệm", "Key Responsibilities")}</h2>
+                        <span className={`text-xs font-mono ${activeTheme.text} font-bold tracking-widest uppercase`}>02 · Features & Details</span>
+                        <h2 className="text-xl font-bold text-foreground">{t("Chi tiết & Tính năng", "Key Features & Details")}</h2>
                       </div>
 
                       <div className="grid sm:grid-cols-2 gap-4">
@@ -992,7 +992,7 @@ export function Projects() {
                         <nav className="space-y-1 text-xs font-medium">
                           {[
                             { id: "overview", label: t("01. Tổng quan", "01. Overview") },
-                            { id: "responsibility", label: t("02. Trách nhiệm", "02. Responsibilities") },
+                            { id: "responsibility", label: t("02. Tính năng", "02. Features") },
                             { id: "gallery", label: t("03. Visuals & Sơ đồ", "03. Visuals & Architecture") },
                             ...(activeProject.showVideoDemo !== false ? [{ id: "demo", label: t("04. Video Demo", "04. Video Demo") }] : []),
                             { id: "results", label: t("05. Kết quả", "05. Results & Metrics") },
