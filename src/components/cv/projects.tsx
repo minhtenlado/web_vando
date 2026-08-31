@@ -294,6 +294,65 @@ function FakeDemoPlayer({ title }: { title: string }) {
   )
 }
 
+
+const PROJECT_THEMES = [
+  {
+    gradient: "from-cyan-900/20 via-background to-background",
+    text: "text-cyan-500",
+    textDark: "text-cyan-400",
+    border: "border-cyan-500/30",
+    borderHover: "hover:border-cyan-500/60",
+    bg: "bg-cyan-500/10",
+    bgHover: "hover:bg-cyan-500/20",
+    btn: "bg-cyan-500 hover:bg-cyan-600 text-white",
+    progress: "from-cyan-600 via-cyan-400 to-cyan-300",
+  },
+  {
+    gradient: "from-emerald-900/20 via-background to-background",
+    text: "text-emerald-500",
+    textDark: "text-emerald-400",
+    border: "border-emerald-500/30",
+    borderHover: "hover:border-emerald-500/60",
+    bg: "bg-emerald-500/10",
+    bgHover: "hover:bg-emerald-500/20",
+    btn: "bg-emerald-500 hover:bg-emerald-600 text-white",
+    progress: "from-emerald-600 via-emerald-400 to-emerald-300",
+  },
+  {
+    gradient: "from-violet-900/20 via-background to-background",
+    text: "text-violet-500",
+    textDark: "text-violet-400",
+    border: "border-violet-500/30",
+    borderHover: "hover:border-violet-500/60",
+    bg: "bg-violet-500/10",
+    bgHover: "hover:bg-violet-500/20",
+    btn: "bg-violet-500 hover:bg-violet-600 text-white",
+    progress: "from-violet-600 via-violet-400 to-violet-300",
+  },
+  {
+    gradient: "from-rose-900/20 via-background to-background",
+    text: "text-rose-500",
+    textDark: "text-rose-400",
+    border: "border-rose-500/30",
+    borderHover: "hover:border-rose-500/60",
+    bg: "bg-rose-500/10",
+    bgHover: "hover:bg-rose-500/20",
+    btn: "bg-rose-500 hover:bg-rose-600 text-white",
+    progress: "from-rose-600 via-rose-400 to-rose-300",
+  },
+  {
+    gradient: "from-amber-900/20 via-background to-background",
+    text: "text-amber-500",
+    textDark: "text-amber-400",
+    border: "border-amber-500/30",
+    borderHover: "hover:border-amber-500/60",
+    bg: "bg-amber-500/10",
+    bgHover: "hover:bg-amber-500/20",
+    btn: "bg-amber-500 hover:bg-amber-600 text-white",
+    progress: "from-amber-600 via-amber-400 to-amber-300",
+  }
+];
+
 export function Projects() {
   const { projects, profile } = useSiteData()
   const { t } = useLocale()
@@ -318,6 +377,13 @@ export function Projects() {
 
   const [lightbox, setLightbox] = React.useState<{ list: string[]; index: number } | null>(null)
   const [activeProject, setActiveProject] = React.useState<SiteProject | null>(null)
+
+  const activeTheme = React.useMemo(() => {
+    if (!activeProject) return PROJECT_THEMES[0];
+    const hash = (activeProject.title || activeProject.id || "abc").split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return PROJECT_THEMES[hash % PROJECT_THEMES.length];
+  }, [activeProject]);
+
   const [isFullscreen, setIsFullscreen] = React.useState<boolean>(false)
   const [scrollProgress, setScrollProgress] = React.useState<number>(0)
   const [activeSection, setActiveSection] = React.useState<string>("overview")
@@ -629,11 +695,12 @@ export function Projects() {
                   : "w-full max-w-6xl h-[92vh] max-h-[920px] rounded-2xl"
               }`}
             >
+              <div className={`absolute inset-0 bg-gradient-to-b ${activeTheme.gradient} pointer-events-none z-0`} />
               {/* Progress Bar (#progress) at Top of Modal */}
               <div className="absolute top-0 inset-x-0 h-1 bg-muted/30 z-30 overflow-hidden">
                 <div
                   id="progress"
-                  className="h-full bg-gradient-to-r from-emerald-400 via-cyan-400 to-primary transition-all duration-150"
+                  className="h-full bg-gradient-to-r ${activeTheme.progress} transition-all duration-150"
                   style={{ width: `${scrollProgress}%` }}
                 />
               </div>
@@ -653,7 +720,7 @@ export function Projects() {
                   </Button>
                   <div className="h-4 w-px bg-border/60 shrink-0" />
                   <div className="text-xs font-mono text-muted-foreground truncate flex items-center gap-1.5">
-                    <span className="text-primary font-semibold">{t("Project Case Study", "Case Study")}</span>
+                    <span className="${activeTheme.text} font-semibold">{t("Project Case Study", "Case Study")}</span>
                     <span>/</span>
                     <span className="text-foreground font-medium truncate">{activeProject.title}</span>
                   </div>
@@ -691,7 +758,7 @@ export function Projects() {
                 <div className="space-y-6">
                   {/* Category Kicker */}
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="font-mono text-xs text-primary border-primary/40 bg-primary/5 uppercase tracking-wider px-3 py-1">
+                    <Badge variant="outline" className="font-mono text-xs ${activeTheme.text} ${activeTheme.border} ${activeTheme.bg} uppercase tracking-wider px-3 py-1">
                       <Sparkles className="size-3 mr-1.5 animate-pulse" />
                       {activeProject.category || "IoT · AI · Embedded Systems"}
                     </Badge>
@@ -722,7 +789,7 @@ export function Projects() {
                     </div>
                     <div className="px-3 py-1.5 rounded-lg bg-muted/60 border border-border/60 text-muted-foreground flex items-center gap-1.5">
                       <span className="text-slate-400">{t("Điểm nổi bật:", "Highlight:")}</span>
-                      <span className="text-primary font-semibold">{highlightText}</span>
+                      <span className="${activeTheme.text} font-semibold">{highlightText}</span>
                     </div>
                     <div className="px-3 py-1.5 rounded-lg bg-muted/60 border border-border/60 text-muted-foreground flex items-center gap-1.5">
                       <span className="text-slate-400">{t("Loại dự án:", "Type:")}</span>
@@ -756,7 +823,7 @@ export function Projects() {
                     {/* SECTION 01: OVERVIEW */}
                     <section id="overview" className="scroll-mt-24 space-y-4">
                       <div className="flex items-center gap-2 border-b border-border/60 pb-3">
-                        <span className="text-xs font-mono text-primary font-bold tracking-widest uppercase">01 · Overview</span>
+                        <span className="text-xs font-mono ${activeTheme.text} font-bold tracking-widest uppercase">01 · Overview</span>
                         <h2 className="text-xl font-bold text-foreground">{t("Tổng quan dự án", "Project Overview")}</h2>
                       </div>
 
@@ -766,8 +833,8 @@ export function Projects() {
                       />
 
                       {/* Highlight Callout Box */}
-                      <div className="p-4 sm:p-5 rounded-xl bg-primary/5 border border-primary/20 flex gap-4 items-start shadow-sm">
-                        <div className="p-2.5 rounded-lg bg-primary/10 text-primary shrink-0 mt-0.5">
+                      <div className="p-4 sm:p-5 rounded-xl ${activeTheme.bg} border border-primary/20 flex gap-4 items-start shadow-sm">
+                        <div className="p-2.5 rounded-lg ${activeTheme.bg} ${activeTheme.text} shrink-0 mt-0.5">
                           <Zap className="size-5" />
                         </div>
                         <div className="space-y-1 text-sm">
@@ -785,7 +852,7 @@ export function Projects() {
                     {/* SECTION 02: RESPONSIBILITIES */}
                     <section id="responsibility" className="scroll-mt-24 space-y-4">
                       <div className="flex items-center gap-2 border-b border-border/60 pb-3">
-                        <span className="text-xs font-mono text-primary font-bold tracking-widest uppercase">02 · Responsibilities</span>
+                        <span className="text-xs font-mono ${activeTheme.text} font-bold tracking-widest uppercase">02 · Responsibilities</span>
                         <h2 className="text-xl font-bold text-foreground">{t("Vai trò & Trách nhiệm", "Key Responsibilities")}</h2>
                       </div>
 
@@ -793,9 +860,9 @@ export function Projects() {
                         {responsibilitiesList.map((item, idx) => {
                           const IconComp = item.icon || CheckCircle2
                           return (
-                            <div key={idx} className="p-4 rounded-xl bg-card border border-border/60 hover:border-primary/40 transition-all space-y-2 shadow-sm">
-                              <div className="flex items-center gap-2.5 text-primary">
-                                <div className="p-2 rounded-lg bg-primary/10">
+                            <div key={idx} className="p-4 rounded-xl bg-card border border-border/60 hover:${activeTheme.border} transition-all space-y-2 shadow-sm">
+                              <div className="flex items-center gap-2.5 ${activeTheme.text}">
+                                <div className="p-2 rounded-lg ${activeTheme.bg}">
                                   <IconComp className="size-4" />
                                 </div>
                                 <h4 className="font-bold text-sm text-foreground">{item.title}</h4>
@@ -812,7 +879,7 @@ export function Projects() {
                     {/* SECTION 03: VISUALS & ARCHITECTURE */}
                     <section id="gallery" className="scroll-mt-24 space-y-4">
                       <div className="flex items-center gap-2 border-b border-border/60 pb-3">
-                        <span className="text-xs font-mono text-primary font-bold tracking-widest uppercase">03 · Visuals</span>
+                        <span className="text-xs font-mono ${activeTheme.text} font-bold tracking-widest uppercase">03 · Visuals</span>
                         <h2 className="text-xl font-bold text-foreground">{activeProject.visualsTitle || t("Hình ảnh & Sơ đồ kiến trúc", "Visuals & Architecture")}</h2>
                       </div>
 
@@ -870,7 +937,7 @@ export function Projects() {
                     {activeProject.showVideoDemo !== false && (
                     <section id="demo" className="scroll-mt-24 space-y-4">
                       <div className="flex items-center gap-2 border-b border-border/60 pb-3">
-                        <span className="text-xs font-mono text-primary font-bold tracking-widest uppercase">04 · Demo</span>
+                        <span className="text-xs font-mono ${activeTheme.text} font-bold tracking-widest uppercase">04 · Demo</span>
                         <h2 className="text-xl font-bold text-foreground">{activeProject.videoTitle || t("Video & Thử nghiệm Demo", "Video & Live Demo")}</h2>
                       </div>
 
@@ -893,14 +960,14 @@ export function Projects() {
                     {/* SECTION 05: RESULTS & METRICS */}
                     <section id="results" className="scroll-mt-24 space-y-4">
                       <div className="flex items-center gap-2 border-b border-border/60 pb-3">
-                        <span className="text-xs font-mono text-primary font-bold tracking-widest uppercase">05 · Results</span>
+                        <span className="text-xs font-mono ${activeTheme.text} font-bold tracking-widest uppercase">05 · Results</span>
                         <h2 className="text-xl font-bold text-foreground">{t("Kết quả & Hiệu năng", "Results & Impact")}</h2>
                       </div>
 
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                         {resultsList.map((res, rIdx) => (
                           <div key={rIdx} className="p-4 rounded-xl bg-card border border-border/60 space-y-1 shadow-sm flex flex-col justify-between">
-                            <div className="text-xl sm:text-2xl font-extrabold text-primary font-mono tracking-tight">
+                            <div className="text-xl sm:text-2xl font-extrabold ${activeTheme.text} font-mono tracking-tight">
                               {res.value}
                             </div>
                             <div>
@@ -919,7 +986,7 @@ export function Projects() {
                       {/* Table of Contents (TOC) with scrollSpy */}
                       <div className="p-4 sm:p-5 rounded-xl bg-card border border-border/60 space-y-3 shadow-sm">
                         <h3 className="text-xs font-mono uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-2">
-                          <BarChart3 className="size-4 text-primary" />
+                          <BarChart3 className="size-4 ${activeTheme.text}" />
                           {t("Mục lục Case Study", "Table of Contents")}
                         </h3>
                         <nav className="space-y-1 text-xs font-medium">
@@ -935,7 +1002,7 @@ export function Projects() {
                               onClick={() => scrollToSection(item.id)}
                               className={`w-full text-left px-3 py-2 rounded-lg transition-all flex items-center justify-between ${
                                 activeSection === item.id
-                                  ? "bg-primary/10 text-primary font-bold border-l-2 border-primary"
+                                  ? "${activeTheme.bg} ${activeTheme.text} font-bold border-l-2 border-primary"
                                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                               }`}
                             >
@@ -950,12 +1017,12 @@ export function Projects() {
                       {activeProject.tech && activeProject.tech.length > 0 && (
                         <div className="p-4 sm:p-5 rounded-xl bg-card border border-border/60 space-y-3 shadow-sm">
                           <h3 className="text-xs font-mono uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-2">
-                            <Code className="size-4 text-primary" />
+                            <Code className="size-4 ${activeTheme.text}" />
                             {t("Công nghệ sử dụng", "Tech Stack")}
                           </h3>
                           <div className="flex flex-wrap gap-1.5">
                             {activeProject.tech.map((item, ti) => (
-                              <Badge key={ti} variant="secondary" className="px-2.5 py-1 text-xs font-mono bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20">
+                              <Badge key={ti} variant="secondary" className="px-2.5 py-1 text-xs font-mono ${activeTheme.bg} ${activeTheme.text} border border-primary/20 hover:${activeTheme.bg}">
                                 {item}
                               </Badge>
                             ))}
@@ -966,7 +1033,7 @@ export function Projects() {
                       {/* Role & Project Summary Box */}
                       <div className="p-4 sm:p-5 rounded-xl bg-muted/30 border border-border/60 space-y-3 text-xs">
                         <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
-                          <Info className="size-4 text-primary" />
+                          <Info className="size-4 ${activeTheme.text}" />
                           {t("Tóm tắt dự án", "Project Summary")}
                         </h3>
                         <div className="space-y-2 text-muted-foreground">
