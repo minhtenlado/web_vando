@@ -595,7 +595,7 @@ export function Projects() {
         <div className="mt-10 flex justify-center">
           <Button asChild variant="outline" size="lg" className="border-border hover:border-primary">
             <a
-              href={`https://${profile.github}`}
+              href={profile?.github?.startsWith('http') ? profile.github : `https://${profile?.github || 'github.com/minhtenlado'}`}
               target="_blank"
               rel="noopener noreferrer"
             >
