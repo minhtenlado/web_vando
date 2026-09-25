@@ -463,3 +463,44 @@ function safeParseResults(s: string | undefined | null): { number: string; label
     return [];
   }
 }
+
+export async function getProjectById(id: string): Promise<SiteProject | null> {
+  try {
+    const p = await db.project.findUnique({ where: { id } })
+    if (p) {
+      return {
+        id: p.id,
+        title: p.title,
+        subtitle: (p as any).subtitle ?? "",
+        overviewQuote: (p as any).overviewQuote ?? "",
+        year: (p as any).year ?? "",
+        role: (p as any).role ?? "",
+        highlight: (p as any).highlight ?? "",
+        projectType: (p as any).projectType ?? "",
+        responsibilities: safeParseResponsibilities((p as any).responsibilities),
+        results: safeParseResults((p as any).results),
+        category: p.category,
+        image: p.image,
+        description: p.description,
+        visualsTitle: (p as any).visualsTitle ?? "",
+        videoTitle: (p as any).videoTitle ?? "",
+        showVideoDemo: typeof p.showVideoDemo === "boolean" ? p.showVideoDemo : true,
+        features: safeParseArr(p.features),
+        tech: safeParseArr(p.tech),
+        link: p.link ?? undefined,
+        repo: p.repo ?? undefined,
+        youtubeUrl: p.youtubeUrl ?? undefined,
+        images: safeParseArr(p.images),
+      }
+    }
+  } catch (err) {
+    console.error("[getProjectById] error:", err)
+  }
+
+  const def = defaultProjects.find((p) => p.id === id)
+  if (def) {
+    return def as SiteProject
+  }
+  return null
+}
+
