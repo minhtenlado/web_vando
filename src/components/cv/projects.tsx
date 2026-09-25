@@ -612,10 +612,9 @@ export function Projects() {
                             {resultsList.map((res, rIdx) => (
                               <div key={rIdx} className="p-3.5 rounded-lg bg-muted/30 border border-border/30 space-y-1">
                                 <div className={`text-lg font-bold font-mono ${theme.accent}`}>
-                                  {res.value || res.number}
+                                  {res.number}
                                 </div>
                                 <div className="text-xs text-foreground font-medium">{res.label}</div>
-                                {res.sub && <div className="text-[10px] text-muted-foreground">{res.sub}</div>}
                               </div>
                             ))}
                           </div>
