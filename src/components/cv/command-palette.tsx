@@ -124,7 +124,7 @@ export function CommandPalette() {
                 {projects.map((proj) => (
                   <CommandItem 
                     key={proj.id || proj.title} 
-                    onSelect={() => go("#projects")}
+                    onSelect={() => go(`/projects/${proj.id}`)}
                     className="flex items-center justify-between"
                   >
                     <div className="flex items-center gap-2 overflow-hidden">

@@ -1,203 +1,183 @@
-'use client'
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import { useTheme } from "next-themes"
-import { Moon, Sun, Menu, X, Cpu, Download, Search, FileDown, Mail } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet"
-import { navLinks } from "@/lib/cv/data"
-import { useSiteData } from "@/components/cv/site-data-context"
-import { useLocale } from "@/components/cv/locale-context"
-import { LocaleToggle } from "@/components/cv/locale-toggle"
-import { cn } from "@/lib/utils"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
+import { Moon, Sun, Menu, ArrowUpRight, Search } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+  SheetClose,
+} from "@/components/ui/sheet";
+import { useSiteData } from "./site-data-context";
+import { useLocale } from "./locale-context";
 
 export function Navbar() {
-  const { profile, settings } = useSiteData()
-  const { t, locale } = useLocale()
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = React.useState(false)
-  const [scrolled, setScrolled] = React.useState(false)
-  const [active, setActive] = React.useState<string>("/#about")
+  const { settings, profile, posts } = useSiteData();
+  const { t, locale, setLocale } = useLocale();
+  const { resolvedTheme, setTheme } = useTheme();
+  const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+  const [active, setActive] = useState("");
+  const links = [
+    {
+      id: "projects",
+      label: t("Dự án", "Work"),
+      enabled: settings.navProjectsEnabled,
+    },
+    {
+      id: "about",
+      label: t("Về mình", "About"),
+      enabled: settings.navAboutEnabled,
+    },
+    {
+      id: "skills",
+      label: t("Kỹ năng", "Expertise"),
+      enabled:
+        settings.navSkillsEnabled !== false && profile.skillGroups?.length > 0,
+    },
+    {
+      id: "posts",
+      label: t("Bài viết", "Notes"),
+      enabled:
+        settings.navBlogEnabled !== false &&
+        posts.some((post) => post.published),
+    },
+  ].filter((link) => link.enabled !== false);
 
-  React.useEffect(() => setMounted(true), [])
-
-  React.useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16)
-    onScroll()
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
-
-  React.useEffect(() => {
-    const sections = navLinks
-      .map((l) => document.querySelector(l.href.replace("/", "")))
-      .filter(Boolean) as Element[]
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setActive(`/#${entry.target.id}`)
-        })
+        for (const entry of entries)
+          if (entry.isIntersecting) setActive(entry.target.id);
       },
-      { threshold: 0.5 }
-    )
-    sections.forEach((s) => observer.observe(s))
-    return () => observer.disconnect()
-  }, [])
-
-  const filteredNavLinks = React.useMemo(() => {
-    return navLinks.filter(link => {
-      if (link.href === "/#about" && settings?.navAboutEnabled === false) return false
-      if (link.href === "/#skills" && settings?.navSkillsEnabled === false) return false
-      if (link.href === "/#projects" && settings?.navProjectsEnabled === false) return false
-      if (link.href === "/#experience" && settings?.navExperienceEnabled === false) return false
-      if (link.href === "/#posts" && settings?.navBlogEnabled === false) return false
-      return true
-    })
-  }, [settings])
+      { rootMargin: "-15% 0px -65% 0px", threshold: 0 },
+    );
+    document
+      .querySelectorAll("main > section[id]")
+      .forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, [pathname]);
 
   return (
-    <header
-      className={cn(
-        "fixed top-0 inset-x-0 z-50 transition-all duration-300",
-        scrolled
-          ? "backdrop-blur-xl bg-background/70 border-b border-border/60 shadow-sm"
-          : "bg-transparent border-b border-transparent"
-      )}
-    >
-      <nav className="container mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12 h-16 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="#top" className="flex items-center gap-2 group" aria-label={t("Về đầu trang", "Back to top")}>
-          <span className="relative grid place-items-center h-9 w-9 rounded-md bg-primary/10 text-primary border border-primary/30">
-            <Cpu className="h-5 w-5" />
-            <span className="absolute inset-0 rounded-md pulse-ring opacity-0 group-hover:opacity-100" />
-          </span>
-          <span className="font-mono text-sm font-semibold tracking-tight">
-            {profile.name || "Phan Huỳnh Văn Đô"}
-          </span>
-        </Link>
-
-        {/* Desktop nav */}
-        <ul className="hidden lg:flex items-center gap-1">
-          {filteredNavLinks.map((link) => (
-            <li key={link.href}>
+    <>
+      <a href="#main-content" className="pf-skip-link">
+        {t("Đến nội dung chính", "Skip to content")}
+      </a>
+      <header className="pf-header">
+        <nav
+          className="pf-container pf-navigation"
+          aria-label={t("Điều hướng chính", "Main navigation")}
+        >
+          <Link
+            href="/#top"
+            className="pf-brand"
+            aria-label={t("Phan Huỳnh — Trang chủ", "Phan Huỳnh — Home")}
+          >
+            <span className="pf-brand-mark">
+              ph<span>.</span>
+            </span>
+            <span>
+              phanhuynh<span className="pf-brand-period">.</span>
+            </span>
+          </Link>
+          <div className="pf-desktop-nav">
+            {links.map((link) => (
               <Link
-                href={link.href}
-                className={cn(
-                  "link-underline px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                  active === link.href
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
+                href={`/#${link.id}`}
+                key={link.id}
+                aria-current={active === link.id ? "location" : undefined}
               >
-                {link[locale]}
+                {link.label}
               </Link>
-            </li>
-          ))}
-        </ul>
-
-        <div className="flex items-center gap-4 no-print">
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
-            aria-label={t("Mở bảng lệnh (Cmd+K)", "Open command palette (Cmd+K)")}
-            className="hidden sm:inline-flex gap-2 text-muted-foreground"
-          >
-            <Search className="h-3.5 w-3.5" />
-            <kbd className="font-mono text-[10px] rounded border border-border bg-muted px-1 py-0.5">⌘K</kbd>
-          </Button>
-
-          <LocaleToggle />
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            aria-label={t("Đổi giao diện sáng/tối", "Toggle theme")}
-            className="h-9 w-9"
-          >
-            {mounted ? (
-              theme === "dark" ? (
-                <Sun className="h-4 w-4" />
-              ) : (
-                <Moon className="h-4 w-4" />
-              )
-            ) : (
-              <Sun className="h-4 w-4 opacity-0" />
-            )}
-          </Button>
-
-          {settings?.navContactEnabled !== false && (
-            <Button
-              size="sm"
-              onClick={() => window.dispatchEvent(new CustomEvent("open-contact-modal"))}
-              className="hidden sm:inline-flex gap-1.5 cursor-pointer shadow-sm hover:shadow"
+            ))}
+          </div>
+          <div className="pf-nav-tools">
+            <button
+              className="pf-icon-button pf-command-button"
+              aria-label={t("Tìm kiếm (Ctrl+K)", "Search (Ctrl+K)")}
+              onClick={() =>
+                window.dispatchEvent(new CustomEvent("open-command-palette"))
+              }
             >
-              <Mail className="h-4 w-4 mr-0.5" /> {t("Liên hệ", "Contact")}
-            </Button>
-          )}
-
-          {/* Mobile menu */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden h-9 w-9"
-                aria-label={t("Mở menu", "Open menu")}
+              <Search size={17} />
+            </button>
+            <button
+              className="pf-locale-button"
+              onClick={() => setLocale(locale === "vi" ? "en" : "vi")}
+              aria-label={
+                locale === "vi" ? "Switch to English" : "Chuyển sang Tiếng Việt"
+              }
+            >
+              {locale.toUpperCase()}
+            </button>
+            <button
+              className="pf-icon-button"
+              onClick={() =>
+                setTheme(resolvedTheme === "dark" ? "light" : "dark")
+              }
+              aria-label={t("Đổi giao diện sáng/tối", "Toggle color theme")}
+            >
+              {mounted && resolvedTheme === "dark" ? (
+                <Sun size={17} />
+              ) : (
+                <Moon size={17} />
+              )}
+            </button>
+            {settings.navContactEnabled !== false && (
+              <button
+                className="pf-nav-contact"
+                onClick={() =>
+                  window.dispatchEvent(new CustomEvent("open-contact-modal"))
+                }
               >
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-72 max-h-[100dvh] overflow-y-auto">
-              <SheetTitle className="sr-only">{t("Menu điều hướng", "Navigation menu")}</SheetTitle>
-              <div className="flex items-center justify-between mt-2">
-                <span className="font-mono text-sm text-primary">menu()</span>
-                <SheetClose asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <X className="h-4 w-4" />
-                  </Button>
-                </SheetClose>
-              </div>
-              <ul className="mt-6 flex flex-col gap-1">
-                {filteredNavLinks.map((link) => (
-                  <li key={link.href}>
-                    <SheetClose asChild>
-                      <Link
-                        href={link.href}
-                        className={cn(
-                          "block px-3 py-3 rounded-md text-sm font-medium transition-colors",
-                          active === link.href
-                            ? "bg-primary/10 text-primary"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                        )}
-                      >
-                        {link[locale]}
+                {t("Kết nối", "Let’s talk")}
+                <ArrowUpRight size={16} />
+              </button>
+            )}
+            <Sheet>
+              <SheetTrigger asChild>
+                <button
+                  className="pf-icon-button pf-mobile-menu"
+                  aria-label={t("Mở menu", "Open menu")}
+                >
+                  <Menu size={22} />
+                </button>
+              </SheetTrigger>
+              <SheetContent className="pf-mobile-sheet">
+                <SheetTitle>{t("Khám phá", "Explore")}</SheetTitle>
+                <div className="pf-mobile-links">
+                  {links.map((link) => (
+                    <SheetClose asChild key={link.id}>
+                      <Link href={`/#${link.id}`}>
+                        {link.label}
+                        <ArrowUpRight size={20} />
                       </Link>
                     </SheetClose>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-6 pt-6 border-t border-border flex flex-col gap-2 no-print">
-                {settings?.navContactEnabled !== false && (
-                  <SheetClose asChild>
-                    <Button
-                      onClick={() => {
-                        window.dispatchEvent(new CustomEvent("open-contact-modal"))
-                      }}
-                      className="w-full gap-2 cursor-pointer"
-                    >
-                      <Mail className="h-4 w-4 mr-0.5" /> {t("Liên hệ ngay", "Contact now")}
-                    </Button>
-                  </SheetClose>
-                )}
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </nav>
-    </header>
-  )
+                  ))}
+                  {settings.navContactEnabled !== false && (
+                    <SheetClose asChild>
+                      <a href="/#contact">
+                        {t("Liên hệ", "Contact")}
+                        <ArrowUpRight size={20} />
+                      </a>
+                    </SheetClose>
+                  )}
+                </div>
+                <p className="pf-mobile-caption">
+                  Embedded Systems · IoT · Edge AI
+                </p>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </nav>
+      </header>
+    </>
+  );
 }

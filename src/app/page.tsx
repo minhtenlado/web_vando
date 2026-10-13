@@ -1,65 +1,21 @@
-import { getSiteData } from "@/lib/cv/site-data-server"
-import { HashScrollHandler } from "@/components/cv/hash-scroll-handler"
-import { Navbar } from "@/components/cv/navbar"
-import { ScrollProgress } from "@/components/cv/scroll-progress"
-import { CommandPalette } from "@/components/cv/command-palette"
-import { SiteDataProvider } from "@/components/cv/site-data-context"
-import { CvSettingsApplier } from "@/components/cv/cv-settings-applier"
-import { Hero } from "@/components/cv/hero"
-import { About } from "@/components/cv/about"
-import { Skills } from "@/components/cv/skills"
-import { Experience } from "@/components/cv/experience"
-import { Projects } from "@/components/cv/projects"
-import { Posts } from "@/components/cv/posts"
-import { Education } from "@/components/cv/education"
-import { Footer } from "@/components/cv/footer"
-import { LocaleProvider } from "@/components/cv/locale-context"
-import { GlobalAiChatbot } from "@/components/cv/global-ai-chatbot"
-import { StudioContactModal } from "@/components/cv/studio-contact-modal"
-import { cookies } from "next/headers"
+import { cookies } from "next/headers";
+import { getSiteData } from "@/lib/cv/site-data-server";
+import { SiteDataProvider } from "@/components/cv/site-data-context";
+import { LocaleProvider } from "@/components/cv/locale-context";
+import { PortfolioHome } from "@/components/cv/portfolio-home";
+import { toPresentationData } from "@/lib/cv/site-presentation";
 
-export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const cookieStore = await cookies()
-  const locale = cookieStore.get("cv-locale")?.value || "vi"
-  const initialData = await getSiteData(locale)
-
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("cv-locale")?.value === "en" ? "en" : "vi";
+  const initialData = toPresentationData(await getSiteData(locale));
   return (
     <LocaleProvider initialLocale={locale}>
       <SiteDataProvider initialData={initialData}>
-        <CvSettingsApplier />
-        <div className="relative min-h-screen flex flex-col bg-background">
-          <HashScrollHandler />
-          <ScrollProgress />
-          <CommandPalette />
-          <Navbar />
-          <GlobalAiChatbot />
-          <StudioContactModal />
-          <main className="flex-1 flex flex-row overflow-x-auto overflow-y-hidden snap-x snap-mandatory h-screen w-full scroll-smooth hide-scrollbar relative">
-            <div id="about" className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative">
-              <Hero />
-              <About />
-              <Skills />
-              <Experience />
-              <Education />
-              <Footer />
-            </div>
-            <div id="projects" className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative flex flex-col justify-between">
-              <div>
-                <Projects />
-              </div>
-              <Footer />
-            </div>
-            <div id="posts" className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden snap-start relative flex flex-col justify-between">
-              <div>
-                <Posts />
-              </div>
-              <Footer />
-            </div>
-          </main>
-        </div>
+        <PortfolioHome />
       </SiteDataProvider>
     </LocaleProvider>
-  )
+  );
 }

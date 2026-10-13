@@ -1,119 +1,97 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "nodejs";
-
-export const alt = "Phan Huỳnh Văn Đô — Embedded Systems & AIoT Engineer";
-export const size = {
-  width: 1200,
-  height: 630,
-};
+export const alt = "Phan Huỳnh Văn Đô — Embedded Systems, IoT & Edge AI";
+export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default async function Image() {
+export default function Image() {
   return new ImageResponse(
-    (
+    <div
+      style={{
+        height: "100%",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: "54px 64px",
+        background: "#f7f8f2",
+        color: "#183f36",
+        fontFamily: "sans-serif",
+      }}
+    >
       <div
         style={{
-          height: "100%",
-          width: "100%",
           display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
+          alignItems: "center",
           justifyContent: "space-between",
-          backgroundColor: "#080a0d",
-          backgroundImage: "radial-gradient(circle at 25px 25px, #18221c 2%, transparent 0%), radial-gradient(circle at 75px 75px, #0f1612 2%, transparent 0%)",
-          backgroundSize: "100px 100px",
-          padding: "60px 80px",
-          fontFamily: "sans-serif",
-          color: "#ffffff",
+          fontSize: 24,
         }}
       >
-        {/* Top Tag & Status */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-          <div
+        <span style={{ fontWeight: 700 }}>phanhuynh.</span>
+        <span style={{ fontSize: 15, letterSpacing: 2 }}>
+          EMBEDDED SYSTEMS / IoT / EDGE AI
+        </span>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
+          <span style={{ fontSize: 22 }}>Phan Huỳnh Văn Đô</span>
+          <span
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              padding: "8px 20px",
-              borderRadius: "50px",
-              backgroundColor: "rgba(16, 185, 129, 0.12)",
-              border: "1px solid rgba(16, 185, 129, 0.35)",
-              color: "#34d399",
-              fontSize: 20,
+              fontSize: 76,
               fontWeight: 700,
-              letterSpacing: "1px",
-              textTransform: "uppercase",
+              letterSpacing: -4,
+              lineHeight: 1.08,
             }}
           >
-            <div style={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: "#10b981" }} />
-            Robotics & AIoT Engineering
-          </div>
-
-          <div
+            Where hardware
+          </span>
+          <span
             style={{
-              fontSize: 22,
-              fontWeight: 600,
-              color: "#9ca3af",
-              letterSpacing: "0.5px",
+              fontSize: 76,
+              fontWeight: 700,
+              letterSpacing: -4,
+              lineHeight: 1.08,
             }}
           >
-            phanhuynh.id.vn
-          </div>
+            meets intelligence.
+          </span>
         </div>
-
-        {/* Center Main Info */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "20px" }}>
-          <h1
-            style={{
-              fontSize: 64,
-              fontWeight: 900,
-              letterSpacing: "-2px",
-              lineHeight: 1.1,
-              color: "#f9fafb",
-              margin: 0,
-              textShadow: "0 10px 30px rgba(0,0,0,0.8)",
-            }}
-          >
-            Phan Huỳnh Văn Đô
-          </h1>
-          <p
-            style={{
-              fontSize: 30,
-              fontWeight: 500,
-              color: "#a1a1aa",
-              margin: 0,
-              maxWidth: "900px",
-              lineHeight: 1.35,
-            }}
-          >
-            Embedded Systems & Edge AI Engineer · ROS 2 · STM32 · YOLO · IoT
-          </p>
-        </div>
-
-        {/* Bottom Tech Badges */}
-        <div style={{ display: "flex", alignItems: "center", gap: "14px", width: "100%" }}>
-          {["ROS 2 & Gazebo", "Embedded STM32 / RTOS", "YOLO & Edge AI", "Robotics Kinematics", "IoT Cloud"].map((tech) => (
-            <div
-              key={tech}
-              style={{
-                padding: "8px 18px",
-                borderRadius: "12px",
-                backgroundColor: "#161d19",
-                border: "1px solid #27372e",
-                color: "#e4e4e7",
-                fontSize: 18,
-                fontWeight: 600,
-              }}
-            >
-              {tech}
-            </div>
-          ))}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 180,
+            height: 180,
+            borderRadius: 90,
+            background: "#d4ee95",
+            fontSize: 135,
+          }}
+        >
+          ✳
         </div>
       </div>
-    ),
-    {
-      ...size,
-    }
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderTop: "1px solid #dce2d6",
+          paddingTop: 22,
+          fontSize: 18,
+        }}
+      >
+        <span>Curiosity. Systems thinking. Hands-on building.</span>
+        <span>phanhuynh.id.vn</span>
+      </div>
+    </div>,
+    size,
   );
 }

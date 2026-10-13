@@ -1,95 +1,102 @@
-'use client'
+"use client"
 
 import * as React from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import * as DialogPrimitive from "@radix-ui/react-dialog"
+import { AlertCircle, ArrowUpRight, Check, Cpu, Loader2, Mail, X } from "lucide-react"
 import {
-  X,
-  Send,
-  Mail,
-  MapPin,
-  Clock,
-  Sparkles,
-  CheckCircle2,
-  AlertCircle,
-  ArrowRight,
-  ShieldCheck,
-  Building2,
-  Globe
-} from "lucide-react"
+  Dialog,
+  DialogClose,
+  DialogDescription,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { useSiteData } from "@/components/cv/site-data-context"
 import { useLocale } from "@/components/cv/locale-context"
+import "./contact-dialog.css"
 
 const TOPIC_OPTIONS = [
-  { id: "project", label: { vi: "Dự án mới", en: "A new brand" } },
-  { id: "website", label: { vi: "Web & Phần mềm", en: "A website" } },
-  { id: "consulting", label: { vi: "Tư vấn kỹ thuật", en: "Editorial" } },
-  { id: "other", label: { vi: "Chủ đề khác", en: "Something else" } },
-]
+  { id: "embedded", label: { vi: "Hệ thống nhúng & IoT", en: "Embedded & IoT" } },
+  { id: "software", label: { vi: "Web & phần mềm", en: "Web & software" } },
+  { id: "career", label: { vi: "Cơ hội nghề nghiệp", en: "Career opportunity" } },
+  { id: "other", label: { vi: "Trao đổi khác", en: "Something else" } },
+] as const
+
+type FieldName = "name" | "email" | "message"
+type FieldErrors = Partial<Record<FieldName, string>>
+type ContactResponse = {
+  ok?: boolean
+  ticket?: string
+  message?: string
+  errors?: FieldErrors
+}
 
 export function StudioContactModal() {
   const { profile } = useSiteData()
   const { t, locale } = useLocale()
-
+  const id = React.useId()
+  const nameInput = React.useRef<HTMLInputElement>(null)
+  const opener = React.useRef<HTMLElement | null>(null)
+  const feedback = React.useRef<HTMLDivElement>(null)
   const [isOpen, setIsOpen] = React.useState(false)
   const [name, setName] = React.useState("")
   const [email, setEmail] = React.useState("")
-  const [selectedTopic, setSelectedTopic] = React.useState("website")
+  const [selectedTopic, setSelectedTopic] = React.useState<string>("embedded")
   const [message, setMessage] = React.useState("")
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [status, setStatus] = React.useState<"idle" | "success" | "error">("idle")
   const [statusMessage, setStatusMessage] = React.useState("")
   const [ticketId, setTicketId] = React.useState("")
+  const [fieldErrors, setFieldErrors] = React.useState<FieldErrors>({})
 
-  // Global event listener to open modal from anywhere
   React.useEffect(() => {
     const handleOpen = () => {
+      opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+      if (!isSubmitting) {
+        setStatus("idle")
+        setStatusMessage("")
+        setFieldErrors({})
+        setTicketId("")
+      }
       setIsOpen(true)
-      setStatus("idle")
-      setStatusMessage("")
     }
     window.addEventListener("open-contact-modal", handleOpen)
+    return () => window.removeEventListener("open-contact-modal", handleOpen)
+  }, [isSubmitting])
 
-    // Also support escape key to close
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsOpen(false)
-    }
-    window.addEventListener("keydown", handleKeyDown)
-
-    return () => {
-      window.removeEventListener("open-contact-modal", handleOpen)
-      window.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [])
-
-  // Lock body scroll when modal is open
   React.useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = ""
-    }
-    return () => {
-      document.body.style.overflow = ""
-    }
-  }, [isOpen])
+    if (isOpen && status !== "idle") feedback.current?.focus()
+  }, [isOpen, status])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!name.trim() || !email.trim() || !message.trim()) {
+  function clearFieldError(field: FieldName) {
+    setFieldErrors((previous) => ({ ...previous, [field]: undefined }))
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (isSubmitting) return
+
+    const errors: FieldErrors = {}
+    if (name.trim().length < 2) errors.name = t("Vui lòng nhập ít nhất 2 ký tự.", "Please enter at least 2 characters.")
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) errors.email = t("Vui lòng nhập email hợp lệ.", "Please enter a valid email address.")
+    if (message.trim().length < 10) errors.message = t("Vui lòng nhập ít nhất 10 ký tự.", "Please enter at least 10 characters.")
+    setFieldErrors(errors)
+
+    if (Object.keys(errors).length > 0) {
       setStatus("error")
-      setStatusMessage(t("Vui lòng điền đầy đủ các trường thông tin.", "Please fill in all required fields."))
+      setStatusMessage(t("Vui lòng kiểm tra các trường được đánh dấu.", "Please check the highlighted fields."))
       return
     }
 
     setIsSubmitting(true)
     setStatus("idle")
     setStatusMessage("")
-
-    const topicObj = TOPIC_OPTIONS.find((o) => o.id === selectedTopic)
-    const topicLabel = topicObj ? topicObj.label[locale === "en" ? "en" : "vi"] : selectedTopic
+    setTicketId("")
+    const topic = TOPIC_OPTIONS.find((option) => option.id === selectedTopic)
+    const topicLabel = topic?.label[locale] ?? selectedTopic
 
     try {
-      const res = await fetch("/api/contact", {
+      const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -99,300 +106,213 @@ export function StudioContactModal() {
           message: `[Mục đích: ${topicLabel}]\n\n${message.trim()}`,
         }),
       })
+      const data: ContactResponse = await response.json().catch(() => ({}))
 
-      const data = await res.json().catch(() => ({}))
-
-      if (res.ok && data.ok) {
+      if (response.ok && data.ok) {
         setStatus("success")
-        setTicketId(data.ticket || `ST-${Date.now().toString(36).toUpperCase()}`)
-        setStatusMessage(
-          data.message ||
-            t(
-              "Tin nhắn của bạn đã được gửi thành công! Tôi sẽ liên hệ lại sớm nhất.",
-              "Your message has been sent successfully! I will get back to you shortly."
-            )
-        )
-        // Clear fields
+        setTicketId(typeof data.ticket === "string" ? data.ticket : "")
+        setStatusMessage(t("Cảm ơn bạn đã liên hệ. Tin nhắn đã được nhận thành công.", "Thanks for reaching out. Your message has been received."))
         setName("")
         setEmail("")
         setMessage("")
       } else {
         setStatus("error")
+        if (data.errors) {
+          const responseErrors: FieldErrors = {}
+          for (const field of ["name", "email", "message"] as const) {
+            const fieldError = data.errors[field]
+            if (typeof fieldError === "string") {
+              responseErrors[field] = t(fieldError, "Please check this field and remove unsupported content.")
+            }
+          }
+          setFieldErrors(responseErrors)
+        }
         setStatusMessage(
-          data.message ||
-            t(
-              "Đã có lỗi xảy ra trong quá trình gửi. Vui lòng thử lại sau.",
-              "An error occurred while sending your message. Please try again."
-            )
+          response.status === 429
+            ? t("Bạn gửi quá nhanh. Vui lòng đợi một phút rồi thử lại.", "Please wait a minute before trying again.")
+            : response.status === 422
+              ? t("Vui lòng kiểm tra thông tin và thử lại.", "Please check your details and try again.")
+              : t("Chưa thể gửi tin nhắn. Vui lòng thử lại hoặc liên hệ qua email.", "Your message could not be sent. Please try again or use email.")
         )
       }
     } catch {
       setStatus("error")
-      setStatusMessage(
-        t(
-          "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng.",
-          "Could not connect to the server. Please check your network connection."
-        )
-      )
+      setStatusMessage(t("Không thể kết nối. Vui lòng kiểm tra mạng và thử lại.", "Could not connect. Please check your connection and try again."))
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const handleReset = () => {
+  function handleReset() {
     setStatus("idle")
     setStatusMessage("")
     setTicketId("")
+    setFieldErrors({})
+    requestAnimationFrame(() => nameInput.current?.focus())
   }
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto">
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            onClick={() => setIsOpen(false)}
-            className="fixed inset-0 bg-black/65 backdrop-blur-md"
-            aria-hidden
-          />
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogPortal>
+        <DialogOverlay className="contact-dialog-overlay" />
+        <DialogPrimitive.Content
+          className="contact-dialog-panel"
+          lang={locale}
+          onOpenAutoFocus={(event) => {
+            if (nameInput.current && !isSubmitting) {
+              event.preventDefault()
+              nameInput.current.focus()
+            }
+          }}
+          onCloseAutoFocus={(event) => {
+            if (opener.current?.isConnected) {
+              event.preventDefault()
+              opener.current.focus()
+            }
+          }}
+        >
+          <DialogClose className="contact-dialog-close" aria-label={t("Đóng biểu mẫu liên hệ", "Close contact form")}>
+            <X size={19} aria-hidden="true" />
+          </DialogClose>
 
-          {/* Modal Card */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 15 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            transition={{ type: "spring", duration: 0.35, bounce: 0.05 }}
-            className="relative w-full max-w-5xl rounded-[28px] sm:rounded-[32px] border border-[#e5dfd5] dark:border-[#262c3a] bg-[#f9f7f2] dark:bg-[#0e121a] text-[#1e1b18] dark:text-[#f3f4f6] shadow-2xl overflow-hidden z-10 my-auto"
-          >
-            {/* Close Button */}
-            <button
-              onClick={() => setIsOpen(false)}
-              className="absolute top-5 right-5 sm:top-6 sm:right-6 p-2 rounded-full bg-[#ede8df] dark:bg-[#1a202c] text-[#555] dark:text-[#a0aec0] hover:text-foreground hover:bg-[#e2dcce] dark:hover:bg-[#2d3748] transition-colors z-20 cursor-pointer shadow-sm"
-              aria-label="Close modal"
-            >
-              <X className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
+          <aside className="contact-dialog-intro">
+            <span className="contact-dialog-eyebrow"><span />{t("BẮT ĐẦU CUỘC TRÒ CHUYỆN", "START A CONVERSATION")}</span>
+            <div className="contact-dialog-symbol" aria-hidden="true"><Cpu size={34} strokeWidth={1.4} /></div>
+            <DialogTitle className="contact-dialog-title">
+              {t("Cùng tạo nên", "Let’s build")}<br />
+              <span>{t("điều hữu ích.", "something useful.")}</span>
+            </DialogTitle>
+            <DialogDescription className="contact-dialog-description">
+              {t(
+                "Một ý tưởng IoT, sản phẩm mới hay cơ hội cộng tác? Chia sẻ điều bạn đang nghĩ tới.",
+                "An IoT idea, a new product, or an opportunity to collaborate? Tell me what you have in mind."
+              )}
+            </DialogDescription>
+            {profile.email && (
+              <a className="contact-dialog-email" href={`mailto:${profile.email}`}>
+                <span className="contact-dialog-email-label"><Mail size={15} aria-hidden="true" />{t("HOẶC GỬI EMAIL TRỰC TIẾP", "OR EMAIL ME DIRECTLY")}</span>
+                <span className="contact-dialog-email-address">{profile.email}<ArrowUpRight size={17} aria-hidden="true" /></span>
+              </a>
+            )}
+          </aside>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1.4fr] divide-y lg:divide-y-0 lg:divide-x divide-[#e8e2d8] dark:divide-[#202736]">
-              {/* ================= LEFT COLUMN: STUDIO INFO ================= */}
-              <div className="p-6 sm:p-8 md:p-10 flex flex-col justify-between space-y-8">
-                <div className="space-y-6">
-                  {/* Tag Header */}
-                  <div className="flex items-center gap-2 font-mono text-[11px] font-bold text-primary tracking-[0.14em] uppercase">
-                    <span>04 — CORRESPONDENCE</span>
-                  </div>
-
-                  {/* Main Title */}
-                  <h2 className="text-3xl sm:text-4xl md:text-[42px] font-bold tracking-tight leading-[1.15] text-[#1c1917] dark:text-[#f8fafc] font-serif">
-                    {t("Write to the studio.", "Write to the studio.")}
-                  </h2>
-
-                  {/* Editorial Subtitle */}
-                  <p className="text-sm sm:text-[15px] leading-relaxed text-[#665f57] dark:text-[#94a3b8]">
-                    {t(
-                      "Các đề xuất dự án mới hoặc trao đổi kỹ thuật được phản hồi nhanh chóng trong vòng 24–48 giờ. Tôi luôn sẵn sàng thảo luận về các cơ hội hợp tác phù hợp.",
-                      "New commissions and project inquiries are reviewed on schedule. If the work is a fit, you will hear back within 24–48 hours — usually sooner."
-                    )}
-                  </p>
-                </div>
-
-                {/* Metadata List */}
-                <div className="space-y-5 pt-4 border-t border-[#eae4da] dark:border-[#1e2533]">
-                  {/* Email */}
-                  <div>
-                    <span className="block font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#8a8175] dark:text-[#64748b]">
-                      EMAIL
-                    </span>
-                    <a
-                      href={`mailto:${profile.email || "phanhuynhvando2004@gmail.com"}`}
-                      className="text-sm sm:text-[15px] font-medium text-[#1c1917] dark:text-[#e2e8f0] hover:text-primary transition-colors underline-offset-4 hover:underline"
-                    >
-                      {profile.email || "phanhuynhvando2004@gmail.com"}
-                    </a>
-                  </div>
-
-                  {/* Studio / Location */}
-                  <div>
-                    <span className="block font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#8a8175] dark:text-[#64748b]">
-                      STUDIO / LOCATION
-                    </span>
-                    <p className="text-sm sm:text-[15px] font-medium text-[#1c1917] dark:text-[#e2e8f0]">
-                      {profile.location || "Đà Nẵng, Việt Nam"}
-                    </p>
-                  </div>
-
-                  {/* Availability */}
-                  <div>
-                    <span className="block font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#8a8175] dark:text-[#64748b]">
-                      AVAILABILITY
-                    </span>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                      <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                        {t("Sẵn sàng nhận dự án mới (Booking Q4 2026)", "Booking Q4 2026 / Open for projects")}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+          <div className="contact-dialog-form-panel">
+            {status === "success" ? (
+              <div className="contact-dialog-success" ref={feedback} tabIndex={-1} role="status">
+                <span className="contact-dialog-success-icon"><Check size={28} aria-hidden="true" /></span>
+                <p className="contact-dialog-eyebrow">{t("TIN NHẮN ĐÃ ĐƯỢC NHẬN", "MESSAGE RECEIVED")}</p>
+                <h3>{t("Cảm ơn bạn.", "Thank you.")}</h3>
+                <p>{statusMessage}</p>
+                {ticketId && <p className="contact-dialog-ticket">{t("Mã tham chiếu", "Reference")}: <code>{ticketId}</code></p>}
+                <button className="contact-dialog-submit" type="button" onClick={handleReset}>
+                  {t("Gửi tin nhắn khác", "Send another message")}<ArrowUpRight size={18} aria-hidden="true" />
+                </button>
               </div>
-
-              {/* ================= RIGHT COLUMN: INTERACTIVE FORM ================= */}
-              <div className="p-6 sm:p-8 md:p-10 flex flex-col justify-between">
-                {status === "success" ? (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="my-auto py-12 text-center space-y-4"
-                  >
-                    <div className="w-14 h-14 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto shadow-sm">
-                      <CheckCircle2 className="w-7 h-7" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-foreground">
-                      {t("Đã gửi tin nhắn thành công!", "Letter sent successfully!")}
-                    </h3>
-                    <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-                      {statusMessage}
-                    </p>
-                    {ticketId && (
-                      <div className="inline-block px-3 py-1.5 rounded-lg bg-muted text-xs font-mono text-foreground font-semibold border border-border">
-                        Mã tham chiếu: {ticketId}
-                      </div>
-                    )}
-                    <div className="pt-4">
-                      <button
-                        onClick={handleReset}
-                        className="px-5 py-2 rounded-xl text-xs font-semibold bg-muted hover:bg-muted/80 text-foreground transition-all cursor-pointer"
-                      >
-                        {t("Gửi tin nhắn khác", "Send another letter")}
-                      </button>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Row 1: Name & Email */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Name Field */}
-                      <div className="space-y-1.5">
-                        <label className="block font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#8a8175] dark:text-[#64748b]">
-                          {t("NAME", "NAME")} <span className="text-rose-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          placeholder={t("Họ và tên của bạn", "Your name")}
-                          required
-                          maxLength={80}
-                          className="w-full px-4 py-2.5 rounded-xl border border-[#ded8cd] dark:border-[#262e3d] bg-[#f2eee6] dark:bg-[#151a24] text-sm text-[#1e1b18] dark:text-[#f3f4f6] placeholder-[#9c9387] dark:placeholder-[#5a677d] focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
-                        />
-                      </div>
-
-                      {/* Email Field */}
-                      <div className="space-y-1.5">
-                        <label className="block font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#8a8175] dark:text-[#64748b]">
-                          {t("EMAIL", "EMAIL")} <span className="text-rose-500">*</span>
-                        </label>
-                        <input
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="you@studio.com"
-                          required
-                          maxLength={100}
-                          className="w-full px-4 py-2.5 rounded-xl border border-[#ded8cd] dark:border-[#262e3d] bg-[#f2eee6] dark:bg-[#151a24] text-sm text-[#1e1b18] dark:text-[#f3f4f6] placeholder-[#9c9387] dark:placeholder-[#5a677d] focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Row 2: What are you writing about? (Topic Pills) */}
-                    <div className="space-y-2">
-                      <label className="block font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#8a8175] dark:text-[#64748b]">
-                        {t("WHAT ARE YOU WRITING ABOUT?", "WHAT ARE YOU WRITING ABOUT?")}
-                      </label>
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        {TOPIC_OPTIONS.map((topic) => {
-                          const isSelected = selectedTopic === topic.id
-                          const labelText = topic.label[locale === "en" ? "en" : "vi"]
-                          return (
-                            <button
-                              key={topic.id}
-                              type="button"
-                              onClick={() => setSelectedTopic(topic.id)}
-                              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer border ${
-                                isSelected
-                                  ? "bg-[#1f2922] text-[#f8fafc] border-[#1f2922] dark:bg-primary dark:text-primary-foreground dark:border-primary shadow-sm scale-[1.02]"
-                                  : "bg-[#ece6db] text-[#4a443c] border-[#ddd7cc] dark:bg-[#181f2c] dark:text-[#94a3b8] dark:border-[#283244] hover:bg-[#e4ded2] dark:hover:bg-[#1f2838]"
-                              }`}
-                            >
-                              {labelText}
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Row 3: Message */}
-                    <div className="space-y-1.5">
-                      <label className="block font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#8a8175] dark:text-[#64748b]">
-                        {t("MESSAGE", "MESSAGE")} <span className="text-rose-500">*</span>
-                      </label>
-                      <textarea
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        placeholder={t(
-                          "Mô tả ngắn gọn về dự án, tiến độ mong muốn hoặc nội dung bạn muốn trao đổi...",
-                          "A few lines on the project, timing, and how you found the studio."
-                        )}
+            ) : (
+              <form onSubmit={handleSubmit} className="contact-dialog-form" aria-busy={isSubmitting}>
+                <div className="contact-dialog-form-heading">
+                  <p className="contact-dialog-eyebrow">{t("CHI TIẾT CỦA BẠN", "YOUR DETAILS")}</p>
+                  <p>{t("Các trường có dấu * là bắt buộc.", "Fields marked * are required.")}</p>
+                </div>
+                <fieldset className="contact-dialog-fields" disabled={isSubmitting}>
+                  <div className="contact-dialog-field-row">
+                    <div className="contact-dialog-field">
+                      <label htmlFor={`${id}-name`}>{t("Họ và tên", "Your name")} <span aria-hidden="true">*</span></label>
+                      <input
+                        ref={nameInput}
+                        id={`${id}-name`}
+                        name="name"
+                        type="text"
+                        autoComplete="name"
+                        placeholder={t("Tên của bạn", "How should I call you?")}
+                        value={name}
+                        onChange={(event) => { setName(event.target.value); clearFieldError("name") }}
                         required
-                        rows={4}
-                        maxLength={2000}
-                        className="w-full p-4 rounded-2xl border border-[#ded8cd] dark:border-[#262e3d] bg-[#f2eee6] dark:bg-[#151a24] text-sm text-[#1e1b18] dark:text-[#f3f4f6] placeholder-[#9c9387] dark:placeholder-[#5a677d] focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary leading-relaxed resize-none transition-all shadow-inner"
+                        minLength={2}
+                        maxLength={80}
+                        aria-invalid={Boolean(fieldErrors.name)}
+                        aria-describedby={fieldErrors.name ? `${id}-name-error` : undefined}
                       />
+                      {fieldErrors.name && <span className="contact-dialog-field-error" id={`${id}-name-error`}>{fieldErrors.name}</span>}
                     </div>
-
-                    {/* Status Feedback */}
-                    {status === "error" && (
-                      <div className="flex items-center gap-2 p-3 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs border border-rose-500/20">
-                        <AlertCircle className="w-4 h-4 shrink-0" />
-                        <span>{statusMessage}</span>
-                      </div>
-                    )}
-
-                    {/* Bottom Bar: Privacy Note + Submit Button */}
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-                      <p className="text-[11px] text-[#8a8175] dark:text-[#64748b] text-center sm:text-left">
-                        {t("Không spam. Tin nhắn được gửi trực tiếp đến Phan Huỳnh Văn Đô.", "No mailing list. Notes stay in this browser.")}
-                      </p>
-
-                      <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#203629] hover:bg-[#2a4736] text-[#eaf3ed] dark:bg-primary dark:text-primary-foreground dark:hover:brightness-110 font-semibold text-xs transition-all shadow-md cursor-pointer disabled:opacity-50 shrink-0"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Sparkles className="w-3.5 h-3.5 animate-spin" />
-                            <span>{t("Đang gửi...", "Sending...")}</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>{t("Send letter", "Send letter")}</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </>
-                        )}
-                      </button>
+                    <div className="contact-dialog-field">
+                      <label htmlFor={`${id}-email`}>{t("Địa chỉ email", "Email address")} <span aria-hidden="true">*</span></label>
+                      <input
+                        id={`${id}-email`}
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(event) => { setEmail(event.target.value); clearFieldError("email") }}
+                        required
+                        maxLength={100}
+                        aria-invalid={Boolean(fieldErrors.email)}
+                        aria-describedby={fieldErrors.email ? `${id}-email-error` : undefined}
+                      />
+                      {fieldErrors.email && <span className="contact-dialog-field-error" id={`${id}-email-error`}>{fieldErrors.email}</span>}
                     </div>
-                  </form>
+                  </div>
+
+                  <fieldset className="contact-dialog-topics">
+                    <legend>{t("Bạn muốn trao đổi về", "What’s on your mind?")}</legend>
+                    <div className="contact-dialog-topic-list">
+                      {TOPIC_OPTIONS.map((topic) => (
+                        <label key={topic.id} className="contact-dialog-topic" data-selected={selectedTopic === topic.id}>
+                          <input
+                            type="radio"
+                            name="topic"
+                            value={topic.id}
+                            checked={selectedTopic === topic.id}
+                            onChange={() => setSelectedTopic(topic.id)}
+                          />
+                          <span>{topic.label[locale]}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+
+                  <div className="contact-dialog-field">
+                    <label htmlFor={`${id}-message`}>{t("Tin nhắn", "Your message")} <span aria-hidden="true">*</span></label>
+                    <textarea
+                      id={`${id}-message`}
+                      name="message"
+                      placeholder={t("Một vài dòng về ý tưởng, dự án hoặc điều bạn muốn trao đổi…", "A few lines about your idea, project, or what you’d like to discuss…")}
+                      value={message}
+                      onChange={(event) => { setMessage(event.target.value); clearFieldError("message") }}
+                      required
+                      minLength={10}
+                      maxLength={2000}
+                      rows={4}
+                      aria-invalid={Boolean(fieldErrors.message)}
+                      aria-describedby={`${id}-message-hint${fieldErrors.message ? ` ${id}-message-error` : ""}`}
+                    />
+                    <div className="contact-dialog-message-meta">
+                      <span id={`${id}-message-hint`}>{t("Ít nhất 10 ký tự.", "At least 10 characters.")}</span>
+                      <span aria-hidden="true">{message.length}/2000</span>
+                    </div>
+                    {fieldErrors.message && <span className="contact-dialog-field-error" id={`${id}-message-error`}>{fieldErrors.message}</span>}
+                  </div>
+                </fieldset>
+
+                {status === "error" && (
+                  <div className="contact-dialog-error" role="alert" ref={feedback} tabIndex={-1}>
+                    <AlertCircle size={18} aria-hidden="true" /><span>{statusMessage}</span>
+                  </div>
                 )}
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+                <div className="contact-dialog-form-bottom">
+                  <p>{t("Thông tin được dùng để tiếp nhận và phản hồi tin nhắn của bạn.", "Your details are used to receive and respond to your message.")}</p>
+                  <button type="submit" className="contact-dialog-submit" disabled={isSubmitting}>
+                    {isSubmitting ? <Loader2 size={18} className="contact-dialog-spinner" aria-hidden="true" /> : null}
+                    {isSubmitting ? t("Đang gửi…", "Sending…") : t("Gửi tin nhắn", "Send message")}
+                    {!isSubmitting && <ArrowUpRight size={18} aria-hidden="true" />}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </DialogPrimitive.Content>
+      </DialogPortal>
+    </Dialog>
   )
 }

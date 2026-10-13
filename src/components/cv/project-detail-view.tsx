@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 import {
   ArrowLeft,
   Github,
@@ -35,6 +35,7 @@ import {
 import { PostThemeToggle } from "@/components/cv/post-theme-toggle"
 import { sanitizeHtml } from "@/lib/validation"
 import type { SiteProject } from "@/lib/cv/site-data-server"
+import "./detail-polish.css"
 
 interface ProjectDetailViewProps {
   project: SiteProject
@@ -86,6 +87,9 @@ export function ProjectDetailView({
   const [scrollProgress, setScrollProgress] = React.useState(0)
   const [activeSection, setActiveSection] = React.useState("overview")
   const [lightbox, setLightbox] = React.useState<{ list: string[]; index: number } | null>(null)
+  const lightboxRef = React.useRef<HTMLDivElement>(null)
+  const lightboxOpen = Boolean(lightbox)
+  const reduceMotion = useReducedMotion()
 
   const activeYtId = project.youtubeUrl ? youtubeId(project.youtubeUrl) : null
 
@@ -110,15 +114,40 @@ export function ProjectDetailView({
       }
     }
 
+    handleScroll()
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  React.useEffect(() => {
+    if (!lightboxOpen) return
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    lightboxRef.current?.querySelector<HTMLButtonElement>("button")?.focus()
+    return () => {
+      document.body.style.overflow = previousOverflow
+      previousFocus?.focus()
+    }
+  }, [lightboxOpen])
 
   // Keyboard navigation for lightbox
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setLightbox(null)
       if (lightbox) {
+        if (e.key === "Tab") {
+          const buttons = lightboxRef.current?.querySelectorAll<HTMLButtonElement>("button")
+          const first = buttons?.[0]
+          const last = buttons?.[buttons.length - 1]
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault()
+            last?.focus()
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault()
+            first?.focus()
+          }
+        }
         if (e.key === "ArrowLeft" && lightbox.index > 0) {
           setLightbox({ ...lightbox, index: lightbox.index - 1 })
         }
@@ -131,11 +160,15 @@ export function ProjectDetailView({
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [lightbox])
 
-  const copyLink = () => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(window.location.href)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2500)
+  const copyLink = async () => {
+    if (typeof window !== "undefined" && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(window.location.href)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2500)
+      } catch {
+        setCopied(false)
+      }
     }
   }
 
@@ -143,13 +176,13 @@ export function ProjectDetailView({
     const el = document.getElementById(id)
     if (el) {
       const top = el.getBoundingClientRect().top + window.scrollY - 100
-      window.scrollTo({ top, behavior: "smooth" })
+      window.scrollTo({ top, behavior: reduceMotion ? "auto" : "smooth" })
       setActiveSection(id)
     }
   }
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" })
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" })
   }
 
   const responsibilitiesList = React.useMemo(() => {
@@ -188,17 +221,17 @@ export function ProjectDetailView({
   }, [project])
 
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary/20 selection:text-primary">
+    <div className="portfolio-detail project-detail min-h-screen bg-background text-foreground selection:bg-primary/20 selection:text-primary">
       {/* Top Reading Progress Bar */}
       <div className="fixed top-0 inset-x-0 h-1 z-[100] bg-transparent">
         <div
-          className="h-full bg-gradient-to-r from-primary via-emerald-400 to-cyan-400 transition-all duration-150"
+          className="detail-progress h-full transition-all duration-150"
           style={{ width: `${scrollProgress}%` }}
         />
       </div>
 
       {/* Sticky Header Navigation */}
-      <header className="sticky top-0 z-50 h-16 border-b border-border/40 bg-background/80 backdrop-blur-xl transition-colors">
+      <header className="detail-topbar sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl transition-colors">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-4">
           {/* Back button & Breadcrumb */}
           <div className="flex items-center gap-3 min-w-0">
@@ -210,7 +243,7 @@ export function ProjectDetailView({
               <span>Về Portfolio</span>
             </Link>
             <div className="h-4 w-px bg-border/60 shrink-0 hidden sm:block" />
-            <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground truncate font-mono">
+            <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground truncate">
               <span>Dự án</span>
               <span>/</span>
               <span className="text-foreground font-medium truncate">{project.title}</span>
@@ -239,16 +272,18 @@ export function ProjectDetailView({
                 className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-sm"
               >
                 <ExternalLink className="size-3.5" />
-                <span>Trải nghiệm Demo</span>
+                <span className="sm:hidden">Demo</span>
+                <span className="hidden sm:inline">Trải nghiệm Demo</span>
               </a>
             )}
 
             <button
               onClick={copyLink}
-              title="Sao chép liên kết bài viết"
+              title="Sao chép liên kết dự án"
+              aria-label={copied ? "Đã sao chép liên kết" : "Sao chép liên kết dự án"}
               className="inline-flex items-center justify-center size-8 rounded-lg border border-border/60 hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
             >
-              {copied ? <Check className="size-4 text-emerald-400" /> : <Share2 className="size-4" />}
+              {copied ? <Check className="size-4 text-primary" /> : <Share2 className="size-4" />}
             </button>
 
             <PostThemeToggle />
@@ -257,21 +292,18 @@ export function ProjectDetailView({
       </header>
 
       {/* Main Content Area */}
-      <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-16">
+      <main className="project-main container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-16">
         {/* HERO SECTION */}
-        <section className="space-y-6">
+        <section className="project-hero space-y-6">
+          <p className="detail-eyebrow">Selected work / Case study</p>
           {/* Status & Category */}
           <div className="flex flex-wrap items-center gap-2.5">
             {project.category && (
               <span className="inline-flex items-center gap-1.5 text-xs font-mono font-medium px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
-                <Sparkles className="size-3 animate-pulse" />
+                <Sparkles className="size-3" />
                 {project.category}
               </span>
             )}
-            <span className="inline-flex items-center gap-1.5 text-xs font-mono px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <span className="size-1.5 rounded-full bg-emerald-400 animate-ping" />
-              Đã hoàn thiện & Kiểm chứng
-            </span>
             {project.year && (
               <span className="inline-flex items-center gap-1.5 text-xs font-mono px-3 py-1 rounded-full bg-muted/60 text-muted-foreground border border-border/40">
                 <Calendar className="size-3" />
@@ -282,7 +314,7 @@ export function ProjectDetailView({
 
           {/* Title & Subtitle */}
           <div className="space-y-4">
-            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-[1.15]">
+            <h1 className="project-title font-semibold tracking-tight text-foreground">
               {project.title}
             </h1>
             {project.subtitle && (
@@ -293,7 +325,7 @@ export function ProjectDetailView({
           </div>
 
           {/* Meta Specs Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+          <div className="project-meta grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
             <div className="p-3.5 rounded-xl bg-card border border-border/60 space-y-1">
               <div className="text-[11px] font-mono text-muted-foreground flex items-center gap-1.5">
                 <User className="size-3.5 text-primary" /> Vai trò
@@ -333,10 +365,11 @@ export function ProjectDetailView({
 
           {/* Main Hero Showcase Media */}
           {project.image && !project.image.endsWith(".svg") ? (
-            <div className="relative w-full aspect-[16/9] sm:aspect-[21/9] rounded-2xl overflow-hidden border border-border/60 bg-muted/20 group shadow-2xl">
+            <div className="project-showcase relative w-full aspect-[16/9] sm:aspect-[21/9] overflow-hidden bg-muted/20 group">
               <Image
                 fill
-                priority
+                preload
+                sizes="(max-width: 1280px) 100vw, 1280px"
                 src={project.image}
                 alt={project.title}
                 className="object-contain transition-transform duration-500 group-hover:scale-[1.01]"
@@ -360,9 +393,9 @@ export function ProjectDetailView({
         </section>
 
         {/* 2-COLUMN CASE STUDY LAYOUT */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        <div className="project-body grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           {/* LEFT COLUMN: Main Case Study Article (8 cols) */}
-          <div className="lg:col-span-8 space-y-12 sm:space-y-16">
+          <div className="project-article lg:col-span-8 space-y-12 sm:space-y-16">
             {/* SECTION 01: OVERVIEW */}
             <section id="overview" className="scroll-mt-24 space-y-5">
               <div className="flex items-center gap-2.5 border-b border-border/60 pb-3.5">
@@ -393,19 +426,7 @@ export function ProjectDetailView({
                     </p>
                   </div>
                 </div>
-              ) : (
-                <div className="p-4 sm:p-5 rounded-2xl bg-card border border-border/60 flex gap-4 items-start shadow-sm">
-                  <div className="p-2 rounded-xl bg-primary/10 text-primary shrink-0 mt-0.5">
-                    <Zap className="size-5" />
-                  </div>
-                  <div className="space-y-1 text-sm">
-                    <h4 className="font-bold text-foreground">Mục tiêu kỹ thuật cốt lõi</h4>
-                    <p className="text-muted-foreground leading-relaxed">
-                      Tối ưu hóa khả năng vận hành thực tế, đảm bảo độ ổn định cao, giảm thiểu độ trễ phản hồi và thiết kế cấu trúc phần cứng - phần mềm chuẩn module hóa.
-                    </p>
-                  </div>
-                </div>
-              )}
+              ) : null}
             </section>
 
             {/* SECTION 02: FEATURES & RESPONSIBILITIES */}
@@ -469,6 +490,7 @@ export function ProjectDetailView({
                     >
                       <Image
                         fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 420px"
                         src={img}
                         alt={`${project.title} - Hình ảnh ${imgIdx + 1}`}
                         className="object-contain transition-transform duration-500 group-hover/img:scale-105"
@@ -544,7 +566,7 @@ export function ProjectDetailView({
           </div>
 
           {/* RIGHT COLUMN: Sticky Sidebar (4 cols) */}
-          <div className="lg:col-span-4 space-y-6">
+          <aside className="project-sidebar lg:col-span-4 space-y-6" aria-label="Thông tin dự án">
             <div className="sticky top-24 space-y-6">
               {/* Table of Contents (TOC) */}
               <div className="p-5 rounded-2xl bg-card border border-border/60 space-y-3.5 shadow-sm">
@@ -552,7 +574,7 @@ export function ProjectDetailView({
                   <BarChart3 className="size-4 text-primary" />
                   Mục lục Case Study
                 </h3>
-                <nav className="space-y-1 text-xs font-medium">
+                <nav className="space-y-1 text-xs font-medium" aria-label="Mục lục dự án">
                   {[
                     { id: "overview", label: "01. Tổng quan & Bài toán" },
                     ...(responsibilitiesList.length > 0
@@ -561,7 +583,7 @@ export function ProjectDetailView({
                     ...(project.images && project.images.length > 0
                       ? [{ id: "gallery", label: "03. Sơ đồ kiến trúc" }]
                       : []),
-                    ...(activeYtId ? [{ id: "demo", label: "04. Video Demo" }] : []),
+                    ...(project.showVideoDemo !== false && activeYtId ? [{ id: "demo", label: "04. Video Demo" }] : []),
                     ...(resultsList.length > 0
                       ? [{ id: "results", label: "05. Kết quả & Chỉ số" }]
                       : []),
@@ -569,6 +591,7 @@ export function ProjectDetailView({
                     <button
                       key={item.id}
                       onClick={() => scrollToSection(item.id)}
+                      aria-current={activeSection === item.id ? "location" : undefined}
                       className={`w-full text-left px-3 py-2 rounded-xl transition-all flex items-center justify-between ${
                         activeSection === item.id
                           ? "bg-primary/10 text-primary font-bold border-l-2 border-primary"
@@ -621,11 +644,7 @@ export function ProjectDetailView({
                   </div>
                   <div className="flex justify-between border-b border-border/40 pb-2">
                     <span>Thời gian</span>
-                    <span className="font-semibold text-foreground">{project.year || "2025 - 2026"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Trạng thái</span>
-                    <span className="font-semibold text-emerald-400">Hoàn thành & Kiểm thử</span>
+                    <span className="font-semibold text-foreground">{project.year || "—"}</span>
                   </div>
                 </div>
 
@@ -657,7 +676,7 @@ export function ProjectDetailView({
               </div>
 
               {/* Contact Author CTA Card */}
-              <div className="p-5 rounded-2xl bg-gradient-to-br from-primary/10 via-card to-card border border-primary/20 space-y-3">
+              <div className="project-contact p-5 rounded-2xl border border-primary/20 space-y-3">
                 <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
                   <Sparkles className="size-4 text-primary" />
                   Hợp tác & Trao đổi
@@ -673,12 +692,12 @@ export function ProjectDetailView({
                 </Link>
               </div>
             </div>
-          </div>
+          </aside>
         </div>
 
         {/* RELATED PROJECTS SECTION */}
         {relatedProjects.length > 0 && (
-          <section className="pt-8 sm:pt-12 border-t border-border/60 space-y-6">
+          <section className="project-related pt-8 sm:pt-12 border-t border-border/60 space-y-6">
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-xs font-mono text-primary font-bold tracking-widest uppercase">
@@ -699,17 +718,16 @@ export function ProjectDetailView({
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {relatedProjects.map((rp) => (
-                <a
+                <Link
                   key={rp.id}
                   href={`/projects/${rp.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="group block rounded-2xl overflow-hidden border border-border/60 bg-card hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-primary/5 p-4 space-y-3"
                 >
                   {rp.image && (
                     <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-muted/20 border border-border/40">
                       <Image
                         fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
                         src={rp.image}
                         alt={rp.title}
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -731,7 +749,7 @@ export function ProjectDetailView({
                     <span className="font-medium">Xem chi tiết</span>
                     <ArrowUpRight className="size-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </div>
-                </a>
+                </Link>
               ))}
             </div>
           </section>
@@ -739,7 +757,7 @@ export function ProjectDetailView({
       </main>
 
       {/* Page Footer */}
-      <footer className="border-t border-border/40 py-8 bg-muted/10 text-xs text-muted-foreground">
+      <footer className="detail-footer border-t border-border/40 py-8 text-xs text-muted-foreground">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="font-mono">
             © {new Date().getFullYear()} {authorName} · All Rights Reserved
@@ -766,8 +784,10 @@ export function ProjectDetailView({
       <AnimatePresence>
         {lightbox && (
           <motion.div
+            ref={lightboxRef}
             role="dialog"
             aria-modal="true"
+            aria-label={`Hình ảnh dự án ${project.title}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -775,9 +795,9 @@ export function ProjectDetailView({
             className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md grid place-items-center p-4 sm:p-8"
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
+              initial={{ scale: reduceMotion ? 1 : 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
+              exit={{ scale: reduceMotion ? 1 : 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
               className="relative max-w-6xl max-h-full w-full h-full flex flex-col items-center justify-center"
             >
@@ -792,6 +812,7 @@ export function ProjectDetailView({
               <div className="relative w-full h-full p-4 flex items-center justify-center group/lb">
                 <Image
                   fill
+                  sizes="100vw"
                   key={lightbox.index}
                   src={lightbox.list[lightbox.index]}
                   alt="Gallery full size preview"

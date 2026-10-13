@@ -26,6 +26,10 @@ export function LocaleProvider({
   const [locale, setLocaleState] = React.useState<Locale>(initialLocale === "en" ? "en" : "vi")
 
   React.useEffect(() => {
+    document.documentElement.lang = locale
+  }, [locale])
+
+  React.useEffect(() => {
     try {
       const stored = localStorage.getItem("cv-locale") as Locale
       if (stored && (stored === "vi" || stored === "en") && stored !== locale) {

@@ -3,10 +3,10 @@
   "version": "0.2.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3000 2>&1 | tee dev.log",
+    "dev": "next dev -p 3000",
     "build": "prisma generate && next build",
-    "postbuild": "if [ -z \"$VERCEL\" ]; then cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/; fi",
-    "start": "NODE_ENV=production bun .next/standalone/server.js 2>&1 | tee server.log",
+    "postbuild": "node scripts/postbuild.mjs",
+    "start": "node .next/standalone/server.js",
     "lint": "eslint .",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",

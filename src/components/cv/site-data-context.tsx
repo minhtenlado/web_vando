@@ -57,13 +57,16 @@ export function SiteDataProvider({
   const [loading, setLoading] = React.useState(!initialData)
   const { locale } = useLocale()
   const isFirstRun = React.useRef(true)
+  const latestRequest = React.useRef(0)
 
   const refresh = React.useCallback(async () => {
+    const requestId = ++latestRequest.current
     try {
       setLoading(true)
       const res = await fetch(`/api/site-data?locale=${locale}`, { cache: "no-store" })
-      if (res.ok) {
+      if (res.ok && requestId === latestRequest.current) {
         const json = await res.json()
+        if (requestId !== latestRequest.current) return
         setData({
           profile: json.profile ?? defaultData.profile,
           projects: json.projects ?? defaultData.projects,
@@ -75,7 +78,7 @@ export function SiteDataProvider({
     } catch {
       // keep existing data
     } finally {
-      setLoading(false)
+      if (requestId === latestRequest.current) setLoading(false)
     }
   }, [locale])
 
