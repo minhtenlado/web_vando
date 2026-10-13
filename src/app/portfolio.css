@@ -1461,3 +1461,6 @@
     break-inside: avoid;
   }
 }
+@media (max-width: 800px) {
+  .pf-search input { font-size: 16px; }
+}

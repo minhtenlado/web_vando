@@ -11,6 +11,7 @@ import {
   CommandSeparator,
 } from "@/components/ui/command"
 import { useTheme } from "next-themes"
+import { externalUrl } from "@/lib/cv/presentation"
 import { 
   Moon, 
   Sun, 
@@ -89,6 +90,11 @@ export function CommandPalette() {
     }
   }
 
+  const openExternal = (value: string) => {
+    const url = externalUrl(value)
+    if (url) window.open(url, "_blank", "noopener,noreferrer")
+  }
+
   return (
     <>
       <CommandDialog open={open} onOpenChange={setOpen}>
@@ -100,7 +106,7 @@ export function CommandPalette() {
           <CommandGroup heading={t("Thao tác nhanh", "Quick Actions")}>
             <CommandItem onSelect={() => runCommand(() => window.dispatchEvent(new CustomEvent("open-contact-modal")))}>
               <Mail className="mr-2 h-4 w-4 text-emerald-400" />
-              <span>{t("Gửi tin nhắn liên hệ (Write to Studio)", "Write to the Studio (Contact)")}</span>
+              <span>{t("Gửi tin nhắn liên hệ", "Send a message")}</span>
             </CommandItem>
             <CommandItem onSelect={() => runCommand(() => copyLink())}>
               <LinkIcon className="mr-2 h-4 w-4 text-primary" />
@@ -208,19 +214,19 @@ export function CommandPalette() {
               </CommandItem>
             )}
             {profile.website && (
-              <CommandItem onSelect={() => runCommand(() => window.open(`https://${profile.website}`, "_blank"))}>
+              <CommandItem onSelect={() => runCommand(() => openExternal(profile.website))}>
                 <Globe className="mr-2 h-4 w-4 text-indigo-400" />
                 <span>Website: {profile.website}</span>
               </CommandItem>
             )}
             {profile.github && (
-              <CommandItem onSelect={() => runCommand(() => window.open(`https://${profile.github}`, "_blank"))}>
+              <CommandItem onSelect={() => runCommand(() => openExternal(profile.github))}>
                 <Github className="mr-2 h-4 w-4" />
                 <span>GitHub</span>
               </CommandItem>
             )}
             {profile.linkedin && (
-              <CommandItem onSelect={() => runCommand(() => window.open(`https://${profile.linkedin}`, "_blank"))}>
+              <CommandItem onSelect={() => runCommand(() => openExternal(profile.linkedin))}>
                 <Linkedin className="mr-2 h-4 w-4 text-blue-500" />
                 <span>LinkedIn</span>
               </CommandItem>
