@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
-import { Alumni_Sans, Albert_Sans, JetBrains_Mono } from "next/font/google";
+import { Manrope, Lora, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import "./portfolio.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/cv/theme-provider";
 import Script from "next/script";
 import { getSiteData } from "@/lib/cv/site-data-server";
+import { cookies } from "next/headers";
 
-const alumniSans = Alumni_Sans({
-  variable: "--font-alumni-sans",
-  subsets: ["latin"],
-  weight: ["100", "300", "400"],
+const manrope = Manrope({
+  variable: "--font-geist-sans",
+  subsets: ["latin", "vietnamese"],
+  display: "swap",
 });
-
-const albertSans = Albert_Sans({
-  variable: "--font-albert-sans",
-  subsets: ["latin"],
-  weight: ["400", "500"],
+const editorial = Lora({
+  variable: "--font-editorial",
+  subsets: ["latin", "vietnamese"],
+  style: "italic",
+  weight: "400",
+  display: "swap",
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -24,18 +27,31 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const data = await getSiteData("vi");
+  const locale =
+    (await cookies()).get("cv-locale")?.value === "en" ? "en" : "vi";
+  const data = await getSiteData(locale);
   const settings = data.profile.settings || {};
   const name = data.profile.name || "Phan Huỳnh Văn Đô";
+  const title = settings.metaTitle || `${name} — Embedded Systems & Edge AI`;
+  const description =
+    settings.metaDescription ||
+    "Embedded systems, IoT, robotics, and Edge AI. Explore the projects and technical notes of Phan Huỳnh Văn Đô.";
 
   return {
     metadataBase: new URL("https://phanhuynh.id.vn"),
     alternates: {
       canonical: "/",
     },
-    title: settings.title || name,
-    description: settings.description,
-    keywords: settings.keywords,
+    title,
+    description,
+    keywords: settings.keywords || [
+      "Phan Huỳnh Văn Đô",
+      "Embedded Systems",
+      "IoT",
+      "Edge AI",
+      "Robotics",
+      "Firmware",
+    ],
     authors: [{ name }],
     robots: {
       index: true,
@@ -49,16 +65,16 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     },
     openGraph: {
-      title: settings.title || name,
-      description: settings.description,
+      title,
+      description,
       type: "website",
       url: "https://phanhuynh.id.vn",
       siteName: name,
     },
     twitter: {
       card: "summary_large_image",
-      title: settings.title || name,
-      description: settings.description,
+      title,
+      description,
     },
     other: {
       "google-adsense-account": "ca-pub-2941183923177148",
@@ -74,13 +90,16 @@ export default async function RootLayout({
   const data = await getSiteData("vi");
   const settings = data.profile.settings || {};
   return (
-    <html lang="vi" suppressHydrationWarning className="overflow-x-clip">
-      <body
-        className={`${alumniSans.variable} ${albertSans.variable} ${jetbrainsMono.variable} antialiased bg-background text-foreground overflow-x-clip font-sans`}
-      >
+    <html
+      lang={(await cookies()).get("cv-locale")?.value === "en" ? "en" : "vi"}
+      suppressHydrationWarning
+      className={`${manrope.variable} ${editorial.variable} ${jetbrainsMono.variable} overflow-x-clip`}
+    >
+      <body className="antialiased bg-background text-foreground overflow-x-clip font-sans">
         <ThemeProvider
           attribute="class"
-          defaultTheme={settings.darkMode === false ? "light" : "dark"}
+          defaultTheme="light"
+          storageKey="phanhuynh-theme-v2"
           enableSystem={false}
           disableTransitionOnChange
         >

@@ -1,16 +1,7 @@
 import { db } from "@/lib/db";
-import {
-  type Project,
-  type Experience,
-  profile as defaultProfile,
-  projects as defaultProjects,
-  defaultPosts,
-  stats as defaultStats,
-  skillGroups as defaultSkillGroups,
-  educations as defaultEducations,
-  certifications as defaultCertifications,
-} from "@/lib/cv/data";
-import { initialSettings } from "@/components/admin/settings-tab";
+import { type Project, type Experience } from "@/lib/cv/data";
+import publicSnapshot from "./public-snapshot.json";
+import { getPublicSettings, publicSettingsDefaults } from "./public-settings";
 
 export type SiteProfile = {
   name: string
@@ -95,23 +86,9 @@ export type SiteData = {
 
 export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
   const loc = locale === "en" ? "en" : "vi"
-  const profileId = `profile-${loc}`
-
-  const mappedDefaultStats = defaultStats.map((s) => ({
-    value: s.value,
-    label: typeof s.label === "object" ? (s.label[loc] || s.label.vi) : s.label,
-  }))
-  const mappedDefaultSkillGroups = defaultSkillGroups.map((g) => ({
-    title: typeof g.title === "object" ? (g.title[loc] || g.title.vi) : g.title,
-    icon: g.icon,
-    skills: g.skills,
-  }))
-  const mappedDefaultEducations = defaultEducations.map((e) => ({
-    degree: typeof e.degree === "object" ? (e.degree[loc] || e.degree.vi) : e.degree,
-    school: typeof e.school === "object" ? (e.school[loc] || e.school.vi) : e.school,
-    period: e.period,
-    detail: typeof e.detail === "object" ? (e.detail[loc] || e.detail.vi) : e.detail,
-  }))
+  // A public content snapshot makes the checkout usable without production credentials.
+  // Once a database is configured, its content (including deliberately empty lists) wins.
+  if (!isDatabaseConfigured()) return getSnapshot(loc)
 
   let profile: SiteProfile = {
     name: "",
@@ -144,90 +121,18 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
   let projects: SiteProject[] = []
   let experiences: SiteExperience[] = []
   let posts: SitePost[] = []
-  let settings: any = { ...initialSettings }
+  let settings = { ...publicSettingsDefaults }
 
   try {
-    const [pRowInitial, pRows, eRows] = await Promise.all([
-      db.profile.findUnique({ where: { id: profileId } }),
+    const [pRows, eRows] = await Promise.all([
       db.project.findMany({ where: { locale: loc }, orderBy: { order: "asc" } }),
       db.experience.findMany({ where: { locale: loc }, orderBy: { order: "asc" } }),
     ])
 
-    let postRows = await db.post.findMany({ 
-      where: { published: true }, 
+    const postRows = await db.post.findMany({
+      where: { published: true },
       orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        excerpt: true,
-        content: true,
-        published: true,
-        category: true,
-        views: true,
-        likes: true,
-        bookmarks: true,
-        createdAt: true,
-        updatedAt: true,
-        seoTitle: true,
-        seoDescription: true,
-        seoKeywords: true,
-        coverImage: true,
-        pdfUrl: true,
-      }
     })
-
-    if (!postRows || postRows.length === 0) {
-      postRows = await db.post.findMany({ 
-        where: { published: true }, 
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          excerpt: true,
-          content: true,
-          published: true,
-          category: true,
-          views: true,
-          likes: true,
-          bookmarks: true,
-          createdAt: true,
-          updatedAt: true,
-          seoTitle: true,
-          seoDescription: true,
-          seoKeywords: true,
-          coverImage: true,
-          pdfUrl: true,
-        }
-      })
-    }
-
-    if (!postRows || postRows.length === 0) {
-      postRows = await db.post.findMany({ 
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          excerpt: true,
-          content: true,
-          published: true,
-          category: true,
-          views: true,
-          likes: true,
-          bookmarks: true,
-          createdAt: true,
-          updatedAt: true,
-          seoTitle: true,
-          seoDescription: true,
-          seoKeywords: true,
-          coverImage: true,
-          pdfUrl: true,
-        }
-      })
-    }
-
     const [pRowEn, pRowVi, pRowLegacy] = await Promise.all([
       db.profile.findUnique({ where: { id: "profile-en" } }),
       db.profile.findUnique({ where: { id: "profile-vi" } }),
@@ -240,12 +145,12 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
     if (primary && (primary as any).settings) {
       try {
         const dbSettings = JSON.parse((primary as any).settings)
-        settings = { ...settings, ...dbSettings }
+        settings = getPublicSettings(dbSettings)
       } catch (e) {}
     } else if (secondary && (secondary as any).settings) {
       try {
         const dbSettings = JSON.parse((secondary as any).settings)
-        settings = { ...settings, ...dbSettings }
+        settings = getPublicSettings(dbSettings)
       } catch (e) {}
     }
 
@@ -314,7 +219,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         certifications: certsArr,
         languages: getArrayVal("languages"),
         available: true,
-        settings: safeParseJsonObj(getVal("settings")),
+        settings: getPublicSettings(safeParseJsonObj(getVal("settings"))),
       } as SiteProfile
     }
 
@@ -389,8 +294,9 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         seoTitle: po.seoTitle,
         seoDescription: po.seoDescription,
         seoKeywords: po.seoKeywords,
-        coverImage: (po.coverImage && po.coverImage.trim() !== "") ? po.coverImage : (profile.avatar || defaultProfile.avatar),
+        coverImage: (po.coverImage && po.coverImage.trim() !== "") ? po.coverImage : profile.avatar,
         pdfUrl: po.pdfUrl,
+        layout: po.layout,
       }))
     }
   } catch (e) {
@@ -465,6 +371,11 @@ function safeParseResults(s: string | undefined | null): { number: string; label
 }
 
 export async function getProjectById(id: string): Promise<SiteProject | null> {
+  if (!isDatabaseConfigured()) {
+    return getSnapshot("vi").projects.find((p) => p.id === id)
+      ?? getSnapshot("en").projects.find((p) => p.id === id)
+      ?? null
+  }
   try {
     const p = await db.project.findUnique({ where: { id } })
     if (p) {
@@ -497,10 +408,55 @@ export async function getProjectById(id: string): Promise<SiteProject | null> {
     console.error("[getProjectById] error:", err)
   }
 
-  const def = defaultProjects.find((p) => p.id === id)
-  if (def) {
-    return def as SiteProject
-  }
   return null
+}
+
+export async function getPostBySlug(slug: string, locale: string = "vi"): Promise<SitePost | null> {
+  const loc = locale === "en" ? "en" : "vi"
+  if (!isDatabaseConfigured()) {
+    return getSnapshot(loc).posts.find((post) => post.slug === slug && post.published) ?? null
+  }
+
+  try {
+    // Prefer the selected locale, while retaining existing shared-slug links.
+    const post = await db.post.findFirst({ where: { slug, locale: loc, published: true } })
+      ?? await db.post.findFirst({ where: { slug, published: true } })
+    if (!post) return null
+    return {
+      id: post.id,
+      slug: post.slug,
+      title: post.title,
+      excerpt: post.excerpt,
+      content: post.content,
+      published: true,
+      category: post.category || undefined,
+      views: post.views,
+      likes: post.likes,
+      bookmarks: post.bookmarks,
+      createdAt: post.createdAt.toISOString(),
+      updatedAt: post.updatedAt.toISOString(),
+      seoTitle: post.seoTitle,
+      seoDescription: post.seoDescription,
+      seoKeywords: post.seoKeywords,
+      coverImage: post.coverImage,
+      pdfUrl: post.pdfUrl,
+      layout: post.layout,
+    }
+  } catch (error) {
+    console.error("[getPostBySlug] Database error:", error)
+    return null
+  }
+}
+
+function isDatabaseConfigured(): boolean {
+  return Boolean(process.env.DATABASE_URL?.trim())
+}
+
+function getSnapshot(locale: "vi" | "en"): SiteData {
+  const data = structuredClone(publicSnapshot[locale]) as unknown as SiteData
+  data.posts = data.posts.filter((post) => post.published)
+  data.settings = getPublicSettings(data.settings)
+  data.profile.settings = getPublicSettings(data.profile.settings)
+  return data
 }
 

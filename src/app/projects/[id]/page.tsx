@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation"
-import { Metadata } from "next"
-import { db } from "@/lib/db"
-import { getProjectById, getSiteData, type SiteProject } from "@/lib/cv/site-data-server"
+import type { Metadata } from "next"
+import { getProjectById, getSiteData } from "@/lib/cv/site-data-server"
 import { ProjectDetailView } from "@/components/cv/project-detail-view"
 
 interface PageProps {
@@ -109,7 +108,7 @@ export default async function ProjectPage({ params }: PageProps) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
       <ProjectDetailView
         project={project}

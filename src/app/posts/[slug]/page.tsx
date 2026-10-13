@@ -1,7 +1,7 @@
-import { notFound, redirect } from "next/navigation"
-import { db } from "@/lib/db"
-import { Metadata } from "next"
-import { Search, ArrowLeft } from "lucide-react"
+import { notFound } from "next/navigation"
+import { getPostBySlug, getSiteData } from "@/lib/cv/site-data-server"
+import type { Metadata } from "next"
+import { ArrowLeft, ArrowUpRight } from "lucide-react"
 import Link from "next/link"
 import { TableOfContents } from "@/components/cv/table-of-contents"
 import { PostReader } from "@/components/cv/post-reader"
@@ -12,10 +12,11 @@ import { PostThemeToggle } from "@/components/cv/post-theme-toggle"
 import { ScientificProgress } from "@/components/cv/scientific-progress"
 import { ScientificSearchTrigger } from "@/components/cv/scientific-search-trigger"
 import { RelatedPosts } from "@/components/cv/related-posts"
+import "@/components/cv/detail-polish.css"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  const post = await db.post.findFirst({ where: { slug, published: true } })
+  const post = await getPostBySlug(slug)
   if (!post) return { title: "Post Not Found" }
 
   const title = (post.seoTitle || post.title) + " — Phan Huỳnh Văn Đô"
@@ -33,8 +34,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description,
       type: "article",
       url: `https://phanhuynh.id.vn/posts/${slug}`,
-      publishedTime: post.createdAt.toISOString(),
-      modifiedTime: (post.updatedAt || post.createdAt).toISOString(),
+      publishedTime: post.createdAt,
+      modifiedTime: post.updatedAt || post.createdAt,
       authors: ["Phan Huỳnh Văn Đô"],
       ...(post.coverImage ? { images: [{ url: post.coverImage }] } : {}),
     },
@@ -49,20 +50,28 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const post = await db.post.findFirst({ where: { slug, published: true } })
+  const [post, siteData] = await Promise.all([getPostBySlug(slug), getSiteData("vi")])
   
   if (!post) {
     notFound()
   }
 
-  const relatedPosts = await db.post.findMany({
-    where: {
-      published: true,
-      id: { not: post.id },
-    },
-    take: 3,
-    orderBy: { createdAt: "desc" }
-  })
+  const relatedPosts = siteData.posts
+    .filter((item) => item.id !== post.id)
+    .slice(0, 3)
+    .map((item) => ({
+      ...item,
+      locale: "vi",
+      category: item.category || "",
+      layout: item.layout || "article",
+      coverImage: item.coverImage || null,
+      pdfUrl: item.pdfUrl || null,
+      seoTitle: item.seoTitle || null,
+      seoDescription: item.seoDescription || null,
+      seoKeywords: item.seoKeywords || null,
+      createdAt: new Date(item.createdAt),
+      updatedAt: new Date(item.updatedAt || item.createdAt),
+    }))
 
   // Format dates
   const pubDate = new Date(post.createdAt).toLocaleDateString("en-GB", {
@@ -80,7 +89,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const ContentReader = isTutorial ? TutorialReader : PostReader
 
   return (
-    <div className="min-h-screen bg-[#f5f6f8] dark:bg-[#080a0d] text-[#181b21] dark:text-[#e7eaf0] transition-colors duration-500 font-sans">
+    <div className="portfolio-detail post-detail min-h-screen font-sans">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -106,17 +115,21 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               "url": "https://phanhuynh.id.vn"
             },
             ...(post.coverImage ? { "image": [post.coverImage] } : {})
-          })
+          }).replace(/</g, "\\u003c")
         }}
       />
       
       <ScientificProgress />
 
       {/* TOPBAR */}
-      <header className="sticky top-0 z-[500] h-[66px] flex items-center justify-between px-4 sm:px-8 bg-white/80 dark:bg-[#080a0d]/75 border-b border-black/5 dark:border-white/5 backdrop-blur-[22px]">
-        <Link href="/#posts" className="flex items-center gap-2 text-[13px] font-medium text-gray-500 hover:text-gray-900 dark:text-[#aeb4c0] dark:hover:text-white transition-colors">
+      <header className="detail-topbar post-topbar sticky top-0 z-[500] flex items-center justify-between px-4 sm:px-8 border-b backdrop-blur-[22px]">
+        <Link href="/#posts" className="detail-back flex items-center gap-2 text-[13px] font-medium transition-colors">
           <ArrowLeft className="w-4 h-4" />
-          <span>Trở về</span>
+          <span>Về Portfolio</span>
+        </Link>
+        <Link href="/" className="detail-wordmark hidden sm:flex items-center gap-2">
+          <span className="detail-monogram">PH.</span>
+          <span>Field notes</span>
         </Link>
         <div className="flex items-center gap-2">
            <ScientificSearchTrigger />
@@ -125,16 +138,16 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       </header>
 
       {/* LAYOUT */}
-      <main className="mx-auto max-w-[1840px] px-4 sm:px-8 md:px-10 lg:px-12 py-8 sm:py-12 pb-[100px] grid grid-cols-1 xl:grid-cols-[260px_1fr_320px] xl:gap-9 lg:grid-cols-[230px_1fr] lg:gap-8 items-start relative">
+      <main className="post-layout mx-auto max-w-[1600px] px-4 sm:px-8 md:px-10 lg:px-12 py-8 sm:py-12 pb-[100px] grid grid-cols-1 xl:grid-cols-[200px_minmax(0,1fr)_280px] xl:gap-8 lg:grid-cols-[190px_minmax(0,1fr)] lg:gap-8 items-start relative">
          
          {/* LEFT SIDEBAR */}
-         <aside className="hidden lg:block sticky top-[94px] max-h-[calc(100vh-120px)] overflow-y-auto pr-3 custom-scrollbar">
-            <div className="text-[11px] font-extrabold tracking-[0.16em] text-[#737a88] mb-5 uppercase">Nội dung</div>
+         <aside className="post-toc hidden lg:block sticky top-[110px] max-h-[calc(100vh-140px)] overflow-y-auto pr-3 custom-scrollbar" aria-label="Mục lục bài viết">
+            <div className="detail-eyebrow mb-5">Trong bài viết</div>
             <TableOfContents selector=".prose, .tutorial-prose" />
          </aside>
          
          {/* PAPER CONTENT */}
-         <div className="min-w-0 w-full relative z-10">
+         <div className="post-content min-w-0 w-full relative z-10">
             <ContentReader 
               slug={post.slug}
               title={post.title} 
@@ -151,18 +164,27 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               likes={post.likes}
             />
             {relatedPosts && relatedPosts.length > 0 && (
-              <RelatedPosts posts={relatedPosts} />
+              <div className="post-related"><RelatedPosts posts={relatedPosts} /></div>
             )}
          </div>
 
          {/* RIGHT SIDEBAR */}
-         <aside className="hidden xl:flex sticky top-[94px] h-[calc(100vh-120px)] flex-col justify-between">
+         <aside className="post-assistant hidden xl:flex sticky top-[110px] h-[calc(100vh-140px)] flex-col justify-between" aria-label="Trợ lý AI cho bài viết">
             <PostAiChat postTitle={post.title} postContent={post.content} isFloating={false} />
          </aside>
       </main>
 
+      <footer className="detail-footer px-4 sm:px-8 py-8 border-t">
+        <div className="max-w-[1500px] mx-auto flex items-center justify-between gap-5 text-xs">
+          <span>Phan Huỳnh Văn Đô · Ideas, experiments & engineering.</span>
+          <Link href="/#posts" className="inline-flex items-center gap-1.5 shrink-0">
+            Các bài viết <ArrowUpRight className="size-4" />
+          </Link>
+        </div>
+      </footer>
+
       {/* Floating AI Chat for mobile/tablet */}
-      <div className="xl:hidden fixed bottom-6 right-6 z-[600]">
+      <div className="post-mobile-assistant xl:hidden fixed bottom-6 right-6 z-[600]">
          <PostAiChat postTitle={post.title} postContent={post.content} isFloating={true} />
       </div>
     </div>
