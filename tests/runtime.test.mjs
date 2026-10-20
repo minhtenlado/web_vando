@@ -19,6 +19,26 @@ const statsPath = 'src/app/api/posts/[slug]/stats/route.ts';
 const params = { params: Promise.resolve({ slug: 'published-post' }) };
 const request = (body) => new Request('http://localhost/api/posts/published-post/comments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
 
+test('CMS profile loader uses authenticated records and preserves stored fields', async (context) => {
+  const stored = { name: 'Stored profile', educations: [], certifications: [], languages: [] };
+  context.mock.method(globalThis, 'fetch', async (url, options) => {
+    assert.equal(url, '/api/admin/profile?locale=en');
+    assert.equal(options.cache, 'no-store');
+    return Response.json({ ok: true, profile: stored });
+  });
+  const { readAdminProfile } = loadRoute('src/lib/cv/admin-profile.ts', {});
+  assert.deepEqual(await readAdminProfile('en'), stored);
+});
+
+test('CMS profile loader rejects unauthorized and malformed responses instead of blank defaults', async (context) => {
+  let response = Response.json({ ok: false }, { status: 401 });
+  context.mock.method(globalThis, 'fetch', async () => response);
+  const { readAdminProfile } = loadRoute('src/lib/cv/admin-profile.ts', {});
+  await assert.rejects(readAdminProfile('vi'), /Không tải được/);
+  response = Response.json({ ok: true, profile: [] });
+  await assert.rejects(readAdminProfile('vi'), /Không tải được/);
+});
+
 test('sanitizer loads when require(ESM) is disabled, as on the failing Vercel runtime', () => {
   const result = execFileSync(process.execPath, ['--no-experimental-require-module', '-e', "const p=require('isomorphic-dompurify'); const h=p.sanitize('<p>Safe</p><img src=x onerror=alert(1)><script>alert(1)</script>'); if(/onerror|script/.test(h))process.exit(1);process.stdout.write('safe')"], { encoding: 'utf8' });
   assert.equal(result, 'safe');

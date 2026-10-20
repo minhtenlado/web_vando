@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { readAdminProfile } from "@/lib/cv/admin-profile";
 import { Loader2, Save, Upload, User, Link2, Mail, Phone, MapPin, Globe, Github, Linkedin, Terminal, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,6 +52,7 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
   const { toast } = useToast();
   const [loading, setLoading] = React.useState(!initial);
   const [saving, setSaving] = React.useState(false);
+  const [readError, setReadError] = React.useState("");
   const [uploading, setUploading] = React.useState(false);
   const [avatar, setAvatar] = React.useState<string>(initial?.avatar ?? "");
   const [form, setForm] = React.useState<ProfileState>(
@@ -91,11 +93,10 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
     // If not first load, or locale changed, re-fetch profile.
     let cancelled = false;
     setLoading(true);
-    fetch(`/api/site-data?locale=${locale}`, { cache: "no-store" })
-      .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled && data.profile) {
-          const p = data.profile;
+    setReadError("");
+    readAdminProfile(locale)
+      .then((p) => {
+        if (!cancelled) {
           setForm({
             name: p.name ?? "",
             role: p.role ?? "",
@@ -111,6 +112,7 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
           setAvatar(p.avatar ?? "");
         }
       })
+      .catch(() => { if (!cancelled) setReadError("Không tải được dữ liệu quản trị. Hãy tải lại trước khi lưu."); })
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
@@ -144,7 +146,7 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
         throw new Error(data?.message || "Tải lên thất bại.");
       }
       setAvatar(data.url);
-      toast({ title: "Đã cập nhật avatar", description: "Ảnh đã được lưu và hiển thị trên trang web." });
+      toast({ title: "Đã cập nhật avatar", description: "Ảnh hồ sơ đã được lưu." });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Tải lên thất bại.";
       toast({ title: "Lỗi tải lên", description: msg, variant: "destructive" });
@@ -156,6 +158,7 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+    if (loading || readError) return;
     setSaving(true);
     try {
       const res = await fetch("/api/admin/profile", {
@@ -176,6 +179,8 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
     }
   }
 
+  if (readError) return <div className="admin-data-notice" role="alert">{readError} <Button type="button" variant="outline" onClick={() => window.location.reload()}>Tải lại</Button></div>;
+
   if (loading) {
     return (
       <div className="grid gap-4 md:grid-cols-[280px_1fr]">
@@ -193,7 +198,7 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
           <CardTitle className="flex items-center gap-2 text-base">
             <User className="size-4 text-primary" /> Ảnh đại diện
           </CardTitle>
-          <CardDescription>Ảnh này hiển thị trên Hero trang web.</CardDescription>
+          <CardDescription>Ảnh hồ sơ được lưu trong CMS; trang chủ tập trung vào dự án và bài viết.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="relative aspect-square w-full overflow-hidden rounded-xl border bg-muted/30">
@@ -310,7 +315,7 @@ export function ProfileTab({ initial, locale }: { initial?: SiteProfile | null, 
           </div>
 
           <div className="flex justify-end pt-4 border-t">
-            <Button type="submit" disabled={saving}>
+            <Button type="submit" disabled={saving || loading || Boolean(readError)}>
               {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
               {saving ? "Đang lưu…" : "Lưu thay đổi"}
             </Button>

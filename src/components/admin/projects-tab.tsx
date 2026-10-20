@@ -374,8 +374,8 @@ export function ProjectsTab({ locale }: { locale: string }) {
           <CardContent className="flex flex-col items-center justify-center gap-3 py-12 text-center">
             <Folder className="size-10 text-muted-foreground" />
             <div>
-              <p className="font-medium text-foreground">Chưa có dự án nào</p>
-              <p className="text-sm text-muted-foreground">Bắt đầu bằng cách thêm dự án đầu tiên.</p>
+              <p className="font-medium text-foreground">Chưa có dự án {locale === "en" ? "tiếng Anh" : "tiếng Việt"}</p>
+              <p className="text-sm text-muted-foreground">Nội dung mỗi ngôn ngữ được quản lý riêng. Bạn có thể chuyển ngôn ngữ ở thanh trên.</p>
             </div>
             <Button size="sm" onClick={openCreate}>
               <Plus className="size-4 mr-1" /> Thêm dự án

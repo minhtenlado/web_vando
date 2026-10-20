@@ -7,7 +7,6 @@ import { ChevronDown,ExternalLink,Menu,X } from "lucide-react";
 import dynamic from "next/dynamic";
 import * as React from "react";
 
-import { useLocale } from "@/components/cv/locale-context";
 import "./admin.css";
 
 const loadingTab = () => <p role="status" className="text-muted-foreground">Đang tải…</p>;
@@ -43,7 +42,7 @@ function Dashboard({
   initialProfile: SiteProfile | null;
   onLogout: () => void;
 }) {
-  const { locale, setLocale } = useLocale();
+  const [locale, setLocale] = React.useState<"vi" | "en">("vi");
   const [activeTab, setActiveTab] = React.useState<TabId>("projects");
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
@@ -229,12 +228,16 @@ function Dashboard({
               <button
                 className={`admin-top-button ${locale === "vi" ? "primary" : ""}`}
                 onClick={() => setLocale("vi")}
+                aria-pressed={locale === "vi"}
+                title="Quản lý nội dung tiếng Việt"
               >
                 VI
               </button>
               <button
                 className={`admin-top-button ${locale === "en" ? "primary" : ""}`}
                 onClick={() => setLocale("en")}
+                aria-pressed={locale === "en"}
+                title="Quản lý nội dung tiếng Anh"
               >
                 EN
               </button>

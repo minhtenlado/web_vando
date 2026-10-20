@@ -288,7 +288,7 @@ export function PostsTab({ locale }: { locale: string }) {
           <CardContent className="flex flex-col items-center justify-center gap-3 py-12 text-center">
             <FileText className="size-10 text-muted-foreground" />
             <div>
-              <p className="font-medium">{items.length ? "Không có bài viết khớp bộ lọc" : "Chưa có bài viết"}</p>
+              <p className="font-medium">{items.length ? "Không có bài viết khớp bộ lọc" : `Chưa có bài viết ${locale === "en" ? "tiếng Anh" : "tiếng Việt"}`}</p>
               <p className="text-sm text-muted-foreground">{items.length ? "Thử từ khóa hoặc danh mục khác." : "Bắt đầu bằng một bản nháp mới."}</p>
             </div>
             <Button size="sm" onClick={openCreate}>

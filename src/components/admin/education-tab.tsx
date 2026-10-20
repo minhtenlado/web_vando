@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { readAdminProfile } from "@/lib/cv/admin-profile";
 import { Loader2, Save, Trash, Plus, GraduationCap, Award, BookOpen, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,6 @@ import { useToast } from "@/hooks/use-toast";
 import type { SiteProfile } from "@/lib/cv/site-data-server";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { educations as staticEducations, certifications as staticCertifications } from "@/lib/cv/data"
 
 type LocaleString = { vi: string; en: string };
 
@@ -43,11 +43,6 @@ type ConfigState = {
   languages: LanguageItem[];
 };
 
-const fallbackLanguages = [
-  { name: { vi: "Tiếng Việt", en: "Vietnamese" }, level: { vi: "Bản ngữ", en: "Native" } },
-  { name: { vi: "Tiếng Anh", en: "English" }, level: { vi: "IELTS 7.0", en: "IELTS 7.0" } }
-]
-
 const EMPTY: ConfigState = {
   educations: [],
   certifications: [],
@@ -66,7 +61,7 @@ function normalizeLocaleObj(val: any): LocaleString {
 }
 
 function parseEducations(arr: any[] | null | undefined): EducationItem[] {
-  if (arr === undefined || arr === null) return staticEducations as EducationItem[];
+  if (arr === undefined || arr === null) return [];
   return (arr ?? []).map((item: any) => ({
     degree: normalizeLocaleObj(item?.degree),
     school: normalizeLocaleObj(item?.school),
@@ -77,7 +72,7 @@ function parseEducations(arr: any[] | null | undefined): EducationItem[] {
 }
 
 function parseCertifications(arr: any[]): CertificationItem[] {
-  if (!arr || arr.length === 0) return staticCertifications as CertificationItem[];
+  if (!arr || arr.length === 0) return [];
   return (arr ?? []).map((item: any) => ({
     name: String(item?.name ?? ""),
     issuer: String(item?.issuer ?? ""),
@@ -87,7 +82,7 @@ function parseCertifications(arr: any[]): CertificationItem[] {
 }
 
 function parseLanguages(arr: any[]): LanguageItem[] {
-  if (!arr || arr.length === 0) return fallbackLanguages.map(l => ({ ...l, enabled: true })) as LanguageItem[];
+  if (!arr || arr.length === 0) return [];
   return (arr ?? []).map((item: any) => ({
     name: normalizeLocaleObj(item?.name),
     level: normalizeLocaleObj(item?.level),
@@ -99,6 +94,7 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
   const { toast } = useToast();
   const [loading, setLoading] = React.useState(!initial);
   const [saving, setSaving] = React.useState(false);
+  const [readError, setReadError] = React.useState("");
   const [activeLang, setActiveLang] = React.useState<"vi" | "en">("vi");
   const [form, setForm] = React.useState<ConfigState>(
     initial
@@ -121,11 +117,10 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
     }
     let cancelled = false;
     setLoading(true);
-    fetch(`/api/site-data?locale=${locale}`, { cache: "no-store" })
-      .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled && data.profile) {
-          const p = data.profile;
+    setReadError("");
+    readAdminProfile(locale)
+      .then((p) => {
+        if (!cancelled) {
           setForm({
             educations: parseEducations(p.educations),
             certifications: parseCertifications(p.certifications),
@@ -133,6 +128,7 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
           });
         }
       })
+      .catch(() => { if (!cancelled) setReadError("Không tải được dữ liệu quản trị. Hãy tải lại trước khi lưu."); })
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
@@ -147,6 +143,7 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+    if (loading || readError) return;
     setSaving(true);
     try {
       const res = await fetch("/api/admin/profile", {
@@ -167,6 +164,8 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
     }
   }
 
+  if (readError) return <div className="admin-data-notice" role="alert">{readError} <Button type="button" variant="outline" onClick={() => window.location.reload()}>Tải lại</Button></div>;
+
   if (loading) {
     return <Skeleton className="h-96 w-full rounded-xl" />;
   }
@@ -180,7 +179,7 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
             <TabsTrigger value="en">Tiếng Anh</TabsTrigger>
           </TabsList>
         </Tabs>
-        <Button type="submit" disabled={saving}>
+        <Button type="submit" disabled={saving || loading || Boolean(readError)}>
           {saving ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Save className="mr-2 size-4" />}
           Lưu toàn bộ
         </Button>
@@ -533,7 +532,7 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
       </Card>
       
       <div className="flex justify-end pt-4 border-t">
-        <Button type="submit" disabled={saving}>
+        <Button type="submit" disabled={saving || loading || Boolean(readError)}>
           {saving ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Save className="mr-2 size-4" />}
           Lưu toàn bộ
         </Button>

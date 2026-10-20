@@ -12,16 +12,19 @@ This supplements `natural-redesign-qa.md` with tests against the deployed domain
 6. **Public comment actions were not scoped to the current published article.** Listing/creation now require a published post, likes and replies are scoped to its slug, malformed payloads are rejected, and raw database errors are not returned to visitors. Comment likes and post counters use atomic positive-count conditions when decrementing.
 7. **Language changes left server-rendered article dates/content in the previous locale until reload.** The locale action now refreshes Server Components after persisting the preference. Local production-browser verification changed `4 tháng 7, 2026` to `July 4, 2026` without a manual reload.
 8. The legacy back-link component now uses Next Link to `/notes`, replacing a stale `/#posts` target and resolving the new Next lint warning.
+9. Legacy Profile/Education/configuration forms still fetched the reduced public profile, clearing private CMS fields and allowing empty/default values to be saved. They now use a shared authenticated Admin profile loader, reject unsuccessful/malformed reads, and prevent saving after load failure. Empty education/certificate/language arrays remain empty; fabricated fallback qualifications were removed.
+10. The Admin content language inherited the public site's language preference, which made the untranslated English project list look like missing data. Admin now starts in Vietnamese independently, labels its content-language buttons, and explains language-specific empty states.
 
 Next.js and eslint-config-next were updated to **16.3.8**. No authentication protections were removed, and no password was changed.
 
 ## Actual verification
 
-- **21 automated tests passed**, including sanitizer runtime compatibility, HTML safety/format preservation, missing/translated/publication data, Vietnamese search, comments access/scoping, malformed inputs, atomic non-negative counters and additive rollout guards.
+- **23 automated tests passed**, including authenticated CMS profile loading and failed-read rejection, sanitizer runtime compatibility, HTML safety/format preservation, missing/translated/publication data, Vietnamese search, comments access/scoping, malformed inputs, atomic non-negative counters and additive rollout guards.
 - **Lint and production build passed**, including TypeScript checking. Builds skip the rollout outside Vercel production.
 - A separate ephemeral **PGlite/PostgreSQL** check executed the actual rollout SQL against a legacy table, verified original title/body and all defaults, and verified the second run made no schema changes. The temporary test package/database is ignored and is not a production dependency.
 - Vercel production build/deployment of `d3faceb` succeeded. The production database now has the publication controls; the existing five projects remained present.
 - **60 responsive cases passed:** Home, Notes, all five project details and all three article details at 360, 375, 390, 768, 1024 and 1440px. Each page had one H1; document scroll width equalled client width at every checked width. This was browser viewport testing, not physical-device certification.
+- The enabled production Admin new-project dialog was also inspected at all six widths with no document overflow; it was cancelled without creating a record.
 - All five real project URLs and three real article URLs returned **HTTP 200 with actual article/project body markup**, after previously returning 500. Home, Notes, privacy, terms, Admin, robots, sitemap and icon also returned 200.
 - Public site-data API returned **5 projects / 3 posts**, no resource errors, `source=database`, for both `vi` and `en`.
 - Production browser: project accent search and combined category filters; no-match/reset; article search, no-match/reset and oldest-first order; mobile menu; six real images in the representative gallery; arrow keys, Escape and opener focus return; click-to-load YouTube iframe; article text-size controls; comments loading and blank-form validation/anonymous mode. A fresh public tab reported **no application console errors** during the 60-case pass.

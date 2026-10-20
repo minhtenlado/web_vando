@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { readAdminProfile } from "@/lib/cv/admin-profile";
 import { Loader2, Save, Link2, Terminal, Trash, FileText, Code2, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -83,6 +84,7 @@ export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | nul
   const { toast } = useToast();
   const [loading, setLoading] = React.useState(!initial);
   const [saving, setSaving] = React.useState(false);
+  const [readError, setReadError] = React.useState("");
   const [form, setForm] = React.useState<ConfigState>(
     initial
       ? {
@@ -118,11 +120,10 @@ export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | nul
     }
     let cancelled = false;
     setLoading(true);
-    fetch(`/api/site-data?locale=${locale}`, { cache: "no-store" })
-      .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled && data.profile) {
-          const p = data.profile;
+    setReadError("");
+    readAdminProfile(locale)
+      .then((p) => {
+        if (!cancelled) {
           setForm({
             summary: p.summary ?? "",
             nowText: p.nowText ?? "",
@@ -137,6 +138,7 @@ export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | nul
           });
         }
       })
+      .catch(() => { if (!cancelled) setReadError("Không tải được dữ liệu quản trị. Hãy tải lại trước khi lưu."); })
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
@@ -151,6 +153,7 @@ export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | nul
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+    if (loading || readError) return;
     setSaving(true);
     try {
       const res = await fetch("/api/admin/profile", {
@@ -170,6 +173,8 @@ export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | nul
       setSaving(false);
     }
   }
+
+  if (readError) return <div className="admin-data-notice" role="alert">{readError} <Button type="button" variant="outline" onClick={() => window.location.reload()}>Tải lại</Button></div>;
 
   if (loading) {
     return <Skeleton className="h-96 w-full rounded-xl" />;
@@ -410,7 +415,7 @@ export function PageConfigTab({ initial, locale }: { initial?: SiteProfile | nul
       </Card>
 
       <div className="flex justify-end mt-4">
-        <Button type="submit" disabled={saving}>
+        <Button type="submit" disabled={saving || loading || Boolean(readError)}>
           {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
           {saving ? "Đang lưu…" : "Lưu cấu hình"}
         </Button>
