@@ -37,9 +37,10 @@ export function LocaleProvider({
       if (stored && (stored === "vi" || stored === "en") && stored !== locale) {
         setLocaleState(stored)
         document.cookie = `cv-locale=${stored}; path=/; max-age=31536000; SameSite=Lax`
+        router.refresh()
       }
     } catch {}
-  }, [])
+  }, [router])
 
   const setLocale = React.useCallback((l: Locale) => {
     setLocaleState(l)

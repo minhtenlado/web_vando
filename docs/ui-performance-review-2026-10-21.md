@@ -15,6 +15,7 @@ Baseline: production commit `9b2bc22`, Vercel deployment `FSzymvtYnAjbSwQTJLPnZy
 - **Advertising scripts loaded without an ad placement.** The measured homepage loaded two AdSense scripts totalling 680,635 decoded bytes despite no rendered ad unit. Loading now belongs to the existing `GoogleAd` component rather than every page's root layout. Publisher verification metadata remains. Actual ad delivery/Auto Ads was not certified.
 - **Interaction changes were abrupt or inconsistent.** Shared 140/200/280ms motion tokens now drive public color/border transitions and a restrained 1.015 image scale for fine-pointer hover. The public mobile sheet uses 200ms instead of the shared component's 500ms default. No animation dependency was added.
 - Project thumbnails now use accurate responsive `sizes` and avoid repeating the adjacent title as an image's accessible name.
+- **Locale changes duplicated data reads.** Resource Timing recorded two `/api/site-data?locale=vi` requests after one language action, in addition to the Server Component refresh. The provider now adopts incoming server data and retains explicit API refresh for retry/client-only use. Home and article language changes recorded zero duplicate site-data API requests; the server-rendered article date still updated without reload. A local simulated outage retained an error instead of an empty state, then manual retry recovered five projects and three articles without reloading the page.
 - The local preview snapshot still contained a personal avatar as six article covers. Those fields were synchronized to the current public records' null covers. This only affects the explicitly enabled local snapshot; Vercel continues to require database reads.
 
 ## Actual tests before release
@@ -43,7 +44,7 @@ Measurements used the in-app Chromium browser's buffered PerformanceObserver ent
 
 Decoded bytes describe uncompressed resources, **not transferred bytes**; cache can make transfer sizes zero. The local YOLO check had no non-input layout-shift entries, but local timing is not comparable to production latency. Post-release measurements must be identified separately.
 
-No Lighthouse score, field INP/p75 Core Web Vitals, physical-device performance or full screen-reader certification is claimed. Buffered interaction durations, if sampled, are laboratory interaction observations rather than field INP.
+Google PageSpeed Insights was attempted for desktop and mobile; both returned HTTP 429 `RESOURCE_EXHAUSTED`. No Lighthouse score, field INP/p75 Core Web Vitals, physical-device performance or full screen-reader certification is claimed. Buffered interaction durations, if sampled, are laboratory interaction observations rather than field INP.
 
 ## Content requiring owner verification
 

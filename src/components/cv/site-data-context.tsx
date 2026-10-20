@@ -24,7 +24,6 @@ export function SiteDataProvider({ children, initialData }: { children: React.Re
   const [loading, setLoading] = React.useState(!initialData);
   const [requestFailed, setRequestFailed] = React.useState(false);
   const { locale } = useLocale();
-  const firstRun = React.useRef(true);
   const latestRequest = React.useRef(0);
 
   const refresh = React.useCallback(async () => {
@@ -49,12 +48,21 @@ export function SiteDataProvider({ children, initialData }: { children: React.Re
   }, [locale]);
 
   React.useEffect(() => {
-    if (firstRun.current) {
-      firstRun.current = false;
-      if (initialData) return;
+    if (initialData) {
+      // LocaleProvider refreshes Server Components. Adopt that response instead
+      // of fetching the same database-backed data twice again in the browser.
+      ++latestRequest.current;
+      setData((previous) => ({
+        ...initialData,
+        projects: initialData.errors?.projects ? previous.projects : initialData.projects,
+        posts: initialData.errors?.posts ? previous.posts : initialData.posts,
+      }));
+      setLoading(false);
+      setRequestFailed(false);
+      return;
     }
     void refresh();
-  }, [locale, refresh, initialData]);
+  }, [refresh, initialData]);
 
   const value = React.useMemo(() => ({ ...data, loading, requestFailed, refresh }), [data, loading, requestFailed, refresh]);
   return <SiteDataContext.Provider value={value}>{children}</SiteDataContext.Provider>;
