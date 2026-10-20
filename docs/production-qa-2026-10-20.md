@@ -1,0 +1,41 @@
+# Production QA and fixes — 2026-10-20
+
+This supplements `natural-redesign-qa.md` with tests against the deployed domain after the user authorized pushing fixes and provided temporary Admin access. Credentials are not recorded here.
+
+## Confirmed defects and fixes
+
+1. **All eight public detail pages returned HTTP 500.** Vercel runtime logs identified `ERR_REQUIRE_ESM` in `html-encoding-sniffer` loading `@exodus/bytes` through jsdom/isomorphic-dompurify. The failure was reproduced locally with `node --no-experimental-require-module`. Externalizing the package alone did not resolve it. Pinning the compatible isomorphic wrapper to **2.22.0**, with its jsdom 26 dependency and the resolved patched DOMPurify, restored the serverless pages. Sanitization remains enabled and is regression-tested with executable HTML, code, tables, and trusted/untrusted iframe inputs.
+2. **Switching to English removed all projects.** The English CMS dataset has no project translations. Public reads now fall back to the existing Vietnamese published projects when no English projects exist. They do not invent translated content or bypass publication filters.
+3. **React hydration error #418 on article dates.** A stored timestamp rendered as October 17 on the UTC server and October 18 in the browser. List dates now explicitly use Asia/Ho_Chi_Minh. Regression tests cover three host timezones.
+4. **Admin could not create drafts or manage publication/Featured.** Authenticated production inspection confirmed the three Project columns were absent. The already approved additive rollout now runs only during a Vercel production build. It locks the migration transaction, adds only missing controls, compares all legacy Project row JSON before/after, and records the migration in Prisma's ledger. Build logs confirmed: `Publication controls ready. 5 existing rows preserved.` Admin then showed an enabled Add project button and enabled publication, Featured, and status controls. New records default to draft; no test project was saved.
+5. **Comments could silently look empty after a fetch error or show successful likes despite a failed request.** The comments UI now has separate loading/error/empty states, retry, accessible bilingual forms, server-confirmed likes, retained text on failed submissions, sort/load-more and author replies. It uses the same neutral document layout.
+6. **Public comment actions were not scoped to the current published article.** Listing/creation now require a published post, likes and replies are scoped to its slug, malformed payloads are rejected, and raw database errors are not returned to visitors. Comment likes and post counters use atomic positive-count conditions when decrementing.
+7. **Language changes left server-rendered article dates/content in the previous locale until reload.** The locale action now refreshes Server Components after persisting the preference. Local production-browser verification changed `4 tháng 7, 2026` to `July 4, 2026` without a manual reload.
+8. The legacy back-link component now uses Next Link to `/notes`, replacing a stale `/#posts` target and resolving the new Next lint warning.
+
+Next.js and eslint-config-next were updated to **16.3.8**. No authentication protections were removed, and no password was changed.
+
+## Actual verification
+
+- **21 automated tests passed**, including sanitizer runtime compatibility, HTML safety/format preservation, missing/translated/publication data, Vietnamese search, comments access/scoping, malformed inputs, atomic non-negative counters and additive rollout guards.
+- **Lint and production build passed**, including TypeScript checking. Builds skip the rollout outside Vercel production.
+- A separate ephemeral **PGlite/PostgreSQL** check executed the actual rollout SQL against a legacy table, verified original title/body and all defaults, and verified the second run made no schema changes. The temporary test package/database is ignored and is not a production dependency.
+- Vercel production build/deployment of `d3faceb` succeeded. The production database now has the publication controls; the existing five projects remained present.
+- **60 responsive cases passed:** Home, Notes, all five project details and all three article details at 360, 375, 390, 768, 1024 and 1440px. Each page had one H1; document scroll width equalled client width at every checked width. This was browser viewport testing, not physical-device certification.
+- All five real project URLs and three real article URLs returned **HTTP 200 with actual article/project body markup**, after previously returning 500. Home, Notes, privacy, terms, Admin, robots, sitemap and icon also returned 200.
+- Public site-data API returned **5 projects / 3 posts**, no resource errors, `source=database`, for both `vi` and `en`.
+- Production browser: project accent search and combined category filters; no-match/reset; article search, no-match/reset and oldest-first order; mobile menu; six real images in the representative gallery; arrow keys, Escape and opener focus return; click-to-load YouTube iframe; article text-size controls; comments loading and blank-form validation/anonymous mode. A fresh public tab reported **no application console errors** during the 60-case pass.
+- Authenticated production Admin: project listing and all six edit tabs; new-project form enabled with draft defaults; Vietnamese and English article listings; structured YOLO editor and preview (nine code blocks); legacy rich-text article editor and preview (format retained); homepage settings loaded with enabled save control. All these were inspected without saving.
+- Authenticated Admin API reads for projects, both post locales, profile, settings, comments, messages, activities and session returned their expected response structures. Public project controls were available; the profile response did not contain passwordHash. Private records/secrets were not copied into this report.
+- Unauthenticated project/post/profile/settings/comments/messages/activities APIs returned **401**; debug returned **403**. Malformed public comments/stats requests returned **400** without mutation.
+- Nonexistent project/article routes rendered not-found metadata/content. Their streamed Next.js responses can retain HTTP 200 after the shell is sent; this was not claimed as a conventional HTTP 404 response.
+
+## Security and remaining limits
+
+- No Admin password, database URL, Vercel token, `.env` or `.vercel` file was committed. Sensitive Vercel environment values could not be exported; the approved DDL ran inside Vercel using its existing production secret.
+- `npm audit --omit=dev` for the updated installed lock reported **0 critical, 5 high, 3 moderate, 3 low** advisories. The remaining 11 advisories were not represented as fixed. GitHub's older alert count may remain visible until its rescan.
+- Production create/update/delete, publication persistence, real upload/storage writes and posting real comments were deliberately **not executed**. Only the specifically approved additive schema change and normal page-view counters affected production. Full write-path end-to-end testing still needs isolated database/storage fixtures.
+- No Lighthouse/Core Web Vitals, full screen-reader audit, exhaustive content fact-check, or physical Android test was performed. Initial live document requests observed during cold/warm route checks ranged approximately 0.8–6.3 seconds; these timings include network and server response and are not a Web Vitals score.
+- External video playback depends on YouTube/network availability; the valid privacy-domain iframe was verified, not third-party playback on every device.
+
+Temporary Admin access should be rotated by the owner after testing. This QA did not change the password.

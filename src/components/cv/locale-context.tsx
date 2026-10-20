@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 
 export type Locale = "vi" | "en"
 
@@ -23,6 +24,7 @@ export function LocaleProvider({
   children: React.ReactNode
   initialLocale?: string
 }) {
+  const router = useRouter()
   const [locale, setLocaleState] = React.useState<Locale>(initialLocale === "en" ? "en" : "vi")
 
   React.useEffect(() => {
@@ -45,7 +47,8 @@ export function LocaleProvider({
       localStorage.setItem("cv-locale", l)
       document.cookie = `cv-locale=${l}; path=/; max-age=31536000; SameSite=Lax`
     } catch {}
-  }, [])
+    router.refresh()
+  }, [router])
 
   const t = React.useCallback(
     (viText: string, enText: string) => (locale === "en" ? enText : viText),
