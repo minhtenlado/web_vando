@@ -4,161 +4,73 @@ import { db } from "@/lib/db";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-// In-memory rate limiting for comments (max 10 actions / min / IP)
-const commentRateLimit = new Map<string, { count: number; lastReset: number }>();
-const RATE_LIMIT_WINDOW = 60 * 1000;
-const MAX_ACTIONS = 10;
+const requests = new Map<string, { count: number; resetAt: number }>();
+const publicPost = (slug: string) => db.post.findFirst({ where: { slug, published: true }, select: { id: true } });
+const missing = () => NextResponse.json({ ok: false, message: "Không tìm thấy bài viết hoặc bình luận." }, { status: 404 });
+const invalid = (message: string) => NextResponse.json({ ok: false, message }, { status: 422 });
+const cleanText = (value: string) => value.replace(/<[^>]*>/g, "").trim();
 
-const AVATAR_COLORS = ["emerald", "indigo", "rose", "amber", "sky", "purple", "teal", "pink"];
-
-function getClientIP(req: NextRequest): string {
-  return (
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    req.headers.get("x-real-ip") ??
-    "unknown"
-  );
-}
-
-function sanitizeText(str: string): string {
-  if (!str) return "";
-  return str
-    .replace(/<[^>]*>?/gm, "") // Strip any HTML tags
-    .replace(/javascript:/gi, "")
-    .trim();
-}
-
-export async function GET(
-  _req: NextRequest,
-  props: { params: Promise<{ slug: string }> }
-) {
+export async function GET(_req: NextRequest, props: { params: Promise<{ slug: string }> }) {
   try {
     const { slug } = await props.params;
-    const decodedSlug = decodeURIComponent(slug);
-
-    const comments = await db.comment.findMany({
-      where: { postSlug: decodedSlug },
-      orderBy: { createdAt: "desc" },
-      take: 200,
-    });
-
-    return NextResponse.json({ ok: true, comments });
-  } catch (error: any) {
-    console.error("[Comments GET Error]", error);
-    return NextResponse.json(
-      { ok: false, comments: [], message: error?.message || "Failed to fetch comments" },
-      { status: 500 }
-    );
+    if (!await publicPost(slug)) return missing();
+    const comments = await db.comment.findMany({ where: { postSlug: slug }, orderBy: { createdAt: "desc" }, take: 200 });
+    return NextResponse.json({ ok: true, comments }, { headers: { "Cache-Control": "no-store" } });
+  } catch {
+    return NextResponse.json({ ok: false, message: "Không tải được bình luận. Vui lòng thử lại." }, { status: 503 });
   }
 }
 
-export async function POST(
-  req: NextRequest,
-  props: { params: Promise<{ slug: string }> }
-) {
+export async function POST(req: NextRequest, props: { params: Promise<{ slug: string }> }) {
   try {
-    const { slug } = await props.params;
-    const decodedSlug = decodeURIComponent(slug);
-    const ip = getClientIP(req);
+    const body: unknown = await req.json().catch(() => null);
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return NextResponse.json({ ok: false, message: "Body không hợp lệ." }, { status: 400 });
+    }
+    const input = body as Record<string, unknown>;
+    const action = input.action ?? "create";
+    if (!["create", "like", "unlike"].includes(String(action))) return invalid("Action không hợp lệ.");
+
     const now = Date.now();
+    for (const [key, value] of requests) if (value.resetAt <= now) requests.delete(key);
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
+    const rate = requests.get(ip) || { count: 0, resetAt: now + 60000 };
+    if (++rate.count > 10) return NextResponse.json({ ok: false, message: "Bạn đang thao tác quá nhanh. Vui lòng thử lại sau 1 phút." }, { status: 429, headers: { "Retry-After": "60" } });
+    requests.set(ip, rate);
 
-    // 1. Rate Limit Check
-    const rateData = commentRateLimit.get(ip) ?? { count: 0, lastReset: now };
-    if (now - rateData.lastReset > RATE_LIMIT_WINDOW) {
-      rateData.count = 1;
-      rateData.lastReset = now;
-    } else {
-      rateData.count += 1;
-    }
-    commentRateLimit.set(ip, rateData);
+    const { slug } = await props.params;
+    if (!await publicPost(slug)) return missing();
 
-    if (rateData.count > MAX_ACTIONS) {
-      return NextResponse.json(
-        { ok: false, message: "Bạn đang thao tác quá nhanh. Vui lòng thử lại sau 1 phút." },
-        { status: 429 }
-      );
-    }
-
-    // 2. Parse Body
-    const body = await req.json().catch(() => ({}));
-    const action = body.action || "create";
-
-    // Handle Comment Like Action
     if (action === "like" || action === "unlike") {
-      const commentId = body.commentId;
-      if (!commentId) {
-        return NextResponse.json({ ok: false, message: "Thiếu ID bình luận." }, { status: 400 });
-      }
-
-      const updated = await db.comment.update({
-        where: { id: commentId },
-        data: {
-          likes: action === "like" ? { increment: 1 } : { decrement: 1 },
-        },
+      if (typeof input.commentId !== "string" || !input.commentId) return invalid("Thiếu ID bình luận.");
+      const where = { id: input.commentId, postSlug: slug };
+      if (!await db.comment.findFirst({ where, select: { id: true } })) return missing();
+      await db.comment.updateMany({
+        where: { ...where, ...(action === "unlike" ? { likes: { gt: 0 } } : {}) },
+        data: { likes: action === "like" ? { increment: 1 } : { decrement: 1 } },
       });
-
-      return NextResponse.json({
-        ok: true,
-        likes: Math.max(0, updated.likes),
-        commentId,
-      });
+      const updated = await db.comment.findFirst({ where, select: { likes: true } });
+      if (!updated) return missing();
+      return NextResponse.json({ ok: true, likes: Math.max(0, updated.likes), commentId: input.commentId });
     }
 
-    // Handle Create Comment or Reply
-    const rawContent = (body.content ?? "").toString();
-    const isAnonymous = Boolean(body.isAnonymous);
-    const parentId = body.parentId ? String(body.parentId) : null;
-    let author = (body.author ?? "").toString();
-
-    const sanitizedContent = sanitizeText(rawContent);
-
-    if (!sanitizedContent || sanitizedContent.length < 2) {
-      return NextResponse.json(
-        { ok: false, message: "Nội dung bình luận quá ngắn (tối thiểu 2 ký tự)." },
-        { status: 422 }
-      );
+    if (typeof input.content !== "string" || (input.author !== undefined && typeof input.author !== "string") ||
+        (input.isAnonymous !== undefined && typeof input.isAnonymous !== "boolean") ||
+        (input.parentId != null && typeof input.parentId !== "string")) return invalid("Dữ liệu bình luận không hợp lệ.");
+    const content = cleanText(input.content);
+    if (content.length < 2 || content.length > 1000) return invalid("Nội dung bình luận cần từ 2 đến 1000 ký tự.");
+    const parentId = typeof input.parentId === "string" && input.parentId ? input.parentId : null;
+    if (parentId && !await db.comment.findFirst({ where: { id: parentId, postSlug: slug }, select: { id: true } })) {
+      return invalid("Bình luận được trả lời không thuộc bài viết này.");
     }
-
-    if (sanitizedContent.length > 1000) {
-      return NextResponse.json(
-        { ok: false, message: "Nội dung bình luận không được vượt quá 1000 ký tự." },
-        { status: 422 }
-      );
-    }
-
-    if (isAnonymous || !author.trim()) {
-      author = "Người đọc ẩn danh";
-    } else {
-      author = sanitizeText(author).slice(0, 50);
-    }
-
-    // Pick random avatar color
-    const avatarColor = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
-
-    // 3. Save to Database (Public comments are always regular readers)
-    const newComment = await db.comment.create({
-      data: {
-        postSlug: decodedSlug,
-        parentId,
-        author,
-        isAnonymous,
-        isAuthor: false,
-        avatarUrl: null,
-        content: sanitizedContent,
-        avatarColor,
-        likes: 0,
-      },
-    });
-
-    return NextResponse.json({
-      ok: true,
-      message: parentId ? "Đã gửi phản hồi thành công!" : "Gửi bình luận thành công!",
-      comment: newComment,
-    });
-  } catch (error: any) {
-    console.error("[Comments POST Error]", error);
-    return NextResponse.json(
-      { ok: false, message: error?.message || "Không thể lưu bình luận lúc này. Vui lòng thử lại sau." },
-      { status: 500 }
-    );
+    const author = typeof input.author === "string" ? cleanText(input.author).slice(0, 50) : "";
+    const isAnonymous = input.isAnonymous === true || !author;
+    const comment = await db.comment.create({ data: {
+      postSlug: slug, parentId, author: isAnonymous ? "Người đọc ẩn danh" : author,
+      isAnonymous, isAuthor: false, avatarUrl: null, content, avatarColor: "slate", likes: 0,
+    } });
+    return NextResponse.json({ ok: true, comment }, { status: 201 });
+  } catch {
+    return NextResponse.json({ ok: false, message: "Không thể lưu bình luận lúc này. Vui lòng thử lại." }, { status: 503 });
   }
 }

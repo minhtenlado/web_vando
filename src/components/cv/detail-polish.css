@@ -102,3 +102,27 @@
   .lab-article-cover { aspect-ratio: 1.4; }
   .lab-pdf iframe { height: 450px; }
 }
+.lab-comments { padding-block: 30px; margin-top: 24px; border-top: 1px solid var(--lab-border); font-size: 14px; }
+.lab-comments-heading { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.lab-comments-heading h2 { margin: 0; font-size: 22px; }
+.lab-comments-heading > label { display: flex; align-items: center; gap: 10px; }
+.lab-comments :is(input:not([type=checkbox]),textarea,select) { width: 100%; min-width: 0; padding: 10px 12px; border: 1px solid var(--lab-border); border-radius: 6px; background: var(--lab-surface); color: var(--lab-text); font: inherit; }
+.lab-comments input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--lab-accent); }
+.lab-comments textarea { resize: vertical; line-height: 1.7; }
+.lab-comments :is(button,select) { min-height: 44px; }
+.lab-comment-form { display: grid; gap: 14px; margin-block: 20px 30px; }
+.lab-comment-form > label { display: grid; gap: 8px; }
+.lab-comment-form .lab-comment-anonymous { display: flex; align-items: center; gap: 9px; min-height: 44px; }
+.lab-comment-form > div { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; }
+.lab-comment-form > div > span, .lab-comment header :is(time,span) { color: var(--lab-muted); font-size: 12px; }
+.lab-comment-thread { padding-block: 20px; border-top: 1px solid var(--lab-border); }
+.lab-comment header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+.lab-comment p { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; margin-block: 12px 4px; }
+.lab-comment-actions { display: flex; gap: 20px; }
+.lab-comment-actions button { color: var(--lab-muted); font-size: 13px; }
+.lab-comment-actions button[aria-pressed=true] { color: var(--lab-accent); text-decoration: underline; }
+.lab-comment-replies { padding-left: 20px; border-left: 1px solid var(--lab-border); margin-left: 6px; }
+.lab-comment-replies .lab-comment { padding-block: 14px; }
+.lab-comment-reply-form { padding-left: 20px; }
+.lab-comment-message { line-height: 1.7; }
+@media(max-width:560px) { .lab-comments :is(input,textarea,select) { font-size: 16px; } }

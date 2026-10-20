@@ -4,11 +4,11 @@ import { NextRequest,NextResponse } from "next/server";
 export async function POST(req: NextRequest, props: { params: Promise<{ slug: string }> }) {
   try {
     const { slug } = await props.params;
-    const body = await req.json();
-    const action = body.action; // "view", "like", "unlike", "bookmark", "unbookmark"
+    const body = await req.json().catch(() => null);
+    const action = body && typeof body === "object" && !Array.isArray(body) ? body.action : undefined;
 
-    if (!action) {
-      return NextResponse.json({ error: "Missing action" }, { status: 400 });
+    if (!["view", "like", "unlike", "bookmark", "unbookmark"].includes(action)) {
+      return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
 
     const post = await db.post.findFirst({ where: { slug, published: true } });
@@ -23,17 +23,17 @@ export async function POST(req: NextRequest, props: { params: Promise<{ slug: st
     } else if (action === "like") {
       updateData = { likes: { increment: 1 } };
     } else if (action === "unlike") {
-      updateData = { likes: post.likes > 0 ? { decrement: 1 } : 0 };
+      updateData = { likes: { decrement: 1 } };
     } else if (action === "bookmark") {
       updateData = { bookmarks: { increment: 1 } };
     } else if (action === "unbookmark") {
-      updateData = { bookmarks: post.bookmarks > 0 ? { decrement: 1 } : 0 };
+      updateData = { bookmarks: { decrement: 1 } };
     } else {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
 
     await db.post.updateMany({
-      where: { slug, published: true },
+      where: { slug, published: true, ...(action === "unlike" ? { likes: { gt: 0 } } : {}), ...(action === "unbookmark" ? { bookmarks: { gt: 0 } } : {}) },
       data: updateData,
     });
 

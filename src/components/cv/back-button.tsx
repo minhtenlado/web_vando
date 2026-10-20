@@ -1,22 +1,9 @@
-'use client'
-
-import { ArrowLeft } from "lucide-react"
+'use client';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { useLocale } from './locale-context';
 
 export function BackButton() {
-  const handleBack = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-    window.location.href = "/#posts"
-  }
-
-  return (
-    <a 
-      href="/#posts" 
-      onClick={handleBack}
-      className="text-muted-foreground hover:text-foreground transition-colors shrink-0 flex items-center gap-2 group" 
-      title="Trở về danh sách bài viết"
-    >
-      <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-      <span className="text-sm font-medium hidden sm:block">Trở về</span>
-    </a>
-  )
+  const { t } = useLocale();
+  return <Link href="/notes" className="lab-detail-back"><ArrowLeft size={16} aria-hidden="true" />{t('Tất cả bài viết', 'All articles')}</Link>;
 }
