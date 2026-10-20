@@ -1,43 +1,28 @@
 "use client";
 
-import * as React from "react";
-import { Loader2, Plus, Pencil, Trash2, FileText, RefreshCw, Eye, EyeOff, Upload, Search, Clock, ArrowUpRight, MoreVertical, Heart, Bookmark } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { RichTextEditor } from "./rich-text-editor";
-import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+AlertDialog,
+AlertDialogAction,
+AlertDialogCancel,
+AlertDialogContent,
+AlertDialogDescription,
+AlertDialogFooter,
+AlertDialogHeader,
+AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Card,CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { motion } from "framer-motion";
+import { normalizeSearch } from "@/lib/cv/presentation";
 import type { SitePost } from "@/lib/cv/site-data-server";
-import { PostEditor } from "./post-editor";
-import { TutorialEditor } from "./tutorial-editor";
-import { CATEGORIES, POST_LAYOUTS, type PostForm } from "./post-types";
+import { FileText,Loader2,Plus,RefreshCw,Search,Trash2 } from "lucide-react";
+import dynamic from "next/dynamic";
+import * as React from "react";
+import { CATEGORIES,slugify,supportsTutorialEditor,type PostForm } from "./post-types";
+const PostEditor = dynamic(() => import("./post-editor").then((module) => module.PostEditor));
+const TutorialEditor = dynamic(() => import("./tutorial-editor").then((module) => module.TutorialEditor));
 
 function getEmptyForm(): PostForm {
   return {
@@ -45,7 +30,7 @@ function getEmptyForm(): PostForm {
     slug: "",
     excerpt: "",
     content: "",
-    published: true,
+    published: false,
     category: "AI",
     layout: "article",
     createdAt: new Date().toISOString(),
@@ -55,17 +40,6 @@ function getEmptyForm(): PostForm {
     coverImage: "",
     pdfUrl: "",
   };
-}
-
-export function slugify(s: string): string {
-  return s
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 120);
 }
 
 function toForm(p: SitePost): PostForm {
@@ -102,6 +76,7 @@ export function PostsTab({ locale }: { locale: string }) {
   const { toast } = useToast();
   const [items, setItems] = React.useState<SitePost[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [fetchError, setFetchError] = React.useState("");
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<SitePost | null>(null);
   const [form, setForm] = React.useState<PostForm>(getEmptyForm);
@@ -114,19 +89,21 @@ export function PostsTab({ locale }: { locale: string }) {
   const [uploadingCoverImage, setUploadingCoverImage] = React.useState(false);
   // Post type state to separate normal posts from PDF uploads
   const [postType, setPostType] = React.useState<"text" | "pdf">("text");
-  
+
   // Filter states
   const [activeCategory, setActiveCategory] = React.useState("Tất cả");
   const [searchQuery, setSearchQuery] = React.useState("");
 
   async function fetchItems() {
     setLoading(true);
+    setFetchError("");
     try {
       const res = await fetch(`/api/admin/posts?locale=${locale}`, { cache: "no-store" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) throw new Error(data?.message || "Tải thất bại.");
       setItems(data.posts ?? []);
     } catch (err) {
+      setFetchError(err instanceof Error ? err.message : "Không tải được bài viết.");
       toast({
         title: "Lỗi",
         description: err instanceof Error ? err.message : "Không tải được bài viết.",
@@ -205,7 +182,7 @@ export function PostsTab({ locale }: { locale: string }) {
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) throw new Error(data?.message || "Lưu thất bại.");
       toast({
-        title: editing ? "Đã cập nhật bài viết" : "Đã tạo bài viết",
+        title: !isPublished ? "Đã lưu bản nháp" : "Đã xuất bản bài viết",
         description: payload.title,
       });
       setDialogOpen(false);
@@ -244,8 +221,7 @@ export function PostsTab({ locale }: { locale: string }) {
 
   const filteredItems = React.useMemo(() => {
     return items.filter(post => {
-      const matchesSearch = post.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            post.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = normalizeSearch(post.title + " " + post.excerpt).includes(normalizeSearch(searchQuery));
       const matchesCategory = activeCategory === "Tất cả" || post.category === activeCategory;
       return matchesSearch && matchesCategory;
     });
@@ -256,17 +232,17 @@ export function PostsTab({ locale }: { locale: string }) {
       {/* Toolbar */}
       <div className="mt-2 flex flex-col xl:flex-row items-center justify-between gap-4 mb-6">
         <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto">
-          <Button 
-            variant="default" 
+          <Button
+            variant="default"
             onClick={() => setActiveCategory("Tất cả")}
             className={`rounded-full h-8 px-4 text-xs font-medium border-none ${activeCategory === "Tất cả" ? 'bg-primary/20 text-primary hover:bg-primary/30' : 'bg-transparent text-muted-foreground hover:bg-white/5'}`}
           >
             Tất cả
           </Button>
           {CATEGORIES.map((cat, i) => (
-            <Button 
-              key={i} 
-              variant="outline" 
+            <Button
+              key={i}
+              variant="outline"
               onClick={() => setActiveCategory(cat)}
               className={`rounded-full h-8 px-4 text-xs font-medium border-border/40 transition-colors ${activeCategory === cat ? 'bg-primary/20 text-primary border-primary/30' : 'bg-transparent text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground dark:hover:text-white'}`}
             >
@@ -278,10 +254,11 @@ export function PostsTab({ locale }: { locale: string }) {
         <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto justify-end">
           <div className="relative w-full sm:w-56">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-            <Input 
+            <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm bài viết..." 
+              placeholder="Tìm bài viết..."
+              aria-label="Tìm bài viết"
               className="w-full pl-9 h-8 rounded-md border-border/40 bg-transparent text-xs focus-visible:ring-1 focus-visible:ring-primary/20"
             />
           </div>
@@ -304,13 +281,15 @@ export function PostsTab({ locale }: { locale: string }) {
             ))}
           </div>
         </div>
+      ) : fetchError ? (
+        <p role="alert" className="admin-data-notice">{fetchError} Hãy tải lại để thử lại.</p>
       ) : filteredItems.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center gap-3 py-12 text-center">
             <FileText className="size-10 text-muted-foreground" />
             <div>
-              <p className="font-medium">Chưa có bài viết</p>
-              <p className="text-sm text-muted-foreground">Bắt đầu viết bài đầu tiên.</p>
+              <p className="font-medium">{items.length ? "Không có bài viết khớp bộ lọc" : "Chưa có bài viết"}</p>
+              <p className="text-sm text-muted-foreground">{items.length ? "Thử từ khóa hoặc danh mục khác." : "Bắt đầu bằng một bản nháp mới."}</p>
             </div>
             <Button size="sm" onClick={openCreate}>
               <Plus className="size-4" /> Viết bài mới
@@ -318,125 +297,25 @@ export function PostsTab({ locale }: { locale: string }) {
           </CardContent>
         </Card>
       ) : (
-        <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredItems.map((post, i) => {
-            const postCategory = post.category || CATEGORIES[0]
-            const wordCount = (post.content || "").replace(/<[^>]*>?/gm, "").trim().split(/\s+/).filter(Boolean).length
-            const readTimeMinutes = Math.max(1, Math.ceil(wordCount / 200))
-            const readTimeText = `${readTimeMinutes} phút đọc`
-            const viewCountText = (post.views || 0) >= 1000 ? `${((post.views || 0) / 1000).toFixed(1)}K` : `${post.views || 0}`
-
-            return (
-              <motion.div
-                key={post.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: (i % 3) * 0.06 }}
-                className="h-full"
-              >
-                <Card className="group h-full flex flex-col overflow-hidden border-border/20 bg-white dark:bg-[#0d120f] hover:border-primary/30 transition-all duration-300 rounded-[1.2rem] relative shadow-lg shadow-black/5 dark:shadow-black/20">
-                  
-                  {/* Image Placeholder or Cover Image */}
-                  <div className="h-44 w-full bg-gradient-to-br from-gray-100 to-gray-50 dark:from-[#121c17] dark:to-[#0a0d0b] flex items-center justify-center relative overflow-hidden border-b border-border/10 dark:border-white/5">
-                    {post.coverImage ? (
-                      <>
-                        <img src={post.coverImage} alt={post.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        <div className="absolute inset-0 bg-black/10 dark:bg-black/40 group-hover:bg-black/5 dark:group-hover:bg-black/20 transition-colors duration-500"></div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/30 via-transparent to-transparent"></div>
-                        <span className="text-7xl font-bold text-primary/10 font-serif group-hover:scale-110 transition-transform duration-500">Z</span>
-                      </>
-                    )}
-
-                    {/* Status Badge */}
-                    <div className="absolute top-3 left-3">
-                      {post.published ? (
-                        <Badge variant="outline" className="bg-white/90 dark:bg-[#0f1712]/90 border-primary/30 text-primary text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full backdrop-blur-md flex items-center gap-1">
-                          <Eye className="w-3 h-3" /> Đã đăng
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="bg-gray-100/90 dark:bg-black/60 border-border/20 dark:border-white/10 text-gray-700 dark:text-white/70 text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full backdrop-blur-md flex items-center gap-1">
-                          <EyeOff className="w-3 h-3" /> Bản nháp
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="p-5 flex flex-col flex-1 bg-gradient-to-b from-white to-gray-50 dark:from-[#111713] dark:to-[#0a0d0b]">
-                    <div className="flex items-start justify-between mb-4">
-                      {/* Category & Layout Badges */}
-                      <div className="flex items-center gap-1.5">
-                        <Badge className="bg-primary/90 hover:bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-sm w-fit uppercase shadow-md shadow-primary/20">
-                          {postCategory}
-                        </Badge>
-                        <Badge variant="outline" className="text-[10px] font-semibold px-1.5 py-0.5 rounded-sm border-border/30 text-muted-foreground">
-                          {(POST_LAYOUTS.find(l => l.id === ((post as any).layout ?? "article"))?.icon ?? "📄")}{" "}
-                          {POST_LAYOUTS.find(l => l.id === ((post as any).layout ?? "article"))?.label ?? "Bài viết"}
-                        </Badge>
-                      </div>
-
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-6 w-6 rounded-md hover:bg-black/5 dark:hover:bg-white/10 -mr-2">
-                            <MoreVertical className="h-4 w-4 text-muted-foreground" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-32 bg-white dark:bg-[#0d120f] border-border/20">
-                          <DropdownMenuItem onClick={() => openEdit(post)} className="cursor-pointer">
-                            <Pencil className="mr-2 h-4 w-4" /> Sửa bài
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setDeleteId(post.id)} className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
-                            <Trash2 className="mr-2 h-4 w-4" /> Xóa bài
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white/90 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
-                      {post.title}
-                    </h3>
-                    <p className="mt-2.5 text-[13px] text-muted-foreground leading-relaxed line-clamp-2 flex-1">
-                      {post.excerpt || "Không có mô tả."}
-                    </p>
-
-                    {/* Footer Stats */}
-                    <div className="flex items-center justify-between mt-5 pt-4 border-t border-border/10 dark:border-white/5">
-                      <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
-                        <div className="flex items-center gap-1" title="Thời gian đọc ước tính">
-                          <Clock className="w-3.5 h-3.5" /> {readTimeText}
-                        </div>
-                        <div className="flex items-center gap-1 text-sky-500/90" title="Lượt xem">
-                          <Eye className="w-3.5 h-3.5" /> {viewCountText}
-                        </div>
-                        <div className="flex items-center gap-1 text-rose-500/90" title="Lượt thích">
-                          <Heart className="w-3.5 h-3.5" /> {(post as any).likes || 0}
-                        </div>
-                        <div className="flex items-center gap-1 text-amber-500/90" title="Lượt lưu">
-                          <Bookmark className="w-3.5 h-3.5" /> {(post as any).bookmarks || 0}
-                        </div>
-                      </div>
-                      <a 
-                        href={`/posts/${post.slug}`} 
-                        target="_blank" 
-                        rel="noreferrer" 
-                        className="flex items-center justify-center w-7 h-7 rounded-full border border-border/20 dark:border-white/10 hover:border-primary/50 hover:bg-primary/10 transition-colors"
-                        title="Xem bài viết trên web"
-                      >
-                        <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary" />
-                      </a>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            )
-          })}
+        <div className="admin-table-scroll" role="region" aria-label="Quản lý bài viết" tabIndex={0}>
+          <table className="admin-content-table">
+            <thead><tr><th scope="col">Bài viết</th><th scope="col">Danh mục</th><th scope="col">Xuất bản</th><th scope="col">Thao tác</th></tr></thead>
+            <tbody>{filteredItems.map((post) => <tr key={post.id}>
+              <th scope="row"><span className="admin-table-title">{post.title}</span><span className="admin-table-secondary">{formatDate(post.createdAt)}</span></th>
+              <td>{post.category || '—'}<span className="admin-table-secondary">{post.layout === 'tutorial' ? 'Tutorial' : 'Bài viết'}</span></td>
+              <td>{post.published ? 'Đã xuất bản' : 'Bản nháp'}</td>
+              <td><div className="admin-row-actions">
+                <Button asChild size="sm" variant="ghost"><a href={'/admin/posts/' + post.id + '/preview'} target="_blank" rel="noreferrer" aria-label={'Xem trước ' + post.title}>Xem trước</a></Button>
+                <Button size="sm" variant="outline" onClick={() => openEdit(post)}>Sửa</Button>
+                <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setDeleteId(post.id)} aria-label={'Xóa ' + post.title}>Xóa</Button>
+              </div></td>
+            </tr>)}</tbody>
+          </table>
         </div>
       )}
 
       {dialogOpen && (
-        form.layout === 'tutorial' ? (
+        form.layout === 'tutorial' && supportsTutorialEditor(form.content) ? (
           <TutorialEditor
             form={form}
             setForm={setForm}

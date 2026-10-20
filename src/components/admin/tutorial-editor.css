@@ -1,28 +1,28 @@
 /* src/components/admin/tutorial-editor.css */
 
 .tutorial-editor-root {
-  --bg: #070b09;
-  --surface: #0c1411;
-  --surface-2: #101a16;
-  --surface-3: #14221c;
+  --bg: #111418;
+  --surface: #181c20;
+  --surface-2: #20252a;
+  --surface-3: #292f35;
 
   --border: rgba(255, 255, 255, 0.075);
-  --border-hover: rgba(55, 230, 168, 0.30);
+  --border-hover: rgba(142, 175, 195, 0.30);
 
-  --text: #edf5f1;
-  --muted: #7f9189;
-  --muted-2: #5f7069;
+  --text: #edeff1;
+  --muted: #a5abb2;
+  --muted-2: #929aa3;
 
-  --green: #39e6a8;
-  --green-soft: rgba(57, 230, 168, 0.09);
+  --green: #8eafc3;
+  --green-soft: rgba(142, 175, 195, 0.09);
 
-  --blue: #7e9cff;
+  --blue: #8eafc3;
   --yellow: #e5c86d;
   --red: #ff7b7b;
 
-  --radius: 14px;
-  --bg-glow: rgba(57, 230, 168, 0.055);
-  --bg-topbar: rgba(7, 11, 9, 0.94);
+  --radius: 8px;
+  --bg-glow: rgba(142, 175, 195, 0.055);
+  --bg-topbar: rgba(17, 20, 24, 0.94);
 
   --font:
     Inter,
@@ -39,13 +39,7 @@
     Consolas,
     monospace;
 
-  background:
-    radial-gradient(
-      circle at 50% -20%,
-      var(--bg-glow),
-      transparent 35%
-    ),
-    var(--bg);
+  background: var(--bg);
   color: var(--text);
   font-family: var(--font);
 }
@@ -70,7 +64,7 @@
   --blue: #4f6de0;
   --yellow: #c89e30;
   --red: #db5151;
-  
+
   --bg-glow: rgba(41, 184, 133, 0.08);
   --bg-topbar: rgba(245, 247, 246, 0.94);
 }
@@ -113,7 +107,7 @@
   justify-content: space-between;
   padding: 0 20px;
   background: var(--bg-topbar);
-  backdrop-filter: blur(18px);
+  backdrop-filter: none;
   border-bottom: 1px solid var(--border);
 }
 
@@ -149,7 +143,7 @@
   justify-content: center;
   color: var(--green);
   background: var(--green-soft);
-  border: 1px solid rgba(57, 230, 168, 0.17);
+  border: 1px solid rgba(142, 175, 195, 0.17);
 }
 
 .tutorial-editor-root .page-title {
@@ -183,7 +177,7 @@
   height: 6px;
   border-radius: 50%;
   background: var(--green);
-  box-shadow: 0 0 9px rgba(57, 230, 168, 0.8);
+  box-shadow: none;
 }
 
 .tutorial-editor-root .top-actions {
@@ -289,7 +283,7 @@
 .tutorial-editor-root .outline-item.active {
   background: var(--green-soft);
   color: var(--green);
-  border-color: rgba(57, 230, 168, 0.12);
+  border-color: rgba(142, 175, 195, 0.12);
 }
 
 .tutorial-editor-root .outline-number {
@@ -402,7 +396,7 @@
 .tutorial-editor-root .divider {
   height: 1px;
   margin: 30px 0 26px;
-  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  background: var(--surface-2);
 }
 
 /* =========================================================
@@ -568,7 +562,7 @@
   padding: 18px;
   border: 1px solid var(--border-hover);
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(57,230,168,.035), rgba(255,255,255,.005));
+  background: var(--surface-2);
 }
 
 .tutorial-editor-root .step-top {
@@ -646,7 +640,7 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.035), transparent);
+  background: var(--surface-2);
 }
 
 .tutorial-editor-root .add-block-btn {
@@ -681,7 +675,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 13px;
-  box-shadow: 0 25px 60px rgba(0,0,0,.42);
+  box-shadow: none;
 }
 
 .tutorial-editor-root .slash-menu.open {
@@ -875,13 +869,7 @@
   flex-direction: column;
   gap: 7px;
   border-radius: 9px;
-  background: repeating-linear-gradient(
-    135deg,
-    rgba(255,255,255,.015),
-    rgba(255,255,255,.015) 8px,
-    transparent 8px,
-    transparent 16px
-  );
+  background: var(--surface-2);
   color: var(--muted-2);
   font-size: 11px;
 }
@@ -898,7 +886,7 @@
   margin-top: 10px;
   padding: 17px;
   border-radius: 13px;
-  background: linear-gradient(135deg, rgba(126,156,255,.06), rgba(57,230,168,.025));
+  background: var(--surface-2);
   border: 1px solid var(--border);
 }
 
@@ -1111,7 +1099,7 @@
   padding: 0 18px;
   border-top: 1px solid var(--border);
   background: rgba(7,11,9,.96);
-  backdrop-filter: blur(18px);
+  backdrop-filter: none;
 }
 
 .tutorial-editor-root .stats {
@@ -1181,7 +1169,20 @@
   .tutorial-editor-root .autosave {
     display: none;
   }
-  .tutorial-editor-root .top-actions .btn:first-child {
-    display: none;
-  }
+  .tutorial-editor-root .top-actions .btn:first-child { display: inline-flex; }
+}
+
+@media (max-width: 1200px) {
+  .tutorial-editor-root .app { display: block; flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 80px; }
+  .tutorial-editor-root .outline { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tutorial-editor-root .outline-list { flex-direction: row; width: max-content; }
+  .tutorial-editor-root .outline-item { white-space: nowrap; }
+  .tutorial-editor-root .editor-area { height: auto; overflow: visible; padding: 24px 16px; }
+  .tutorial-editor-root .settings { display: block; position: static; height: auto; overflow: visible; padding: 20px 16px; border-left: 0; }
+}
+@media (max-width: 650px) {
+  .tutorial-editor-root .topbar { height: auto; min-height: 68px; padding: 12px; gap: 10px; flex-wrap: wrap; flex-shrink: 0; }
+  .tutorial-editor-root .top-actions { width: 100%; justify-content: flex-end; }
+  .tutorial-editor-root .bottom-bar .stats { display: none; }
+  .tutorial-editor-root .bottom-bar { justify-content: flex-end; padding-inline: 12px; }
 }

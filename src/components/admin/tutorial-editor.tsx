@@ -1,12 +1,13 @@
 "use client";
 
-import * as React from "react";
-import "./tutorial-editor.css";
-import { ArrowLeft, Check, Loader2 } from "lucide-react";
-import type { SitePost } from "@/lib/cv/site-data-server";
-import { CATEGORIES, POST_LAYOUTS, type PostForm } from "./post-types";
-import { slugify } from "./posts-tab";
 import { Switch } from "@/components/ui/switch";
+import type { SitePost } from "@/lib/cv/site-data-server";
+import { ArrowLeft,Check,Loader2 } from "lucide-react";
+import dynamic from "next/dynamic";
+import * as React from "react";
+import { CATEGORIES,POST_LAYOUTS,type PostForm } from "./post-types";
+import "./tutorial-editor.css";
+const PostPreview = dynamic(() => import("./post-preview").then((module) => module.PostPreview));
 
 export interface TutorialData {
   intro: string;
@@ -30,7 +31,7 @@ interface TutorialEditorProps {
   setForm: React.Dispatch<React.SetStateAction<PostForm>>;
   editing: SitePost | null;
   submitting: boolean;
-  onSubmit: (e: React.FormEvent) => Promise<void>;
+  onSubmit: (e: React.FormEvent, overridePublished?: boolean) => Promise<void>;
   onClose: () => void;
   onTitleChange: (v: string) => void;
   onSlugChange: (v: string) => void;
@@ -64,7 +65,7 @@ function escapeHtml(str: string): string {
 function generateHTML(data: TutorialData) {
   let html = `<!--TUTORIAL_DATA: ${JSON.stringify(data)} -->\n`;
   html += `<div class="tutorial-content">\n`;
-  
+
   if (data.intro || data.objectives.some(o => o.trim())) {
     html += `  <div class="tutorial-intro">\n`;
     if (data.intro) html += `    <p>${escapeHtml(data.intro)}</p>\n`;
@@ -99,7 +100,7 @@ function generateHTML(data: TutorialData) {
         html += `  </ol>\n`;
         inSteps = false;
       }
-      
+
       if (block.type === 'paragraph') {
         html += `  <p>${escapeHtml(block.content)}</p>\n`;
       } else if (block.type === 'heading') {
@@ -156,12 +157,15 @@ export function TutorialEditor({
   onTitleChange,
   onSlugChange,
 }: TutorialEditorProps) {
-  
+
   const [data, setData] = React.useState<TutorialData>(() => parseData(form.content));
+  const initialData = React.useRef(data);
   const [activeMenuIndex, setActiveMenuIndex] = React.useState<number | null>(null);
   const [searchMenu, setSearchMenu] = React.useState("");
+  const [previewOpen, setPreviewOpen] = React.useState(false);
 
   React.useEffect(() => {
+    if (data === initialData.current) return;
     const html = generateHTML(data);
     if (html !== form.content) {
       setForm(prev => ({ ...prev, content: html }));
@@ -185,7 +189,7 @@ export function TutorialEditor({
 
   // Insert block
   const insertBlock = (index: number, type: Block['type']) => {
-    const newBlock: Block = type === 'step' 
+    const newBlock: Block = type === 'step'
       ? { id: generateId(), type: 'step', title: '', content: '', code: '', lang: 'Python' }
       : type === 'code'
       ? { id: generateId(), type: 'code', code: '', lang: 'Python' }
@@ -219,7 +223,7 @@ export function TutorialEditor({
       {/* TOP HEADER */}
       <header className="topbar">
         <div className="top-left">
-          <button className="back-btn" onClick={onClose} type="button">
+          <button className="back-btn" onClick={onClose} type="button" aria-label="Quay lại">
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div className="page-icon">📘</div>
@@ -228,33 +232,33 @@ export function TutorialEditor({
             <span>{form.title || "Chưa có tiêu đề"}</span>
           </div>
           <div className="autosave">
-            <span className="autosave-dot"></span> Đã lưu tự động
+            {submitting ? "Đang lưu…" : "Lưu thủ công"}
           </div>
         </div>
 
         <div className="top-actions">
-          <button 
+          <button
             type="button"
             className="btn"
-            onClick={() => window.open(`/posts/${slugify(form.slug || form.title)}`, "_blank")}
+            onClick={() => setPreviewOpen(true)}
           >
             👁 Xem trước
           </button>
-          <button 
+          <button
             type="button"
             className="btn"
             onClick={(e) => {
               setForm({ ...form, published: false });
-              onSubmit(e as unknown as React.FormEvent);
+              onSubmit(e as unknown as React.FormEvent, false);
             }}
             disabled={submitting}
           >
             Lưu nháp
           </button>
-          <button 
+          <button
             type="button"
             className="btn btn-primary"
-            onClick={(e) => onSubmit(e as unknown as React.FormEvent)}
+            onClick={(e) => onSubmit(e as unknown as React.FormEvent, true)}
             disabled={submitting}
           >
             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 stroke-[3]" />}
@@ -269,9 +273,9 @@ export function TutorialEditor({
           <div className="outline-title">OUTLINE</div>
           <div className="outline-list">
             {steps.map((step, idx) => (
-              <button 
+              <button
                 type="button"
-                key={step.id} 
+                key={step.id}
                 className="outline-item"
                 onClick={() => {
                   document.getElementById(`block-${step.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -294,14 +298,14 @@ export function TutorialEditor({
               <span className="type-dot"></span> TUTORIAL
             </div>
 
-            <input
+            <input aria-label="Tiêu đề Tutorial"
               className="title-input"
               placeholder="Nhập tiêu đề Tutorial..."
               value={form.title}
               onChange={(e) => onTitleChange(e.target.value)}
             />
 
-            <textarea
+            <textarea aria-label="Mô tả ngắn"
               className="description-input"
               placeholder="Mô tả ngắn giúp người đọc hiểu họ sẽ đạt được gì..."
               value={form.excerpt}
@@ -318,7 +322,7 @@ export function TutorialEditor({
             {/* INTRO PANEL */}
             <section className="intro-panel">
               <div className="panel-kicker">BẠN SẼ HỌC ĐƯỢC GÌ?</div>
-              <textarea
+              <textarea aria-label="Giới thiệu Tutorial"
                 className="intro-textarea"
                 placeholder="Viết một đoạn giới thiệu ngắn về bài tutorial này..."
                 value={data.intro}
@@ -328,7 +332,7 @@ export function TutorialEditor({
                 {data.objectives.map((obj, i) => (
                   <div className="objective" key={i}>
                     <span className="objective-check">✓</span>
-                    <input 
+                    <input aria-label="Mục tiêu học tập"
                       placeholder="Mục tiêu..."
                       value={obj}
                       onChange={(e) => updateObjective(i, e.target.value)}
@@ -357,7 +361,7 @@ export function TutorialEditor({
                       </div>
 
                       {block.type === 'paragraph' && (
-                        <textarea
+                        <textarea aria-label="Nội dung section"
                           className="paragraph"
                           placeholder="Viết đoạn văn..."
                           value={block.content}
@@ -366,7 +370,7 @@ export function TutorialEditor({
                       )}
 
                       {block.type === 'heading' && (
-                        <input
+                        <input aria-label="Nội dung section"
                           className="heading-input"
                           placeholder="Tiêu đề section..."
                           value={block.content}
@@ -378,14 +382,14 @@ export function TutorialEditor({
                         <div className="step-block">
                           <div className="step-top">
                             <div className="step-badge">{stepNumber.toString().padStart(2, '0')}</div>
-                            <input
+                            <input aria-label="Tên bước Tutorial"
                               className="step-title"
                               placeholder="Tên bước Tutorial..."
                               value={block.title}
                               onChange={(e) => updateBlock(block.id, { title: e.target.value })}
                             />
                           </div>
-                          <textarea
+                          <textarea aria-label="Nội dung section"
                             className="step-desc"
                             placeholder="Mô tả ngắn về bước này..."
                             value={block.content}
@@ -397,8 +401,8 @@ export function TutorialEditor({
                                 <span>&lt;/&gt;</span>
                                 <span className="code-label">Code</span>
                               </div>
-                              <select 
-                                className="language" 
+                              <select aria-label="Ngôn ngữ mã nguồn"
+                                className="language"
                                 value={block.lang}
                                 onChange={(e) => updateBlock(block.id, { lang: e.target.value })}
                               >
@@ -414,7 +418,7 @@ export function TutorialEditor({
                                 <option>Rust</option>
                               </select>
                             </div>
-                            <textarea
+                            <textarea aria-label="Mã nguồn"
                               className="code-area"
                               placeholder="Nhập code..."
                               value={block.code}
@@ -431,8 +435,8 @@ export function TutorialEditor({
                               <span>&lt;/&gt;</span>
                               <span className="code-label">Code</span>
                             </div>
-                            <select 
-                              className="language" 
+                            <select aria-label="Ngôn ngữ mã nguồn"
+                              className="language"
                               value={block.lang}
                               onChange={(e) => updateBlock(block.id, { lang: e.target.value })}
                             >
@@ -448,7 +452,7 @@ export function TutorialEditor({
                               <option>Rust</option>
                             </select>
                           </div>
-                          <textarea
+                          <textarea aria-label="Mã nguồn"
                             className="code-area"
                             placeholder="Nhập code..."
                             value={block.code}
@@ -462,7 +466,7 @@ export function TutorialEditor({
                           <div className="callout-icon">
                             {block.type === 'tip' ? '💡' : '⚠'}
                           </div>
-                          <textarea
+                          <textarea aria-label="Nội dung section"
                             placeholder={block.type === 'tip' ? 'Mẹo hữu ích...' : 'Cảnh báo...'}
                             value={block.content}
                             onChange={(e) => updateBlock(block.id, { content: e.target.value })}
@@ -473,7 +477,7 @@ export function TutorialEditor({
                       {block.type === 'result' && (
                         <div className="result-block">
                           <div className="result-title">KẾT QUẢ</div>
-                          <textarea
+                          <textarea aria-label="Nội dung section"
                             placeholder="Mô tả kết quả đạt được..."
                             value={block.content}
                             onChange={(e) => updateBlock(block.id, { content: e.target.value })}
@@ -484,7 +488,7 @@ export function TutorialEditor({
                       {block.type === 'image' && (
                         <div className="image-block">
                           <div className="flex items-center gap-2 mb-3 w-full px-3 py-1.5 bg-[#09100d] rounded-md border border-white/10">
-                            <input 
+                            <input aria-label="URL tài nguyên"
                               className="flex-1 bg-transparent border-0 outline-none text-[11px] text-[var(--muted)]"
                               placeholder="Nhập URL hình ảnh (hoặc click 'Tải lên' bên cạnh)"
                               value={block.url}
@@ -501,13 +505,13 @@ export function TutorialEditor({
                                 el.onchange = async (e) => {
                                   const file = (e.target as HTMLInputElement).files?.[0];
                                   if (!file) return;
-                                  
+
                                   const fd = new FormData();
                                   fd.append('file', file);
-                                  
+
                                   const oldUrl = block.url;
                                   updateBlock(block.id, { url: 'Đang tải ảnh lên...' });
-                                  
+
                                   try {
                                     const res = await fetch('/api/admin/upload-image', { method: 'POST', body: fd });
                                     const data = await res.json();
@@ -543,7 +547,7 @@ export function TutorialEditor({
 
                       {block.type === 'youtube' && (
                         <div className="image-block">
-                          <input 
+                          <input aria-label="URL tài nguyên"
                             placeholder="Dán đường dẫn YouTube vào đây (VD: https://youtube.com/watch?v=...)"
                             value={block.url}
                             onChange={(e) => updateBlock(block.id, { url: e.target.value })}
@@ -551,10 +555,10 @@ export function TutorialEditor({
                           />
                           <div className="image-placeholder" style={{ background: block.url ? 'transparent' : '' }}>
                             {block.url ? (
-                              <iframe 
-                                src={`https://www.youtube.com/embed/${block.url.split('v=')[1]?.split('&')[0] || block.url.split('youtu.be/')[1]?.split('?')[0] || ''}`} 
-                                className="w-full aspect-video rounded-md border-0" 
-                                allowFullScreen 
+                              <iframe
+                                src={`https://www.youtube.com/embed/${block.url.split('v=')[1]?.split('&')[0] || block.url.split('youtu.be/')[1]?.split('?')[0] || ''}`}
+                                className="w-full aspect-video rounded-md border-0"
+                                allowFullScreen
                               />
                             ) : (
                               <>
@@ -570,7 +574,7 @@ export function TutorialEditor({
                     {/* INSERT BAR */}
                     <div className="insert-wrap relative">
                       <div className="insert-line">
-                        <button 
+                        <button
                           type="button"
                           className="add-block-btn"
                           onClick={() => {
@@ -583,9 +587,9 @@ export function TutorialEditor({
                       </div>
 
                       {activeMenuIndex === index && (() => {
-                        const filteredMenu = searchMenu.trim() 
-                          ? MENU_ITEMS.filter(m => 
-                              m.name.toLowerCase().includes(searchMenu.toLowerCase()) || 
+                        const filteredMenu = searchMenu.trim()
+                          ? MENU_ITEMS.filter(m =>
+                              m.name.toLowerCase().includes(searchMenu.toLowerCase()) ||
                               m.desc.toLowerCase().includes(searchMenu.toLowerCase()) ||
                               m.id.toLowerCase().includes(searchMenu.toLowerCase())
                             )
@@ -594,9 +598,9 @@ export function TutorialEditor({
 
                         return (
                           <div className="slash-menu open">
-                            <input 
-                              className="slash-search" 
-                              placeholder="Tìm block..." 
+                            <input aria-label="Tìm block"
+                              className="slash-search"
+                              placeholder="Tìm block..."
                               value={searchMenu}
                               onChange={(e) => setSearchMenu(e.target.value)}
                               autoFocus
@@ -606,10 +610,10 @@ export function TutorialEditor({
                                 <React.Fragment key={group}>
                                   <div className="menu-label">{group}</div>
                                   {filteredMenu.filter(m => m.group === group).map(item => (
-                                    <button 
-                                      key={item.id} 
-                                      type="button" 
-                                      className="menu-item" 
+                                    <button
+                                      key={item.id}
+                                      type="button"
+                                      className="menu-item"
                                       onClick={() => insertBlock(index, item.id as Block['type'])}
                                     >
                                       <span className="menu-icon">{item.icon}</span>
@@ -637,7 +641,7 @@ export function TutorialEditor({
             </div>
 
             <div className="mt-[30px] p-[20px] border border-dashed border-[#39e6a833] rounded-[13px] text-center">
-              <button 
+              <button
                 type="button"
                 className="btn btn-primary"
                 onClick={() => insertBlock(data.blocks.length - 1, 'step')}
@@ -651,11 +655,11 @@ export function TutorialEditor({
         {/* RIGHT SETTINGS */}
         <aside className="settings">
           <div className="settings-title">TUTORIAL SETTINGS</div>
-          
+
           <section className="settings-card">
             <div className="settings-card-head">KIỂU BÀI VIẾT</div>
             <div className="settings-body">
-              <select 
+              <select aria-label="Kiểu bài viết"
                 className="select mb-2"
                 value={form.layout}
                 onChange={(e) => setForm({ ...form, layout: e.target.value as "article" | "tutorial" })}
@@ -672,7 +676,7 @@ export function TutorialEditor({
             <div className="settings-body">
               <div className="field">
                 <label>CATEGORY</label>
-                <select 
+                <select aria-label="Danh mục"
                   className="select"
                   value={form.category}
                   onChange={(e) => setForm({ ...form, category: e.target.value })}
@@ -688,7 +692,7 @@ export function TutorialEditor({
             <div className="settings-body">
               <div className="field">
                 <label>SEO TITLE</label>
-                <input 
+                <input aria-label="SEO title"
                   className="input"
                   value={form.seoTitle}
                   onChange={(e) => setForm({ ...form, seoTitle: e.target.value })}
@@ -702,7 +706,7 @@ export function TutorialEditor({
               </div>
               <div className="field mt-4">
                 <label>META DESCRIPTION</label>
-                <textarea 
+                <textarea aria-label="Meta description"
                   className="setting-textarea"
                   value={form.seoDescription}
                   onChange={(e) => setForm({ ...form, seoDescription: e.target.value })}
@@ -722,15 +726,15 @@ export function TutorialEditor({
             <div className="settings-body">
               <div className="setting-row">
                 <span>Công khai</span>
-                <Switch 
+                <Switch aria-label="Xuất bản Tutorial"
                   checked={form.published}
                   onCheckedChange={(c) => setForm({ ...form, published: c })}
-                  className="data-[state=checked]:bg-[#36e2a0]"
+                  className="data-[state=checked]:bg-[#8eafc3]"
                 />
               </div>
               <div className="field mt-4">
                 <label>NGÀY ĐĂNG BÀI</label>
-                <input
+                <input aria-label="Ngày đăng bài"
                   type="datetime-local"
                   className="input"
                   value={(() => {
@@ -770,17 +774,18 @@ export function TutorialEditor({
           <span> · </span>
           <span id="readTime">~{readTime} phút đọc</span>
           <span> · </span>
-          <span style={{ color: "#50b48e" }}>Đã lưu tự động</span>
+          <span>{submitting ? "Đang lưu…" : "Lưu thủ công"}</span>
         </div>
         <div className="footer-actions">
           <button type="button" className="btn" onClick={onClose}>Hủy</button>
-          <button type="button" className="btn" onClick={(e) => { setForm({ ...form, published: false }); onSubmit(e as unknown as React.FormEvent); }} disabled={submitting}>Lưu nháp</button>
-          <button type="button" className="btn btn-primary" onClick={(e) => onSubmit(e as unknown as React.FormEvent)} disabled={submitting}>
+          <button type="button" className="btn" onClick={(e) => onSubmit(e as unknown as React.FormEvent, false)} disabled={submitting}>Lưu nháp</button>
+          <button type="button" className="btn btn-primary" onClick={(e) => onSubmit(e as unknown as React.FormEvent, true)} disabled={submitting}>
             {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Check className="w-4 h-4 stroke-[3] mr-1" />}
             Lưu Tutorial
           </button>
         </div>
       </footer>
+      {previewOpen && <PostPreview form={form} onClose={() => setPreviewOpen(false)} />}
     </div>
   );
 }

@@ -1,13 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
 import {
-  normalizeProjectImage,
-  normalizeProjectResults,
-  normalizeProjectUrl,
-  normalizeResponsibilities,
-  normalizeStringList,
+normalizeProjectImage,
+normalizeProjectResults,
+normalizeProjectUrl,
+normalizeResponsibilities,
+normalizeStringList,
+projectPayloadError,
 } from "@/lib/cv/project-input";
+import { readProjects } from "@/lib/cv/project-store";
+import { db } from "@/lib/db";
+import { NextRequest,NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const guard = await requireAuth();
@@ -18,10 +20,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, message: "Database is not configured." }, { status: 503 });
   }
   try {
-    const rows = await db.project.findMany({
-      where: { locale: locale === "en" ? "en" : "vi" },
-      orderBy: { order: "asc" },
-    });
+    const result = await readProjects(db, { locale: locale === "en" ? "en" : "vi", includeUnpublished: true });
+    const rows = result.rows;
     const parseArray = (value: string | null | undefined) => {
       try {
         const result = JSON.parse(value || "[]");
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
       tech: parseArray(project.tech),
       images: parseArray(project.images),
     }));
-    return NextResponse.json({ ok: true, projects });
+    return NextResponse.json({ ok: true, projects, publicationControlsAvailable: result.publicationControlsAvailable });
   } catch (error) {
     console.error("[PROJECTS_GET]", error);
     return NextResponse.json({ ok: false, message: "Lỗi máy chủ nội bộ." }, { status: 500 });
@@ -85,7 +85,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, message: "Body không hợp lệ." }, { status: 400 });
   }
 
-  if (!body.title || !body.title.trim()) {
+  const payloadError = projectPayloadError(body);
+  if (payloadError) return NextResponse.json({ ok: false, message: payloadError }, { status: 422 });
+  if (typeof body.title !== "string" || !body.title.trim()) {
     return NextResponse.json({ ok: false, message: "Tiêu đề dự án là bắt buộc." }, { status: 422 });
   }
   if (body.order !== undefined && (!Number.isInteger(body.order) || (body.order as number) < 0)) {
@@ -106,9 +108,12 @@ export async function POST(req: NextRequest) {
   }
 
   const locale = body.locale === "en" ? "en" : "vi";
-  const count = await db.project.count({ where: { locale } });
-  
   try {
+    const schema = await readProjects(db, { locale, includeUnpublished: true, limit: 1 });
+    if (!schema.publicationControlsAvailable) {
+      return NextResponse.json({ ok: false, message: "Cần chạy migration publication controls trước khi tạo dự án mới. Nội dung cũ vẫn được giữ nguyên." }, { status: 503 });
+    }
+    const count = await db.project.count({ where: { locale } });
     const created = await db.project.create({
       data: {
         locale,

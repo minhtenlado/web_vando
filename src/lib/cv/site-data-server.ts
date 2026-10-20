@@ -1,7 +1,10 @@
+import { type Experience,type Project } from "@/lib/cv/data";
 import { db } from "@/lib/db";
-import { type Project, type Experience } from "@/lib/cv/data";
+import type { Post as PostRow,Project as ProjectRow } from "@prisma/client";
+import { cache } from "react";
+import { readProjects } from "./project-store";
+import { getPublicSettings,publicSettingsDefaults } from "./public-settings";
 import publicSnapshot from "./public-snapshot.json";
-import { getPublicSettings, publicSettingsDefaults } from "./public-settings";
 
 export type SiteProfile = {
   name: string
@@ -87,394 +90,173 @@ export type SiteData = {
   experiences: SiteExperience[]
   posts: SitePost[]
   settings: any
+  errors?: Partial<Record<"projects" | "posts" | "settings", "unavailable">>
+  source?: "database" | "snapshot"
 }
 
-export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
-  const loc = locale === "en" ? "en" : "vi"
-  // A public content snapshot makes the checkout usable without production credentials.
-  // Once a database is configured, its content (including deliberately empty lists) wins.
-  if (!isDatabaseConfigured()) return getSnapshot(loc)
-
-  let profile: SiteProfile = {
-    name: "",
-    role: "",
-    tagline: "",
-    location: "",
-    email: "",
-    phone: "",
-    website: "",
-    github: "",
-    linkedin: "",
-    summary: "",
-    avatar: "",
-    principles: [],
-    stats: [],
-    nowText: "",
-    skillGroups: [],
-    socials: [],
-    aboutSubtitle: "",
-    skillsSubtitle: "",
-    experienceSubtitle: "",
-    animatedRoles: [],
-    techBadges: [],
-    educations: [],
-    certifications: [],
-    languages: [],
-    available: true,
-    settings: {},
-  }
-  let projects: SiteProject[] = []
-  let experiences: SiteExperience[] = []
-  let posts: SitePost[] = []
-  let settings = { ...publicSettingsDefaults }
-
-  try {
-    const [pRows, eRows] = await Promise.all([
-      db.project.findMany({ where: { locale: loc, published: true }, orderBy: { order: "asc" } }),
-      db.experience.findMany({ where: { locale: loc }, orderBy: { order: "asc" } }),
-    ])
-
-    const postRows = await db.post.findMany({
-      where: { published: true },
-      orderBy: { createdAt: "desc" },
-    })
-    const [pRowEn, pRowVi, pRowLegacy] = await Promise.all([
-      db.profile.findUnique({ where: { id: "profile-en" } }),
-      db.profile.findUnique({ where: { id: "profile-vi" } }),
-      db.profile.findUnique({ where: { id: "profile" } }),
-    ])
-
-    const primary = (loc === "en" ? pRowEn : pRowVi) || pRowVi || pRowEn || pRowLegacy
-    const secondary = (loc === "en" ? pRowVi : pRowEn) || pRowLegacy
-
-    // Website-wide settings are managed in one place and therefore shared by both locales.
-    const settingsSource = pRowVi || primary || secondary
-    if (settingsSource && (settingsSource as any).settings) {
-      try {
-        const dbSettings = JSON.parse((settingsSource as any).settings)
-        settings = getPublicSettings(dbSettings)
-      } catch (e) {}
-    }
-
-    if (primary || secondary) {
-      const getVal = (key: string): any => {
-        const pVal = primary ? (primary as any)[key] : null
-        if (pVal !== null && pVal !== undefined && pVal !== "") {
-          if (typeof pVal === "string" && (pVal === "[]" || pVal === "{}")) {
-            const sVal = secondary ? (secondary as any)[key] : null
-            if (sVal && sVal !== "[]" && sVal !== "{}") return sVal
-          }
-          return pVal
-        }
-        return secondary ? (secondary as any)[key] : null
-      }
-
-      const strVal = (key: string, fallback: string): string => {
-        const val = getVal(key)
-        if (val && typeof val === "string" && val.trim() !== "") {
-          return val.trim()
-        }
-        return fallback
-      }
-
-      const getArrayVal = (key: string): any[] => {
-        const vArr = safeParseJsonObjArr(pRowVi ? (pRowVi as any)[key] : null)
-        const eArr = safeParseJsonObjArr(pRowEn ? (pRowEn as any)[key] : null)
-        const lArr = safeParseJsonObjArr(pRowLegacy ? (pRowLegacy as any)[key] : null)
-        if (vArr.length >= eArr.length && vArr.length >= lArr.length && vArr.length > 0) return vArr
-        if (eArr.length >= lArr.length && eArr.length > 0) return eArr
-        if (lArr.length > 0) return lArr
-        return vArr.length ? vArr : eArr
-      }
-
-      const statsArr = getArrayVal("stats")
-      const skillGroupsArr = getArrayVal("skillGroups")
-      const educationsArr = getArrayVal("educations")
-      const certsArr = getArrayVal("certifications")
-
-      profile = {
-        name: strVal("name", ""),
-        role: strVal("role", ""),
-        tagline: strVal("tagline", ""),
-        location: strVal("location", ""),
-        email: strVal("email", ""),
-        phone: strVal("phone", ""),
-        website: strVal("website", ""),
-        github: strVal("github", ""),
-        linkedin: strVal("linkedin", ""),
-        summary: strVal("summary", ""),
-        avatar: strVal("avatar", ""),
-        principles: getArrayVal("principles"),
-        stats: statsArr,
-        nowText: strVal("nowText", ""),
-        skillGroups: skillGroupsArr,
-        socials: safeParseJsonObjArr(getVal("socials")),
-        aboutSubtitle: strVal("aboutSubtitle", ""),
-        skillsSubtitle: strVal("skillsSubtitle", ""),
-        experienceSubtitle: strVal("experienceSubtitle", ""),
-        animatedRoles: getArrayVal("animatedRoles").map((i: any) => String(i)),
-        techBadges: getArrayVal("techBadges").map((i: any) => ({
-          icon: String(i?.icon ?? ""),
-          text: String(i?.text ?? "")
-        })),
-        educations: educationsArr,
-        certifications: certsArr,
-        languages: getArrayVal("languages"),
-        available: true,
-        settings,
-      } as SiteProfile
-    }
-
-    if (pRows.length) {
-      projects = pRows.map((p) => ({
-        id: p.id,
-        order: p.order,
-        updatedAt: p.updatedAt.toISOString(),
-        published: p.published,
-        featured: p.featured,
-        status: p.status,
-        title: p.title,
-        subtitle: (p as any).subtitle ?? "",
-        overviewQuote: (p as any).overviewQuote ?? "",
-        year: (p as any).year ?? "",
-        role: (p as any).role ?? "",
-        highlight: (p as any).highlight ?? "",
-        projectType: (p as any).projectType ?? "",
-        responsibilities: safeParseResponsibilities((p as any).responsibilities),
-        results: safeParseResults((p as any).results),
-        category: p.category,
-        image: p.image,
-        description: p.description,
-        visualsTitle: (p as any).visualsTitle ?? "",
-        videoTitle: (p as any).videoTitle ?? "",
-        showVideoDemo: typeof p.showVideoDemo === "boolean" ? p.showVideoDemo : true,
-        features: safeParseArr(p.features),
-        tech: safeParseArr(p.tech),
-        link: p.link ?? undefined,
-        repo: p.repo ?? undefined,
-        youtubeUrl: p.youtubeUrl ?? undefined,
-        images: safeParseArr(p.images),
-      }))
-    } else {
-      projects = []
-    }
-
-    let finalExperiences = eRows
-    if (finalExperiences.length === 0) {
-      finalExperiences = await db.experience.findMany({ orderBy: { order: "asc" } })
-    }
-
-    if (finalExperiences.length) {
-      experiences = finalExperiences.map((e) => ({
-        id: e.id,
-        role: e.role,
-        company: e.company,
-        companyUrl: e.companyUrl ?? undefined,
-        period: e.period,
-        location: e.location,
-        description: e.description,
-        highlights: safeParseArr(e.highlights),
-        stack: safeParseArr(e.stack),
-        images: safeParseArr(e.images),
-      }))
-    }
-
-    if (postRows && postRows.length > 0) {
-      posts = postRows.map((po) => ({
-        id: po.id,
-        title: po.title,
-        slug: po.slug,
-        excerpt: po.excerpt,
-        content: po.content || "",
-        published: po.published,
-        category: po.category || undefined,
-        views: po.views || 0,
-        likes: po.likes || 0,
-        bookmarks: po.bookmarks || 0,
-        createdAt: po.createdAt instanceof Date ? po.createdAt.toISOString() : String(po.createdAt),
-        updatedAt: po.updatedAt instanceof Date ? po.updatedAt.toISOString() : String(po.updatedAt),
-        seoTitle: po.seoTitle,
-        seoDescription: po.seoDescription,
-        seoKeywords: po.seoKeywords,
-        coverImage: (po.coverImage && po.coverImage.trim() !== "") ? po.coverImage : undefined,
-        pdfUrl: po.pdfUrl,
-        layout: po.layout,
-      }))
-    }
-  } catch (e) {
-    console.error("[site-data] Database error:", e)
-  }
-
-  if (!profile.avatar || profile.avatar.trim() === "") {
-    profile.avatar = "/uploads/avatar.jpg"
-  }
-  if (!profile.name || profile.name.trim() === "") {
-    profile.name = "Phan Huỳnh Văn Đô"
-  }
-
-  return { profile, projects, experiences, posts, settings }
+function emptyProfile(): SiteProfile {
+  return {
+    name: "", role: "", tagline: "", location: "", email: "", phone: "", website: "", github: "", linkedin: "",
+    summary: "", avatar: "", principles: [], stats: [], nowText: "", skillGroups: [], socials: [],
+    aboutSubtitle: "", skillsSubtitle: "", experienceSubtitle: "", animatedRoles: [], techBadges: [],
+    educations: [], certifications: [], languages: [], available: false, settings: { ...publicSettingsDefaults },
+  };
 }
 
-function safeParseJsonObj(s: string | undefined | null): any {
-  if (!s) return {}
+function snapshotEnabled() {
+  return process.env.CONTENT_PREVIEW_SNAPSHOT === "1" && !process.env.VERCEL;
+}
+
+const readProfiles = cache(() => db.profile.findMany({
+  where: { id: { in: ["profile-vi", "profile-en", "profile"] } },
+  select: { id: true, email: true, github: true, settings: true },
+}));
+
+export const getSiteSettings = cache(async () => {
+  if (!isDatabaseConfigured()) return snapshotEnabled() ? getSnapshot("vi").settings : { ...publicSettingsDefaults };
   try {
-    const v = JSON.parse(s)
-    return typeof v === 'object' && v !== null && !Array.isArray(v) ? v : {}
+    const rows = await readProfiles();
+    const source = rows.find((row) => row.id === "profile-vi") || rows[0];
+    return getPublicSettings(JSON.parse(source?.settings || "{}"));
   } catch {
-    return {}
+    return { ...publicSettingsDefaults };
+  }
+});
+
+function reportReadError(resource: string, error: unknown) {
+  const code = error && typeof error === "object" && "code" in error ? String(error.code) : "unknown";
+  console.error("[content] " + resource + " unavailable (" + code + ")");
+}
+
+export class ContentUnavailableError extends Error {
+  constructor() {
+    super("Content is temporarily unavailable. Please try again.");
+    this.name = "ContentUnavailableError";
   }
 }
 
-function safeParseArr(s: string): string[] {
-  try {
-    const v = JSON.parse(s)
-    return Array.isArray(v) ? v.map((x) => String(x)) : []
-  } catch {
-    return []
-  }
-}
-
-function safeParseJsonObjArr(s: string): any[] {
-  try {
-    const v = JSON.parse(s)
-    return Array.isArray(v) ? v : []
-  } catch {
-    return []
-  }
-}
-
-function safeParseResponsibilities(s: string | undefined | null): { title: string; subtitle: string; icon: string }[] {
-  if (!s) return [];
-  try {
-    const v = JSON.parse(s);
-    if (!Array.isArray(v)) return [];
-    return v.map((item) => ({
-      title: String(item?.title ?? ""),
-      subtitle: String(item?.subtitle ?? ""),
-      icon: String(item?.icon ?? ""),
-    }));
-  } catch {
-    return [];
-  }
-}
-
-function safeParseResults(s: string | undefined | null): { number: string; label: string }[] {
-  if (!s) return [];
-  try {
-    const v = JSON.parse(s);
-    if (!Array.isArray(v)) return [];
-    return v.map((item) => ({
-      number: String(item?.number ?? item?.value ?? ""),
-      label: String(item?.label ?? ""),
-    }));
-  } catch {
-    return [];
-  }
-}
-
-export async function getProjectById(
-  id: string,
-  options: { includeUnpublished?: boolean } = {},
-): Promise<SiteProject | null> {
+export const getSiteData = cache(async (locale: string = "vi"): Promise<SiteData> => {
+  const loc = locale === "en" ? "en" : "vi";
+  if (!isDatabaseConfigured() && snapshotEnabled()) return getSnapshot(loc);
+  const data: SiteData = {
+    profile: emptyProfile(), projects: [], experiences: [], posts: [],
+    settings: { ...publicSettingsDefaults }, errors: {}, source: "database",
+  };
   if (!isDatabaseConfigured()) {
+    data.errors = { projects: "unavailable", posts: "unavailable", settings: "unavailable" };
+    return data;
+  }
+
+  const [projects, posts, profiles] = await Promise.allSettled([
+    readProjects(db, { locale: loc }),
+    db.post.findMany({
+      where: { published: true }, orderBy: { createdAt: "desc" },
+      select: {
+        id: true, locale: true, slug: true, title: true, excerpt: true, published: true, category: true,
+        views: true, likes: true, bookmarks: true, createdAt: true, updatedAt: true,
+        coverImage: true, pdfUrl: true, layout: true, seoTitle: true, seoDescription: true, seoKeywords: true,
+      },
+    }),
+    readProfiles(),
+  ]);
+
+  if (projects.status === "fulfilled") data.projects = projects.value.rows.map(mapProject);
+  else { data.errors!.projects = "unavailable"; reportReadError("projects", projects.reason); }
+
+  if (posts.status === "fulfilled") {
+    const bySlug = new Map<string, (typeof posts.value)[number]>();
+    for (const post of posts.value) {
+      if (!bySlug.has(post.slug) || post.locale === loc) bySlug.set(post.slug, post);
+    }
+    data.posts = Array.from(bySlug.values()).map((post) => mapPost({ ...post, content: "" }))
+      .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+  } else { data.errors!.posts = "unavailable"; reportReadError("articles", posts.reason); }
+
+  if (profiles.status === "fulfilled") {
+    const rows = profiles.value;
+    const primary = rows.find((p) => p.id === "profile-" + loc) || rows.find((p) => p.id === "profile-vi") || rows[0];
+    const settingsSource = rows.find((p) => p.id === "profile-vi") || primary;
+    let settings: unknown = {};
+    try { settings = JSON.parse(settingsSource?.settings || "{}"); } catch { /* Keep safe defaults for malformed settings. */ }
+    data.settings = getPublicSettings(settings);
+    data.profile = { ...data.profile, email: primary?.email || "", github: primary?.github || "", settings: data.settings };
+  } else { data.errors!.settings = "unavailable"; reportReadError("settings", profiles.reason); }
+  return data;
+});
+
+function parseArray(value: string | null | undefined): unknown[] {
+  try { const parsed: unknown = JSON.parse(value || "[]"); return Array.isArray(parsed) ? parsed : []; }
+  catch { return []; }
+}
+
+function stringArray(value: string | null | undefined): string[] {
+  return parseArray(value).filter((item): item is string => typeof item === "string");
+}
+
+function mapProject(p: ProjectRow): SiteProject {
+  return {
+    id: p.id, order: p.order, updatedAt: p.updatedAt.toISOString(),
+    published: p.published, featured: p.featured, status: p.status,
+    title: p.title, subtitle: p.subtitle, overviewQuote: p.overviewQuote, year: p.year,
+    role: p.role, highlight: p.highlight, projectType: p.projectType,
+    responsibilities: parseArray(p.responsibilities).filter(isRecord).map((item) => ({
+      title: String(item.title ?? ""), subtitle: String(item.subtitle ?? ""), icon: String(item.icon ?? ""),
+    })),
+    results: parseArray(p.results).filter(isRecord).map((item) => ({ number: String(item.number ?? item.value ?? ""), label: String(item.label ?? "") })),
+    category: p.category, description: p.description, image: p.image, images: stringArray(p.images),
+    visualsTitle: p.visualsTitle, videoTitle: p.videoTitle, showVideoDemo: p.showVideoDemo,
+    features: stringArray(p.features), tech: stringArray(p.tech),
+    link: p.link || undefined, repo: p.repo || undefined, youtubeUrl: p.youtubeUrl || undefined,
+  };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function mapPost(post: PostRow): SitePost {
+  return {
+    ...post, category: post.category || undefined,
+    createdAt: post.createdAt.toISOString(), updatedAt: post.updatedAt.toISOString(),
+  };
+}
+
+export const getProjectById = cache(async (id: string, options: { includeUnpublished?: boolean } = {}): Promise<SiteProject | null> => {
+  if (!isDatabaseConfigured()) {
+    if (!snapshotEnabled()) throw new ContentUnavailableError();
     return getSnapshot("vi").projects.find((p) => p.id === id && p.published !== false)
-      ?? getSnapshot("en").projects.find((p) => p.id === id && p.published !== false)
-      ?? null
+      ?? getSnapshot("en").projects.find((p) => p.id === id && p.published !== false) ?? null;
   }
   try {
-    const p = await db.project.findFirst({
-      where: { id, ...(options.includeUnpublished ? {} : { published: true }) },
-    })
-    if (p) {
-      return {
-        id: p.id,
-        order: p.order,
-        updatedAt: p.updatedAt.toISOString(),
-        published: p.published,
-        featured: p.featured,
-        status: p.status,
-        title: p.title,
-        subtitle: (p as any).subtitle ?? "",
-        overviewQuote: (p as any).overviewQuote ?? "",
-        year: (p as any).year ?? "",
-        role: (p as any).role ?? "",
-        highlight: (p as any).highlight ?? "",
-        projectType: (p as any).projectType ?? "",
-        responsibilities: safeParseResponsibilities((p as any).responsibilities),
-        results: safeParseResults((p as any).results),
-        category: p.category,
-        image: p.image,
-        description: p.description,
-        visualsTitle: (p as any).visualsTitle ?? "",
-        videoTitle: (p as any).videoTitle ?? "",
-        showVideoDemo: typeof p.showVideoDemo === "boolean" ? p.showVideoDemo : true,
-        features: safeParseArr(p.features),
-        tech: safeParseArr(p.tech),
-        link: p.link ?? undefined,
-        repo: p.repo ?? undefined,
-        youtubeUrl: p.youtubeUrl ?? undefined,
-        images: safeParseArr(p.images),
-      }
-    }
-  } catch (err) {
-    console.error("[getProjectById] error:", err)
-  }
+    const result = await readProjects(db, { id, includeUnpublished: options.includeUnpublished });
+    return result.rows[0] ? mapProject(result.rows[0]) : null;
+  } catch (error) { reportReadError("project detail", error); throw new ContentUnavailableError(); }
+});
 
-  return null
-}
-
-export async function getPostBySlug(slug: string, locale: string = "vi"): Promise<SitePost | null> {
-  const loc = locale === "en" ? "en" : "vi"
+export const getPostBySlug = cache(async (slug: string, locale: string = "vi"): Promise<SitePost | null> => {
+  const loc = locale === "en" ? "en" : "vi";
   if (!isDatabaseConfigured()) {
-    return getSnapshot(loc).posts.find((post) => post.slug === slug && post.published) ?? null
+    if (!snapshotEnabled()) throw new ContentUnavailableError();
+    return getSnapshot(loc).posts.find((post) => post.slug === slug && post.published) ?? null;
   }
-
   try {
-    // Prefer the selected locale, while retaining existing shared-slug links.
     const post = await db.post.findFirst({ where: { slug, locale: loc, published: true } })
-      ?? await db.post.findFirst({ where: { slug, published: true } })
-    if (!post) return null
-    return {
-      id: post.id,
-      slug: post.slug,
-      title: post.title,
-      excerpt: post.excerpt,
-      content: post.content,
-      published: true,
-      category: post.category || undefined,
-      views: post.views,
-      likes: post.likes,
-      bookmarks: post.bookmarks,
-      createdAt: post.createdAt.toISOString(),
-      updatedAt: post.updatedAt.toISOString(),
-      seoTitle: post.seoTitle,
-      seoDescription: post.seoDescription,
-      seoKeywords: post.seoKeywords,
-      coverImage: post.coverImage,
-      pdfUrl: post.pdfUrl,
-      layout: post.layout,
-    }
-  } catch (error) {
-    console.error("[getPostBySlug] Database error:", error)
-    return null
-  }
-}
+      ?? await db.post.findFirst({ where: { slug, published: true } });
+    return post ? mapPost(post) : null;
+  } catch (error) { reportReadError("article detail", error); throw new ContentUnavailableError(); }
+});
 
 function isDatabaseConfigured(): boolean {
-  return Boolean(process.env.DATABASE_URL?.trim())
+  return Boolean(process.env.DATABASE_URL?.trim());
 }
 
 function getSnapshot(locale: "vi" | "en"): SiteData {
-  const data = structuredClone(publicSnapshot[locale]) as unknown as SiteData
-  data.projects = data.projects.map((project) => ({
-    ...project,
-    published: true,
-    featured: false,
-    status: "",
-  }))
-  data.posts = data.posts.filter((post) => post.published)
-  data.settings = getPublicSettings(data.settings)
-  data.profile.settings = getPublicSettings(data.profile.settings)
-  return data
+  const data = structuredClone(publicSnapshot[locale]) as unknown as SiteData;
+  data.projects = data.projects.map((project) => ({ ...project, published: true, featured: false, status: "" }));
+  data.posts = data.posts.filter((post) => post.published);
+  data.settings = getPublicSettings(data.settings);
+  data.profile.settings = data.settings;
+  data.source = "snapshot";
+  data.errors = {};
+  return data;
 }
-

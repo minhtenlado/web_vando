@@ -8,6 +8,7 @@
     "postbuild": "node scripts/postbuild.mjs",
     "start": "node .next/standalone/server.js",
     "lint": "eslint .",
+    "test": "node --test tests/content-data.test.mjs",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",

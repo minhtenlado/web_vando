@@ -1,329 +1,99 @@
-"use client";
+'use client';
 
-import { useMemo, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Cpu,
-  ExternalLink,
-  Image as ImageIcon,
-  Search,
-  X,
-} from "lucide-react";
-import { Navbar } from "./navbar";
-import { Footer } from "./footer";
-import { useSiteData } from "./site-data-context";
-import { useLocale } from "./locale-context";
-import { plainText, externalUrl } from "@/lib/cv/presentation";
-import type { SiteProject } from "@/lib/cv/site-data-server";
+import { normalizeSearch,plainText } from '@/lib/cv/presentation';
+import { normalizeProjectUrl } from '@/lib/cv/project-input';
+import type { SiteProject } from '@/lib/cv/site-data-server';
+import { ArrowRight,ArrowUpRight,Search,X } from 'lucide-react';
+import Link from 'next/link';
+import { useMemo,useState } from 'react';
+import { ContentImage } from './content-image';
+import { ContentError,PreviewNotice } from './content-state';
+import { Footer } from './footer';
+import { useLocale } from './locale-context';
+import { Navbar } from './navbar';
+import { ArticleList } from './notes-library';
+import { useSiteData } from './site-data-context';
 
-function normalizeSearch(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLocaleLowerCase()
-    .replace(/đ/g, "d")
-    .trim();
-}
-
-function safeActionHref(value: unknown, fallback: string) {
-  const raw = String(value ?? "").trim();
-  if (raw.startsWith("/") && !raw.startsWith("//")) return raw;
-  if (raw.startsWith("#")) return raw;
-  return externalUrl(raw) || fallback;
-}
-
-function supportedImage(src?: string | null) {
-  if (!src) return false;
-  if (src.startsWith("/") && !src.startsWith("//")) return true;
-  try {
-    const url = new URL(src);
-    return (
-      url.protocol === "https:" &&
-      (url.hostname === "res.cloudinary.com" ||
-        url.hostname.endsWith(".public.blob.vercel-storage.com"))
-    );
-  } catch {
-    return false;
-  }
-}
-
-function ProjectStatus({ status, locale }: { status?: string; locale: "vi" | "en" }) {
-  if (!status) return null;
-  const labels: Record<string, { vi: string; en: string }> = {
-    completed: { vi: "Hoàn thành", en: "Completed" },
-    "in-development": { vi: "Đang phát triển", en: "In development" },
-    prototype: { vi: "Nguyên mẫu", en: "Prototype" },
-    research: { vi: "Nghiên cứu", en: "Research" },
-  };
-  const label = labels[status];
-  if (!label) return null;
-  return <span className="lab-status">{label[locale]}</span>;
-}
-
-function ProjectImage({
-  src,
-  alt,
-  sizes,
-  fallbackClassName = "",
-  priority = false,
-}: {
-  src: string;
-  alt: string;
-  sizes: string;
-  fallbackClassName?: string;
-  priority?: boolean;
-}) {
-  const [failed, setFailed] = useState(false);
-  if (failed) {
-    return (
-      <div className={`lab-image-fallback ${fallbackClassName}`} role="img" aria-label={`${alt}: image unavailable`}>
-        <Cpu aria-hidden="true" />
-        <span>{alt}</span>
-      </div>
-    );
-  }
-  return <Image src={src} alt={alt} fill sizes={sizes} priority={priority} onError={() => setFailed(true)} />;
-}
-
-function formatDate(value: string, locale: "vi" | "en") {
-  const date = new Date(value);
-  if (!value || Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-US", { dateStyle: "medium" }).format(date);
-}
-
-function SectionHeading({
-  index,
-  label,
-  title,
-  description,
-}: {
-  index: string;
-  label: string;
-  title: string;
-  description?: string;
-}) {
-  return (
-    <div className="lab-section-heading">
-      <p className="lab-eyebrow"><span>{index}</span>{label}</p>
-      <div className="lab-section-title-row">
-        <h2>{title}</h2>
-        {description && <p>{description}</p>}
-      </div>
-    </div>
-  );
-}
-
-function ProjectCard({ project }: { project: SiteProject }) {
+function ProjectSummary({ project }: { project: SiteProject }) {
   const { locale } = useLocale();
-  const image = supportedImage(project.image) ? project.image : undefined;
-  return (
-    <article className="lab-project-card">
-      <Link href={`/projects/${project.id}`} className="lab-project-link">
-        <div className="lab-project-image">
-          {image ? (
-            <ProjectImage key={image} src={image} alt={project.title} sizes="(max-width: 680px) 100vw, (max-width: 1080px) 50vw, 33vw" />
-          ) : (
-            <div className="lab-image-fallback" aria-label={`${project.title}: no project image`}>
-              <Cpu aria-hidden="true" />
-              <span>{project.title}</span>
-            </div>
-          )}
-          <span className="lab-project-open" aria-hidden="true"><ArrowUpRight size={18} /></span>
-        </div>
-        <div className="lab-project-content">
-          <div className="lab-project-meta">
-            <span>{project.category || "Engineering project"}</span>
-            <ProjectStatus status={project.status} locale={locale} />
-          </div>
-          <h3>{project.title}</h3>
-          <p>{plainText(project.subtitle || project.description) || ""}</p>
-          {project.tech?.length > 0 && (
-            <ul className="lab-tech-list" aria-label="Technologies">
-              {project.tech.slice(0, 4).map((tech) => <li key={tech}>{tech}</li>)}
-              {project.tech.length > 4 && <li>+{project.tech.length - 4}</li>}
-            </ul>
-          )}
-        </div>
-      </Link>
-    </article>
-  );
+  const statuses: Record<string, string> = locale === 'vi'
+    ? { completed: 'Hoàn thành', 'in-development': 'Đang phát triển', prototype: 'Nguyên mẫu', research: 'Nghiên cứu' }
+    : { completed: 'Completed', 'in-development': 'In development', prototype: 'Prototype', research: 'Research' };
+  return <div className="lab-project-copy">
+    <p className="lab-project-meta">{project.category}{project.status && statuses[project.status] && <span>{statuses[project.status]}</span>}</p>
+    <h3>{project.title}</h3>
+    <p className="lab-project-description">{plainText(project.subtitle || project.description).slice(0, 220)}</p>
+    {!!project.tech?.length && <ul className="lab-tech-list" aria-label={locale === 'vi' ? 'Công nghệ' : 'Technologies'}>{project.tech.slice(0, 4).map((tech) => <li key={tech}>{tech}</li>)}</ul>}
+  </div>;
 }
 
-function MediaCard({ project, src }: { project: SiteProject; src: string }) {
-  return (
-    <Link href={`/projects/${project.id}`} className="lab-media-card">
-      <div className="lab-media-image">
-        <ProjectImage key={src} src={src} alt={`${project.title} project media`} sizes="(max-width: 680px) 90vw, (max-width: 1080px) 45vw, 30vw" />
-      </div>
-      <span><ImageIcon size={14} />{project.title}<ArrowUpRight size={14} /></span>
-    </Link>
-  );
+function ProjectRow({ project, priority = false }: { project: SiteProject; priority?: boolean }) {
+  return <article className="lab-project-row"><Link href={'/projects/' + encodeURIComponent(project.id)}>
+    <div className="lab-project-image"><ContentImage src={project.image} alt={project.title} sizes="(max-width: 560px) 100vw, 240px" priority={priority} /></div>
+    <ProjectSummary project={project} /><ArrowUpRight className="lab-row-arrow" size={18} aria-hidden="true" />
+  </Link></article>;
 }
 
 export function PortfolioHome() {
-  const { profile, projects, posts, settings, loading } = useSiteData();
+  const { projects, posts, settings, loading, errors, requestFailed } = useSiteData();
   const { t, locale } = useLocale();
-  const [category, setCategory] = useState("all");
-  const [query, setQuery] = useState("");
-  const publishedProjects = useMemo(() => projects.filter((project) => project.published !== false), [projects]);
-  const selectedFeaturedProjects = useMemo(() => publishedProjects.filter((project) => project.featured).slice(0, 3), [publishedProjects]);
-  const usingDefaultFeatured = selectedFeaturedProjects.length === 0;
-  // Legacy records have no featured flag. Preserve the existing public order
-  // and use real published projects until Admin supplies explicit selections.
-  const featuredProjects = usingDefaultFeatured ? publishedProjects.slice(0, 3) : selectedFeaturedProjects;
-  const heroProject = featuredProjects[0] ?? publishedProjects[0];
-  const heroImage = supportedImage(heroProject?.image) ? heroProject.image : undefined;
-  const github = externalUrl(profile.github);
-  const primaryUrl = safeActionHref(settings.heroPrimaryUrl, "#projects");
-  const secondaryUrl = safeActionHref(settings.heroSecondaryUrl, github || "");
-  const heroTitle = locale === "vi"
-    ? String(settings.heroHeadlineVi || "Dự án kỹ thuật. Sản phẩm thực tế.")
-    : String(settings.heroHeadlineEn || "Engineering projects. Built systems.");
-  const heroDescription = locale === "vi"
-    ? String(settings.heroDescriptionVi || settings.portfolioTagline || "")
-    : String(settings.heroDescriptionEn || settings.portfolioTagline || "");
-  const categories = useMemo(() => Array.from(new Set(publishedProjects.map((project) => project.category?.trim()).filter((value): value is string => Boolean(value)))), [publishedProjects]);
-  const normalizedQuery = normalizeSearch(query);
-  const filteredProjects = useMemo(() => publishedProjects.filter((project) => {
-    const matchesCategory = category === "all" || project.category === category;
-    const searchable = normalizeSearch([
-      project.title,
-      project.category,
-      project.subtitle,
-      project.description,
-      project.highlight,
-      ...(project.tech ?? []),
-    ].map(plainText).join(" "));
-    return matchesCategory && (!normalizedQuery || searchable.includes(normalizedQuery));
-  }), [publishedProjects, category, normalizedQuery]);
-  const publishedPosts = useMemo(() => posts
-    .filter((post) => post.published)
-    .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
-    .slice(0, 3), [posts]);
-  const media = useMemo(() => publishedProjects.flatMap((project) => {
-    const images = [project.image, ...(project.images ?? [])].filter((value, index, all): value is string => Boolean(value) && all.indexOf(value) === index && supportedImage(value));
-    return images.slice(0, 2).map((src) => ({ project, src }));
-  }).slice(0, 6), [publishedProjects]);
+  const [category, setCategory] = useState('all');
+  const [query, setQuery] = useState('');
+  const [limit, setLimit] = useState(6);
+  const published = useMemo(() => projects.filter((project) => project.published !== false), [projects]);
+  const featured = useMemo(() => published.filter((project) => project.featured).slice(0, 3), [published]);
+  const categories = useMemo(() => Array.from(new Set(published.map((project) => project.category).filter(Boolean))), [published]);
+  const filtered = useMemo(() => published.filter((project) => (category === 'all' || project.category === category)
+    && normalizeSearch([project.title, project.category, project.subtitle, project.description, ...(project.tech || [])].join(' ')).includes(normalizeSearch(query))), [published, category, query]);
+  const latest = useMemo(() => posts.filter((post) => post.published).slice().sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)).slice(0, 3), [posts]);
+  const projectError = Boolean(errors?.projects || requestFailed);
+  const postError = Boolean(errors?.posts || requestFailed);
+  const showFeatured = settings.sectionFeaturedEnabled !== false && featured.length > 0;
+  const introLink = normalizeProjectUrl(settings.heroPrimaryUrl, { allowRelative: true }) || "#projects";
 
-  return (
-    <div className="lab-site" id="top">
-      <Navbar />
-      <main id="main-content">
-        <section className="lab-hero lab-container" aria-labelledby="lab-title">
-          <div className="lab-hero-copy">
-            <p className="lab-eyebrow"><span>01</span> EMBEDDED SYSTEMS / EDGE AI / ROBOTICS</p>
-            <h1 id="lab-title">{heroTitle}</h1>
-            <p className="lab-hero-description">{heroDescription}</p>
-            <div className="lab-hero-actions">
-              {settings.sectionProjectsEnabled !== false && <a className="lab-button lab-button-primary" href={primaryUrl}>
-                {(locale === "vi" ? settings.heroPrimaryLabelVi : settings.heroPrimaryLabelEn) || t("Khám phá dự án", "Explore projects")}<ArrowRight size={17} />
-              </a>}
-              {secondaryUrl && <a className="lab-button lab-button-secondary" href={secondaryUrl} target={secondaryUrl.startsWith("http") ? "_blank" : undefined} rel={secondaryUrl.startsWith("http") ? "noopener noreferrer" : undefined}>
-                {(locale === "vi" ? settings.heroSecondaryLabelVi : settings.heroSecondaryLabelEn) || "GitHub"}<ExternalLink size={14} />
-              </a>}
-            </div>
-            <div className="lab-hero-facts" aria-label="Project areas">
-              <span>01 / HARDWARE</span><span>02 / FIRMWARE</span><span>03 / INTELLIGENCE</span>
-            </div>
+  return <div className="lab-site" id="top">
+    <Navbar />
+    <main id="main-content">
+      <PreviewNotice />
+      <section className="lab-intro lab-container" aria-labelledby="site-title">
+        <h1 id="site-title">{locale === 'vi' ? settings.heroHeadlineVi : settings.heroHeadlineEn}</h1>
+        <p>{locale === 'vi' ? settings.heroDescriptionVi : settings.heroDescriptionEn}</p>
+        <a className="lab-text-link" href={introLink}>{(locale === "vi" ? settings.heroPrimaryLabelVi : settings.heroPrimaryLabelEn) || t('Xem dự án', 'Browse projects')}<ArrowRight size={15} aria-hidden="true" /></a>
+      </section>
+
+      {showFeatured && <section className="lab-section lab-container" aria-labelledby="featured-title">
+        <div className="lab-section-heading"><h2 id="featured-title">{t('Dự án nổi bật', 'Featured projects')}</h2></div>
+        <div className="lab-featured-layout">
+          <article className="lab-featured-lead"><Link href={'/projects/' + encodeURIComponent(featured[0].id)}>
+            <div className="lab-featured-image"><ContentImage src={featured[0].image} alt={featured[0].title} sizes="(max-width: 760px) 100vw, 680px" priority /></div>
+            <ProjectSummary project={featured[0]} />
+          </Link></article>
+          {featured.length > 1 && <div className="lab-featured-more">{featured.slice(1).map((project) => <ProjectRow key={project.id} project={project} />)}</div>}
+        </div>
+      </section>}
+
+      <section className="lab-section lab-container" id="projects" aria-labelledby="projects-title">
+        <div className="lab-section-heading"><h2 id="projects-title">{t('Dự án', 'Projects')}</h2></div>
+        <div className="lab-library-controls">
+          <div className="lab-search"><Search size={17} aria-hidden="true" /><label className="sr-only" htmlFor="project-search">{t('Tìm dự án', 'Search projects')}</label><input id="project-search" type="search" value={query} onChange={(e) => { setQuery(e.target.value); setLimit(6); }} placeholder={t('Tìm tên hoặc công nghệ…', 'Search projects or technologies…')} />{query && <button type="button" onClick={() => { setQuery(''); setLimit(6); }} aria-label={t('Xóa tìm kiếm', 'Clear search')}><X size={16} /></button>}</div>
+          <label className="lab-mobile-category lab-sort"><span>{t('Danh mục', 'Category')}</span><select value={category} onChange={(e) => { setCategory(e.target.value); setLimit(6); }}>{['all', ...categories].map((item) => <option key={item} value={item}>{item === 'all' ? t('Tất cả', 'All') : item}</option>)}</select></label>
+          <div className="lab-filters" role="group" aria-label={t('Danh mục dự án', 'Project categories')}>
+            {['all', ...categories].map((item) => <button type="button" key={item} aria-pressed={category === item} onClick={() => { setCategory(item); setLimit(6); }}>{item === 'all' ? t('Tất cả', 'All') : item}</button>)}
           </div>
-          <div className="lab-hero-visual">
-            <div className="lab-visual-frame">
-              {heroProject && heroImage ? (
-                <ProjectImage key={heroImage} src={heroImage} alt={heroProject.title} priority sizes="(max-width: 800px) 100vw, 52vw" fallbackClassName="lab-hero-fallback" />
-              ) : heroProject ? (
-                <div className="lab-image-fallback lab-hero-fallback"><Cpu aria-hidden="true" /><span>{heroProject.title}</span></div>
-              ) : (
-                <div className="lab-image-fallback lab-hero-fallback"><Cpu aria-hidden="true" /><span>Engineering systems</span></div>
-              )}
-              <span className="lab-frame-label">{heroProject?.category || "ENGINEERING / SYSTEMS"}</span>
-            </div>
-            {heroProject && (
-              <Link className="lab-visual-caption" href={`/projects/${heroProject.id}`}>
-                <span><small>PROJECT / {String(publishedProjects.findIndex((item) => item.id === heroProject.id) + 1).padStart(2, "0")}</small><strong>{heroProject.title}</strong></span>
-                <ArrowUpRight size={20} />
-              </Link>
-            )}
-            <span className="lab-coordinate" aria-hidden="true">PHANHUYNH.ID.VN / LAB-01</span>
-          </div>
-        </section>
+        </div>
+        <ContentError resource="projects" />
+        {loading && !published.length ? <p className="lab-empty" role="status">{t('Đang tải dự án…', 'Loading projects…')}</p>
+          : filtered.length ? <div className="lab-project-list" aria-busy={loading}>{filtered.slice(0, limit).map((project, index) => <ProjectRow key={project.id} project={project} priority={!showFeatured && index === 0} />)}</div>
+          : !projectError && <div className="lab-empty" role="status"><p>{published.length ? t('Không tìm thấy dự án phù hợp.', 'No matching projects.') : t('Chưa có dự án được xuất bản.', 'No published projects yet.')}</p>{(query || category !== 'all') && <button className="lab-text-link" type="button" onClick={() => { setQuery(''); setCategory('all'); }}>{t('Xóa bộ lọc', 'Clear filters')}</button>}</div>}
+        {published.length > 0 && <div className="lab-list-footer"><p role="status">{filtered.length} {t('dự án', 'projects')}</p>{filtered.length > limit && <button type="button" className="lab-button" onClick={() => setLimit(limit + 6)}>{t('Xem thêm dự án', 'Load more projects')}</button>}</div>}
+      </section>
 
-        {settings.sectionFeaturedEnabled !== false && featuredProjects.length > 0 && (
-          <section className="lab-section lab-container" aria-labelledby="featured-title">
-            <SectionHeading
-              index="02"
-              label="CURATED BUILDS"
-              title={t("Dự án nổi bật", "Featured projects")}
-              description={usingDefaultFeatured
-                ? t("Các dự án đã xuất bản, theo thứ tự hiện có.", "Published projects in their existing order.")
-                : t("Các dự án được chọn từ hệ thống quản trị nội dung.", "Projects selected from the content manager.")}
-            />
-            <div className="lab-project-grid lab-featured-grid" id="featured">
-              {featuredProjects.map((project) => <ProjectCard key={project.id} project={project} />)}
-            </div>
-          </section>
-        )}
-
-        {settings.sectionProjectsEnabled !== false && <section className="lab-section lab-container" id="projects" aria-labelledby="projects-title">
-          <SectionHeading index="03" label="PROJECT INDEX" title={t("Thư viện dự án", "Project explorer")} description={t("Tìm theo lĩnh vực, nền tảng hoặc công nghệ.", "Search by discipline, platform, or technology.")} />
-          <div className="lab-project-toolbar">
-            <div className="lab-filter-list" role="group" aria-label={t("Lọc lĩnh vực dự án", "Filter project categories")}>
-              <button type="button" aria-pressed={category === "all"} onClick={() => setCategory("all")}>{t("Tất cả", "All projects")}<span>{publishedProjects.length}</span></button>
-              {categories.map((item) => <button type="button" key={item} aria-pressed={category === item} onClick={() => setCategory(item)}>{item}</button>)}
-            </div>
-            <label className="lab-search">
-              <Search size={17} aria-hidden="true" />
-              <span className="sr-only">{t("Tìm dự án", "Search projects")}</span>
-              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t("Tên, công nghệ…", "Project or technology…")} />
-              {query && <button type="button" onClick={() => setQuery("")} aria-label={t("Xóa tìm kiếm", "Clear search")}><X size={15} /></button>}
-            </label>
-          </div>
-          {loading && publishedProjects.length === 0 ? (
-            <div className="lab-project-grid" aria-label={t("Đang tải dự án", "Loading projects")} aria-busy="true">
-              {Array.from({ length: 3 }, (_, index) => <div className="lab-project-skeleton" key={index} />)}
-            </div>
-          ) : filteredProjects.length > 0 ? (
-            <div className="lab-project-grid" aria-busy={loading}>
-              {filteredProjects.map((project) => <ProjectCard key={project.id} project={project} />)}
-            </div>
-          ) : (
-            <div className="lab-empty" role="status">
-              <Search size={24} /><h3>{t("Không tìm thấy dự án", "No projects found")}</h3>
-              <p>{t("Thử từ khóa hoặc danh mục khác.", "Try another search or category.")}</p>
-              {(query || category !== "all") && <button type="button" onClick={() => { setQuery(""); setCategory("all"); }}>{t("Xóa bộ lọc", "Clear filters")}<ArrowRight size={15} /></button>}
-            </div>
-          )}
-          <p className="lab-results" role="status">{filteredProjects.length} / {publishedProjects.length} {t("dự án", "projects")}</p>
-        </section>}
-
-        {settings.sectionMediaEnabled !== false && media.length > 0 && (
-          <section className="lab-section lab-media-section" aria-labelledby="media-title">
-            <div className="lab-container">
-              <SectionHeading index="04" label="HARDWARE / SOFTWARE" title={t("Trong phòng thí nghiệm", "From the lab")} description={t("Hình ảnh được liên kết trực tiếp với các dự án.", "Project media linked to its source project.")} />
-              <div className="lab-media-grid">{media.map(({ project, src }) => <MediaCard key={`${project.id}:${src}`} project={project} src={src} />)}</div>
-            </div>
-          </section>
-        )}
-
-        {publishedPosts.length > 0 && settings.navBlogEnabled !== false && settings.sectionNotesEnabled !== false && (
-          <section className="lab-section lab-container" id="notes" aria-labelledby="notes-title">
-            <SectionHeading index="05" label="ENGINEERING NOTES" title={t("Ghi chú kỹ thuật", "Engineering notes")} description={t("Bài viết và hướng dẫn kỹ thuật đã xuất bản.", "Published technical articles and guides.")} />
-            <div className="lab-notes-list">
-              {publishedPosts.map((post, index) => (
-                <Link className="lab-note" href={`/posts/${post.slug}`} key={post.id}>
-                  <span className="lab-note-index">{String(index + 1).padStart(2, "0")}</span>
-                  <span className="lab-note-copy"><small>{post.category || t("GHI CHÚ KỸ THUẬT", "ENGINEERING NOTE")}{formatDate(post.createdAt, locale) && <>{" · "}{formatDate(post.createdAt, locale)}</>}</small><strong>{post.title}</strong><span>{plainText(post.excerpt)}</span></span>
-                  <ArrowUpRight size={19} />
-                </Link>
-              ))}
-            </div>
-            <Link href="/notes" className="lab-all-notes">{t("Xem tất cả ghi chú", "View all notes")}<ArrowRight size={16} /></Link>
-          </section>
-        )}
-      </main>
-      <Footer />
-    </div>
-  );
+      <section className="lab-section lab-container" id="notes" aria-labelledby="notes-title">
+        <div className="lab-section-heading"><h2 id="notes-title">{t('Bài viết mới nhất', 'Latest articles')}</h2><Link href="/notes" className="lab-text-link">{t('Tất cả bài viết', 'All articles')}<ArrowRight size={15} aria-hidden="true" /></Link></div>
+        <ContentError resource="posts" />
+        {latest.length ? <ArticleList posts={latest} compact /> : !postError && <p className="lab-empty" role="status">{loading ? t('Đang tải bài viết…', 'Loading articles…') : t('Chưa có bài viết được xuất bản.', 'No published articles yet.')}</p>}
+      </section>
+    </main>
+    <Footer />
+  </div>;
 }

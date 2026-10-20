@@ -1,8 +1,16 @@
-import { notFound } from "next/navigation"
-import type { Metadata } from "next"
-import { getProjectById, getSiteData } from "@/lib/cv/site-data-server"
+import { PreviewNotice } from "@/components/cv/content-state"
+import { Footer } from "@/components/cv/footer"
+import { LocaleProvider } from "@/components/cv/locale-context"
+import { Navbar } from "@/components/cv/navbar"
 import { ProjectDetailView } from "@/components/cv/project-detail-view"
+import { RichContent } from "@/components/cv/rich-content"
+import { SiteDataProvider } from "@/components/cv/site-data-context"
 import { normalizeProjectImage } from "@/lib/cv/project-input"
+import { getProjectById,getSiteData } from "@/lib/cv/site-data-server"
+import { toPresentationData } from "@/lib/cv/site-presentation"
+import type { Metadata } from "next"
+import { cookies } from "next/headers"
+import { notFound } from "next/navigation"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -19,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
-  const title = `${project.title} — Case Study | Engineering Lab`
+  const title = project.title + " | Engineering Lab"
   const description =
     project.subtitle ||
     project.overviewQuote ||
@@ -63,9 +71,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ProjectPage({ params }: PageProps) {
   const { id } = await params
+  const locale = (await cookies()).get("cv-locale")?.value === "en" ? "en" : "vi";
   const [project, siteData] = await Promise.all([
     getProjectById(id),
-    getSiteData("vi"),
+    getSiteData(locale),
   ])
 
   if (!project) {
@@ -110,15 +119,18 @@ export default async function ProjectPage({ params }: PageProps) {
   }
 
   return (
-    <>
+    <LocaleProvider initialLocale={locale}><SiteDataProvider initialData={toPresentationData(siteData)}><div className="lab-site">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
+      <Navbar />
+      <PreviewNotice />
       <ProjectDetailView
-        project={project}
+        project={{ ...project, description: "" }}
         relatedProjects={relatedProjects}
-      />
-    </>
+      >{project.description.trim() ? <RichContent content={project.description} /> : null}</ProjectDetailView>
+      <Footer />
+    </div></SiteDataProvider></LocaleProvider>
   )
 }

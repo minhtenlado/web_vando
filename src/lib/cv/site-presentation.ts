@@ -1,3 +1,4 @@
+import { plainText } from "./presentation";
 import type { SiteData } from "./site-data-server";
 
 /** List pages and search need summaries; full articles stay on their reader routes. */
@@ -6,10 +7,10 @@ export function toPresentationData(data: SiteData): SiteData {
     portfolioName: "Engineering Lab",
     portfolioDomain: "phanhuynh.id.vn",
     portfolioTagline: "Embedded systems, edge AI, and robotics projects.",
-    heroHeadlineVi: "Dự án kỹ thuật. Sản phẩm thực tế.",
-    heroHeadlineEn: "Engineering projects. Built systems.",
-    heroDescriptionVi: "Khám phá các hệ thống phần cứng, phần mềm, trí tuệ nhân tạo và công nghệ nhúng — từ thiết kế đến thử nghiệm.",
-    heroDescriptionEn: "Explore hardware, software, artificial intelligence, and embedded systems through real project work.",
+    heroHeadlineVi: "Dự án và bài viết kỹ thuật",
+    heroHeadlineEn: "Engineering projects and notes",
+    heroDescriptionVi: "Các dự án phần cứng, hệ thống nhúng, AI, IoT và ghi chép trong quá trình phát triển.",
+    heroDescriptionEn: "Hardware, embedded systems, AI, and IoT projects, with technical notes from their development.",
     heroPrimaryLabelVi: "Khám phá dự án",
     heroPrimaryLabelEn: "Explore projects",
     heroSecondaryLabelVi: "Mã nguồn trên GitHub",
@@ -22,9 +23,14 @@ export function toPresentationData(data: SiteData): SiteData {
     sectionNotesEnabled: true,
   };
   const identity = /phan\s+hu(?:ỳnh|ynh)\s+v(?:ăn|an)\s+đ(?:ô|o)/i;
+  const oldDefaults = new Set([
+    "Dự án kỹ thuật. Sản phẩm thực tế.", "Engineering projects. Built systems.",
+    "Khám phá các hệ thống phần cứng, phần mềm, trí tuệ nhân tạo và công nghệ nhúng — từ thiết kế đến thử nghiệm.",
+    "Explore hardware, software, artificial intelligence, and embedded systems through real project work.",
+  ]);
   const safeSetting = (value: unknown, fallback: string) => {
     const text = typeof value === "string" ? value.trim() : "";
-    return text && !identity.test(text) ? text : fallback;
+    return text && !identity.test(text) && !oldDefaults.has(text) ? text : fallback;
   };
   const safeTagline = (value: unknown) => {
     const text = safeSetting(value, defaults.portfolioTagline);
@@ -85,6 +91,10 @@ export function toPresentationData(data: SiteData): SiteData {
     },
     experiences: [],
     settings: publicSettings,
+    projects: data.projects.filter((project) => project.published !== false).map((project) => ({
+      ...project,
+      description: plainText(project.description).slice(0, 600),
+    })),
     posts: data.posts
       .filter((post) => post.published)
       .map((post) => ({ ...post, content: "" })),

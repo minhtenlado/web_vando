@@ -1,13 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
 import {
-  normalizeProjectImage,
-  normalizeProjectResults,
-  normalizeProjectUrl,
-  normalizeResponsibilities,
-  normalizeStringList,
+normalizeProjectImage,
+normalizeProjectResults,
+normalizeProjectUrl,
+normalizeResponsibilities,
+normalizeStringList,
+projectPayloadError,
 } from "@/lib/cv/project-input";
+import { legacyProjectSelect,readProjects } from "@/lib/cv/project-store";
+import { db } from "@/lib/db";
+import { NextRequest,NextResponse } from "next/server";
 
 type ProjectInput = {
   title?: string;
@@ -52,6 +54,8 @@ export async function PUT(
     return NextResponse.json({ ok: false, message: "Body không hợp lệ." }, { status: 400 });
   }
 
+  const payloadError = projectPayloadError(body);
+  if (payloadError) return NextResponse.json({ ok: false, message: payloadError }, { status: 422 });
   if (typeof body.title === "string" && !body.title.trim()) {
     return NextResponse.json({ ok: false, message: "Tiêu đề dự án là bắt buộc." }, { status: 422 });
   }
@@ -102,13 +106,30 @@ export async function PUT(
   if (typeof body.order === "number") data.order = body.order;
 
   try {
-    const existing = await db.project.findUnique({ where: { id } });
+    const result = await readProjects(db, { id, includeUnpublished: true });
+    const existing = result.rows[0];
     if (!existing) {
       return NextResponse.json({ ok: false, message: "Không tìm thấy dự án." }, { status: 404 });
     }
 
-    const updated = await db.project.update({ where: { id }, data });
-    return NextResponse.json({ ok: true, project: updated });
+    if (!result.publicationControlsAvailable) {
+      if ((body.published !== undefined && body.published !== existing.published) ||
+          (body.featured !== undefined && body.featured !== existing.featured) ||
+          (body.status !== undefined && body.status !== existing.status)) {
+        return NextResponse.json({ ok: false, message: "Cần chạy migration trước khi thay đổi trạng thái xuất bản, Featured hoặc trạng thái dự án." }, { status: 503 });
+      }
+      delete data.published; delete data.featured; delete data.status;
+    }
+    const updated = await db.project.update({
+      where: { id }, data,
+      select: { ...legacyProjectSelect, ...(result.publicationControlsAvailable ? { published: true, featured: true, status: true } : {}) },
+    });
+    return NextResponse.json({ ok: true, project: {
+      ...updated,
+      published: updated.published ?? existing.published,
+      featured: updated.featured ?? existing.featured,
+      status: updated.status ?? existing.status,
+    } });
   } catch (err) {
     return NextResponse.json({ ok: false, message: "Đã có lỗi xảy ra." }, { status: 500 });
   }
@@ -123,12 +144,12 @@ export async function DELETE(
 
   const { id } = await params;
   try {
-    const existing = await db.project.findUnique({ where: { id } });
+    const existing = await db.project.findUnique({ where: { id }, select: { id: true } });
     if (!existing) {
       return NextResponse.json({ ok: false, message: "Không tìm thấy dự án." }, { status: 404 });
     }
 
-    await db.project.delete({ where: { id } });
+    await db.project.delete({ where: { id }, select: { id: true } });
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ ok: false, message: "Không tìm thấy dự án." }, { status: 500 });

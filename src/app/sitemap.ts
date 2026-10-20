@@ -1,5 +1,5 @@
+import { ContentUnavailableError,getSiteData } from '@/lib/cv/site-data-server'
 import type { MetadataRoute } from 'next'
-import { getSiteData } from '@/lib/cv/site-data-server'
 
 export const dynamic = 'force-dynamic'
 
@@ -7,6 +7,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://phanhuynh.id.vn'
 
   const data = await getSiteData('vi')
+  if (data.errors?.projects || data.errors?.posts) throw new ContentUnavailableError()
   const posts = [...new Map(data.posts.filter((post) => post.published).map((post) => [post.slug, post])).values()]
   const projects = [...new Map(data.projects.map((project) => [project.id, project])).values()]
 

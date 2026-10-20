@@ -1,189 +1,66 @@
-import { notFound } from "next/navigation"
-import { getPostBySlug, getSiteData } from "@/lib/cv/site-data-server"
-import type { Metadata } from "next"
-import { ArrowLeft, ArrowUpRight } from "lucide-react"
-import Link from "next/link"
-import { TableOfContents } from "@/components/cv/table-of-contents"
-import { PostReader } from "@/components/cv/post-reader"
-import { TutorialReader } from "@/components/cv/tutorial-reader"
-import { PostAiChat } from "@/components/cv/post-ai-chat"
+import { PreviewNotice } from '@/components/cv/content-state';
+import '@/components/cv/detail-polish.css';
+import { Footer } from '@/components/cv/footer';
+import { LocaleProvider } from '@/components/cv/locale-context';
+import { Navbar } from '@/components/cv/navbar';
+import { PostReader } from '@/components/cv/post-reader';
+import { RichContent } from '@/components/cv/rich-content';
+import { SiteDataProvider } from '@/components/cv/site-data-context';
+import { TableOfContents } from '@/components/cv/table-of-contents';
+import { plainText } from '@/lib/cv/presentation';
+import { normalizeProjectImage,normalizeProjectUrl } from '@/lib/cv/project-input';
+import { getPostBySlug,getSiteData } from '@/lib/cv/site-data-server';
+import { toPresentationData } from '@/lib/cv/site-presentation';
+import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-import { ScientificProgress } from "@/components/cv/scientific-progress"
-import { ScientificSearchTrigger } from "@/components/cv/scientific-search-trigger"
-import { RelatedPosts } from "@/components/cv/related-posts"
-import { normalizeProjectImage, normalizeProjectUrl } from "@/lib/cv/project-input"
-import "@/components/cv/detail-polish.css"
+type Props = { params: Promise<{ slug: string }> };
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params
-  const post = await getPostBySlug(slug)
-  if (!post) return { title: "Post Not Found" }
-
-  const coverImage = normalizeProjectImage(post.coverImage)
-  const title = (post.seoTitle || post.title) + " — Engineering Lab"
-  const description = post.seoDescription || post.excerpt
-
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const locale = (await cookies()).get('cv-locale')?.value === 'en' ? 'en' : 'vi';
+  const post = await getPostBySlug(slug, locale);
+  if (!post) return { title: 'Article not found | Engineering Lab', robots: { index: false } };
+  const cover = normalizeProjectImage(post.coverImage);
+  const title = (post.seoTitle || post.title) + ' | Engineering Lab';
+  const description = plainText(post.seoDescription || post.excerpt).slice(0, 180);
   return {
-    title,
-    description,
-    ...(post.seoKeywords ? { keywords: post.seoKeywords } : {}),
-    alternates: {
-      canonical: `/posts/${slug}`,
-    },
-    openGraph: {
-      title,
-      description,
-      type: "article",
-      url: `https://phanhuynh.id.vn/posts/${slug}`,
-      publishedTime: post.createdAt,
-      modifiedTime: post.updatedAt || post.createdAt,
-      ...(coverImage ? { images: [{ url: coverImage }] } : {}),
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      ...(coverImage ? { images: [coverImage] } : {}),
-    },
-  }
+    title, description, ...(post.seoKeywords ? { keywords: post.seoKeywords } : {}),
+    alternates: { canonical: '/posts/' + encodeURIComponent(slug) },
+    openGraph: { title, description, type: 'article', url: 'https://phanhuynh.id.vn/posts/' + encodeURIComponent(slug), publishedTime: post.createdAt, modifiedTime: post.updatedAt, ...(cover ? { images: [{ url: cover }] } : {}) },
+    twitter: { card: 'summary_large_image', title, description, ...(cover ? { images: [cover] } : {}) },
+  };
 }
 
-export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
-  const [post, siteData] = await Promise.all([getPostBySlug(slug), getSiteData("vi")])
-  
-  if (!post) {
-    notFound()
-  }
-  const coverImage = normalizeProjectImage(post.coverImage)
-  const pdfUrl = normalizeProjectUrl(post.pdfUrl, { allowRelative: true })
+export default async function PostPage({ params }: Props) {
+  const { slug } = await params;
+  const locale = (await cookies()).get('cv-locale')?.value === 'en' ? 'en' : 'vi';
+  const [post, data] = await Promise.all([getPostBySlug(slug, locale), getSiteData(locale)]);
+  if (!post) notFound();
+  const cover = normalizeProjectImage(post.coverImage);
+  const pdf = normalizeProjectUrl(post.pdfUrl, { allowRelative: true });
+  const pubDate = new Intl.DateTimeFormat(locale === 'vi' ? 'vi-VN' : 'en-US', { dateStyle: 'long', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date(post.createdAt));
+  const words = plainText(post.content).split(/\s+/).filter(Boolean).length;
+  const related = data.posts.filter((item) => item.id !== post.id && post.category && item.category === post.category).slice(0, 3);
+  const jsonLd = { '@context': 'https://schema.org', '@type': 'TechArticle', headline: post.title, datePublished: post.createdAt, dateModified: post.updatedAt, description: plainText(post.excerpt), mainEntityOfPage: 'https://phanhuynh.id.vn/posts/' + encodeURIComponent(slug), ...(cover ? { image: [cover] } : {}) };
 
-  const relatedPosts = siteData.posts
-    .filter((item) => item.id !== post.id)
-    .slice(0, 3)
-    .map((item) => ({
-      ...item,
-      locale: "vi",
-      category: item.category || "",
-      layout: item.layout || "article",
-      coverImage: item.coverImage || null,
-      pdfUrl: item.pdfUrl || null,
-      seoTitle: item.seoTitle || null,
-      seoDescription: item.seoDescription || null,
-      seoKeywords: item.seoKeywords || null,
-      createdAt: new Date(item.createdAt),
-      updatedAt: new Date(item.updatedAt || item.createdAt),
-    }))
-
-  // Format dates
-  const pubDate = new Date(post.createdAt).toLocaleDateString("en-GB", {
-    timeZone: "Asia/Ho_Chi_Minh",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  })
-  
-  // Calculate reading time roughly
-  const wordCount = post.content.replace(/<[^>]*>?/gm, "").trim().split(/\s+/).length
-  const readingTime = Math.max(1, Math.ceil(wordCount / 200))
-
-  const isTutorial = post.layout === "tutorial"
-  const ContentReader = isTutorial ? TutorialReader : PostReader
-
-  return (
-    <div className="portfolio-detail post-detail min-h-screen font-sans">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": isTutorial ? "TechArticle" : "BlogPosting",
-            "headline": post.title,
-            "datePublished": post.createdAt,
-            "dateModified": post.updatedAt || post.createdAt,
-            "description": post.excerpt || post.seoDescription,
-            "mainEntityOfPage": {
-              "@type": "WebPage",
-              "@id": `https://phanhuynh.id.vn/posts/${slug}`
-            },
-            "author": { "@type": "Organization", "name": "Engineering Lab" },
-            "publisher": {
-              "@type": "Organization",
-              "name": "Engineering Lab",
-              "url": "https://phanhuynh.id.vn"
-            },
-            ...(coverImage ? { "image": [coverImage] } : {})
-          }).replace(/</g, "\\u003c")
-        }}
-      />
-      
-      <ScientificProgress />
-
-      {/* TOPBAR */}
-      <header className="detail-topbar post-topbar sticky top-0 z-[500] flex items-center justify-between px-4 sm:px-8 border-b backdrop-blur-[22px]">
-        <Link href="/#notes" className="detail-back flex items-center gap-2 text-[13px] font-medium transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-          <span>Engineering Lab</span>
-        </Link>
-        <Link href="/" className="detail-wordmark hidden sm:flex items-center gap-2">
-          <span className="detail-monogram">EL</span>
-          <span>Engineering Notes</span>
-        </Link>
-        <div className="flex items-center gap-2">
-           <ScientificSearchTrigger />
+  return <LocaleProvider initialLocale={locale}><SiteDataProvider initialData={toPresentationData(data)}>
+    <div className="lab-site">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+      <Navbar /><PreviewNotice />
+      <main className="lab-container lab-article-page" id="main-content">
+        <Link href="/notes" className="lab-detail-back">← {locale === 'vi' ? 'Tất cả bài viết' : 'All articles'}</Link>
+        <div className="lab-reading-layout">
+          <PostReader slug={post.slug} title={post.title} pubDate={pubDate} readingTime={Math.max(1, Math.ceil(words / 200))} coverImage={cover} pdfUrl={pdf} category={post.category} excerpt={plainText(post.excerpt)} views={post.views} likes={post.likes} preview={data.source === 'snapshot'}>
+            <RichContent content={post.content} />
+          </PostReader>
+          <aside><TableOfContents /></aside>
         </div>
-      </header>
-
-      {/* LAYOUT */}
-      <main className="post-layout mx-auto max-w-[1600px] px-4 sm:px-8 md:px-10 lg:px-12 py-8 sm:py-12 pb-[100px] grid grid-cols-1 xl:grid-cols-[200px_minmax(0,1fr)_280px] xl:gap-8 lg:grid-cols-[190px_minmax(0,1fr)] lg:gap-8 items-start relative">
-         
-         {/* LEFT SIDEBAR */}
-         <aside className="post-toc hidden lg:block sticky top-[110px] max-h-[calc(100vh-140px)] overflow-y-auto pr-3 custom-scrollbar" aria-label="Mục lục bài viết">
-            <div className="detail-eyebrow mb-5">Trong bài viết</div>
-            <TableOfContents selector=".prose, .tutorial-prose" />
-         </aside>
-         
-         {/* PAPER CONTENT */}
-         <div className="post-content min-w-0 w-full relative z-10">
-            <ContentReader 
-              slug={post.slug}
-              title={post.title} 
-              pubDate={pubDate} 
-              readingTime={readingTime} 
-              contentHtml={post.content}
-              coverImage={coverImage || undefined}
-              pdfUrl={pdfUrl || undefined}
-              authorName="Engineering Lab"
-              authorRole="Technical publication"
-              category={post.category || ""}
-              excerpt={post.excerpt}
-              views={post.views}
-              likes={post.likes}
-            />
-            {relatedPosts && relatedPosts.length > 0 && (
-              <div className="post-related"><RelatedPosts posts={relatedPosts} /></div>
-            )}
-         </div>
-
-         {/* RIGHT SIDEBAR */}
-         <aside className="post-assistant hidden xl:flex sticky top-[110px] h-[calc(100vh-140px)] flex-col justify-between" aria-label="Trợ lý AI cho bài viết">
-            <PostAiChat postTitle={post.title} postContent={post.content} isFloating={false} />
-         </aside>
+        {related.length > 0 && <section className="lab-related lab-related-articles"><h2>{locale === 'vi' ? 'Bài viết liên quan' : 'Related articles'}</h2><ul>{related.map((item) => <li key={item.id}><Link href={'/posts/' + encodeURIComponent(item.slug)}>{item.title}</Link></li>)}</ul></section>}
       </main>
-
-      <footer className="detail-footer px-4 sm:px-8 py-8 border-t">
-        <div className="max-w-[1500px] mx-auto flex items-center justify-between gap-5 text-xs">
-          <span>Engineering Lab · Embedded systems, edge AI, IoT, and robotics.</span>
-          <Link href="/#notes" className="inline-flex items-center gap-1.5 shrink-0">
-            Các bài viết <ArrowUpRight className="size-4" />
-          </Link>
-        </div>
-      </footer>
-
-      {/* Floating AI Chat for mobile/tablet */}
-      <div className="post-mobile-assistant xl:hidden fixed bottom-6 right-6 z-[600]">
-         <PostAiChat postTitle={post.title} postContent={post.content} isFloating={true} />
-      </div>
+      <Footer />
     </div>
-  )
+  </SiteDataProvider></LocaleProvider>;
 }

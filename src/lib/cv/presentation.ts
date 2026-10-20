@@ -1,4 +1,8 @@
 /** CMS fields can contain localized objects, HTML, or schemeless URLs. */
+export function normalizeSearch(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase().replace(/đ/g, "d").trim();
+}
+
 export function localizedText(value: unknown, locale: "vi" | "en"): string {
   if (typeof value === "string" || typeof value === "number")
     return String(value);

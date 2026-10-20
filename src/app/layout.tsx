@@ -1,16 +1,14 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import "./portfolio.css";
-import "../components/cv/engineering-lab.css";
-import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/cv/theme-provider";
-import Script from "next/script";
-import { getSiteData } from "@/lib/cv/site-data-server";
+import { Toaster } from "@/components/ui/toaster";
+import { getSiteSettings } from "@/lib/cv/site-data-server";
+import type { Metadata } from "next";
 import { cookies } from "next/headers";
+import Script from "next/script";
+import "../components/cv/engineering-lab.css";
+import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const data = await getSiteData("vi");
-  const settings = data.profile.settings || {};
+  const settings = await getSiteSettings();
   const fallbackTitle = "Engineering Lab | Embedded Systems, Edge AI & Robotics";
   const fallbackDescription = "Technical projects across embedded systems, edge AI, robotics, IoT, hardware, and software.";
   const personalName = /phan\s+hu(?:ỳnh|ynh)\s+v(?:ăn|an)\s+đ(?:ô|o)/i;
@@ -78,15 +76,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const data = await getSiteData("vi");
-  const settings = data.profile.settings || {};
+  const settings = await getSiteSettings();
   return (
     <html
       lang={(await cookies()).get("cv-locale")?.value === "en" ? "en" : "vi"}
       suppressHydrationWarning
-      className="overflow-x-clip"
     >
-      <body className="antialiased bg-background text-foreground overflow-x-clip font-sans">
+      <body className="antialiased bg-background text-foreground font-sans">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -115,7 +111,7 @@ export default async function RootLayout({
             async
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2941183923177148"
             crossOrigin="anonymous"
-            strategy="afterInteractive"
+            strategy="lazyOnload"
           />
           {children}
           <Toaster />

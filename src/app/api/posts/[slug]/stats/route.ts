@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { NextRequest,NextResponse } from "next/server";
 
 export async function POST(req: NextRequest, props: { params: Promise<{ slug: string }> }) {
   try {
@@ -11,8 +11,8 @@ export async function POST(req: NextRequest, props: { params: Promise<{ slug: st
       return NextResponse.json({ error: "Missing action" }, { status: 400 });
     }
 
-    const post = await db.post.findFirst({ where: { slug } });
-    
+    const post = await db.post.findFirst({ where: { slug, published: true } });
+
     if (!post) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
@@ -33,11 +33,11 @@ export async function POST(req: NextRequest, props: { params: Promise<{ slug: st
     }
 
     await db.post.updateMany({
-      where: { slug },
+      where: { slug, published: true },
       data: updateData,
     });
 
-    const updatedPost = await db.post.findFirst({ where: { slug } });
+    const updatedPost = await db.post.findFirst({ where: { slug, published: true } });
 
     return NextResponse.json({
       success: true,

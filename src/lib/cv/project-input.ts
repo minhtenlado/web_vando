@@ -1,5 +1,15 @@
 const ALLOWED_IMAGE_HOSTS = ["res.cloudinary.com", ".public.blob.vercel-storage.com"];
 
+export function projectPayloadError(value: unknown): string | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return "Body không hợp lệ.";
+  const body = value as Record<string, unknown>;
+  const textFields = ["title", "subtitle", "overviewQuote", "year", "role", "highlight", "projectType", "category", "description", "image", "locale", "visualsTitle", "videoTitle", "status"];
+  for (const key of textFields) if (body[key] !== undefined && typeof body[key] !== "string") return "Trường văn bản không hợp lệ: " + key;
+  for (const key of ["link", "repo", "youtubeUrl"]) if (body[key] != null && typeof body[key] !== "string") return "URL không hợp lệ.";
+  for (const key of ["published", "featured", "showVideoDemo"]) if (body[key] !== undefined && typeof body[key] !== "boolean") return "Trạng thái không hợp lệ.";
+  for (const key of ["images", "tech", "features", "results", "responsibilities"]) if (body[key] !== undefined && !Array.isArray(body[key])) return "Danh sách không hợp lệ: " + key;
+}
+
 export function normalizeProjectUrl(value: unknown, options: { allowRelative?: boolean; youtubeOnly?: boolean } = {}): string | null {
   if (typeof value !== "string") return null;
   const raw = value.trim();

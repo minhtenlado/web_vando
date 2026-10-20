@@ -1,66 +1,58 @@
 "use client";
 
-import * as React from "react";
-import Link from "next/link";
-import { sanitizeHtml } from "@/lib/validation";
 import {
-  Loader2,
-  Plus,
-  Pencil,
-  Trash2,
-  Youtube,
-  ExternalLink,
-  Github,
-  Folder,
-  RefreshCw,
-  Upload,
-  ImageIcon,
-  Calendar,
-  User,
-  Sparkles,
-  Layers,
-  Award,
-  CheckCircle2,
-  Quote,
-  Tag,
-  FileText,
-  TrendingUp,
-  Briefcase,
-  ListCheck,
-  Globe,
-  Code2,
-  Search,
-} from "lucide-react";
+AlertDialog,
+AlertDialogAction,
+AlertDialogCancel,
+AlertDialogContent,
+AlertDialogDescription,
+AlertDialogFooter,
+AlertDialogHeader,
+AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Card,CardContent } from "@/components/ui/card";
+import {
+Dialog,
+DialogContent,
+DialogDescription,
+DialogFooter,
+DialogHeader,
+DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { RichTextEditor } from "./rich-text-editor";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Tabs,TabsContent,TabsList,TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import type { SiteProject } from "@/lib/cv/site-data-server";
-import { normalizeProjectUrl } from "@/lib/cv/project-input";
+import {
+Briefcase,
+Calendar,
+ExternalLink,
+FileText,
+Folder,
+Github,
+Globe,
+ImageIcon,
+ListCheck,
+Loader2,
+Plus,
+Quote,
+RefreshCw,
+Search,
+Sparkles,
+Tag,
+Trash2,
+TrendingUp,
+Upload,
+User,
+Youtube
+} from "lucide-react";
+import Link from "next/link";
+import * as React from "react";
+import { RichTextEditor } from "./rich-text-editor";
 
 export type ProjectResponsibilityItem = {
   title: string;
@@ -185,7 +177,7 @@ function splitCommaOrLines(s: string): string[] {
 }
 
 function normalizeSearchText(value: string) {
-  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase().trim();
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase().replace(/đ/g, "d").trim();
 }
 
 function projectStatusLabel(status?: string) {
@@ -201,6 +193,8 @@ export function ProjectsTab({ locale }: { locale: string }) {
   const { toast } = useToast();
   const [items, setItems] = React.useState<SiteProject[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [fetchError, setFetchError] = React.useState("");
+  const [publicationControlsAvailable, setPublicationControlsAvailable] = React.useState(true);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<SiteProject | null>(null);
   const [form, setForm] = React.useState<ProjectForm>(EMPTY);
@@ -215,12 +209,15 @@ export function ProjectsTab({ locale }: { locale: string }) {
 
   async function fetchItems() {
     setLoading(true);
+    setFetchError("");
     try {
       const res = await fetch(`/api/admin/projects?locale=${locale}`, { cache: "no-store" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) throw new Error(data?.message || "Tải danh sách thất bại.");
       setItems(data.projects ?? []);
+      setPublicationControlsAvailable(data.publicationControlsAvailable !== false);
     } catch (err) {
+      setFetchError(err instanceof Error ? err.message : "Không tải được dự án.");
       toast({
         title: "Lỗi",
         description: err instanceof Error ? err.message : "Không tải được dự án.",
@@ -345,7 +342,7 @@ export function ProjectsTab({ locale }: { locale: string }) {
       {/* Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">Dự án & Case Studies</h2>
+          <h2 className="text-lg font-semibold text-foreground">Dự án</h2>
           <p className="text-sm text-muted-foreground">
             Quản lý thông tin chi tiết dự án, case study, hình ảnh, chỉ số đạt được và mã nguồn.
           </p>
@@ -355,20 +352,23 @@ export function ProjectsTab({ locale }: { locale: string }) {
             <RefreshCw className={`size-4 mr-1 ${loading ? "animate-spin" : ""}`} />
             Tải lại
           </Button>
-          <Button size="sm" onClick={openCreate}>
+          <Button size="sm" onClick={openCreate} disabled={!publicationControlsAvailable || Boolean(fetchError)}>
             <Plus className="size-4 mr-1" />
             Thêm dự án
           </Button>
         </div>
       </div>
 
-      {/* Main Grid */}
+      {!publicationControlsAvailable && <p className="admin-data-notice" role="status">Database đang dùng schema cũ. Có thể sửa nội dung dự án hiện có; tạo bản nháp và thay đổi publication/Featured/status cần migration đã được duyệt.</p>}
+      {/* Project management */}
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} className="h-64 w-full rounded-xl" />
           ))}
         </div>
+      ) : fetchError ? (
+        <p className="admin-data-notice" role="alert">{fetchError} Hãy tải lại để thử lại.</p>
       ) : items.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center gap-3 py-12 text-center">
@@ -409,144 +409,20 @@ export function ProjectsTab({ locale }: { locale: string }) {
         {filteredItems.length === 0 ? (
           <Card className="border-dashed"><CardContent className="py-10 text-center text-sm text-muted-foreground">Không có dự án khớp bộ lọc.</CardContent></Card>
         ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredItems.map((p) => (
-            <Card key={p.id} className="overflow-hidden flex flex-col justify-between border-border hover:border-primary/50 transition-colors">
-              <div>
-                {/* Image Cover Preview */}
-                <div className="relative aspect-video w-full overflow-hidden bg-muted">
-                  {p.image ? (
-                    <img src={p.image} alt={p.title} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-muted-foreground">
-                      <Folder className="size-8" />
-                    </div>
-                  )}
-
-                  <div className="absolute top-2 left-2 flex flex-wrap gap-1 max-w-[90%]">
-                    {p.youtubeUrl && (
-                      <Badge className="gap-1 bg-destructive/90 text-white font-medium text-[10px]">
-                        <Youtube className="size-3" /> YouTube
-                      </Badge>
-                    )}
-                    {p.projectType && (
-                      <Badge variant="secondary" className="font-mono text-[10px] bg-background/80 backdrop-blur">
-                        {p.projectType}
-                      </Badge>
-                    )}
-                  </div>
-
-                  {p.year && (
-                    <Badge variant="outline" className="absolute bottom-2 right-2 font-mono text-[10px] bg-background/90 backdrop-blur">
-                      <Calendar className="size-3 mr-1" /> {p.year}
-                    </Badge>
-                  )}
-                </div>
-
-                <CardHeader className="pb-2 space-y-1">
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-base font-bold leading-snug text-foreground">{p.title}</CardTitle>
-                  </div>
-                  {p.subtitle && (
-                    <p className="text-xs text-muted-foreground font-medium line-clamp-1">{p.subtitle}</p>
-                  )}
-
-                  <div className="flex flex-wrap gap-1 pt-1">
-                    <Badge variant={p.published === false ? "outline" : "secondary"} className="text-[10px]">
-                      {p.published === false ? "Bản nháp" : "Đã xuất bản"}
-                    </Badge>
-                    {p.featured && <Badge className="text-[10px]">Featured</Badge>}
-                    {p.status && projectStatusLabel(p.status) && <Badge variant="outline" className="text-[10px]">{projectStatusLabel(p.status)}</Badge>}
-                    {p.category && <Badge variant="secondary" className="text-[10px]">{p.category}</Badge>}
-                    {p.highlight && (
-                      <Badge variant="default" className="text-[10px] bg-primary/20 text-primary border-primary/30">
-                        <Sparkles className="size-2.5 mr-1" /> {p.highlight}
-                      </Badge>
-                    )}
-                    {p.role && (
-                      <Badge variant="outline" className="text-[10px] font-mono">
-                        <User className="size-2.5 mr-1" /> {p.role}
-                      </Badge>
-                    )}
-                  </div>
-                </CardHeader>
-
-                <CardContent className="space-y-2 text-xs">
-                  {p.description && (
-                    <div
-                      className="line-clamp-2 text-muted-foreground"
-                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(p.description || "") }}
-                    />
-                  )}
-                  {p.updatedAt && !Number.isNaN(Date.parse(p.updatedAt)) && (
-                    <p className="text-[10px] text-muted-foreground">Cập nhật {new Date(p.updatedAt).toLocaleDateString(locale === "en" ? "en-US" : "vi-VN")}</p>
-                  )}
-
-                  {/* Results preview */}
-                  {Array.isArray(p.results) && p.results.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {p.results.slice(0, 3).map((res, rIdx) => (
-                        <div key={rIdx} className="inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-[10px] font-medium text-foreground border">
-                          <span className="font-mono text-primary font-bold">{res.number}</span>
-                          <span className="text-muted-foreground truncate max-w-[100px]">{res.label}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Tech stack */}
-                  {p.tech && p.tech.length > 0 && (
-                    <div className="flex flex-wrap gap-1 pt-1">
-                      {p.tech.slice(0, 4).map((t, i) => (
-                        <Badge key={i} variant="outline" className="font-mono text-[10px] py-0">{t}</Badge>
-                      ))}
-                      {p.tech.length > 4 && (
-                        <Badge variant="outline" className="font-mono text-[10px] py-0">+{p.tech.length - 4}</Badge>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </div>
-
-              <div className="p-4 pt-0 border-t mt-2 flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1">
-                  {normalizeProjectUrl(p.link, { allowRelative: true }) && (
-                    <Button asChild size="sm" variant="ghost" className="h-8 w-8 p-0" title="Link demo">
-                      <a href={normalizeProjectUrl(p.link, { allowRelative: true })!} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="size-3.5" />
-                      </a>
-                    </Button>
-                  )}
-                  {normalizeProjectUrl(p.repo, { allowRelative: true }) && (
-                    <Button asChild size="sm" variant="ghost" className="h-8 w-8 p-0" title="GitHub repo">
-                      <a href={normalizeProjectUrl(p.repo, { allowRelative: true })!} target="_blank" rel="noopener noreferrer">
-                        <Github className="size-3.5" />
-                      </a>
-                    </Button>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <Button asChild size="sm" variant="ghost" className="h-8 text-xs">
-                    <Link href={`/admin/projects/${p.id}/preview`} target="_blank" rel="noreferrer" aria-label={`Xem trước ${p.title}`}>
-                      <ExternalLink className="size-3.5 mr-1" /> Xem trước
-                    </Link>
-                  </Button>
-                  <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => openEdit(p)}>
-                    <Pencil className="size-3.5 mr-1" /> Sửa
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-8 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => setDeleteId(p.id)}
-                  >
-                    <Trash2 className="size-3.5 mr-1" /> Xóa
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
+        <div className="admin-table-scroll" role="region" aria-label="Quản lý dự án" tabIndex={0}>
+          <table className="admin-content-table">
+            <thead><tr><th scope="col">Dự án</th><th scope="col">Danh mục</th><th scope="col">Xuất bản</th><th scope="col">Thao tác</th></tr></thead>
+            <tbody>{filteredItems.map((p) => <tr key={p.id}>
+              <th scope="row"><span className="admin-table-title">{p.title}</span>{p.updatedAt && <span className="admin-table-secondary">{new Date(p.updatedAt).toLocaleDateString(locale === 'en' ? 'en-US' : 'vi-VN')}</span>}</th>
+              <td>{p.category || '—'}{projectStatusLabel(p.status) && <span className="admin-table-secondary">{projectStatusLabel(p.status)}</span>}</td>
+              <td>{p.published === false ? 'Bản nháp' : 'Đã xuất bản'}{p.featured && <span className="admin-table-secondary">Featured</span>}</td>
+              <td><div className="admin-row-actions">
+                <Button asChild size="sm" variant="ghost"><Link href={'/admin/projects/' + p.id + '/preview'} target="_blank" rel="noreferrer" aria-label={'Xem trước ' + p.title}>Xem trước</Link></Button>
+                <Button size="sm" variant="outline" onClick={() => openEdit(p)}>Sửa</Button>
+                <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setDeleteId(p.id)} aria-label={'Xóa ' + p.title}>Xóa</Button>
+              </div></td>
+            </tr>)}</tbody>
+          </table>
         </div>
         )}
         </>
@@ -592,8 +468,8 @@ export function ProjectsTab({ locale }: { locale: string }) {
                 <TabsContent value="basic" className="space-y-4 m-0 outline-none">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5 sm:col-span-2">
-                      <Label className="font-semibold text-xs text-foreground">Tiêu đề dự án *</Label>
-                      <Input
+                      <Label htmlFor="project-title" className="font-semibold text-xs text-foreground">Tiêu đề dự án *</Label>
+                      <Input id="project-title"
                         value={form.title}
                         onChange={(e) => setForm({ ...form, title: e.target.value })}
                         placeholder="e.g. Smart Parking System with Edge AI"
@@ -603,8 +479,8 @@ export function ProjectsTab({ locale }: { locale: string }) {
                     </div>
 
                     <div className="space-y-1.5 sm:col-span-2">
-                      <Label className="font-semibold text-xs text-foreground">Tiêu đề phụ / Subtitle</Label>
-                      <Input
+                      <Label htmlFor="project-subtitle" className="font-semibold text-xs text-foreground">Tiêu đề phụ / Subtitle</Label>
+                      <Input id="project-subtitle"
                         value={form.subtitle}
                         onChange={(e) => setForm({ ...form, subtitle: e.target.value })}
                         placeholder="e.g. Hệ thống bãi đỗ xe thông minh ứng dụng xử lý ảnh tại biên"
@@ -613,8 +489,8 @@ export function ProjectsTab({ locale }: { locale: string }) {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="font-semibold text-xs text-foreground">Danh mục (Category)</Label>
-                      <Input
+                      <Label htmlFor="project-category" className="font-semibold text-xs text-foreground">Danh mục (Category)</Label>
+                      <Input id="project-category"
                         value={form.category}
                         onChange={(e) => setForm({ ...form, category: e.target.value })}
                         placeholder="e.g. IoT & Embedded Systems"
@@ -623,10 +499,10 @@ export function ProjectsTab({ locale }: { locale: string }) {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                      <Label htmlFor="project-youtubeUrl" className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                         <Youtube className="size-3.5 text-destructive" /> Link YouTube Demo
                       </Label>
-                      <Input
+                      <Input id="project-youtubeUrl"
                         value={form.youtubeUrl}
                         onChange={(e) => setForm({ ...form, youtubeUrl: e.target.value })}
                         placeholder="e.g. https://youtu.be/... hoặc watch?v=..."
@@ -635,10 +511,10 @@ export function ProjectsTab({ locale }: { locale: string }) {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                      <Label htmlFor="project-link" className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                         <ExternalLink className="size-3.5" /> Link Demo / Website
                       </Label>
-                      <Input
+                      <Input id="project-link"
                         value={form.link}
                         onChange={(e) => setForm({ ...form, link: e.target.value })}
                         placeholder="https://..."
@@ -647,10 +523,10 @@ export function ProjectsTab({ locale }: { locale: string }) {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                      <Label htmlFor="project-repo" className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                         <Github className="size-3.5" /> Repository GitHub
                       </Label>
-                      <Input
+                      <Input id="project-repo"
                         value={form.repo}
                         onChange={(e) => setForm({ ...form, repo: e.target.value })}
                         placeholder="https://github.com/..."
@@ -727,7 +603,7 @@ export function ProjectsTab({ locale }: { locale: string }) {
                   <div className="grid gap-4 rounded-lg border bg-muted/20 p-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="space-y-1.5">
                       <Label htmlFor="project-status">Trạng thái phát triển</Label>
-                      <select id="project-status" value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+                      <select id="project-status" disabled={!publicationControlsAvailable} value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
                         <option value="">Chưa xác định</option>
                         <option value="prototype">Prototype</option>
                         <option value="in-development">In Development</option>
@@ -736,11 +612,11 @@ export function ProjectsTab({ locale }: { locale: string }) {
                       </select>
                     </div>
                     <label className="flex min-h-10 items-center gap-2 text-sm">
-                      <input type="checkbox" checked={form.published} onChange={(event) => setForm({ ...form, published: event.target.checked })} className="size-4 accent-primary" />
+                      <input type="checkbox" disabled={!publicationControlsAvailable} checked={form.published} onChange={(event) => setForm({ ...form, published: event.target.checked })} className="size-4 accent-primary" />
                       Xuất bản công khai
                     </label>
                     <label className="flex min-h-10 items-center gap-2 text-sm">
-                      <input type="checkbox" checked={form.featured} onChange={(event) => setForm({ ...form, featured: event.target.checked })} className="size-4 accent-primary" />
+                      <input type="checkbox" disabled={!publicationControlsAvailable} checked={form.featured} onChange={(event) => setForm({ ...form, featured: event.target.checked })} className="size-4 accent-primary" />
                       Ghim ở trang chủ
                     </label>
                     <div className="space-y-1.5">
@@ -751,10 +627,10 @@ export function ProjectsTab({ locale }: { locale: string }) {
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                      <Label className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                      <Label htmlFor="project-year" className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                         <Calendar className="size-3.5 text-primary" /> Năm thực hiện (Year)
                       </Label>
-                      <Input
+                      <Input id="project-year"
                         value={form.year}
                         onChange={(e) => setForm({ ...form, year: e.target.value })}
                         placeholder="e.g. 2025 — 2026 hoặc 2025"
@@ -763,10 +639,10 @@ export function ProjectsTab({ locale }: { locale: string }) {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                      <Label htmlFor="project-role" className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                         <User className="size-3.5 text-primary" /> Vai trò (Role)
                       </Label>
-                      <Input
+                      <Input id="project-role"
                         value={form.role}
                         onChange={(e) => setForm({ ...form, role: e.target.value })}
                         placeholder="e.g. Lead AIoT Engineer / Firmware Developer"
@@ -775,10 +651,10 @@ export function ProjectsTab({ locale }: { locale: string }) {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                      <Label htmlFor="project-highlight" className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                         <Sparkles className="size-3.5 text-primary" /> Điểm nổi bật (Highlight)
                       </Label>
-                      <Input
+                      <Input id="project-highlight"
                         value={form.highlight}
                         onChange={(e) => setForm({ ...form, highlight: e.target.value })}
                         placeholder="e.g. Edge AI / Offline-First / Low Latency"
@@ -787,20 +663,20 @@ export function ProjectsTab({ locale }: { locale: string }) {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                      <Label htmlFor="project-projectType" className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                         <Tag className="size-3.5 text-primary" /> Loại dự án (Project Type)
                       </Label>
-                      <Input
+                      <Input id="project-projectType"
                         value={form.projectType}
                         onChange={(e) => setForm({ ...form, projectType: e.target.value })}
                         placeholder="e.g. Research Project / Commercial Product / Open Source"
                         className="text-foreground bg-background border-input text-xs"
                       />
                     </div>
-                    
+
                     <div className="space-y-1.5">
-                      <Label className="font-semibold text-xs text-foreground">Tiêu đề phần Hình ảnh & Sơ đồ</Label>
-                      <Input
+                      <Label htmlFor="project-visualsTitle" className="font-semibold text-xs text-foreground">Tiêu đề phần Hình ảnh & Sơ đồ</Label>
+                      <Input id="project-visualsTitle"
                         value={form.visualsTitle}
                         onChange={(e) => setForm({ ...form, visualsTitle: e.target.value })}
                         placeholder="e.g. Hình ảnh về cuộc thi (để trống sẽ dùng mặc định)"
@@ -809,15 +685,15 @@ export function ProjectsTab({ locale }: { locale: string }) {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="font-semibold text-xs text-foreground">Tiêu đề phần Video & Demo</Label>
-                      <Input
+                      <Label htmlFor="project-videoTitle" className="font-semibold text-xs text-foreground">Tiêu đề phần Video & Demo</Label>
+                      <Input id="project-videoTitle"
                         value={form.videoTitle}
                         onChange={(e) => setForm({ ...form, videoTitle: e.target.value })}
                         placeholder="e.g. Video chạy thực tế (để trống sẽ dùng mặc định)"
                         className="text-foreground bg-background border-input text-xs"
                       />
                     </div>
-                    
+
                     <div className="space-y-1.5 flex flex-col justify-center">
                       <Label className="font-semibold text-xs text-foreground mb-2">Hiển thị phần Video & Demo</Label>
                       <div className="flex items-center space-x-2">
@@ -847,10 +723,10 @@ export function ProjectsTab({ locale }: { locale: string }) {
                 {/* TAB 3: Description & Overview Quote */}
                 <TabsContent value="content" className="space-y-4 m-0 outline-none">
                   <div className="space-y-1.5">
-                    <Label className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                    <Label htmlFor="project-overviewQuote" className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                       <Quote className="size-3.5 text-primary" /> Overview Quote (Trích dẫn tổng quan)
                     </Label>
-                    <Textarea
+                    <Textarea id="project-overviewQuote"
                       value={form.overviewQuote}
                       onChange={(e) => setForm({ ...form, overviewQuote: e.target.value })}
                       placeholder="e.g. Giải pháp đỗ xe tự động hoá 100% không phụ thuộc kết nối internet liên tục..."
@@ -1135,8 +1011,8 @@ export function ProjectsTab({ locale }: { locale: string }) {
                   {/* Features & Tech Stack */}
                   <div className="grid gap-4 sm:grid-cols-2 border-t pt-4">
                     <div className="space-y-1.5">
-                      <Label className="font-semibold text-xs text-foreground">Tính năng chính (Mỗi dòng 1 mục)</Label>
-                      <Textarea
+                      <Label htmlFor="project-features" className="font-semibold text-xs text-foreground">Tính năng chính (Mỗi dòng 1 mục)</Label>
+                      <Textarea id="project-features"
                         value={form.features}
                         onChange={(e) => setForm({ ...form, features: e.target.value })}
                         rows={5}
@@ -1146,8 +1022,8 @@ export function ProjectsTab({ locale }: { locale: string }) {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="font-semibold text-xs text-foreground">Công nghệ sử dụng (Dấu phẩy hoặc dòng mới)</Label>
-                      <Textarea
+                      <Label htmlFor="project-tech" className="font-semibold text-xs text-foreground">Công nghệ sử dụng (Dấu phẩy hoặc dòng mới)</Label>
+                      <Textarea id="project-tech"
                         value={form.tech}
                         onChange={(e) => setForm({ ...form, tech: e.target.value })}
                         rows={5}

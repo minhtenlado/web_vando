@@ -29,9 +29,10 @@ interface RichTextEditorProps {
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  label?: string;
 }
 
-export function RichTextEditor({ value, onChange, placeholder, className }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, placeholder, className, label = "Nội dung chi tiết" }: RichTextEditorProps) {
   const reactQuillRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -42,8 +43,19 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
   useEffect(() => {
     const disableSpellCheck = () => {
       if (containerRef.current) {
+        const toolbarNames: Record<string, string> = { align: "Căn lề", color: "Màu chữ", background: "Màu nền chữ", header: "Cấp tiêu đề", size: "Cỡ chữ" };
+        for (const [name, label] of Object.entries(toolbarNames)) {
+          containerRef.current.querySelectorAll('.ql-' + name + ' .ql-picker-label').forEach((control) => {
+            if (control.getAttribute('aria-label') !== label) control.setAttribute('aria-label', label);
+          });
+        }
         const editors = containerRef.current.querySelectorAll('[contenteditable="true"], .ql-editor');
         editors.forEach((el) => {
+          if (el.getAttribute("aria-label") !== label) {
+            el.setAttribute("aria-label", label);
+            el.setAttribute("role", "textbox");
+            el.setAttribute("aria-multiline", "true");
+          }
           if (el.getAttribute("spellcheck") !== "false") {
             el.setAttribute("spellcheck", "false");
             el.setAttribute("autocorrect", "off");
@@ -68,7 +80,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
     }
 
     return () => observer.disconnect();
-  }, []);
+  }, [label]);
 
   const insertCustomTable = (r: number, c: number) => {
     setPopoverOpen(false); // Close popover first
@@ -104,7 +116,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
         }
         ops.push({ insert: "\n" });
         quill.updateContents({ ops }, "user");
-        
+
         // Ensure cursor is placed after the table
         setTimeout(() => {
           quill.setSelection(range.index + (r * c * 6) + 1, 0, "user");
@@ -161,9 +173,9 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
   return (
     <div ref={containerRef} spellCheck={false} className={`rich-text-editor relative ${className || ""}`}>
       {/* Top Header Bar for Editor Actions */}
-      <div className="flex items-center justify-between px-3.5 py-2 bg-gray-100 dark:bg-[#0c1511] border border-gray-200 dark:border-white/10 rounded-t-xl sticky top-0 z-50">
-        <div className="text-xs font-semibold text-gray-500 dark:text-[#a0afaa] flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#36e2a0]"></span>
+      <div className="flex items-center justify-between px-3.5 py-2 bg-gray-100 dark:bg-[#181c20] border border-gray-200 dark:border-white/10 rounded-t-xl sticky top-0 z-50">
+        <div className="text-xs font-semibold text-gray-500 dark:text-[#a5abb2] flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-[#8eafc3]"></span>
           <span>Soạn thảo bài viết</span>
         </div>
         <div>
@@ -173,26 +185,26 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
                 type="button"
                 variant="outline"
                 size="sm"
-                className="h-7 px-3 text-xs font-semibold bg-white dark:bg-[#16221c] border border-gray-200 dark:border-white/10 shadow-xs hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-[#a0afaa]"
+                className="h-7 px-3 text-xs font-semibold bg-white dark:bg-[#20252a] border border-gray-200 dark:border-white/10 shadow-xs hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-[#a5abb2]"
               >
-                <Table className="h-3.5 w-3.5 mr-1.5 text-[#36e2a0]" />
+                <Table className="h-3.5 w-3.5 mr-1.5 text-[#8eafc3]" />
                 Chèn Bảng
               </Button>
             </PopoverTrigger>
-            <PopoverContent 
-              className="w-64 p-3.5 space-y-3 bg-white dark:bg-[#0e1714] border-gray-200 dark:border-white/10 shadow-xl" 
+            <PopoverContent
+              className="w-64 p-3.5 space-y-3 bg-white dark:bg-[#181c20] border-gray-200 dark:border-white/10 shadow-xl"
               align="end"
               onCloseAutoFocus={(e) => e.preventDefault()}
             >
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-xs flex items-center gap-1.5 text-gray-900 dark:text-white">
-                  <Table className="h-4 w-4 text-[#36e2a0]" /> Chèn Bảng tùy chỉnh
+                  <Table className="h-4 w-4 text-[#8eafc3]" /> Chèn Bảng tùy chỉnh
                 </span>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <Label className="text-[11px] text-gray-500 dark:text-[#84918b]">Số hàng</Label>
+                  <Label className="text-[11px] text-gray-500 dark:text-[#a5abb2]">Số hàng</Label>
                   <Input
                     type="number"
                     min={1}
@@ -203,7 +215,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-[11px] text-gray-500 dark:text-[#84918b]">Số cột</Label>
+                  <Label className="text-[11px] text-gray-500 dark:text-[#a5abb2]">Số cột</Label>
                   <Input
                     type="number"
                     min={1}
@@ -216,7 +228,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
               </div>
 
               <div className="space-y-1">
-                <Label className="text-[11px] text-gray-500 dark:text-[#84918b]">Nhanh</Label>
+                <Label className="text-[11px] text-gray-500 dark:text-[#a5abb2]">Nhanh</Label>
                 <div className="flex gap-1">
                   {[
                     { r: 2, c: 2 },
@@ -241,7 +253,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
               <Button
                 type="button"
                 size="sm"
-                className="w-full h-8 text-xs font-semibold bg-[#36e2a0] text-gray-950 hover:bg-[#2fcb8f]"
+                className="w-full h-8 text-xs font-semibold bg-[#8eafc3] text-gray-950 hover:bg-[#a9c4d4]"
                 onClick={() => insertCustomTable(rows, cols)}
               >
                 Tạo bảng {rows} × {cols}
@@ -308,7 +320,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
         .rich-text-editor .ql-editor h2 { font-size: 1.5rem; }
         .rich-text-editor .ql-editor h3 { font-size: 1.25rem; }
         .rich-text-editor .ql-editor blockquote {
-          border-left: 4px solid #36e2a0;
+          border-left: 4px solid #8eafc3;
           padding-left: 1rem;
           color: #64748b;
           font-style: italic;
@@ -332,11 +344,11 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
 
         /* DARK MODE STYLES */
         html.dark .rich-text-editor .ql-toolbar {
-          background-color: #0c1511;
+          background-color: #181c20;
           border-color: rgba(255, 255, 255, 0.08);
         }
         html.dark .rich-text-editor .ql-container {
-          background-color: #070d0a;
+          background-color: #111418;
           color: #e2e8f0;
           border-color: rgba(255, 255, 255, 0.08);
         }
@@ -353,12 +365,12 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
           color: #f8fafc !important;
         }
         html.dark .rich-text-editor .ql-editor blockquote {
-          border-left-color: #36e2a0;
+          border-left-color: #8eafc3;
           color: #9ca3af !important;
         }
         html.dark .rich-text-editor .ql-editor code {
           background: rgba(255, 255, 255, 0.1);
-          color: #f472b6;
+          color: #b9cbd6;
         }
 
         /* Dark Toolbar Icons & Dropdowns */
@@ -383,15 +395,15 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
         }
         html.dark .rich-text-editor .ql-snow .ql-picker-item:hover,
         html.dark .rich-text-editor .ql-snow .ql-picker-item.ql-selected {
-          color: #36e2a0 !important;
+          color: #8eafc3 !important;
         }
         html.dark .rich-text-editor .ql-snow button:hover .ql-stroke,
         html.dark .rich-text-editor .ql-snow .ql-active .ql-stroke {
-          stroke: #36e2a0 !important;
+          stroke: #8eafc3 !important;
         }
         html.dark .rich-text-editor .ql-snow button:hover .ql-fill,
         html.dark .rich-text-editor .ql-snow .ql-active .ql-fill {
-          fill: #36e2a0 !important;
+          fill: #8eafc3 !important;
         }
 
         /* Tables inside Editor */

@@ -1,15 +1,15 @@
 "use client";
 
-import * as React from "react";
-import { useToast } from "@/hooks/use-toast";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+Dialog,
+DialogContent,
+DialogDescription,
+DialogFooter,
+DialogHeader,
+DialogTitle,
 } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import * as React from "react";
 
 const settingsDefaults = {
   portfolioName: "Engineering Lab",
@@ -183,12 +183,11 @@ export function SettingsTab({ activeTab = "general" }: { activeTab?: string }) {
         {activeTab === "navigation" && (
           <div className="settings-panel-view active">
             <div className="setting-panel-heading">
-              <div><h2>Điều hướng công khai</h2><p>Hiện hoặc ẩn đường dẫn Engineering Notes trên website.</p></div>
+              <div><h2>Điều hướng công khai</h2><p>Dự án và bài viết luôn có trong điều hướng của website.</p></div>
             </div>
             <div className="form-section-pro">
               <div className="setting-row-pro">
-                <div><strong>Engineering Notes</strong><span>Menu chỉ xuất hiện khi có ghi chú đã xuất bản.</span></div>
-                <label className="switch-pro"><input type="checkbox" checked={settings.navBlogEnabled} onChange={(event) => update("navBlogEnabled", event.target.checked)} /><span /></label>
+                <div><strong>Các đường dẫn hiện tại</strong><span><a href="/#projects">Dự án</a> · <a href="/notes">Bài viết</a></span></div>
               </div>
             </div>
           </div>

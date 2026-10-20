@@ -1,23 +1,26 @@
 "use client";
 
-import * as React from "react";
-import { ExternalLink, Menu, X, ChevronDown } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { LoginForm } from "@/components/admin/login-form";
-import { ProfileTab } from "@/components/admin/profile-tab";
-import { HomeSettingsTab } from "@/components/admin/home-settings-tab";
-import { ProjectsTab } from "@/components/admin/projects-tab";
-import { ExperiencesTab } from "@/components/admin/experiences-tab";
-import { PostsTab } from "@/components/admin/posts-tab";
-import { CommentsTab } from "@/components/admin/comments-tab";
-import { EducationTab } from "@/components/admin/education-tab";
-import { SettingsTab } from "@/components/admin/settings-tab";
-import { ActivityLogTab } from "@/components/admin/activity-log-tab";
-import { InboxTab } from "@/components/admin/inbox-tab";
+import { useToast } from "@/hooks/use-toast";
 import type { SiteProfile } from "@/lib/cv/site-data-server";
+import { ChevronDown,ExternalLink,Menu,X } from "lucide-react";
+import dynamic from "next/dynamic";
+import * as React from "react";
 
 import { useLocale } from "@/components/cv/locale-context";
 import "./admin.css";
+
+const loadingTab = () => <p role="status" className="text-muted-foreground">Đang tải…</p>;
+const ProfileTab = dynamic(() => import("./profile-tab").then((m) => m.ProfileTab), { loading: loadingTab });
+const HomeSettingsTab = dynamic(() => import("./home-settings-tab").then((m) => m.HomeSettingsTab), { loading: loadingTab });
+const ProjectsTab = dynamic(() => import("./projects-tab").then((m) => m.ProjectsTab), { loading: loadingTab });
+const ExperiencesTab = dynamic(() => import("./experiences-tab").then((m) => m.ExperiencesTab), { loading: loadingTab });
+const PostsTab = dynamic(() => import("./posts-tab").then((m) => m.PostsTab), { loading: loadingTab });
+const CommentsTab = dynamic(() => import("./comments-tab").then((m) => m.CommentsTab), { loading: loadingTab });
+const EducationTab = dynamic(() => import("./education-tab").then((m) => m.EducationTab), { loading: loadingTab });
+const SettingsTab = dynamic(() => import("./settings-tab").then((m) => m.SettingsTab), { loading: loadingTab });
+const ActivityLogTab = dynamic(() => import("./activity-log-tab").then((m) => m.ActivityLogTab), { loading: loadingTab });
+const InboxTab = dynamic(() => import("./inbox-tab").then((m) => m.InboxTab), { loading: loadingTab });
 
 type Stage = "checking" | "login" | "dashboard";
 
@@ -45,6 +48,25 @@ function Dashboard({
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [activeSettingsTab, setActiveSettingsTab] = React.useState("general");
+  const sidebarRef = React.useRef<HTMLElement>(null);
+  React.useEffect(() => {
+    if (!sidebarOpen) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const buttons = () => sidebarRef.current?.querySelectorAll<HTMLButtonElement>("button");
+    buttons()?.[0]?.focus();
+    const keydown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSidebarOpen(false);
+      if (event.key !== "Tab") return;
+      const list = buttons(); const first = list?.[0]; const last = list?.[list.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    };
+    const resize = () => { if (window.innerWidth > 900) setSidebarOpen(false); };
+    window.addEventListener("keydown", keydown); window.addEventListener("resize", resize);
+    return () => { document.body.style.overflow = previousOverflow; previousFocus?.focus(); window.removeEventListener("keydown", keydown); window.removeEventListener("resize", resize); };
+  }, [sidebarOpen]);
 
   // Close sidebar on mobile when tab changes
   React.useEffect(() => {
@@ -67,7 +89,7 @@ function Dashboard({
     { id: "activity" as TabId, icon: "◐", label: "Activity Log" },
   ];
 
-  
+
   const settingsSubItems = [
     { id: "general", label: "Tổng quan" },
     { id: "account", label: "Tài khoản & Bảo mật" },
@@ -87,19 +109,20 @@ function Dashboard({
         ====================================================== */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 z-40 bg-black/50 md:hidden"
+            className="fixed inset-0 z-40 bg-black/50 min-[901px]:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
-        <aside className={`admin-sidebar ${sidebarOpen ? "open" : ""}`}>
+        <aside ref={sidebarRef} id="admin-navigation" role={sidebarOpen ? "dialog" : undefined} aria-modal={sidebarOpen || undefined} aria-label="Điều hướng quản trị" className={`admin-sidebar ${sidebarOpen ? "open" : ""}`}>
           <div className="admin-brand">
             <div className="admin-brand-logo">&lt;/&gt;</div>
             <div className="admin-brand-text">
-              <strong>ENGINEERING LAB</strong>
+              <strong>Engineering Lab</strong>
               <span>CONTROL CENTER</span>
             </div>
             <button
-              className="md:hidden ml-auto text-muted-foreground p-1"
+              className="min-[901px]:hidden ml-auto text-muted-foreground p-2"
+              aria-label="Đóng menu quản trị"
               onClick={() => setSidebarOpen(false)}
             >
               <X className="size-4" />
@@ -133,7 +156,7 @@ function Dashboard({
               <span className="admin-nav-label">Cài đặt</span>
               <ChevronDown className={`size-4 transition-transform ${settingsOpen ? "rotate-180" : ""}`} />
             </button>
-            
+
             {settingsOpen && (
               <div className="admin-subnav">
                 {settingsSubItems.map((sub, index) => (
@@ -176,12 +199,15 @@ function Dashboard({
         {/* =====================================================
              MAIN
         ====================================================== */}
-        <main className="admin-main">
+        <main className="admin-main" inert={sidebarOpen || undefined}>
           {/* TOPBAR */}
           <header className="admin-topbar">
             <div className="admin-page-context">
               <button
-                className="md:hidden mr-2 text-muted-foreground"
+                className="min-[901px]:hidden mr-2 text-muted-foreground p-2"
+                aria-label="Mở menu quản trị"
+                aria-expanded={sidebarOpen}
+                aria-controls="admin-navigation"
                 onClick={() => setSidebarOpen(true)}
               >
                 <Menu className="size-4" />
@@ -212,8 +238,8 @@ function Dashboard({
               >
                 EN
               </button>
-              <button className="admin-top-button hidden sm:flex" onClick={onLogout}>
-                ⇥ Đăng xuất
+              <button className="admin-top-button" onClick={onLogout}>
+                Đăng xuất
               </button>
             </div>
           </header>
