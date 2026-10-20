@@ -1,22 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { postPayloadError, type PostInput } from "@/lib/cv/post-input";
 
-type PostInput = {
-  title?: string;
-  slug?: string;
-  excerpt?: string;
-  content?: string;
-  published?: boolean;
-  category?: string;
-  layout?: string;
-  createdAt?: string;
-  seoTitle?: string;
-  seoDescription?: string;
-  seoKeywords?: string;
-  coverImage?: string;
-  pdfUrl?: string;
-};
 
 function slugify(s: string): string {
   return s
@@ -69,6 +55,9 @@ export async function PUT(
   } catch {
     return NextResponse.json({ ok: false, message: "Body không hợp lệ." }, { status: 400 });
   }
+
+  const payloadError = postPayloadError(body);
+  if (payloadError) return NextResponse.json({ ok: false, message: payloadError }, { status: 422 });
 
   const existingPost = await db.post.findUnique({ where: { id } });
   if (!existingPost) {

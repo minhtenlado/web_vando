@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { getSiteData } from "@/lib/cv/site-data-server";
+import { postPayloadError, type PostInput } from "@/lib/cv/post-input";
 
 export async function GET(req: NextRequest) {
   const guard = await requireAuth();
@@ -16,22 +16,6 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ ok: true, posts });
 }
 
-type PostInput = {
-  title?: string;
-  slug?: string;
-  excerpt?: string;
-  content?: string;
-  published?: boolean;
-  locale?: string;
-  category?: string;
-  layout?: string;
-  createdAt?: string;
-  seoTitle?: string;
-  seoDescription?: string;
-  seoKeywords?: string;
-  coverImage?: string;
-  pdfUrl?: string;
-};
 
 function slugify(s: string): string {
   return s
@@ -81,6 +65,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, message: "Body không hợp lệ." }, { status: 400 });
   }
 
+  const payloadError = postPayloadError(body);
+  if (payloadError) return NextResponse.json({ ok: false, message: payloadError }, { status: 422 });
+
   const title = (body.title ?? "").trim();
   if (!title) {
     return NextResponse.json({ ok: false, message: "Tiêu đề là bắt buộc." }, { status: 422 });
@@ -103,7 +90,7 @@ export async function POST(req: NextRequest) {
   const created = await db.post.create({
     data: {
       locale,
-      title,
+      title: title.slice(0, 300),
       slug,
       excerpt: (body.excerpt ?? "").slice(0, 600),
       category: typeof body.category === "string" ? body.category.slice(0, 100) : "",
