@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { sanitizeHtml } from "@/lib/validation";
 import {
   Loader2,
@@ -28,6 +29,7 @@ import {
   ListCheck,
   Globe,
   Code2,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,6 +60,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import type { SiteProject } from "@/lib/cv/site-data-server";
+import { normalizeProjectUrl } from "@/lib/cv/project-input";
 
 export type ProjectResponsibilityItem = {
   title: string;
@@ -92,6 +95,10 @@ type ProjectForm = {
   visualsTitle: string;
   videoTitle: string;
   showVideoDemo: boolean;
+  published: boolean;
+  featured: boolean;
+  status: string;
+  order: number | "";
 };
 
 function toForm(p: SiteProject): ProjectForm {
@@ -128,6 +135,10 @@ function toForm(p: SiteProject): ProjectForm {
     visualsTitle: p.visualsTitle ?? "",
     videoTitle: p.videoTitle ?? "",
     showVideoDemo: p.showVideoDemo ?? true,
+    published: p.published !== false,
+    featured: p.featured === true,
+    status: p.status ?? "",
+    order: typeof p.order === "number" ? p.order : "",
   };
 }
 
@@ -153,6 +164,10 @@ const EMPTY: ProjectForm = {
   visualsTitle: "",
   videoTitle: "",
   showVideoDemo: true,
+  published: false,
+  featured: false,
+  status: "",
+  order: "",
 };
 
 function splitLines(s: string): string[] {
@@ -169,6 +184,19 @@ function splitCommaOrLines(s: string): string[] {
     .filter(Boolean);
 }
 
+function normalizeSearchText(value: string) {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase().trim();
+}
+
+function projectStatusLabel(status?: string) {
+  return ({
+    completed: "Hoàn thành",
+    "in-development": "Đang phát triển",
+    prototype: "Nguyên mẫu",
+    research: "Nghiên cứu",
+  } as Record<string, string>)[status ?? ""] ?? "";
+}
+
 export function ProjectsTab({ locale }: { locale: string }) {
   const { toast } = useToast();
   const [items, setItems] = React.useState<SiteProject[]>([]);
@@ -181,6 +209,8 @@ export function ProjectsTab({ locale }: { locale: string }) {
   const [deleting, setDeleting] = React.useState(false);
   const [uploadingImage, setUploadingImage] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState("basic");
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [publicationFilter, setPublicationFilter] = React.useState("all");
   const imageInputRef = React.useRef<HTMLInputElement>(null);
 
   async function fetchItems() {
@@ -248,6 +278,10 @@ export function ProjectsTab({ locale }: { locale: string }) {
       visualsTitle: form.visualsTitle.trim(),
       videoTitle: form.videoTitle.trim(),
       showVideoDemo: form.showVideoDemo,
+      published: form.published,
+      featured: form.featured,
+      status: form.status,
+      order: form.order === "" ? undefined : form.order,
       locale,
     };
     try {
@@ -261,7 +295,7 @@ export function ProjectsTab({ locale }: { locale: string }) {
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) throw new Error(data?.message || "Lưu thất bại.");
       toast({
-        title: editing ? "Đã cập nhật dự án" : "Đã tạo dự án",
+        title: !payload.published ? "Đã lưu bản nháp" : editing ? "Đã cập nhật dự án" : "Đã xuất bản dự án",
         description: payload.title,
       });
       setDialogOpen(false);
@@ -297,6 +331,14 @@ export function ProjectsTab({ locale }: { locale: string }) {
       setDeleting(false);
     }
   }
+
+  const filteredItems = items.filter((project) => {
+    const text = normalizeSearchText(`${project.title} ${project.category} ${(project.tech || []).join(" ")}`);
+    const query = normalizeSearchText(searchQuery);
+    const matchesQuery = !query || text.includes(query);
+    const matchesPublication = publicationFilter === "all" || (publicationFilter === "published" ? project.published !== false : project.published === false);
+    return matchesQuery && matchesPublication;
+  });
 
   return (
     <div className="space-y-4">
@@ -341,8 +383,34 @@ export function ProjectsTab({ locale }: { locale: string }) {
           </CardContent>
         </Card>
       ) : (
+        <>
+        <div className="flex flex-col gap-2 rounded-lg border bg-card p-3 sm:flex-row">
+          <div className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Tìm theo tên, danh mục hoặc công nghệ"
+              aria-label="Tìm dự án"
+              className="pl-9"
+            />
+          </div>
+          <select
+            value={publicationFilter}
+            onChange={(event) => setPublicationFilter(event.target.value)}
+            aria-label="Lọc trạng thái xuất bản"
+            className="h-10 rounded-md border border-input bg-background px-3 text-sm text-foreground"
+          >
+            <option value="all">Tất cả trạng thái</option>
+            <option value="published">Đã xuất bản</option>
+            <option value="draft">Bản nháp</option>
+          </select>
+        </div>
+        {filteredItems.length === 0 ? (
+          <Card className="border-dashed"><CardContent className="py-10 text-center text-sm text-muted-foreground">Không có dự án khớp bộ lọc.</CardContent></Card>
+        ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((p) => (
+          {filteredItems.map((p) => (
             <Card key={p.id} className="overflow-hidden flex flex-col justify-between border-border hover:border-primary/50 transition-colors">
               <div>
                 {/* Image Cover Preview */}
@@ -384,6 +452,11 @@ export function ProjectsTab({ locale }: { locale: string }) {
                   )}
 
                   <div className="flex flex-wrap gap-1 pt-1">
+                    <Badge variant={p.published === false ? "outline" : "secondary"} className="text-[10px]">
+                      {p.published === false ? "Bản nháp" : "Đã xuất bản"}
+                    </Badge>
+                    {p.featured && <Badge className="text-[10px]">Featured</Badge>}
+                    {p.status && projectStatusLabel(p.status) && <Badge variant="outline" className="text-[10px]">{projectStatusLabel(p.status)}</Badge>}
                     {p.category && <Badge variant="secondary" className="text-[10px]">{p.category}</Badge>}
                     {p.highlight && (
                       <Badge variant="default" className="text-[10px] bg-primary/20 text-primary border-primary/30">
@@ -404,6 +477,9 @@ export function ProjectsTab({ locale }: { locale: string }) {
                       className="line-clamp-2 text-muted-foreground"
                       dangerouslySetInnerHTML={{ __html: sanitizeHtml(p.description || "") }}
                     />
+                  )}
+                  {p.updatedAt && !Number.isNaN(Date.parse(p.updatedAt)) && (
+                    <p className="text-[10px] text-muted-foreground">Cập nhật {new Date(p.updatedAt).toLocaleDateString(locale === "en" ? "en-US" : "vi-VN")}</p>
                   )}
 
                   {/* Results preview */}
@@ -434,16 +510,16 @@ export function ProjectsTab({ locale }: { locale: string }) {
 
               <div className="p-4 pt-0 border-t mt-2 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1">
-                  {p.link && (
+                  {normalizeProjectUrl(p.link, { allowRelative: true }) && (
                     <Button asChild size="sm" variant="ghost" className="h-8 w-8 p-0" title="Link demo">
-                      <a href={p.link} target="_blank" rel="noreferrer">
+                      <a href={normalizeProjectUrl(p.link, { allowRelative: true })!} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="size-3.5" />
                       </a>
                     </Button>
                   )}
-                  {p.repo && (
+                  {normalizeProjectUrl(p.repo, { allowRelative: true }) && (
                     <Button asChild size="sm" variant="ghost" className="h-8 w-8 p-0" title="GitHub repo">
-                      <a href={p.repo} target="_blank" rel="noreferrer">
+                      <a href={normalizeProjectUrl(p.repo, { allowRelative: true })!} target="_blank" rel="noopener noreferrer">
                         <Github className="size-3.5" />
                       </a>
                     </Button>
@@ -451,6 +527,11 @@ export function ProjectsTab({ locale }: { locale: string }) {
                 </div>
 
                 <div className="flex items-center gap-1">
+                  <Button asChild size="sm" variant="ghost" className="h-8 text-xs">
+                    <Link href={`/admin/projects/${p.id}/preview`} target="_blank" rel="noreferrer" aria-label={`Xem trước ${p.title}`}>
+                      <ExternalLink className="size-3.5 mr-1" /> Xem trước
+                    </Link>
+                  </Button>
                   <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => openEdit(p)}>
                     <Pencil className="size-3.5 mr-1" /> Sửa
                   </Button>
@@ -467,6 +548,8 @@ export function ProjectsTab({ locale }: { locale: string }) {
             </Card>
           ))}
         </div>
+        )}
+        </>
       )}
 
       {/* Create / Edit Dialog with Tabs */}
@@ -641,6 +724,31 @@ export function ProjectsTab({ locale }: { locale: string }) {
 
                 {/* TAB 2: Case Study Meta */}
                 <TabsContent value="casestudy" className="space-y-4 m-0 outline-none">
+                  <div className="grid gap-4 rounded-lg border bg-muted/20 p-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="project-status">Trạng thái phát triển</Label>
+                      <select id="project-status" value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+                        <option value="">Chưa xác định</option>
+                        <option value="prototype">Prototype</option>
+                        <option value="in-development">In Development</option>
+                        <option value="completed">Completed</option>
+                        <option value="research">Research</option>
+                      </select>
+                    </div>
+                    <label className="flex min-h-10 items-center gap-2 text-sm">
+                      <input type="checkbox" checked={form.published} onChange={(event) => setForm({ ...form, published: event.target.checked })} className="size-4 accent-primary" />
+                      Xuất bản công khai
+                    </label>
+                    <label className="flex min-h-10 items-center gap-2 text-sm">
+                      <input type="checkbox" checked={form.featured} onChange={(event) => setForm({ ...form, featured: event.target.checked })} className="size-4 accent-primary" />
+                      Ghim ở trang chủ
+                    </label>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="project-order">Thứ tự hiển thị</Label>
+                      <Input id="project-order" type="number" min={0} step={1} value={form.order} onChange={(event) => setForm({ ...form, order: event.target.value === "" ? "" : Number(event.target.value) })} placeholder="Tự động" />
+                      <p className="text-[11px] text-muted-foreground">Số nhỏ hơn hiển thị trước; cũng dùng để sắp thứ tự Featured.</p>
+                    </div>
+                  </div>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                       <Label className="font-semibold text-xs text-foreground flex items-center gap-1.5">
@@ -906,7 +1014,7 @@ export function ProjectsTab({ locale }: { locale: string }) {
                                   return { ...f, results: copy };
                                 });
                               }}
-                              placeholder="e.g. 93.0% hoặc < 10ms"
+                              placeholder="Giá trị đã đo và xác thực"
                               className="text-xs h-8 font-semibold font-mono bg-background text-foreground"
                             />
                           </div>
@@ -923,7 +1031,7 @@ export function ProjectsTab({ locale }: { locale: string }) {
                                   return { ...f, results: copy };
                                 });
                               }}
-                              placeholder="e.g. Độ chính xác nhận diện biển số"
+                              placeholder="Tên phép đo hoặc kết quả"
                               className="text-xs h-8 bg-background text-foreground"
                             />
                           </div>
@@ -1058,7 +1166,7 @@ export function ProjectsTab({ locale }: { locale: string }) {
               </Button>
               <Button type="submit" size="sm" disabled={submitting}>
                 {submitting ? <Loader2 className="size-4 animate-spin mr-1" /> : <Plus className="size-4 mr-1" />}
-                {editing ? "Lưu thay đổi" : "Tạo dự án"}
+                {!form.published ? "Lưu bản nháp" : editing ? "Lưu và xuất bản" : "Tạo và xuất bản"}
               </Button>
             </DialogFooter>
           </form>
@@ -1071,7 +1179,7 @@ export function ProjectsTab({ locale }: { locale: string }) {
           <AlertDialogHeader>
             <AlertDialogTitle className="text-base font-bold text-foreground">Xóa dự án này?</AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-muted-foreground">
-              Hành động không thể hoàn tác. Dự án và các tệp đính kèm sẽ bị gỡ khỏi trang web.
+              Bản ghi dự án sẽ bị xóa. Tệp media giữ nguyên trong bộ lưu trữ và có thể cần được dọn riêng sau khi kiểm tra tham chiếu.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

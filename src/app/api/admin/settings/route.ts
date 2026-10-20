@@ -30,8 +30,14 @@ export async function POST(req: Request) {
   if (guard instanceof Response) return guard;
 
   try {
-    const body = await req.json();
-    const { settings } = body;
+    const body: unknown = await req.json();
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return NextResponse.json({ error: "Cấu hình không hợp lệ." }, { status: 400 });
+    }
+    const incoming = (body as { settings?: unknown }).settings;
+    if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) {
+      return NextResponse.json({ error: "Cấu hình không hợp lệ." }, { status: 400 });
+    }
 
     const profile = await db.profile.findFirst({
       where: { id: "profile-vi" },
@@ -44,9 +50,20 @@ export async function POST(req: Request) {
       );
     }
 
+    let existingSettings: Record<string, unknown> = {};
+    try {
+      const parsed: unknown = JSON.parse(profile.settings || "{}");
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        existingSettings = parsed as Record<string, unknown>;
+      }
+    } catch {
+      // Preserve valid incoming values even when legacy settings JSON is malformed.
+    }
+    const mergedSettings = { ...existingSettings, ...(incoming as Record<string, unknown>) };
+
     const updatedProfile = await db.profile.update({
       where: { id: profile.id },
-      data: { settings: JSON.stringify(settings) },
+      data: { settings: JSON.stringify(mergedSettings) },
     });
 
     await db.activityLog.create({

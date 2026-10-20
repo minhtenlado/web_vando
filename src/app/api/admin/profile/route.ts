@@ -30,6 +30,39 @@ type ProfileInput = {
   languages?: any[];
 };
 
+function parseJson(value: string | null | undefined, fallback: unknown = []) {
+  if (!value) return fallback;
+  try { return JSON.parse(value); } catch { return fallback; }
+}
+
+export async function GET(req: NextRequest) {
+  const guard = await requireAuth();
+  if (guard instanceof Response) return guard;
+
+  const locale = req.nextUrl.searchParams.get("locale") === "en" ? "en" : "vi";
+  try {
+    const row = await db.profile.findUnique({ where: { id: `profile-${locale}` } })
+      ?? await db.profile.findUnique({ where: { id: "profile" } });
+    if (!row) return NextResponse.json({ ok: false, message: "Không tìm thấy hồ sơ." }, { status: 404 });
+    const profile = {
+      id: row.id, locale: row.locale, name: row.name, role: row.role, tagline: row.tagline,
+      location: row.location, email: row.email, phone: row.phone, website: row.website,
+      github: row.github, linkedin: row.linkedin, summary: row.summary, avatar: row.avatar,
+      principles: parseJson(row.principles), stats: parseJson(row.stats), nowText: row.nowText,
+      skillGroups: parseJson(row.skillGroups), socials: parseJson(row.socials),
+      aboutSubtitle: row.aboutSubtitle, skillsSubtitle: row.skillsSubtitle,
+      experienceSubtitle: row.experienceSubtitle, animatedRoles: parseJson(row.animatedRoles),
+      techBadges: parseJson(row.techBadges), educations: parseJson(row.educations),
+      certifications: parseJson(row.certifications), languages: parseJson(row.languages),
+      settings: parseJson(row.settings, {}),
+    };
+    return NextResponse.json({ ok: true, profile });
+  } catch (error) {
+    console.error("[ADMIN_PROFILE_GET] Database error", error);
+    return NextResponse.json({ ok: false, message: "Không thể tải hồ sơ quản trị." }, { status: 500 });
+  }
+}
+
 export async function PUT(req: NextRequest) {
   const guard = await requireAuth();
   if (guard instanceof Response) return guard;
@@ -91,22 +124,6 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ ok: false, message: "Không có trường nào để cập nhật." }, { status: 422 });
   }
 
-  // Find existing profile to check if avatar changed
-  let existing = await db.profile.findUnique({ where: { id: profileId } });
-  if (!existing) {
-    existing = await db.profile.findUnique({ where: { id: "profile" } });
-  }
-  if (existing && existing.avatar && data.avatar && existing.avatar !== data.avatar) {
-    try {
-      if (existing.avatar.includes("cloudinary.com")) {
-        const { deleteFromCloudinary } = await import("@/lib/cloudinary");
-        await deleteFromCloudinary(existing.avatar);
-      }
-    } catch (error) {
-      console.error("Failed to delete old avatar:", error);
-    }
-  }
-
   let updated;
   try {
     updated = await db.profile.upsert({
@@ -114,27 +131,12 @@ export async function PUT(req: NextRequest) {
       update: data,
       create: { id: profileId, locale, ...data },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Profile upsert error:", error);
-    // If the error is about missing columns (educations, certifications, languages),
-    // we can attempt to add them automatically.
-    try {
-      await db.$executeRawUnsafe(`ALTER TABLE "Profile" ADD COLUMN IF NOT EXISTS "educations" TEXT NOT NULL DEFAULT '[]';`);
-      await db.$executeRawUnsafe(`ALTER TABLE "Profile" ADD COLUMN IF NOT EXISTS "certifications" TEXT NOT NULL DEFAULT '[]';`);
-      await db.$executeRawUnsafe(`ALTER TABLE "Profile" ADD COLUMN IF NOT EXISTS "languages" TEXT NOT NULL DEFAULT '[]';`);
-      
-      // Retry upsert
-      updated = await db.profile.upsert({
-        where: { id: profileId },
-        update: data,
-        create: { id: profileId, locale, ...data },
-      });
-    } catch (fallbackError: any) {
-      return NextResponse.json(
-        { ok: false, message: "Lỗi Prisma: " + (error.message || "Không xác định") },
-        { status: 500 }
-      );
-    }
+    return NextResponse.json(
+      { ok: false, message: "Không thể lưu hồ sơ. Kiểm tra schema cơ sở dữ liệu và thử lại." },
+      { status: 500 },
+    );
   }
 
   // Sync bilingual/shared arrays (principles, stats, skillGroups, techBadges, animatedRoles) to ALL profile rows

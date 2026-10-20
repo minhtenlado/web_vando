@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+import { validateUploadFile } from "@/lib/upload-validation";
 
-const ALLOWED = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
 export async function POST(req: NextRequest) {
@@ -21,12 +21,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, message: "Thiếu file ảnh." }, { status: 422 });
   }
 
-  const ext = (file.name.split(".").pop() || "png").toLowerCase().slice(0, 5);
-  const ALLOWED_EXTS = new Set(["png", "jpg", "jpeg", "webp", "gif"]);
-
-  if (!ALLOWED.has(file.type) && !ALLOWED_EXTS.has(ext)) {
+  if (!(await validateUploadFile(file, "image"))) {
     return NextResponse.json(
-      { ok: false, message: "Định dạng không hỗ trợ (chỉ PNG/JPEG/WebP/GIF/SVG)." },
+      { ok: false, message: "Định dạng ảnh không hợp lệ. Chỉ hỗ trợ PNG, JPEG, WebP và GIF." },
       { status: 422 }
     );
   }
@@ -45,7 +42,7 @@ export async function POST(req: NextRequest) {
   } catch (err: any) {
     console.error("Cloudinary upload error:", err);
     return NextResponse.json(
-      { ok: false, message: err?.message || "Lỗi khi upload ảnh lên Cloudinary." },
+      { ok: false, message: "Không thể tải ảnh lên bộ lưu trữ. Vui lòng thử lại." },
       { status: 500 }
     );
   }

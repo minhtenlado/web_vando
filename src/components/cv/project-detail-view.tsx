@@ -11,7 +11,6 @@ import {
   Share2,
   Check,
   Calendar,
-  User,
   Tag,
   Sparkles,
   Zap,
@@ -32,16 +31,14 @@ import {
   ArrowUpRight,
   Terminal,
 } from "lucide-react"
-import { PostThemeToggle } from "@/components/cv/post-theme-toggle"
 import { sanitizeHtml } from "@/lib/validation"
 import type { SiteProject } from "@/lib/cv/site-data-server"
+import { normalizeProjectUrl } from "@/lib/cv/project-input"
 import "./detail-polish.css"
 
 interface ProjectDetailViewProps {
   project: SiteProject
   relatedProjects: SiteProject[]
-  authorName?: string
-  authorAvatar?: string
 }
 
 function youtubeId(url: string | undefined | null): string | null {
@@ -58,6 +55,48 @@ function youtubeId(url: string | undefined | null): string | null {
   }
   if (/^[\w-]{11}$/.test(url.trim())) return url.trim()
   return null
+}
+
+function isSupportedProjectImage(src?: string | null): src is string {
+  if (!src) return false
+  if (src.startsWith("/") && !src.startsWith("//")) return true
+  try {
+    const url = new URL(src)
+    return url.protocol === "https:" && (
+      url.hostname === "res.cloudinary.com" ||
+      url.hostname.endsWith(".public.blob.vercel-storage.com")
+    )
+  } catch {
+    return false
+  }
+}
+
+function ProjectMediaImage({
+  src,
+  alt,
+  fallbackLabel,
+  sizes,
+  className = "object-contain",
+  priority = false,
+}: {
+  src: string;
+  alt: string;
+  fallbackLabel: string;
+  sizes: string;
+  className?: string;
+  priority?: boolean;
+}) {
+  const [failed, setFailed] = React.useState(false);
+  if (failed) {
+    return (
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#101a27] p-6 text-center" role="img" aria-label={`${alt}: image unavailable`}>
+        <Cpu className="size-12 text-[#66d9e8]" aria-hidden="true" />
+        <span className="font-semibold text-[#f1f5f9]">{fallbackLabel}</span>
+        <span className="font-mono text-[10px] uppercase tracking-widest text-[#a8b5c6]">Media unavailable</span>
+      </div>
+    );
+  }
+  return <Image fill sizes={sizes} src={src} alt={alt} className={className} priority={priority} onError={() => setFailed(true)} />;
 }
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -81,7 +120,6 @@ function resolveIcon(name?: string) {
 export function ProjectDetailView({
   project,
   relatedProjects,
-  authorName = "Phan Huỳnh Văn Đô",
 }: ProjectDetailViewProps) {
   const [copied, setCopied] = React.useState(false)
   const [scrollProgress, setScrollProgress] = React.useState(0)
@@ -91,7 +129,16 @@ export function ProjectDetailView({
   const lightboxOpen = Boolean(lightbox)
   const reduceMotion = useReducedMotion()
 
-  const activeYtId = project.youtubeUrl ? youtubeId(project.youtubeUrl) : null
+  const validYoutubeUrl = normalizeProjectUrl(project.youtubeUrl, { youtubeOnly: true })
+  const activeYtId = validYoutubeUrl ? youtubeId(validYoutubeUrl) : null
+  const repositoryUrl = normalizeProjectUrl(project.repo, { allowRelative: true })
+  const demoUrl = normalizeProjectUrl(project.link, { allowRelative: true })
+  const statusLabel: Record<string, string> = {
+    completed: "Completed",
+    "in-development": "In Development",
+    prototype: "Prototype",
+    research: "Research",
+  }
 
   // Reading progress and active TOC section scroll tracking
   React.useEffect(() => {
@@ -209,16 +256,16 @@ export function ProjectDetailView({
   }, [project])
 
   // Combine hero image and gallery for complete preview list
+  const galleryImages = React.useMemo(
+    () => (project.images ?? []).filter((image) => isSupportedProjectImage(image) && !image.toLowerCase().endsWith(".svg")),
+    [project.images],
+  )
   const allImages = React.useMemo(() => {
     const list: string[] = []
-    if (project.image && !project.image.endsWith(".svg")) list.push(project.image)
-    if (project.images && project.images.length > 0) {
-      project.images.forEach((img) => {
-        if (!list.includes(img)) list.push(img)
-      })
-    }
+    if (isSupportedProjectImage(project.image) && !project.image.toLowerCase().endsWith(".svg")) list.push(project.image)
+    galleryImages.forEach((image) => { if (!list.includes(image)) list.push(image) })
     return list
-  }, [project])
+  }, [project.image, galleryImages])
 
   return (
     <div className="portfolio-detail project-detail min-h-screen bg-background text-foreground selection:bg-primary/20 selection:text-primary">
@@ -240,7 +287,7 @@ export function ProjectDetailView({
               className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded-lg hover:bg-muted/60 shrink-0"
             >
               <ArrowLeft className="size-4" />
-              <span>Về Portfolio</span>
+              <span>All projects</span>
             </Link>
             <div className="h-4 w-px bg-border/60 shrink-0 hidden sm:block" />
             <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground truncate">
@@ -252,9 +299,9 @@ export function ProjectDetailView({
 
           {/* Quick Actions */}
           <div className="flex items-center gap-2 shrink-0">
-            {project.repo && (
+            {repositoryUrl && (
               <a
-                href={project.repo}
+                href={repositoryUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-border/60 hover:border-primary/50 hover:text-primary transition-all bg-card/60"
@@ -264,9 +311,9 @@ export function ProjectDetailView({
               </a>
             )}
 
-            {project.link && (
+            {demoUrl && (
               <a
-                href={project.link}
+                href={demoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-sm"
@@ -286,7 +333,6 @@ export function ProjectDetailView({
               {copied ? <Check className="size-4 text-primary" /> : <Share2 className="size-4" />}
             </button>
 
-            <PostThemeToggle />
           </div>
         </div>
       </header>
@@ -295,7 +341,7 @@ export function ProjectDetailView({
       <main className="project-main container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-16">
         {/* HERO SECTION */}
         <section className="project-hero space-y-6">
-          <p className="detail-eyebrow">Selected work / Case study</p>
+          <p className="detail-eyebrow">ENGINEERING LAB / PROJECT CASE STUDY</p>
           {/* Status & Category */}
           <div className="flex flex-wrap items-center gap-2.5">
             {project.category && (
@@ -308,6 +354,11 @@ export function ProjectDetailView({
               <span className="inline-flex items-center gap-1.5 text-xs font-mono px-3 py-1 rounded-full bg-muted/60 text-muted-foreground border border-border/40">
                 <Calendar className="size-3" />
                 {project.year}
+              </span>
+            )}
+            {project.status && statusLabel[project.status] && (
+              <span className="inline-flex items-center gap-1.5 text-xs font-mono px-3 py-1 rounded-full bg-muted/60 text-muted-foreground border border-border/40">
+                {statusLabel[project.status]}
               </span>
             )}
           </div>
@@ -325,53 +376,24 @@ export function ProjectDetailView({
           </div>
 
           {/* Meta Specs Grid */}
-          <div className="project-meta grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-            <div className="p-3.5 rounded-xl bg-card border border-border/60 space-y-1">
-              <div className="text-[11px] font-mono text-muted-foreground flex items-center gap-1.5">
-                <User className="size-3.5 text-primary" /> Vai trò
-              </div>
-              <div className="text-xs sm:text-sm font-semibold text-foreground truncate">
-                {project.role || "Embedded / AIoT Engineer"}
-              </div>
+          {(project.role || project.projectType || project.highlight) && (
+            <div className="project-meta grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+              {project.role && <div className="p-3.5 rounded-xl bg-card border border-border/60 space-y-1"><div className="text-[11px] font-mono text-muted-foreground flex items-center gap-1.5"><Cpu className="size-3.5 text-primary" /> Vai trò</div><div className="text-xs sm:text-sm font-semibold text-foreground">{project.role}</div></div>}
+              {project.projectType && <div className="p-3.5 rounded-xl bg-card border border-border/60 space-y-1"><div className="text-[11px] font-mono text-muted-foreground flex items-center gap-1.5"><Tag className="size-3.5 text-primary" /> Loại dự án</div><div className="text-xs sm:text-sm font-semibold text-foreground">{project.projectType}</div></div>}
+              {project.highlight && <div className="p-3.5 rounded-xl bg-card border border-border/60 space-y-1"><div className="text-[11px] font-mono text-muted-foreground flex items-center gap-1.5"><Sparkles className="size-3.5 text-primary" /> Trọng tâm kỹ thuật</div><div className="text-xs sm:text-sm font-semibold text-foreground">{project.highlight}</div></div>}
             </div>
-
-            <div className="p-3.5 rounded-xl bg-card border border-border/60 space-y-1">
-              <div className="text-[11px] font-mono text-muted-foreground flex items-center gap-1.5">
-                <Tag className="size-3.5 text-primary" /> Loại dự án
-              </div>
-              <div className="text-xs sm:text-sm font-semibold text-foreground truncate">
-                {project.projectType || project.category || "Research & Development"}
-              </div>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-card border border-border/60 space-y-1">
-              <div className="text-[11px] font-mono text-muted-foreground flex items-center gap-1.5">
-                <Sparkles className="size-3.5 text-primary" /> Trọng tâm
-              </div>
-              <div className="text-xs sm:text-sm font-semibold text-foreground truncate">
-                {project.highlight || "Hardware & Firmware Co-Design"}
-              </div>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-card border border-border/60 space-y-1">
-              <div className="text-[11px] font-mono text-muted-foreground flex items-center gap-1.5">
-                <Cpu className="size-3.5 text-primary" /> Tác giả
-              </div>
-              <div className="text-xs sm:text-sm font-semibold text-foreground truncate">
-                {authorName}
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Main Hero Showcase Media */}
-          {project.image && !project.image.endsWith(".svg") ? (
+          {isSupportedProjectImage(project.image) && !project.image.toLowerCase().endsWith(".svg") ? (
             <div className="project-showcase relative w-full aspect-[16/9] sm:aspect-[21/9] overflow-hidden bg-muted/20 group">
-              <Image
-                fill
-                preload
-                sizes="(max-width: 1280px) 100vw, 1280px"
+              <ProjectMediaImage
+                key={project.image}
                 src={project.image}
                 alt={project.title}
+                fallbackLabel={project.title}
+                sizes="(max-width: 1280px) 100vw, 1280px"
+                priority
                 className="object-contain transition-transform duration-500 group-hover:scale-[1.01]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
@@ -382,6 +404,7 @@ export function ProjectDetailView({
                 </span>
                 <button
                   onClick={() => setLightbox({ list: allImages, index: 0 })}
+                  aria-label={`Phóng to ảnh ${project.title}`}
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-black/70 backdrop-blur-md border border-white/20 hover:bg-white hover:text-black transition-all"
                 >
                   <Maximize2 className="size-3" />
@@ -470,7 +493,7 @@ export function ProjectDetailView({
             )}
 
             {/* SECTION 03: VISUALS & GALLERY */}
-            {project.images && project.images.length > 0 && (
+            {galleryImages.length > 0 && (
               <section id="gallery" className="scroll-mt-24 space-y-5">
                 <div className="flex items-center gap-2.5 border-b border-border/60 pb-3.5">
                   <span className="text-xs font-mono font-bold text-primary tracking-widest uppercase">
@@ -482,23 +505,25 @@ export function ProjectDetailView({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {project.images.map((img, imgIdx) => (
+                  {galleryImages.map((img, imgIdx) => (
                     <button
                       key={imgIdx}
-                      onClick={() => setLightbox({ list: project.images!, index: imgIdx })}
+                      onClick={() => setLightbox({ list: galleryImages, index: imgIdx })}
+                      aria-label={`Xem ảnh ${imgIdx + 1} của ${project.title}`}
                       className="group/img relative aspect-[16/10] rounded-2xl overflow-hidden border border-border/60 bg-muted/20 hover:border-primary/50 transition-all shadow-md text-left"
                     >
-                      <Image
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 420px"
+                      <ProjectMediaImage
+                        key={img}
                         src={img}
                         alt={`${project.title} - Hình ảnh ${imgIdx + 1}`}
+                        fallbackLabel={project.title}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 420px"
                         className="object-contain transition-transform duration-500 group-hover/img:scale-105"
                       />
                       <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/30 transition-colors" />
                       <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[11px] font-mono text-white/90">
                         <span className="px-2.5 py-1 rounded bg-black/70 backdrop-blur-md border border-white/10">
-                          Ảnh {imgIdx + 1} / {project.images!.length}
+                          Ảnh {imgIdx + 1} / {galleryImages.length}
                         </span>
                         <span className="opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center gap-1 bg-primary text-primary-foreground px-2 py-0.5 rounded font-sans font-medium text-[10px]">
                           <Maximize2 className="size-3" /> Xem ảnh lớn
@@ -580,7 +605,7 @@ export function ProjectDetailView({
                     ...(responsibilitiesList.length > 0
                       ? [{ id: "features", label: "02. Tính năng kỹ thuật" }]
                       : []),
-                    ...(project.images && project.images.length > 0
+                    ...(galleryImages.length > 0
                       ? [{ id: "gallery", label: "03. Sơ đồ kiến trúc" }]
                       : []),
                     ...(project.showVideoDemo !== false && activeYtId ? [{ id: "demo", label: "04. Video Demo" }] : []),
@@ -634,14 +659,7 @@ export function ProjectDetailView({
                   Thông tin dự án
                 </h3>
                 <div className="space-y-2.5 text-muted-foreground">
-                  <div className="flex justify-between border-b border-border/40 pb-2">
-                    <span>Tác giả</span>
-                    <span className="font-semibold text-foreground">{authorName}</span>
-                  </div>
-                  <div className="flex justify-between border-b border-border/40 pb-2">
-                    <span>Danh mục</span>
-                    <span className="font-semibold text-foreground">{project.category}</span>
-                  </div>
+                  {project.category && <div className="flex justify-between border-b border-border/40 pb-2"><span>Danh mục</span><span className="font-semibold text-foreground">{project.category}</span></div>}
                   <div className="flex justify-between border-b border-border/40 pb-2">
                     <span>Thời gian</span>
                     <span className="font-semibold text-foreground">{project.year || "—"}</span>
@@ -650,9 +668,9 @@ export function ProjectDetailView({
 
                 {/* External Action Links */}
                 <div className="pt-2 flex flex-col gap-2">
-                  {project.repo && (
+                  {repositoryUrl && (
                     <a
-                      href={project.repo}
+                      href={repositoryUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-border/60 hover:border-primary hover:text-primary transition-all text-xs font-semibold bg-card"
@@ -661,9 +679,9 @@ export function ProjectDetailView({
                       <span>Xem mã nguồn trên GitHub</span>
                     </a>
                   )}
-                  {project.link && (
+                  {demoUrl && (
                     <a
-                      href={project.link}
+                      href={demoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all text-xs font-semibold shadow-sm"
@@ -675,22 +693,6 @@ export function ProjectDetailView({
                 </div>
               </div>
 
-              {/* Contact Author CTA Card */}
-              <div className="project-contact p-5 rounded-2xl border border-primary/20 space-y-3">
-                <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
-                  <Sparkles className="size-4 text-primary" />
-                  Hợp tác & Trao đổi
-                </h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Bạn quan tâm đến kiến trúc kỹ thuật hoặc muốn trao đổi sâu hơn về giải pháp này?
-                </p>
-                <Link
-                  href="/#contact"
-                  className="inline-flex items-center justify-center w-full py-2 rounded-xl bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 text-xs font-semibold transition-colors"
-                >
-                  Liên hệ với tác giả
-                </Link>
-              </div>
             </div>
           </aside>
         </div>
@@ -723,13 +725,14 @@ export function ProjectDetailView({
                   href={`/projects/${rp.id}`}
                   className="group block rounded-2xl overflow-hidden border border-border/60 bg-card hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-primary/5 p-4 space-y-3"
                 >
-                  {rp.image && (
+                  {isSupportedProjectImage(rp.image) && !rp.image.toLowerCase().endsWith(".svg") && (
                     <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-muted/20 border border-border/40">
-                      <Image
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
+                      <ProjectMediaImage
+                        key={rp.image}
                         src={rp.image}
                         alt={rp.title}
+                        fallbackLabel={rp.title}
+                        sizes="(max-width: 768px) 100vw, 33vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
@@ -760,7 +763,7 @@ export function ProjectDetailView({
       <footer className="detail-footer border-t border-border/40 py-8 text-xs text-muted-foreground">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="font-mono">
-            © {new Date().getFullYear()} {authorName} · All Rights Reserved
+            © {new Date().getFullYear()} Engineering Lab
           </p>
           <div className="flex items-center gap-4">
             <button
@@ -810,12 +813,12 @@ export function ProjectDetailView({
               </button>
 
               <div className="relative w-full h-full p-4 flex items-center justify-center group/lb">
-                <Image
-                  fill
-                  sizes="100vw"
-                  key={lightbox.index}
+                <ProjectMediaImage
+                  key={lightbox.list[lightbox.index]}
                   src={lightbox.list[lightbox.index]}
-                  alt="Gallery full size preview"
+                  alt={`${project.title} gallery preview`}
+                  fallbackLabel={project.title}
+                  sizes="100vw"
                   className="object-contain rounded-xl shadow-2xl"
                 />
 

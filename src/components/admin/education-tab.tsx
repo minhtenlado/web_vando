@@ -256,7 +256,6 @@ export function EducationTab({ initial, locale }: { initial?: SiteProfile | null
                 <div className="flex items-center gap-3">
                   {edu.logo ? (
                     <div className="relative size-12 rounded-lg border bg-background p-1 flex items-center justify-center shrink-0 overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={edu.logo} alt="Logo preview" className="max-h-full max-w-full object-contain" />
                       <button
                         type="button"

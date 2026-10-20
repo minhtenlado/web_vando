@@ -320,7 +320,7 @@ export function ExperiencesTab({ locale }: { locale: string }) {
                         className={
                           "shrink-0 h-2 w-2 rounded-full " +
                           (isFirst
-                            ? "bg-primary shadow-[0_0_8px_rgba(0,230,167,0.55)]"
+                            ? "bg-primary shadow-[0_0_8px_rgba(102,217,232,0.55)]"
                             : "bg-muted-foreground/30")
                         }
                       />
@@ -575,7 +575,6 @@ export function ExperiencesTab({ locale }: { locale: string }) {
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
                     {form.images.map((img, i) => (
                       <div key={i} className="group relative aspect-video rounded-lg overflow-hidden border border-border bg-muted/30">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={img} alt={`Gallery ${i}`} className="h-full w-full object-cover" />
                         <button
                           type="button"

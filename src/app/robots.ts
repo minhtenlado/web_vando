@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/admin/', '/api/'], // Protect admin and API routes from being indexed
+      disallow: ['/admin', '/api'],
     },
     sitemap: 'https://phanhuynh.id.vn/sitemap.xml',
   }

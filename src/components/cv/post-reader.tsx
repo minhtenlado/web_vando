@@ -31,14 +31,15 @@ export function PostReader({
   contentHtml, 
   coverImage,
   pdfUrl, 
-  authorName = "Phan Huỳnh Văn Đô", 
-  authorRole = "Embedded Software & AIoT Engineer", 
+  authorName = "Engineering Lab",
+  authorRole = "Technical publication",
   category, 
   excerpt, 
   views = 0, 
   likes = 0, 
   children 
 }: PostReaderProps) {
+  const [coverFailed, setCoverFailed] = React.useState(false)
   const [fontSize, setFontSize] = React.useState(18)
   const [searchOpen, setSearchOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState("")
@@ -185,7 +186,8 @@ export function PostReader({
 
     const highlightBlocks = () => {
       if ((window as any).hljs) {
-        document.querySelectorAll('.ql-editor-display pre, .code-block-wrapper pre').forEach((block) => {
+        document.querySelectorAll('.ql-editor-display pre code, .code-block-wrapper pre code').forEach((block) => {
+          if ((block as HTMLElement).dataset.highlighted === "yes") return;
           (window as any).hljs.highlightElement(block);
         });
       }
@@ -323,13 +325,24 @@ export function PostReader({
 
         {/* Optional Cover Image */}
         {coverImage && coverImage.trim() !== "" && (
-          <div className="mt-8 mb-6 rounded-2xl overflow-hidden border border-border/30 shadow-xl max-h-[500px] relative group bg-muted">
-            <img 
-              src={coverImage} 
-              alt={title} 
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 pointer-events-none" />
+          <div className="mt-8 mb-6 rounded-2xl overflow-hidden border border-border/30 shadow-xl relative group bg-muted aspect-[16/9] max-h-[500px]">
+            {coverFailed ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#101a27] p-6 text-center" role="img" aria-label={`${title}: cover image unavailable`}>
+                <Sparkles className="size-10 text-[#66d9e8]" aria-hidden="true" />
+                <span className="font-semibold text-[#f1f5f9]">{title}</span>
+                <span className="font-mono text-[10px] uppercase tracking-widest text-[#a8b5c6]">Cover image unavailable</span>
+              </div>
+            ) : (
+              <>
+                <img
+                  src={coverImage}
+                  alt={title}
+                  onError={() => setCoverFailed(true)}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 pointer-events-none" />
+              </>
+            )}
           </div>
         )}
 

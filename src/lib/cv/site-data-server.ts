@@ -34,6 +34,11 @@ export type SiteProfile = {
 
 export type SiteProject = Project & {
   id: string
+  order?: number
+  updatedAt?: string
+  published?: boolean
+  featured?: boolean
+  status?: string
   subtitle?: string
   overviewQuote?: string
   year?: string
@@ -125,7 +130,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
 
   try {
     const [pRows, eRows] = await Promise.all([
-      db.project.findMany({ where: { locale: loc }, orderBy: { order: "asc" } }),
+      db.project.findMany({ where: { locale: loc, published: true }, orderBy: { order: "asc" } }),
       db.experience.findMany({ where: { locale: loc }, orderBy: { order: "asc" } }),
     ])
 
@@ -142,14 +147,11 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
     const primary = (loc === "en" ? pRowEn : pRowVi) || pRowVi || pRowEn || pRowLegacy
     const secondary = (loc === "en" ? pRowVi : pRowEn) || pRowLegacy
 
-    if (primary && (primary as any).settings) {
+    // Website-wide settings are managed in one place and therefore shared by both locales.
+    const settingsSource = pRowVi || primary || secondary
+    if (settingsSource && (settingsSource as any).settings) {
       try {
-        const dbSettings = JSON.parse((primary as any).settings)
-        settings = getPublicSettings(dbSettings)
-      } catch (e) {}
-    } else if (secondary && (secondary as any).settings) {
-      try {
-        const dbSettings = JSON.parse((secondary as any).settings)
+        const dbSettings = JSON.parse((settingsSource as any).settings)
         settings = getPublicSettings(dbSettings)
       } catch (e) {}
     }
@@ -219,18 +221,18 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         certifications: certsArr,
         languages: getArrayVal("languages"),
         available: true,
-        settings: getPublicSettings(safeParseJsonObj(getVal("settings"))),
+        settings,
       } as SiteProfile
     }
 
-    let finalProjects = pRows
-    if (finalProjects.length === 0) {
-      finalProjects = await db.project.findMany({ orderBy: { order: "asc" } })
-    }
-
-    if (finalProjects.length) {
-      projects = finalProjects.map((p) => ({
+    if (pRows.length) {
+      projects = pRows.map((p) => ({
         id: p.id,
+        order: p.order,
+        updatedAt: p.updatedAt.toISOString(),
+        published: p.published,
+        featured: p.featured,
+        status: p.status,
         title: p.title,
         subtitle: (p as any).subtitle ?? "",
         overviewQuote: (p as any).overviewQuote ?? "",
@@ -294,7 +296,7 @@ export async function getSiteData(locale: string = "vi"): Promise<SiteData> {
         seoTitle: po.seoTitle,
         seoDescription: po.seoDescription,
         seoKeywords: po.seoKeywords,
-        coverImage: (po.coverImage && po.coverImage.trim() !== "") ? po.coverImage : profile.avatar,
+        coverImage: (po.coverImage && po.coverImage.trim() !== "") ? po.coverImage : undefined,
         pdfUrl: po.pdfUrl,
         layout: po.layout,
       }))
@@ -370,17 +372,27 @@ function safeParseResults(s: string | undefined | null): { number: string; label
   }
 }
 
-export async function getProjectById(id: string): Promise<SiteProject | null> {
+export async function getProjectById(
+  id: string,
+  options: { includeUnpublished?: boolean } = {},
+): Promise<SiteProject | null> {
   if (!isDatabaseConfigured()) {
-    return getSnapshot("vi").projects.find((p) => p.id === id)
-      ?? getSnapshot("en").projects.find((p) => p.id === id)
+    return getSnapshot("vi").projects.find((p) => p.id === id && p.published !== false)
+      ?? getSnapshot("en").projects.find((p) => p.id === id && p.published !== false)
       ?? null
   }
   try {
-    const p = await db.project.findUnique({ where: { id } })
+    const p = await db.project.findFirst({
+      where: { id, ...(options.includeUnpublished ? {} : { published: true }) },
+    })
     if (p) {
       return {
         id: p.id,
+        order: p.order,
+        updatedAt: p.updatedAt.toISOString(),
+        published: p.published,
+        featured: p.featured,
+        status: p.status,
         title: p.title,
         subtitle: (p as any).subtitle ?? "",
         overviewQuote: (p as any).overviewQuote ?? "",
@@ -454,6 +466,12 @@ function isDatabaseConfigured(): boolean {
 
 function getSnapshot(locale: "vi" | "en"): SiteData {
   const data = structuredClone(publicSnapshot[locale]) as unknown as SiteData
+  data.projects = data.projects.map((project) => ({
+    ...project,
+    published: true,
+    featured: false,
+    status: "",
+  }))
   data.posts = data.posts.filter((post) => post.published)
   data.settings = getPublicSettings(data.settings)
   data.profile.settings = getPublicSettings(data.profile.settings)

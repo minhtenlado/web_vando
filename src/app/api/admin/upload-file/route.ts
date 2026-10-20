@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth";
 import { put } from "@vercel/blob";
 import crypto from "crypto";
+import { validateUploadFile } from "@/lib/upload-validation";
 
-const ALLOWED = new Set(["application/pdf", "application/zip", "application/x-zip-compressed"]);
 const MAX_SIZE = 50 * 1024 * 1024; // 50MB for files
 
 export async function POST(req: NextRequest) {
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, message: "Thiếu file." }, { status: 422 });
   }
 
-  if (!ALLOWED.has(file.type)) {
+  if (!(await validateUploadFile(file, "document"))) {
     return NextResponse.json(
       { ok: false, message: "Định dạng không hỗ trợ (chỉ PDF/ZIP)." },
       { status: 422 }
@@ -35,13 +35,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const ext = (file.name.split(".").pop() || "pdf").toLowerCase().slice(0, 5);
+  const ext = (file.name.split(".").pop() || "pdf").toLowerCase();
   const name = `file_${Date.now()}_${crypto.randomBytes(3).toString("hex")}.${ext}`;
 
-  const blob = await put(name, file, {
-    access: "public",
-    addRandomSuffix: false,
-  });
-
-  return NextResponse.json({ ok: true, url: blob.url });
+  try {
+    const blob = await put(name, file, {
+      access: "public",
+      addRandomSuffix: false,
+    });
+    return NextResponse.json({ ok: true, url: blob.url });
+  } catch (error) {
+    console.error("[ADMIN_FILE_UPLOAD] Storage upload failed", error);
+    return NextResponse.json({ ok: false, message: "Không thể tải file lên bộ lưu trữ. Vui lòng thử lại." }, { status: 500 });
+  }
 }

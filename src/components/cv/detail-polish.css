@@ -1,33 +1,33 @@
 .portfolio-detail {
-  --detail-ink: #183f36;
-  --detail-muted: #66756b;
-  --detail-paper: #f7f8f2;
-  --detail-card: #fffef9;
-  --detail-line: #dce1d7;
-  --detail-accent: #d4ee95;
+  --detail-ink: #f1f5f9;
+  --detail-muted: #a8b5c6;
+  --detail-paper: #0b111a;
+  --detail-card: #172433;
+  --detail-line: #293b4f;
+  --detail-accent: #66d9e8;
   --background: var(--detail-paper);
   --foreground: var(--detail-ink);
   --card: var(--detail-card);
   --card-foreground: var(--detail-ink);
-  --muted: #edf0e7;
+  --muted: #101a27;
   --muted-foreground: var(--detail-muted);
-  --primary: var(--detail-ink);
-  --primary-foreground: #fffef9;
+  --primary: #66d9e8;
+  --primary-foreground: #07151b;
   --border: var(--detail-line);
   color: var(--detail-ink);
   background: var(--detail-paper);
-  font-family: var(--font-manrope), var(--font-albert-sans), Arial, sans-serif;
+  font-family: var(--font-geist-sans), Arial, sans-serif;
 }
 
 .dark .portfolio-detail {
-  --detail-ink: #e8f0e0;
-  --detail-muted: #a4b5a7;
-  --detail-paper: #10271f;
-  --detail-card: #17352b;
-  --detail-line: #345144;
-  --muted: #1d3d31;
-  --primary: #d4ee95;
-  --primary-foreground: #183f36;
+  --detail-ink: #f1f5f9;
+  --detail-muted: #a8b5c6;
+  --detail-paper: #0b111a;
+  --detail-card: #172433;
+  --detail-line: #293b4f;
+  --muted: #101a27;
+  --primary: #66d9e8;
+  --primary-foreground: #07151b;
 }
 
 .portfolio-detail :is(a, button, textarea, input):focus-visible {
@@ -40,7 +40,7 @@
 }
 
 .detail-progress {
-  background: #8ab84b;
+  background: #66d9e8;
 }
 
 .detail-topbar {
@@ -137,7 +137,7 @@
 .project-showcase {
   margin-top: 32px;
   border-radius: 24px;
-  background: #e8eddd;
+  background: #101a27;
 }
 
 .project-body {
@@ -189,24 +189,24 @@
 
 .project-sidebar .project-contact {
   background: var(--detail-accent);
-  color: #183f36;
+  color: #07151b;
   border-color: transparent;
 }
 
 .project-contact :is(h4, p, svg, a) {
-  color: #183f36;
+  color: #07151b;
 }
 
 .project-contact a {
-  background: #183f36;
-  color: #fffef9;
+  background: #172433;
+  color: #f1f5f9;
   border: 0;
   padding: 13px 16px;
   border-radius: 999px;
 }
 
 .project-contact a:hover {
-  background: #27594a;
+  background: #223548;
 }
 
 .project-related > .grid > a {

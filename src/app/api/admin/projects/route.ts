@@ -1,17 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { getSiteData } from "@/lib/cv/site-data-server";
+import {
+  normalizeProjectImage,
+  normalizeProjectResults,
+  normalizeProjectUrl,
+  normalizeResponsibilities,
+  normalizeStringList,
+} from "@/lib/cv/project-input";
 
-// Public list (also used by admin) — returns projects by locale.
 export async function GET(req: NextRequest) {
   const guard = await requireAuth();
   if (guard instanceof Response) return guard;
 
   const locale = req.nextUrl.searchParams.get("locale") ?? "vi";
+  if (!process.env.DATABASE_URL?.trim()) {
+    return NextResponse.json({ ok: false, message: "Database is not configured." }, { status: 503 });
+  }
   try {
-    const data = await getSiteData(locale);
-    return NextResponse.json({ ok: true, projects: data.projects });
+    const rows = await db.project.findMany({
+      where: { locale: locale === "en" ? "en" : "vi" },
+      orderBy: { order: "asc" },
+    });
+    const parseArray = (value: string | null | undefined) => {
+      try {
+        const result = JSON.parse(value || "[]");
+        return Array.isArray(result) ? result : [];
+      } catch {
+        return [];
+      }
+    };
+    const projects = rows.map((project) => ({
+      ...project,
+      responsibilities: parseArray(project.responsibilities),
+      results: parseArray(project.results),
+      features: parseArray(project.features),
+      tech: parseArray(project.tech),
+      images: parseArray(project.images),
+    }));
+    return NextResponse.json({ ok: true, projects });
   } catch (error) {
     console.error("[PROJECTS_GET]", error);
     return NextResponse.json({ ok: false, message: "Lỗi máy chủ nội bộ." }, { status: 500 });
@@ -42,6 +69,9 @@ type ProjectInput = {
   visualsTitle?: string;
   videoTitle?: string;
   showVideoDemo?: boolean;
+  published?: boolean;
+  featured?: boolean;
+  status?: string;
 };
 
 export async function POST(req: NextRequest) {
@@ -58,6 +88,22 @@ export async function POST(req: NextRequest) {
   if (!body.title || !body.title.trim()) {
     return NextResponse.json({ ok: false, message: "Tiêu đề dự án là bắt buộc." }, { status: 422 });
   }
+  if (body.order !== undefined && (!Number.isInteger(body.order) || (body.order as number) < 0)) {
+    return NextResponse.json({ ok: false, message: "Thứ tự hiển thị phải là số nguyên không âm." }, { status: 422 });
+  }
+  if (body.status !== undefined && body.status !== "" && !["completed", "in-development", "prototype", "research"].includes(body.status)) {
+    return NextResponse.json({ ok: false, message: "Trạng thái dự án không hợp lệ." }, { status: 422 });
+  }
+
+  const image = normalizeProjectImage(body.image);
+  const images = Array.isArray(body.images) ? body.images.map(normalizeProjectImage).filter(Boolean) : [];
+  const youtubeUrl = normalizeProjectUrl(body.youtubeUrl, { youtubeOnly: true });
+  const link = normalizeProjectUrl(body.link, { allowRelative: true });
+  const repo = normalizeProjectUrl(body.repo, { allowRelative: true });
+  if ((body.image?.trim() && !image) || (Array.isArray(body.images) && body.images.some((item) => typeof item === "string" && item.trim() && !normalizeProjectImage(item))) ||
+      (body.youtubeUrl?.trim() && !youtubeUrl) || (body.link?.trim() && !link) || (body.repo?.trim() && !repo)) {
+    return NextResponse.json({ ok: false, message: "URL ảnh hoặc tài nguyên không hợp lệ." }, { status: 422 });
+  }
 
   const locale = body.locale === "en" ? "en" : "vi";
   const count = await db.project.count({ where: { locale } });
@@ -73,20 +119,23 @@ export async function POST(req: NextRequest) {
         role: (body.role ?? "").slice(0, 200),
         highlight: (body.highlight ?? "").slice(0, 200),
         projectType: (body.projectType ?? "").slice(0, 200),
-        responsibilities: JSON.stringify(Array.isArray(body.responsibilities) ? body.responsibilities : []),
-        results: JSON.stringify(Array.isArray(body.results) ? body.results : []),
+        responsibilities: JSON.stringify(normalizeResponsibilities(body.responsibilities)),
+        results: JSON.stringify(normalizeProjectResults(body.results)),
         category: (body.category ?? "").slice(0, 200),
         description: (body.description ?? "").slice(0, 5000000),
-        features: JSON.stringify(Array.isArray(body.features) ? body.features : []),
-        tech: JSON.stringify(Array.isArray(body.tech) ? body.tech : []),
-        image: (body.image ?? "").slice(0, 500),
-        images: JSON.stringify(Array.isArray(body.images) ? body.images : []),
+        features: JSON.stringify(normalizeStringList(body.features)),
+        tech: JSON.stringify(normalizeStringList(body.tech, 100, 120)),
+        image,
+        images: JSON.stringify(images),
         visualsTitle: (body.visualsTitle ?? "").slice(0, 200),
         videoTitle: (body.videoTitle ?? "").slice(0, 200),
         showVideoDemo: typeof body.showVideoDemo === "boolean" ? body.showVideoDemo : true,
-        youtubeUrl: normUrl(body.youtubeUrl),
-        link: normUrl(body.link),
-        repo: normUrl(body.repo),
+        published: typeof body.published === "boolean" ? body.published : false,
+        featured: typeof body.featured === "boolean" ? body.featured : false,
+        status: normalizeStatus(body.status),
+        youtubeUrl,
+        link,
+        repo,
         order: typeof body.order === "number" ? body.order : count,
       },
     });
@@ -97,14 +146,8 @@ export async function POST(req: NextRequest) {
   }
 }
 
-function normUrl(v: unknown): string | null {
-  if (typeof v !== "string") return null;
-  let s = v.trim();
-  if (!s) return null;
-  if (/^[\w-]{11}$/.test(s)) return s; // bare YouTube ID
-  if (/^(javascript|data|vbscript):/i.test(s)) return null;
-  if (!s.startsWith("http://") && !s.startsWith("https://") && !s.startsWith("/") && !s.startsWith("#")) {
-    s = "https://" + s;
-  }
-  return s.slice(0, 500);
+function normalizeStatus(value: unknown): string {
+  return typeof value === "string" && ["completed", "in-development", "prototype", "research"].includes(value)
+    ? value
+    : "";
 }

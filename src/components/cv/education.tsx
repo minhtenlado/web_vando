@@ -67,7 +67,6 @@ export function Education() {
 
                         {edu.logo && (
                           <div className="relative shrink-0 h-14 min-w-[70px] max-w-[160px] sm:h-20 sm:min-w-[100px] sm:max-w-[240px] rounded-sm border border-border bg-background p-2 sm:p-2.5 flex items-center justify-center overflow-hidden self-start">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={edu.logo}
                               alt={getLocalized(edu.school, locale)}

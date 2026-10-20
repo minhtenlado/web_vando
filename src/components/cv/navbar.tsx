@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
-import { Moon, Sun, Menu, ArrowUpRight, Search } from "lucide-react";
+import { Menu, ArrowUpRight, Search, Github } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -14,43 +13,28 @@ import {
 } from "@/components/ui/sheet";
 import { useSiteData } from "./site-data-context";
 import { useLocale } from "./locale-context";
+import { externalUrl } from "@/lib/cv/presentation";
 
 export function Navbar() {
-  const { settings, profile, posts } = useSiteData();
+  const { profile, posts, settings } = useSiteData();
   const { t, locale, setLocale } = useLocale();
-  const { resolvedTheme, setTheme } = useTheme();
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
   const [active, setActive] = useState("");
+  const github = externalUrl(profile.github);
   const links = [
     {
       id: "projects",
-      label: t("Dự án", "Work"),
-      enabled: settings.navProjectsEnabled,
+      label: t("Dự án", "Projects"),
+      enabled: settings.sectionProjectsEnabled !== false,
     },
     {
-      id: "about",
-      label: t("Về mình", "About"),
-      enabled: settings.navAboutEnabled,
-    },
-    {
-      id: "skills",
-      label: t("Kỹ năng", "Expertise"),
-      enabled:
-        settings.navSkillsEnabled !== false && profile.skillGroups?.length > 0,
-    },
-    {
-      id: "posts",
+      id: "notes",
       label: t("Bài viết", "Notes"),
       enabled:
-        settings.navBlogEnabled !== false &&
-        posts.some((post) => post.published),
+        settings.sectionNotesEnabled !== false && settings.navBlogEnabled !== false && posts.some((post) => post.published),
     },
   ].filter((link) => link.enabled !== false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -78,14 +62,12 @@ export function Navbar() {
           <Link
             href="/#top"
             className="pf-brand"
-            aria-label={t("Phan Huỳnh — Trang chủ", "Phan Huỳnh — Home")}
+            aria-label={t("Engineering Lab — Trang chủ", "Engineering Lab — Home")}
           >
             <span className="pf-brand-mark">
-              ph<span>.</span>
+              E<span>L</span>
             </span>
-            <span>
-              phanhuynh<span className="pf-brand-period">.</span>
-            </span>
+            <span>{settings.portfolioName || "ENGINEERING LAB"}</span>
           </Link>
           <div className="pf-desktop-nav">
             {links.map((link) => (
@@ -97,6 +79,7 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
+            {github && <a href={github} target="_blank" rel="noopener noreferrer"><Github size={14} /> GitHub</a>}
           </div>
           <div className="pf-nav-tools">
             <button
@@ -117,30 +100,6 @@ export function Navbar() {
             >
               {locale.toUpperCase()}
             </button>
-            <button
-              className="pf-icon-button"
-              onClick={() =>
-                setTheme(resolvedTheme === "dark" ? "light" : "dark")
-              }
-              aria-label={t("Đổi giao diện sáng/tối", "Toggle color theme")}
-            >
-              {mounted && resolvedTheme === "dark" ? (
-                <Sun size={17} />
-              ) : (
-                <Moon size={17} />
-              )}
-            </button>
-            {settings.navContactEnabled !== false && (
-              <button
-                className="pf-nav-contact"
-                onClick={() =>
-                  window.dispatchEvent(new CustomEvent("open-contact-modal"))
-                }
-              >
-                {t("Kết nối", "Let’s talk")}
-                <ArrowUpRight size={16} />
-              </button>
-            )}
             <Sheet>
               <SheetTrigger asChild>
                 <button
@@ -161,17 +120,17 @@ export function Navbar() {
                       </Link>
                     </SheetClose>
                   ))}
-                  {settings.navContactEnabled !== false && (
+                  {github && (
                     <SheetClose asChild>
-                      <a href="/#contact">
-                        {t("Liên hệ", "Contact")}
+                      <a href={github} target="_blank" rel="noopener noreferrer">
+                        GitHub
                         <ArrowUpRight size={20} />
                       </a>
                     </SheetClose>
                   )}
                 </div>
                 <p className="pf-mobile-caption">
-                  Embedded Systems · IoT · Edge AI
+                  Embedded systems · IoT · Edge AI · Robotics
                 </p>
               </SheetContent>
             </Sheet>

@@ -100,7 +100,6 @@ export function InboxTab() {
     if (selectedMsg && !selectedMsg.read) {
       handleAction("read", [selectedMsg.id]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId]);
 
   const toggleSelect = (id: string) => {

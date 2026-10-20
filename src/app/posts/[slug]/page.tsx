@@ -7,11 +7,11 @@ import { TableOfContents } from "@/components/cv/table-of-contents"
 import { PostReader } from "@/components/cv/post-reader"
 import { TutorialReader } from "@/components/cv/tutorial-reader"
 import { PostAiChat } from "@/components/cv/post-ai-chat"
-import { PostThemeToggle } from "@/components/cv/post-theme-toggle"
 
 import { ScientificProgress } from "@/components/cv/scientific-progress"
 import { ScientificSearchTrigger } from "@/components/cv/scientific-search-trigger"
 import { RelatedPosts } from "@/components/cv/related-posts"
+import { normalizeProjectImage, normalizeProjectUrl } from "@/lib/cv/project-input"
 import "@/components/cv/detail-polish.css"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -19,7 +19,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const post = await getPostBySlug(slug)
   if (!post) return { title: "Post Not Found" }
 
-  const title = (post.seoTitle || post.title) + " — Phan Huỳnh Văn Đô"
+  const coverImage = normalizeProjectImage(post.coverImage)
+  const title = (post.seoTitle || post.title) + " — Engineering Lab"
   const description = post.seoDescription || post.excerpt
 
   return {
@@ -36,14 +37,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       url: `https://phanhuynh.id.vn/posts/${slug}`,
       publishedTime: post.createdAt,
       modifiedTime: post.updatedAt || post.createdAt,
-      authors: ["Phan Huỳnh Văn Đô"],
-      ...(post.coverImage ? { images: [{ url: post.coverImage }] } : {}),
+      ...(coverImage ? { images: [{ url: coverImage }] } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      ...(post.coverImage ? { images: [post.coverImage] } : {}),
+      ...(coverImage ? { images: [coverImage] } : {}),
     },
   }
 }
@@ -55,6 +55,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   if (!post) {
     notFound()
   }
+  const coverImage = normalizeProjectImage(post.coverImage)
+  const pdfUrl = normalizeProjectUrl(post.pdfUrl, { allowRelative: true })
 
   const relatedPosts = siteData.posts
     .filter((item) => item.id !== post.id)
@@ -104,17 +106,13 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               "@type": "WebPage",
               "@id": `https://phanhuynh.id.vn/posts/${slug}`
             },
-            "author": { 
-              "@type": "Person", 
-              "name": "Phan Huỳnh Văn Đô",
-              "url": "https://phanhuynh.id.vn" 
-            },
+            "author": { "@type": "Organization", "name": "Engineering Lab" },
             "publisher": {
-              "@type": "Person",
-              "name": "Phan Huỳnh Văn Đô",
+              "@type": "Organization",
+              "name": "Engineering Lab",
               "url": "https://phanhuynh.id.vn"
             },
-            ...(post.coverImage ? { "image": [post.coverImage] } : {})
+            ...(coverImage ? { "image": [coverImage] } : {})
           }).replace(/</g, "\\u003c")
         }}
       />
@@ -123,17 +121,16 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
       {/* TOPBAR */}
       <header className="detail-topbar post-topbar sticky top-0 z-[500] flex items-center justify-between px-4 sm:px-8 border-b backdrop-blur-[22px]">
-        <Link href="/#posts" className="detail-back flex items-center gap-2 text-[13px] font-medium transition-colors">
+        <Link href="/#notes" className="detail-back flex items-center gap-2 text-[13px] font-medium transition-colors">
           <ArrowLeft className="w-4 h-4" />
-          <span>Về Portfolio</span>
+          <span>Engineering Lab</span>
         </Link>
         <Link href="/" className="detail-wordmark hidden sm:flex items-center gap-2">
-          <span className="detail-monogram">PH.</span>
-          <span>Field notes</span>
+          <span className="detail-monogram">EL</span>
+          <span>Engineering Notes</span>
         </Link>
         <div className="flex items-center gap-2">
            <ScientificSearchTrigger />
-           <PostThemeToggle />
         </div>
       </header>
 
@@ -154,11 +151,11 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               pubDate={pubDate} 
               readingTime={readingTime} 
               contentHtml={post.content}
-              coverImage={post.coverImage}
-              pdfUrl={post.pdfUrl}
-              authorName="Phan Huỳnh Văn Đô"
-              authorRole="AI / Edge Computing"
-              category={post.category || "Artificial Intelligence"}
+              coverImage={coverImage || undefined}
+              pdfUrl={pdfUrl || undefined}
+              authorName="Engineering Lab"
+              authorRole="Technical publication"
+              category={post.category || ""}
               excerpt={post.excerpt}
               views={post.views}
               likes={post.likes}
@@ -176,8 +173,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
       <footer className="detail-footer px-4 sm:px-8 py-8 border-t">
         <div className="max-w-[1500px] mx-auto flex items-center justify-between gap-5 text-xs">
-          <span>Phan Huỳnh Văn Đô · Ideas, experiments & engineering.</span>
-          <Link href="/#posts" className="inline-flex items-center gap-1.5 shrink-0">
+          <span>Engineering Lab · Embedded systems, edge AI, IoT, and robotics.</span>
+          <Link href="/#notes" className="inline-flex items-center gap-1.5 shrink-0">
             Các bài viết <ArrowUpRight className="size-4" />
           </Link>
         </div>

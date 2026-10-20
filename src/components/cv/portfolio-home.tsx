@@ -3,667 +3,323 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import {
-  ArrowDown,
-  ArrowUpRight,
   ArrowRight,
+  ArrowUpRight,
   Cpu,
-  Radio,
-  BrainCircuit,
-  MapPin,
+  ExternalLink,
+  Image as ImageIcon,
   Search,
-  GraduationCap,
-  Plus,
-  Layers3,
   X,
 } from "lucide-react";
 import { Navbar } from "./navbar";
 import { Footer } from "./footer";
 import { useSiteData } from "./site-data-context";
 import { useLocale } from "./locale-context";
-import { HashScrollHandler } from "./hash-scroll-handler";
-import { CvSettingsApplier } from "./cv-settings-applier";
-import { ScrollProgress } from "./scroll-progress";
-import { localizedText, plainText, externalUrl } from "@/lib/cv/presentation";
+import { plainText, externalUrl } from "@/lib/cv/presentation";
 import type { SiteProject } from "@/lib/cv/site-data-server";
 
-const CommandPalette = dynamic(() =>
-  import("./command-palette").then((m) => m.CommandPalette),
-);
-const ContactModal = dynamic(() =>
-  import("./studio-contact-modal").then((m) => m.StudioContactModal),
-);
-const AiChat = dynamic(() =>
-  import("./global-ai-chatbot").then((m) => m.GlobalAiChatbot),
-);
+function normalizeSearch(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase()
+    .replace(/đ/g, "d")
+    .trim();
+}
+
+function safeActionHref(value: unknown, fallback: string) {
+  const raw = String(value ?? "").trim();
+  if (raw.startsWith("/") && !raw.startsWith("//")) return raw;
+  if (raw.startsWith("#")) return raw;
+  return externalUrl(raw) || fallback;
+}
+
+function supportedImage(src?: string | null) {
+  if (!src) return false;
+  if (src.startsWith("/") && !src.startsWith("//")) return true;
+  try {
+    const url = new URL(src);
+    return (
+      url.protocol === "https:" &&
+      (url.hostname === "res.cloudinary.com" ||
+        url.hostname.endsWith(".public.blob.vercel-storage.com"))
+    );
+  } catch {
+    return false;
+  }
+}
+
+function ProjectStatus({ status, locale }: { status?: string; locale: "vi" | "en" }) {
+  if (!status) return null;
+  const labels: Record<string, { vi: string; en: string }> = {
+    completed: { vi: "Hoàn thành", en: "Completed" },
+    "in-development": { vi: "Đang phát triển", en: "In development" },
+    prototype: { vi: "Nguyên mẫu", en: "Prototype" },
+    research: { vi: "Nghiên cứu", en: "Research" },
+  };
+  const label = labels[status];
+  if (!label) return null;
+  return <span className="lab-status">{label[locale]}</span>;
+}
+
+function ProjectImage({
+  src,
+  alt,
+  sizes,
+  fallbackClassName = "",
+  priority = false,
+}: {
+  src: string;
+  alt: string;
+  sizes: string;
+  fallbackClassName?: string;
+  priority?: boolean;
+}) {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <div className={`lab-image-fallback ${fallbackClassName}`} role="img" aria-label={`${alt}: image unavailable`}>
+        <Cpu aria-hidden="true" />
+        <span>{alt}</span>
+      </div>
+    );
+  }
+  return <Image src={src} alt={alt} fill sizes={sizes} priority={priority} onError={() => setFailed(true)} />;
+}
+
+function formatDate(value: string, locale: "vi" | "en") {
+  const date = new Date(value);
+  if (!value || Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-US", { dateStyle: "medium" }).format(date);
+}
 
 function SectionHeading({
-  number,
+  index,
   label,
   title,
-  children,
+  description,
 }: {
-  number: string;
+  index: string;
   label: string;
   title: string;
-  children?: React.ReactNode;
+  description?: string;
 }) {
   return (
-    <div className="pf-section-heading">
-      <div>
-        <p className="pf-eyebrow">
-          <span>{number}</span> {label}
-        </p>
+    <div className="lab-section-heading">
+      <p className="lab-eyebrow"><span>{index}</span>{label}</p>
+      <div className="lab-section-title-row">
         <h2>{title}</h2>
+        {description && <p>{description}</p>}
       </div>
-      {children && <div className="pf-section-aside">{children}</div>}
     </div>
   );
 }
 
-function ProjectCard({
-  project,
-  index,
-}: {
-  project: SiteProject;
-  index: number;
-}) {
-  const { t } = useLocale();
-  const [failed, setFailed] = useState(false);
+function ProjectCard({ project }: { project: SiteProject }) {
+  const { locale } = useLocale();
+  const image = supportedImage(project.image) ? project.image : undefined;
   return (
-    <Link href={`/projects/${project.id}`} className="pf-project">
-      <div className={`pf-project-image pf-project-tone-${index % 3}`}>
-        {project.image && !failed ? (
-          <Image
-            src={project.image}
-            alt={project.title}
-            fill
-            sizes="(max-width: 650px) 94vw, (max-width: 1000px) 47vw, 600px"
-            className="pf-cover"
-            onError={() => setFailed(true)}
-          />
-        ) : (
-          <div className="pf-project-placeholder" aria-hidden="true">
-            <Cpu size={72} strokeWidth={1} />
-            <span>{project.category || "Embedded systems"}</span>
+    <article className="lab-project-card">
+      <Link href={`/projects/${project.id}`} className="lab-project-link">
+        <div className="lab-project-image">
+          {image ? (
+            <ProjectImage key={image} src={image} alt={project.title} sizes="(max-width: 680px) 100vw, (max-width: 1080px) 50vw, 33vw" />
+          ) : (
+            <div className="lab-image-fallback" aria-label={`${project.title}: no project image`}>
+              <Cpu aria-hidden="true" />
+              <span>{project.title}</span>
+            </div>
+          )}
+          <span className="lab-project-open" aria-hidden="true"><ArrowUpRight size={18} /></span>
+        </div>
+        <div className="lab-project-content">
+          <div className="lab-project-meta">
+            <span>{project.category || "Engineering project"}</span>
+            <ProjectStatus status={project.status} locale={locale} />
           </div>
-        )}
-        <span className="pf-project-index">
-          {String(index + 1).padStart(2, "0")}
-        </span>
-        <span className="pf-project-open" aria-hidden="true">
-          <ArrowUpRight size={22} />
-        </span>
+          <h3>{project.title}</h3>
+          <p>{plainText(project.subtitle || project.description) || ""}</p>
+          {project.tech?.length > 0 && (
+            <ul className="lab-tech-list" aria-label="Technologies">
+              {project.tech.slice(0, 4).map((tech) => <li key={tech}>{tech}</li>)}
+              {project.tech.length > 4 && <li>+{project.tech.length - 4}</li>}
+            </ul>
+          )}
+        </div>
+      </Link>
+    </article>
+  );
+}
+
+function MediaCard({ project, src }: { project: SiteProject; src: string }) {
+  return (
+    <Link href={`/projects/${project.id}`} className="lab-media-card">
+      <div className="lab-media-image">
+        <ProjectImage key={src} src={src} alt={`${project.title} project media`} sizes="(max-width: 680px) 90vw, (max-width: 1080px) 45vw, 30vw" />
       </div>
-      <div className="pf-project-meta">
-        <span>
-          {project.category || t("Dự án kỹ thuật", "Engineering project")}
-        </span>
-        <span>{project.year}</span>
-      </div>
-      <h3>{project.title}</h3>
-      <p className="pf-project-description">
-        {plainText(project.subtitle || project.description)}
-      </p>
-      <div className="pf-tags">
-        {project.tech?.slice(0, 3).map((tech) => (
-          <span key={tech}>{tech}</span>
-        ))}
-        {project.tech?.length > 3 && <span>+{project.tech.length - 3}</span>}
-      </div>
+      <span><ImageIcon size={14} />{project.title}<ArrowUpRight size={14} /></span>
     </Link>
   );
 }
 
 export function PortfolioHome() {
-  const { profile, projects, posts, experiences, settings, loading } =
-    useSiteData();
+  const { profile, projects, posts, settings, loading } = useSiteData();
   const { t, locale } = useLocale();
-  const [filter, setFilter] = useState("all");
+  const [category, setCategory] = useState("all");
   const [query, setQuery] = useState("");
-  const [avatarFailed, setAvatarFailed] = useState(false);
+  const publishedProjects = useMemo(() => projects.filter((project) => project.published !== false), [projects]);
+  const selectedFeaturedProjects = useMemo(() => publishedProjects.filter((project) => project.featured).slice(0, 3), [publishedProjects]);
+  const usingDefaultFeatured = selectedFeaturedProjects.length === 0;
+  // Legacy records have no featured flag. Preserve the existing public order
+  // and use real published projects until Admin supplies explicit selections.
+  const featuredProjects = usingDefaultFeatured ? publishedProjects.slice(0, 3) : selectedFeaturedProjects;
+  const heroProject = featuredProjects[0] ?? publishedProjects[0];
+  const heroImage = supportedImage(heroProject?.image) ? heroProject.image : undefined;
   const github = externalUrl(profile.github);
-  const publishedPosts = posts.filter((post) => post.published);
-  const filters = [
-    { id: "all", label: t("Tất cả", "All work") },
-    { id: "robotics", label: "Robotics" },
-    { id: "iot", label: "IoT & Embedded" },
-    { id: "ai", label: "AI & Vision" },
-  ];
-  const filteredProjects = useMemo(
-    () =>
-      projects.filter((project) => {
-        const text =
-          `${project.title} ${project.category} ${project.tech?.join(" ") || ""}`.toLowerCase();
-        const matches =
-          filter === "all" ||
-          (filter === "robotics" && /robot|gazebo|ros 2/.test(text)) ||
-          (filter === "iot" && /iot|embedded|esp32|stm32/.test(text)) ||
-          (filter === "ai" &&
-            /\bai\b|aiot|vision|neural|pytorch|opencv|genetic/.test(text));
-        return matches && text.includes(query.trim().toLowerCase());
-      }),
-    [projects, filter, query],
-  );
-  const openContact = () =>
-    window.dispatchEvent(new CustomEvent("open-contact-modal"));
-  const skills = profile.skillGroups || [];
-  const availabilityText =
-    settings.availabilityText &&
-    settings.availabilityText !== "Sẵn sàng cho cơ hội mới"
-      ? plainText(settings.availabilityText)
-      : t("Sẵn sàng cho cơ hội mới", "Open to new opportunities");
+  const primaryUrl = safeActionHref(settings.heroPrimaryUrl, "#projects");
+  const secondaryUrl = safeActionHref(settings.heroSecondaryUrl, github || "");
+  const heroTitle = locale === "vi"
+    ? String(settings.heroHeadlineVi || "Dự án kỹ thuật. Sản phẩm thực tế.")
+    : String(settings.heroHeadlineEn || "Engineering projects. Built systems.");
+  const heroDescription = locale === "vi"
+    ? String(settings.heroDescriptionVi || settings.portfolioTagline || "")
+    : String(settings.heroDescriptionEn || settings.portfolioTagline || "");
+  const categories = useMemo(() => Array.from(new Set(publishedProjects.map((project) => project.category?.trim()).filter((value): value is string => Boolean(value)))), [publishedProjects]);
+  const normalizedQuery = normalizeSearch(query);
+  const filteredProjects = useMemo(() => publishedProjects.filter((project) => {
+    const matchesCategory = category === "all" || project.category === category;
+    const searchable = normalizeSearch([
+      project.title,
+      project.category,
+      project.subtitle,
+      project.description,
+      project.highlight,
+      ...(project.tech ?? []),
+    ].map(plainText).join(" "));
+    return matchesCategory && (!normalizedQuery || searchable.includes(normalizedQuery));
+  }), [publishedProjects, category, normalizedQuery]);
+  const publishedPosts = useMemo(() => posts
+    .filter((post) => post.published)
+    .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+    .slice(0, 3), [posts]);
+  const media = useMemo(() => publishedProjects.flatMap((project) => {
+    const images = [project.image, ...(project.images ?? [])].filter((value, index, all): value is string => Boolean(value) && all.indexOf(value) === index && supportedImage(value));
+    return images.slice(0, 2).map((src) => ({ project, src }));
+  }).slice(0, 6), [publishedProjects]);
 
   return (
-    <div className="pf-site" id="top">
-      <HashScrollHandler />
-      <CvSettingsApplier />
-      <ScrollProgress />
-      <CommandPalette />
-      <ContactModal />
-      {settings.showAiButton !== false && <AiChat />}
+    <div className="lab-site" id="top">
       <Navbar />
       <main id="main-content">
-        <section className="pf-hero pf-container" aria-labelledby="hero-title">
-          <div className="pf-hero-copy">
-            <div className="pf-status">
-              <span
-                className={
-                  profile.available ? "pf-status-dot" : "pf-status-dot pf-busy"
-                }
-              />
-              {profile.available
-                ? availabilityText
-                : t(
-                    "Đang tập trung vào dự án",
-                    "Currently focused on projects",
-                  )}
+        <section className="lab-hero lab-container" aria-labelledby="lab-title">
+          <div className="lab-hero-copy">
+            <p className="lab-eyebrow"><span>01</span> EMBEDDED SYSTEMS / EDGE AI / ROBOTICS</p>
+            <h1 id="lab-title">{heroTitle}</h1>
+            <p className="lab-hero-description">{heroDescription}</p>
+            <div className="lab-hero-actions">
+              {settings.sectionProjectsEnabled !== false && <a className="lab-button lab-button-primary" href={primaryUrl}>
+                {(locale === "vi" ? settings.heroPrimaryLabelVi : settings.heroPrimaryLabelEn) || t("Khám phá dự án", "Explore projects")}<ArrowRight size={17} />
+              </a>}
+              {secondaryUrl && <a className="lab-button lab-button-secondary" href={secondaryUrl} target={secondaryUrl.startsWith("http") ? "_blank" : undefined} rel={secondaryUrl.startsWith("http") ? "noopener noreferrer" : undefined}>
+                {(locale === "vi" ? settings.heroSecondaryLabelVi : settings.heroSecondaryLabelEn) || "GitHub"}<ExternalLink size={14} />
+              </a>}
             </div>
-            <p className="pf-intro">
-              {t("Xin chào, mình là", "Hello, I’m")}{" "}
-              <strong>{profile.name || "Phan Huỳnh Văn Đô"}</strong>
-              <span className="pf-small-star" aria-hidden="true">
-                ✳
-              </span>
-            </p>
-            <h1 id="hero-title">
-              {t("Khi phần cứng", "Where hardware")}
-              <br />
-              {t("gặp", "meets")} <em>{t("trí tuệ.", "intelligence.")}</em>
-            </h1>
-            <p className="pf-hero-description">
-              {profile.tagline ||
-                t(
-                  "Mình kết nối phần cứng, phần mềm và AI để xây dựng những hệ thống nhúng hữu ích trong thế giới thực.",
-                  "I connect hardware, software, and AI to build embedded systems that make a difference in the real world.",
-                )}
-            </p>
-            <div className="pf-hero-actions">
-              {settings.navProjectsEnabled !== false && (
-                <a className="pf-button pf-button-dark" href="#projects">
-                  {t("Khám phá dự án", "Explore my work")}
-                  <ArrowUpRight size={19} />
-                </a>
-              )}
-              {settings.navContactEnabled !== false && (
-                <button className="pf-text-button" onClick={openContact}>
-                  {t("Cùng trò chuyện", "Let’s talk")}
-                  <ArrowRight size={18} />
-                </button>
-              )}
-            </div>
-            <div className="pf-hero-footnote">
-              <span>
-                {settings.showLocation !== false && (
-                  <>
-                    <MapPin size={14} />
-                    {profile.location ||
-                      t(
-                        "TP. Hồ Chí Minh, Việt Nam",
-                        "Ho Chi Minh City, Vietnam",
-                      )}
-                  </>
-                )}
-              </span>
-              <a
-                href={
-                  settings.navProjectsEnabled !== false
-                    ? "#projects"
-                    : settings.navAboutEnabled !== false
-                      ? "#about"
-                      : "#contact"
-                }
-              >
-                <ArrowDown size={16} />
-                {t("Cuộn để khám phá", "Scroll to explore")}
-              </a>
+            <div className="lab-hero-facts" aria-label="Project areas">
+              <span>01 / HARDWARE</span><span>02 / FIRMWARE</span><span>03 / INTELLIGENCE</span>
             </div>
           </div>
-          <div className="pf-hero-art">
-            <div className="pf-photo-backdrop" aria-hidden="true" />
-            <div className="pf-portrait">
-              <Image
-                src={
-                  avatarFailed ? "/avatar.png" : profile.avatar || "/avatar.png"
-                }
-                alt={profile.name || "Phan Huỳnh Văn Đô"}
-                fill
-                preload
-                sizes="(max-width: 800px) 85vw, 480px"
-                className="pf-cover"
-                onError={() => setAvatarFailed(true)}
-              />
-              <div className="pf-portrait-caption">
-                <span>
-                  {t(
-                    "TƯ DUY HỆ THỐNG. TẠO RA GIẢI PHÁP.",
-                    "SYSTEMS THINKER. HANDS-ON BUILDER.",
-                  )}
-                </span>
-                <ArrowUpRight size={18} />
-              </div>
+          <div className="lab-hero-visual">
+            <div className="lab-visual-frame">
+              {heroProject && heroImage ? (
+                <ProjectImage key={heroImage} src={heroImage} alt={heroProject.title} priority sizes="(max-width: 800px) 100vw, 52vw" fallbackClassName="lab-hero-fallback" />
+              ) : heroProject ? (
+                <div className="lab-image-fallback lab-hero-fallback"><Cpu aria-hidden="true" /><span>{heroProject.title}</span></div>
+              ) : (
+                <div className="lab-image-fallback lab-hero-fallback"><Cpu aria-hidden="true" /><span>Engineering systems</span></div>
+              )}
+              <span className="lab-frame-label">{heroProject?.category || "ENGINEERING / SYSTEMS"}</span>
             </div>
-            <div className="pf-engineer-stamp" aria-hidden="true">
-              <Cpu size={28} strokeWidth={1.4} />
-              <span>BUILD · LEARN · REPEAT</span>
-            </div>
-            <div className="pf-system-card">
-              <div className="pf-system-icon">
-                <Layers3 size={25} />
-              </div>
-              <div>
-                <span>{t("Kết nối những ý tưởng", "Connecting the dots")}</span>
-                <strong>
-                  Hardware <span>×</span> Software <span>×</span> AI
-                </strong>
-              </div>
-              <span className="pf-card-dot" />
-            </div>
-            {settings.showLocation !== false && (
-              <span className="pf-art-coordinate" aria-hidden="true">
-                HO CHI MINH CITY, VIETNAM
-              </span>
+            {heroProject && (
+              <Link className="lab-visual-caption" href={`/projects/${heroProject.id}`}>
+                <span><small>PROJECT / {String(publishedProjects.findIndex((item) => item.id === heroProject.id) + 1).padStart(2, "0")}</small><strong>{heroProject.title}</strong></span>
+                <ArrowUpRight size={20} />
+              </Link>
             )}
+            <span className="lab-coordinate" aria-hidden="true">PHANHUYNH.ID.VN / LAB-01</span>
           </div>
         </section>
-        <div className="pf-stack-strip">
-          <div className="pf-container">
-            <span className="pf-stack-label">
-              {t(
-                "TỪ Ý TƯỞNG ĐẾN HỆ THỐNG",
-                "FROM CONCEPT TO CONNECTED SYSTEMS",
-              )}
-            </span>
-            <div className="pf-stack-list">
-              {(profile.techBadges?.length
-                ? profile.techBadges.slice(0, 7).map((b) => b.text)
-                : [
-                    "C / C++",
-                    "Python",
-                    "Embedded Linux",
-                    "STM32",
-                    "ESP32",
-                    "Raspberry Pi",
-                    "MQTT",
-                  ]
-              ).map((text) => (
-                <span key={text}>{text}</span>
-              ))}
-            </div>
-          </div>
-        </div>
 
-        {settings.navProjectsEnabled !== false && (
-          <section className="pf-section pf-container" id="projects">
+        {settings.sectionFeaturedEnabled !== false && featuredProjects.length > 0 && (
+          <section className="lab-section lab-container" aria-labelledby="featured-title">
             <SectionHeading
-              number="01"
-              label={t("DỰ ÁN TIÊU BIỂU", "SELECTED WORK")}
-              title={t("Ý tưởng thành hiện thực.", "Ideas made tangible.")}
-            >
-              <p>
-                {t(
-                  "Một vài hệ thống mình đã xây dựng — từ firmware đến những giải pháp AIoT hoàn chỉnh.",
-                  "A selection of systems I’ve built — from low-level firmware to connected AIoT experiences.",
-                )}
-              </p>
-              {github && (
-                <a
-                  className="pf-inline-link"
-                  href={github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  GitHub
-                  <ArrowUpRight size={17} />
-                </a>
-              )}
-            </SectionHeading>
-            <div className="pf-project-toolbar">
-              <div
-                className="pf-filters"
-                role="group"
-                aria-label={t("Lọc dự án", "Filter projects")}
-              >
-                {filters.map((item) => (
-                  <button
-                    key={item.id}
-                    aria-pressed={filter === item.id}
-                    onClick={() => setFilter(item.id)}
-                  >
-                    {item.label}
-                    {item.id === "all" && <span>{projects.length}</span>}
-                  </button>
-                ))}
-              </div>
-              <label className="pf-search">
-                <Search size={16} />
-                <span className="sr-only">
-                  {t("Tìm dự án", "Search projects")}
-                </span>
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder={t("Tìm dự án…", "Search projects…")}
-                />
-                {query && (
-                  <button
-                    aria-label={t("Xóa tìm kiếm", "Clear search")}
-                    onClick={() => setQuery("")}
-                  >
-                    <X size={15} />
-                  </button>
-                )}
-              </label>
-            </div>
-            <div className="pf-project-grid" aria-busy={loading}>
-              {filteredProjects.map((project, index) => (
-                <ProjectCard
-                  key={project.id || project.title}
-                  project={project}
-                  index={index}
-                />
-              ))}
-            </div>
-            {filteredProjects.length === 0 && (
-              <div className="pf-empty" role="status">
-                <Search size={30} />
-                <h3>{t("Chưa tìm thấy dự án", "No projects found")}</h3>
-                <p>
-                  {t(
-                    "Hãy thử từ khóa hoặc nhóm dự án khác.",
-                    "Try a different keyword or project category.",
-                  )}
-                </p>
-                {(query || filter !== "all") && (
-                  <button
-                    className="pf-text-button"
-                    onClick={() => {
-                      setQuery("");
-                      setFilter("all");
-                    }}
-                  >
-                    {t("Xóa bộ lọc", "Reset filters")}
-                    <ArrowRight size={17} />
-                  </button>
-                )}
-              </div>
-            )}
-            <p className="pf-results-count" role="status">
-              {filteredProjects.length} / {projects.length}{" "}
-              {t("dự án", "projects")}
-            </p>
-          </section>
-        )}
-
-        {settings.navAboutEnabled !== false && (
-          <section className="pf-about-band" id="about">
-            <div className="pf-container pf-about-grid">
-              <div>
-                <p className="pf-eyebrow">
-                  <span>02</span>
-                  {t("VỀ MÌNH", "A LITTLE ABOUT ME")}
-                </p>
-                <h2>
-                  {t("Tò mò là", "Curiosity is")}
-                  <br />
-                  <em>{t("điểm bắt đầu.", "the starting point.")}</em>
-                </h2>
-                <span className="pf-about-asterisk" aria-hidden="true">
-                  ✳
-                </span>
-              </div>
-              <div className="pf-about-copy">
-                <p className="pf-about-summary">
-                  {plainText(profile.summary) ||
-                    t(
-                      "Mình là kỹ sư IoT & Trí tuệ nhân tạo ứng dụng, tập trung vào Embedded Linux, Firmware và Edge AI. Mình thích biến những ý tưởng phức tạp thành các hệ thống hữu ích, ổn định và dễ sử dụng.",
-                      "I’m an IoT and Applied AI engineer focused on Embedded Linux, firmware, and Edge AI. I enjoy turning complex ideas into useful, reliable systems.",
-                    )}
-                </p>
-                {profile.principles?.length > 0 && (
-                  <div className="pf-principles">
-                    {profile.principles.map((principle, i) => (
-                      <div key={i}>
-                        <span>0{i + 1}</span>
-                        <div>
-                          <h3>{localizedText(principle.title, locale)}</h3>
-                          <p>
-                            {plainText(
-                              localizedText(
-                                principle.desc || principle.description,
-                                locale,
-                              ),
-                            )}
-                          </p>
-                        </div>
-                        <Plus size={16} aria-hidden="true" />
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {profile.nowText && (
-                  <div className="pf-now">
-                    <span className="pf-status-dot" />
-                    <div>
-                      <h3>{t("HIỆN TẠI", "RIGHT NOW")}</h3>
-                      <p>{plainText(profile.nowText)}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {settings.navSkillsEnabled !== false && skills.length > 0 && (
-          <section className="pf-section pf-container" id="skills">
-            <SectionHeading
-              number="03"
-              label={t("KỸ NĂNG & CÔNG NGHỆ", "TOOLS OF THE TRADE")}
-              title={t(
-                "Một hệ thống. Nhiều góc nhìn.",
-                "One system. Many perspectives.",
-              )}
-            >
-              <p>
-                {t(
-                  "Kết nối tư duy phần cứng, kỹ thuật phần mềm và trí tuệ nhân tạo.",
-                  "Bringing hardware thinking, software engineering, and artificial intelligence together.",
-                )}
-              </p>
-            </SectionHeading>
-            <div className="pf-skills-grid">
-              {skills.map((group, i) => {
-                const Icon = [Cpu, Radio, BrainCircuit][i % 3];
-                return (
-                  <article
-                    className={`pf-skill-group pf-skill-${i % 3}`}
-                    key={i}
-                  >
-                    <Icon size={32} strokeWidth={1.4} />
-                    <span className="pf-skill-number">0{i + 1}</span>
-                    <h3>{localizedText(group.title, locale)}</h3>
-                    <div className="pf-skill-list">
-                      {(group.skills || []).map(
-                        (skill: { name: unknown }, j: number) => (
-                          <span key={j}>
-                            {localizedText(skill.name, locale)}
-                          </span>
-                        ),
-                      )}
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          </section>
-        )}
-
-        {(profile.educations?.length > 0 ||
-          (settings.navExperienceEnabled !== false &&
-            experiences.length > 0)) && (
-          <section className="pf-path-section pf-container" id="experience">
-            <SectionHeading
-              number="04"
-              label={t("HÀNH TRÌNH", "THE JOURNEY")}
-              title={t(
-                "Luôn học hỏi. Luôn tiến lên.",
-                "Always learning. Always building.",
-              )}
+              index="02"
+              label="CURATED BUILDS"
+              title={t("Dự án nổi bật", "Featured projects")}
+              description={usingDefaultFeatured
+                ? t("Các dự án đã xuất bản, theo thứ tự hiện có.", "Published projects in their existing order.")
+                : t("Các dự án được chọn từ hệ thống quản trị nội dung.", "Projects selected from the content manager.")}
             />
-            <div className="pf-journey-grid">
-              {settings.navExperienceEnabled !== false &&
-                experiences.map((experience, i) => (
-                  <article className="pf-journey-item" key={experience.id || i}>
-                    <span className="pf-journey-icon">
-                      <Cpu size={20} />
-                    </span>
-                    <p className="pf-eyebrow">{experience.period}</p>
-                    <h3>{experience.role}</h3>
-                    <p className="pf-journey-place">{experience.company}</p>
-                    <p>{plainText(experience.description)}</p>
-                    <div className="pf-tags">
-                      {experience.stack?.slice(0, 4).map((item) => (
-                        <span key={item}>{item}</span>
-                      ))}
-                    </div>
-                  </article>
-                ))}
-              {profile.educations?.map((education, i) => (
-                <article
-                  className="pf-journey-item"
-                  key={i}
-                  id={i === 0 ? "education" : undefined}
-                >
-                  <span className="pf-journey-icon">
-                    <GraduationCap size={22} />
-                  </span>
-                  <p className="pf-eyebrow">{education.period}</p>
-                  <h3>{localizedText(education.degree, locale)}</h3>
-                  <p className="pf-journey-place">
-                    {localizedText(education.school, locale)}
-                  </p>
-                  <p>{plainText(localizedText(education.detail, locale))}</p>
-                </article>
-              ))}
+            <div className="lab-project-grid lab-featured-grid" id="featured">
+              {featuredProjects.map((project) => <ProjectCard key={project.id} project={project} />)}
             </div>
           </section>
         )}
 
-        {settings.navBlogEnabled !== false && publishedPosts.length > 0 && (
-          <section className="pf-section pf-container pf-notes" id="posts">
-            <SectionHeading
-              number="05"
-              label={t("GHI CHÉP KỸ THUẬT", "FIELD NOTES")}
-              title={t(
-                "Học được gì, chia sẻ đó.",
-                "Learn it. Build it. Share it.",
-              )}
-            >
-              <p>
-                {t(
-                  "Những ghi chép từ quá trình thử nghiệm, xây dựng và tìm hiểu công nghệ.",
-                  "Notes from experimenting, building, and figuring things out along the way.",
-                )}
-              </p>
-            </SectionHeading>
-            <div className="pf-post-list">
-              {publishedPosts.map((post, i) => (
-                <Link
-                  key={post.id || post.slug}
-                  href={`/posts/${post.slug}`}
-                  className="pf-post"
-                >
-                  <span className="pf-post-number">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div>
-                    <p className="pf-post-meta">
-                      <span>{post.category || "Engineering"}</span>
-                      <time dateTime={post.createdAt}>
-                        {new Intl.DateTimeFormat(
-                          locale === "en" ? "en-GB" : "vi-VN",
-                          {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                            timeZone: "Asia/Ho_Chi_Minh",
-                          },
-                        ).format(new Date(post.createdAt))}
-                      </time>
-                    </p>
-                    <h3>{post.title}</h3>
-                    <p className="pf-post-excerpt">{plainText(post.excerpt)}</p>
-                  </div>
-                  <span className="pf-post-arrow" aria-hidden="true">
-                    <ArrowUpRight size={24} />
-                  </span>
+        {settings.sectionProjectsEnabled !== false && <section className="lab-section lab-container" id="projects" aria-labelledby="projects-title">
+          <SectionHeading index="03" label="PROJECT INDEX" title={t("Thư viện dự án", "Project explorer")} description={t("Tìm theo lĩnh vực, nền tảng hoặc công nghệ.", "Search by discipline, platform, or technology.")} />
+          <div className="lab-project-toolbar">
+            <div className="lab-filter-list" role="group" aria-label={t("Lọc lĩnh vực dự án", "Filter project categories")}>
+              <button type="button" aria-pressed={category === "all"} onClick={() => setCategory("all")}>{t("Tất cả", "All projects")}<span>{publishedProjects.length}</span></button>
+              {categories.map((item) => <button type="button" key={item} aria-pressed={category === item} onClick={() => setCategory(item)}>{item}</button>)}
+            </div>
+            <label className="lab-search">
+              <Search size={17} aria-hidden="true" />
+              <span className="sr-only">{t("Tìm dự án", "Search projects")}</span>
+              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t("Tên, công nghệ…", "Project or technology…")} />
+              {query && <button type="button" onClick={() => setQuery("")} aria-label={t("Xóa tìm kiếm", "Clear search")}><X size={15} /></button>}
+            </label>
+          </div>
+          {loading && publishedProjects.length === 0 ? (
+            <div className="lab-project-grid" aria-label={t("Đang tải dự án", "Loading projects")} aria-busy="true">
+              {Array.from({ length: 3 }, (_, index) => <div className="lab-project-skeleton" key={index} />)}
+            </div>
+          ) : filteredProjects.length > 0 ? (
+            <div className="lab-project-grid" aria-busy={loading}>
+              {filteredProjects.map((project) => <ProjectCard key={project.id} project={project} />)}
+            </div>
+          ) : (
+            <div className="lab-empty" role="status">
+              <Search size={24} /><h3>{t("Không tìm thấy dự án", "No projects found")}</h3>
+              <p>{t("Thử từ khóa hoặc danh mục khác.", "Try another search or category.")}</p>
+              {(query || category !== "all") && <button type="button" onClick={() => { setQuery(""); setCategory("all"); }}>{t("Xóa bộ lọc", "Clear filters")}<ArrowRight size={15} /></button>}
+            </div>
+          )}
+          <p className="lab-results" role="status">{filteredProjects.length} / {publishedProjects.length} {t("dự án", "projects")}</p>
+        </section>}
+
+        {settings.sectionMediaEnabled !== false && media.length > 0 && (
+          <section className="lab-section lab-media-section" aria-labelledby="media-title">
+            <div className="lab-container">
+              <SectionHeading index="04" label="HARDWARE / SOFTWARE" title={t("Trong phòng thí nghiệm", "From the lab")} description={t("Hình ảnh được liên kết trực tiếp với các dự án.", "Project media linked to its source project.")} />
+              <div className="lab-media-grid">{media.map(({ project, src }) => <MediaCard key={`${project.id}:${src}`} project={project} src={src} />)}</div>
+            </div>
+          </section>
+        )}
+
+        {publishedPosts.length > 0 && settings.navBlogEnabled !== false && settings.sectionNotesEnabled !== false && (
+          <section className="lab-section lab-container" id="notes" aria-labelledby="notes-title">
+            <SectionHeading index="05" label="ENGINEERING NOTES" title={t("Ghi chú kỹ thuật", "Engineering notes")} description={t("Bài viết và hướng dẫn kỹ thuật đã xuất bản.", "Published technical articles and guides.")} />
+            <div className="lab-notes-list">
+              {publishedPosts.map((post, index) => (
+                <Link className="lab-note" href={`/posts/${post.slug}`} key={post.id}>
+                  <span className="lab-note-index">{String(index + 1).padStart(2, "0")}</span>
+                  <span className="lab-note-copy"><small>{post.category || t("GHI CHÚ KỸ THUẬT", "ENGINEERING NOTE")}{formatDate(post.createdAt, locale) && <>{" · "}{formatDate(post.createdAt, locale)}</>}</small><strong>{post.title}</strong><span>{plainText(post.excerpt)}</span></span>
+                  <ArrowUpRight size={19} />
                 </Link>
               ))}
             </div>
-          </section>
-        )}
-
-        {settings.navContactEnabled !== false && (
-          <section className="pf-contact-section pf-container" id="contact">
-            <div className="pf-contact-card">
-              <div>
-                <p className="pf-eyebrow">
-                  <span className="pf-status-dot" />
-                  {t(
-                    "CÙNG TẠO RA ĐIỀU HỮU ÍCH",
-                    "LET’S BUILD SOMETHING USEFUL",
-                  )}
-                </p>
-                <h2>
-                  {t("Có một ý tưởng?", "Have an idea?")}
-                  <br />
-                  <em>{t("Cùng kết nối.", "Let’s connect.")}</em>
-                </h2>
-                <p>
-                  {t(
-                    "Một dự án, một cơ hội hợp tác, hay chỉ là một cuộc trò chuyện về công nghệ — mình luôn sẵn sàng lắng nghe.",
-                    "A project, a collaboration, or just a good conversation about technology — I’d love to hear from you.",
-                  )}
-                </p>
-                <button
-                  className="pf-button pf-button-lime"
-                  onClick={openContact}
-                >
-                  {t("Gửi lời chào", "Say hello")}
-                  <ArrowUpRight size={20} />
-                </button>
-              </div>
-              <div className="pf-contact-orbit" aria-hidden="true">
-                <div />
-                <div />
-                <span>✳</span>
-              </div>
-              <span className="pf-contact-corner" aria-hidden="true">
-                HARDWARE / SOFTWARE / HUMAN CONNECTION
-              </span>
-            </div>
+            <Link href="/notes" className="lab-all-notes">{t("Xem tất cả ghi chú", "View all notes")}<ArrowRight size={16} /></Link>
           </section>
         )}
       </main>

@@ -53,7 +53,7 @@ export function LoginForm({ onSuccess }: { onSuccess: () => void }) {
       <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
       <div className="absolute top-1/3 -right-32 h-96 w-96 rounded-full bg-accent/20 blur-3xl pointer-events-none" />
 
-      <Card className="relative w-full max-w-md glow-emerald bg-card/80 backdrop-blur-sm">
+      <Card className="relative w-full max-w-md bg-card/80 backdrop-blur-sm">
         <CardHeader className="space-y-3">
           <div className="flex items-center gap-2 font-mono text-xs text-muted-foreground">
             <Terminal className="size-4 text-primary" />

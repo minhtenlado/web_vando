@@ -1,33 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Github, Linkedin, Mail, ArrowUp } from "lucide-react";
+import { ArrowUpRight, Github, Mail, ArrowUp } from "lucide-react";
 import { useSiteData } from "./site-data-context";
 import { useLocale } from "./locale-context";
 import { externalUrl } from "@/lib/cv/presentation";
 
 export function Footer() {
-  const { profile } = useSiteData();
+  const { profile, settings } = useSiteData();
   const { t } = useLocale();
   const github = externalUrl(profile.github);
-  const linkedin = externalUrl(profile.linkedin);
   return (
     <footer className="pf-footer">
       <div className="pf-container">
         <div className="pf-footer-top">
           <div>
             <Link href="/#top" className="pf-brand">
-              <span className="pf-brand-mark">
-                ph<span>.</span>
-              </span>
-              <span>
-                phanhuynh<span className="pf-brand-period">.</span>
-              </span>
+              <span className="pf-brand-mark">E<span>L</span></span>
+              <span>{settings.portfolioName || "ENGINEERING LAB"}</span>
             </Link>
             <p>
               {t(
-                "Xây dựng với sự tò mò. Phát triển bằng trải nghiệm.",
-                "Built with curiosity. Growing through experience.",
+                settings.portfolioTagline || "Dự án phần cứng, phần mềm và hệ thống nhúng.",
+                settings.portfolioTagline || "Hardware, software, and embedded systems projects.",
               )}
             </p>
           </div>
@@ -46,18 +41,12 @@ export function Footer() {
                 <ArrowUpRight size={14} />
               </a>
             )}
-            {linkedin && (
-              <a href={linkedin} target="_blank" rel="noopener noreferrer">
-                <Linkedin size={16} />
-                LinkedIn
-                <ArrowUpRight size={14} />
-              </a>
-            )}
+            {settings.sectionNotesEnabled !== false && <Link href="/notes">{t("Ghi chú kỹ thuật", "Engineering notes")}</Link>}
           </div>
         </div>
         <div className="pf-footer-bottom">
           <span>
-            © {new Date().getFullYear()} {profile.name || "Phan Huỳnh Văn Đô"}
+            © {new Date().getFullYear()} Engineering Lab
           </span>
           <div>
             <Link href="/privacy">{t("Bảo mật", "Privacy")}</Link>

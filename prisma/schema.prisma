@@ -66,6 +66,9 @@ model Project {
   image            String   @default("")
   images           String   @default("[]") // JSON string[] gallery
   showVideoDemo    Boolean  @default(true)
+  published        Boolean  @default(true)
+  featured         Boolean  @default(false)
+  status            String   @default("") // completed | in-development | prototype | research; empty means unspecified
   youtubeUrl       String?  // optional YouTube watch/embed URL
   link             String?
   repo             String?

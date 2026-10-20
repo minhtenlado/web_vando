@@ -1,11 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { LogOut, ExternalLink, Menu, X, ChevronDown, ChevronRight } from "lucide-react";
+import { ExternalLink, Menu, X, ChevronDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LoginForm } from "@/components/admin/login-form";
 import { ProfileTab } from "@/components/admin/profile-tab";
-import { PageConfigTab } from "@/components/admin/page-config-tab";
+import { HomeSettingsTab } from "@/components/admin/home-settings-tab";
 import { ProjectsTab } from "@/components/admin/projects-tab";
 import { ExperiencesTab } from "@/components/admin/experiences-tab";
 import { PostsTab } from "@/components/admin/posts-tab";
@@ -17,7 +17,6 @@ import { InboxTab } from "@/components/admin/inbox-tab";
 import type { SiteProfile } from "@/lib/cv/site-data-server";
 
 import { useLocale } from "@/components/cv/locale-context";
-import { useTheme } from "next-themes";
 import "./admin.css";
 
 type Stage = "checking" | "login" | "dashboard";
@@ -41,9 +40,8 @@ function Dashboard({
   initialProfile: SiteProfile | null;
   onLogout: () => void;
 }) {
-  const { locale, setLocale, t } = useLocale();
-  const { theme, setTheme } = useTheme();
-  const [activeTab, setActiveTab] = React.useState<TabId>("experiences");
+  const { locale, setLocale } = useLocale();
+  const [activeTab, setActiveTab] = React.useState<TabId>("projects");
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [activeSettingsTab, setActiveSettingsTab] = React.useState("general");
@@ -55,11 +53,11 @@ function Dashboard({
 
   const navItems = [
     { id: "profile" as TabId, icon: "◎", label: "Hồ sơ" },
-    { id: "config" as TabId, icon: "◌", label: "Cấu hình trang" },
-    { id: "education" as TabId, icon: "▣", label: "Học vấn", count: "03" },
-    { id: "projects" as TabId, icon: "◆", label: "Dự án", count: "08" },
-    { id: "experiences" as TabId, icon: "◈", label: "Kinh nghiệm", count: "03" },
-    { id: "posts" as TabId, icon: "✦", label: "Bài viết", count: "06" },
+    { id: "config" as TabId, icon: "◌", label: "Trang chủ" },
+    { id: "education" as TabId, icon: "▣", label: "Học vấn" },
+    { id: "projects" as TabId, icon: "◆", label: "Dự án" },
+    { id: "experiences" as TabId, icon: "◈", label: "Kinh nghiệm" },
+    { id: "posts" as TabId, icon: "✦", label: "Bài viết" },
     { id: "comments" as TabId, icon: "💬", label: "Bình luận" },
     { id: "inbox" as TabId, icon: "📬", label: "Hộp thư" },
   ];
@@ -73,12 +71,9 @@ function Dashboard({
   const settingsSubItems = [
     { id: "general", label: "Tổng quan" },
     { id: "account", label: "Tài khoản & Bảo mật" },
-    { id: "appearance", label: "Giao diện" },
     { id: "portfolio", label: "Thông tin & SEO" },
     { id: "navigation", label: "Điều hướng" },
     { id: "integrations", label: "Tích hợp" },
-    { id: "notifications", label: "Thông báo" },
-    { id: "backup", label: "Hệ thống & Dữ liệu" },
   ];
 
   const currentTabLabel =
@@ -100,8 +95,8 @@ function Dashboard({
           <div className="admin-brand">
             <div className="admin-brand-logo">&lt;/&gt;</div>
             <div className="admin-brand-text">
-              <strong>portfolio admin</strong>
-              <span>content management</span>
+              <strong>ENGINEERING LAB</strong>
+              <span>CONTROL CENTER</span>
             </div>
             <button
               className="md:hidden ml-auto text-muted-foreground p-1"
@@ -121,7 +116,6 @@ function Dashboard({
               >
                 <span className="admin-nav-icon">{item.icon}</span>
                 <span className="admin-nav-label">{item.label}</span>
-                {item.count && <span className="admin-nav-count">{item.count}</span>}
               </button>
             ))}
           </nav>
@@ -218,12 +212,6 @@ function Dashboard({
               >
                 EN
               </button>
-              <button
-                className="admin-top-button"
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              >
-                {theme === "dark" ? "☀️ Sáng" : "🌙 Tối"}
-              </button>
               <button className="admin-top-button hidden sm:flex" onClick={onLogout}>
                 ⇥ Đăng xuất
               </button>
@@ -233,7 +221,7 @@ function Dashboard({
           {/* PAGE CONTENT */}
           <div className="admin-page-container">
             {activeTab === "profile" && <ProfileTab initial={initialProfile} locale={locale} />}
-            {activeTab === "config" && <PageConfigTab initial={initialProfile} locale={locale} />}
+            {activeTab === "config" && <HomeSettingsTab />}
             {activeTab === "education" && <EducationTab initial={initialProfile} locale={locale} />}
             {activeTab === "projects" && <ProjectsTab locale={locale} />}
             {activeTab === "experiences" && <ExperiencesTab locale={locale} />}
@@ -263,9 +251,9 @@ export function AdminApp() {
         if (cancelled) return;
         if (data?.authed) {
           try {
-            const sd = await fetch("/api/site-data", { cache: "no-store" });
+            const sd = await fetch("/api/admin/profile?locale=vi", { cache: "no-store" });
             const sdData = await sd.json().catch(() => ({}));
-            if (!cancelled && sdData?.profile) setProfile(sdData.profile);
+            if (!cancelled && sdData?.ok && sdData.profile) setProfile(sdData.profile);
           } catch {}
           setStage("dashboard");
         } else {
