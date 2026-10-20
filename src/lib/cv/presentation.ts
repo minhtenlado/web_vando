@@ -3,6 +3,14 @@ export function normalizeSearch(value: string): string {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase().replace(/đ/g, "d").trim();
 }
 
+export function formatContentDate(value: string, locale: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-US", {
+    dateStyle: "medium", timeZone: "Asia/Ho_Chi_Minh",
+  }).format(date);
+}
+
 export function localizedText(value: unknown, locale: "vi" | "en"): string {
   if (typeof value === "string" || typeof value === "number")
     return String(value);

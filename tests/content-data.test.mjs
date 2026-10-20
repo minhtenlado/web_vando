@@ -13,7 +13,7 @@ function loadSource(path, dependencies = {}) {
 }
 const projects = loadSource('src/lib/cv/project-store.ts');
 const settings = loadSource('src/lib/cv/public-settings.ts');
-const { normalizeSearch } = loadSource('src/lib/cv/presentation.ts');
+const { normalizeSearch, formatContentDate } = loadSource('src/lib/cv/presentation.ts');
 const { supportsTutorialEditor } = loadSource('src/components/admin/post-types.ts');
 const { projectPayloadError } = loadSource('src/lib/cv/project-input.ts');
 const missingColumn = Object.assign(new Error('Missing publication column'), { code: 'P2022' });
@@ -80,6 +80,27 @@ function serverWith(db) {
     './public-settings': settings, './public-snapshot.json': JSON.parse(readFileSync(new URL('../src/lib/cv/public-snapshot.json', import.meta.url), 'utf8')),
   });
 }
+
+test('English library keeps published Vietnamese projects when no translation exists', async () => withEnvironment({ DATABASE_URL: 'postgresql://localhost/test', CONTENT_PREVIEW_SNAPSHOT: undefined }, async () => {
+  const calls = [];
+  const client = {
+    project: { findMany: async (args) => { calls.push(args); return args.where.locale === 'vi' ? [{ id: 'stored-project', title: 'Existing CMS project', updatedAt: new Date('2026-01-01') }] : []; } },
+    post: { findMany: async () => [] }, profile: { findMany: async () => [] },
+  };
+  const result = await serverWith(client).getSiteData('en');
+  assert.equal(result.projects[0].id, 'stored-project');
+  assert.deepEqual(calls.map((call) => call.where), [{ locale: 'en', published: true }, { locale: 'vi', published: true }]);
+}));
+
+test('article date remains identical across server/browser host timezones at midnight', async () => {
+  const dates = [];
+  for (const TZ of ['UTC', 'Asia/Ho_Chi_Minh', 'America/Los_Angeles']) {
+    await withEnvironment({ TZ }, () => { dates.push(formatContentDate('2025-10-17T17:08:00.000Z', 'vi')); });
+  }
+  assert.equal(new Set(dates).size, 1);
+  assert.match(dates[0], /18/);
+  assert.equal(formatContentDate('invalid', 'vi'), '');
+});
 
 test('a Project failure cannot discard published articles or expose their full bodies', async () => withEnvironment({ DATABASE_URL: 'postgresql://localhost/test', CONTENT_PREVIEW_SNAPSHOT: undefined }, async () => {
   const date = new Date('2026-01-02T00:00:00Z');

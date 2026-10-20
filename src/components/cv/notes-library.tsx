@@ -1,6 +1,6 @@
 'use client';
 
-import { normalizeSearch,plainText } from '@/lib/cv/presentation';
+import { formatContentDate,normalizeSearch,plainText } from '@/lib/cv/presentation';
 import type { SitePost } from '@/lib/cv/site-data-server';
 import { ArrowUpRight,Search } from 'lucide-react';
 import Link from 'next/link';
@@ -10,11 +10,6 @@ import { ContentError } from './content-state';
 import { useLocale } from './locale-context';
 import { useSiteData } from './site-data-context';
 
-function articleDate(value: string, locale: string) {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? '' : new Intl.DateTimeFormat(locale === 'vi' ? 'vi-VN' : 'en-US', { dateStyle: 'medium' }).format(date);
-}
-
 export function ArticleList({ posts, compact = false }: { posts: SitePost[]; compact?: boolean }) {
   const { locale } = useLocale();
   const Heading = compact ? 'h3' : 'h2';
@@ -23,7 +18,7 @@ export function ArticleList({ posts, compact = false }: { posts: SitePost[]; com
       <Link href={'/posts/' + encodeURIComponent(post.slug)}>
         {!compact && <div className="lab-note-cover"><ContentImage src={post.coverImage} alt="" sizes="(max-width: 560px) 100vw, 200px" /></div>}
         <div className="lab-note-copy">
-          <p className="lab-note-meta">{post.category && <span>{post.category}</span>}{articleDate(post.createdAt, locale) && <time dateTime={post.createdAt}>{articleDate(post.createdAt, locale)}</time>}</p>
+          <p className="lab-note-meta">{post.category && <span>{post.category}</span>}{formatContentDate(post.createdAt, locale) && <time dateTime={post.createdAt}>{formatContentDate(post.createdAt, locale)}</time>}</p>
           <Heading>{post.title}</Heading>
           {post.excerpt && <p>{plainText(post.excerpt)}</p>}
         </div>

@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Keep DOMPurify's Node/jsdom entry point intact in serverless functions.
+  serverExternalPackages: ["isomorphic-dompurify", "jsdom"],
   output: process.env.VERCEL ? undefined : "standalone",
   typescript: {
     ignoreBuildErrors: false,

@@ -148,7 +148,8 @@ export const getSiteData = cache(async (locale: string = "vi"): Promise<SiteData
   }
 
   const [projects, posts, profiles] = await Promise.allSettled([
-    readProjects(db, { locale: loc }),
+    readProjects(db, { locale: loc }).then((result) =>
+      result.rows.length || loc === "vi" ? result : readProjects(db, { locale: "vi" })),
     db.post.findMany({
       where: { published: true }, orderBy: { createdAt: "desc" },
       select: {
@@ -252,6 +253,7 @@ function isDatabaseConfigured(): boolean {
 
 function getSnapshot(locale: "vi" | "en"): SiteData {
   const data = structuredClone(publicSnapshot[locale]) as unknown as SiteData;
+  if (locale === "en" && !data.projects.length) data.projects = structuredClone(publicSnapshot.vi.projects) as unknown as SiteProject[];
   data.projects = data.projects.map((project) => ({ ...project, published: true, featured: false, status: "" }));
   data.posts = data.posts.filter((post) => post.published);
   data.settings = getPublicSettings(data.settings);
