@@ -761,7 +761,7 @@
         "seoTitle": "Build a Real-Time Object Detection System with YOLO",
         "seoDescription": "uild a real-time object detection system using YOLO, OpenCV, and an Edge AI device. The system captures frames from a camera.",
         "seoKeywords": "",
-        "coverImage": "https://res.cloudinary.com/s4sbshc3/image/upload/v1786817924/web_vando/avatars/eeyk5yoy39vx3iijwnbq.jpg",
+        "coverImage": null,
         "pdfUrl": null
       },
       {
@@ -779,7 +779,7 @@
         "seoTitle": "Lượng tử hóa mô hình AI để tối ưu trên thiết bị biên",
         "seoDescription": "Tìm hiểu lượng tử hóa AI, PTQ, QAT, INT8 và cách tối ưu mô hình để triển khai hiệu quả trên thiết bị biên.",
         "seoKeywords": "lượng tử hóa AI, AI quantization, model quantization, Edge AI, thiết bị biên, INT8, INT4, PTQ, QAT, AI optimization, model optimization, TensorFlow Lite, ONNX, NCNN, LLM quantization",
-        "coverImage": "https://res.cloudinary.com/s4sbshc3/image/upload/v1786817924/web_vando/avatars/eeyk5yoy39vx3iijwnbq.jpg",
+        "coverImage": null,
         "pdfUrl": null
       },
       {
@@ -798,7 +798,7 @@
         "seoTitle": "Huấn luyện Robot bằng Giải thuật Di truyền và GRU trên ROS 2",
         "seoDescription": "hệ thống Neuroevolution dùng Giải thuật Di truyền kết hợp với mạng GRU để huấn luyện robot Mecanum 4 bánh di chuyển trong môi trường mê cung mô phỏng.",
         "seoKeywords": "",
-        "coverImage": "https://res.cloudinary.com/s4sbshc3/image/upload/v1786817924/web_vando/avatars/eeyk5yoy39vx3iijwnbq.jpg",
+        "coverImage": null,
         "pdfUrl": null
       }
     ],
@@ -1569,7 +1569,7 @@
         "seoTitle": "Build a Real-Time Object Detection System with YOLO",
         "seoDescription": "uild a real-time object detection system using YOLO, OpenCV, and an Edge AI device. The system captures frames from a camera.",
         "seoKeywords": "",
-        "coverImage": "https://res.cloudinary.com/s4sbshc3/image/upload/v1786817924/web_vando/avatars/eeyk5yoy39vx3iijwnbq.jpg",
+        "coverImage": null,
         "pdfUrl": null
       },
       {
@@ -1587,7 +1587,7 @@
         "seoTitle": "Lượng tử hóa mô hình AI để tối ưu trên thiết bị biên",
         "seoDescription": "Tìm hiểu lượng tử hóa AI, PTQ, QAT, INT8 và cách tối ưu mô hình để triển khai hiệu quả trên thiết bị biên.",
         "seoKeywords": "lượng tử hóa AI, AI quantization, model quantization, Edge AI, thiết bị biên, INT8, INT4, PTQ, QAT, AI optimization, model optimization, TensorFlow Lite, ONNX, NCNN, LLM quantization",
-        "coverImage": "https://res.cloudinary.com/s4sbshc3/image/upload/v1786817924/web_vando/avatars/eeyk5yoy39vx3iijwnbq.jpg",
+        "coverImage": null,
         "pdfUrl": null
       },
       {
@@ -1606,7 +1606,7 @@
         "seoTitle": "Huấn luyện Robot bằng Giải thuật Di truyền và GRU trên ROS 2",
         "seoDescription": "hệ thống Neuroevolution dùng Giải thuật Di truyền kết hợp với mạng GRU để huấn luyện robot Mecanum 4 bánh di chuyển trong môi trường mê cung mô phỏng.",
         "seoKeywords": "",
-        "coverImage": "https://res.cloudinary.com/s4sbshc3/image/upload/v1786817924/web_vando/avatars/eeyk5yoy39vx3iijwnbq.jpg",
+        "coverImage": null,
         "pdfUrl": null
       }
     ],

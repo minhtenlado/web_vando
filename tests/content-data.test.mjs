@@ -16,7 +16,22 @@ const settings = loadSource('src/lib/cv/public-settings.ts');
 const { normalizeSearch, formatContentDate } = loadSource('src/lib/cv/presentation.ts');
 const { supportsTutorialEditor } = loadSource('src/components/admin/post-types.ts');
 const { projectPayloadError } = loadSource('src/lib/cv/project-input.ts');
+const { projectCategoryGroups } = loadSource('src/lib/cv/project-categories.ts', { './presentation': loadSource('src/lib/cv/presentation.ts') });
 const missingColumn = Object.assign(new Error('Missing publication column'), { code: 'P2022' });
+
+test('presentation categories shorten legacy labels without losing group membership', () => {
+  assert.deepEqual(projectCategoryGroups('Robotics & Embedded Systems'), ['Embedded', 'Robotics']);
+  assert.deepEqual(projectCategoryGroups('Robotics & AI Simulation'), ['AI', 'Robotics']);
+  assert.deepEqual(projectCategoryGroups('IoT & Embedded Systems'), ['Embedded', 'IoT']);
+  assert.deepEqual(projectCategoryGroups('IoT&AI'), ['AI', 'IoT']);
+  assert.deepEqual(projectCategoryGroups('Hệ thống nhúng'), ['Embedded']);
+});
+
+test('unknown CMS categories remain available instead of disappearing from filters', () => {
+  assert.deepEqual(projectCategoryGroups('  Custom research  '), ['Custom research']);
+  assert.deepEqual(projectCategoryGroups(''), []);
+  assert.deepEqual(projectCategoryGroups(undefined), []);
+});
 
 function projectClient({ rows = [], columns = [], error } = {}) {
   const calls = [];

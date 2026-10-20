@@ -2,6 +2,7 @@
 
 import { normalizeSearch,plainText } from '@/lib/cv/presentation';
 import { normalizeProjectUrl } from '@/lib/cv/project-input';
+import { projectCategoryGroups } from '@/lib/cv/project-categories';
 import type { SiteProject } from '@/lib/cv/site-data-server';
 import { ArrowRight,ArrowUpRight,Search,X } from 'lucide-react';
 import Link from 'next/link';
@@ -20,7 +21,7 @@ function ProjectSummary({ project }: { project: SiteProject }) {
     ? { completed: 'Hoàn thành', 'in-development': 'Đang phát triển', prototype: 'Nguyên mẫu', research: 'Nghiên cứu' }
     : { completed: 'Completed', 'in-development': 'In development', prototype: 'Prototype', research: 'Research' };
   return <div className="lab-project-copy">
-    <p className="lab-project-meta">{project.category}{project.status && statuses[project.status] && <span>{statuses[project.status]}</span>}</p>
+    <p className="lab-project-meta">{projectCategoryGroups(project.category).join(' · ')}{project.status && statuses[project.status] && <span>{statuses[project.status]}</span>}</p>
     <h3>{project.title}</h3>
     <p className="lab-project-description">{plainText(project.subtitle || project.description).slice(0, 220)}</p>
     {!!project.tech?.length && <ul className="lab-tech-list" aria-label={locale === 'vi' ? 'Công nghệ' : 'Technologies'}>{project.tech.slice(0, 4).map((tech) => <li key={tech}>{tech}</li>)}</ul>}
@@ -29,7 +30,7 @@ function ProjectSummary({ project }: { project: SiteProject }) {
 
 function ProjectRow({ project, priority = false }: { project: SiteProject; priority?: boolean }) {
   return <article className="lab-project-row"><Link href={'/projects/' + encodeURIComponent(project.id)}>
-    <div className="lab-project-image"><ContentImage src={project.image} alt={project.title} sizes="(max-width: 560px) 100vw, 240px" priority={priority} /></div>
+    <div className="lab-project-image"><ContentImage src={project.image} alt="" sizes="(max-width: 560px) calc(100vw - 32px), (max-width: 760px) 180px, 230px" priority={priority} /></div>
     <ProjectSummary project={project} /><ArrowUpRight className="lab-row-arrow" size={18} aria-hidden="true" />
   </Link></article>;
 }
@@ -42,8 +43,8 @@ export function PortfolioHome() {
   const [limit, setLimit] = useState(6);
   const published = useMemo(() => projects.filter((project) => project.published !== false), [projects]);
   const featured = useMemo(() => published.filter((project) => project.featured).slice(0, 3), [published]);
-  const categories = useMemo(() => Array.from(new Set(published.map((project) => project.category).filter(Boolean))), [published]);
-  const filtered = useMemo(() => published.filter((project) => (category === 'all' || project.category === category)
+  const categories = useMemo(() => Array.from(new Set(published.flatMap((project) => projectCategoryGroups(project.category)))), [published]);
+  const filtered = useMemo(() => published.filter((project) => (category === 'all' || projectCategoryGroups(project.category).includes(category))
     && normalizeSearch([project.title, project.category, project.subtitle, project.description, ...(project.tech || [])].join(' ')).includes(normalizeSearch(query))), [published, category, query]);
   const latest = useMemo(() => posts.filter((post) => post.published).slice().sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)).slice(0, 3), [posts]);
   const projectError = Boolean(errors?.projects || requestFailed);
@@ -53,7 +54,7 @@ export function PortfolioHome() {
 
   return <div className="lab-site" id="top">
     <Navbar />
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1}>
       <PreviewNotice />
       <section className="lab-intro lab-container" aria-labelledby="site-title">
         <h1 id="site-title">{locale === 'vi' ? settings.heroHeadlineVi : settings.heroHeadlineEn}</h1>
@@ -65,7 +66,7 @@ export function PortfolioHome() {
         <div className="lab-section-heading"><h2 id="featured-title">{t('Dự án nổi bật', 'Featured projects')}</h2></div>
         <div className="lab-featured-layout">
           <article className="lab-featured-lead"><Link href={'/projects/' + encodeURIComponent(featured[0].id)}>
-            <div className="lab-featured-image"><ContentImage src={featured[0].image} alt={featured[0].title} sizes="(max-width: 760px) 100vw, 680px" priority /></div>
+            <div className="lab-featured-image"><ContentImage src={featured[0].image} alt="" sizes="(max-width: 760px) calc(100vw - 36px), 680px" priority /></div>
             <ProjectSummary project={featured[0]} />
           </Link></article>
           {featured.length > 1 && <div className="lab-featured-more">{featured.slice(1).map((project) => <ProjectRow key={project.id} project={project} />)}</div>}

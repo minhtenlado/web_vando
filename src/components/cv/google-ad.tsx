@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from "react"
+import Script from "next/script"
 
 type GoogleAdProps = {
   adClient: string
@@ -29,6 +30,13 @@ export function GoogleAd({ adClient, adSlot, format = "auto", responsive = true,
 
   return (
     <div className={`w-full text-center overflow-hidden flex items-center justify-center ${className}`}>
+      <Script
+        id="google-adsense"
+        async
+        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(adClient)}`}
+        crossOrigin="anonymous"
+        strategy="lazyOnload"
+      />
       <ins
         ref={adRef}
         className="adsbygoogle"

@@ -107,12 +107,6 @@ export default async function RootLayout({
               </Script>
             </>
           )}
-          <Script
-            async
-            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2941183923177148"
-            crossOrigin="anonymous"
-            strategy="lazyOnload"
-          />
           {children}
           <Toaster />
         </ThemeProvider>

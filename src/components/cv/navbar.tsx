@@ -1,6 +1,6 @@
 'use client';
 
-import { Sheet,SheetClose,SheetContent,SheetTitle,SheetTrigger } from '@/components/ui/sheet';
+import { Sheet,SheetClose,SheetContent,SheetDescription,SheetTitle,SheetTrigger } from '@/components/ui/sheet';
 import { externalUrl } from '@/lib/cv/presentation';
 import { ArrowUpRight,Menu } from 'lucide-react';
 import Link from 'next/link';
@@ -33,6 +33,7 @@ export function Navbar() {
             <SheetTrigger asChild><button className="pf-icon-button pf-mobile-menu" aria-label={t('Mở menu', 'Open menu')}><Menu size={21} /></button></SheetTrigger>
             <SheetContent className="pf-mobile-sheet">
               <SheetTitle>{name}</SheetTitle>
+              <SheetDescription className="sr-only">{t('Điều hướng dự án và bài viết kỹ thuật.', 'Navigate projects and technical articles.')}</SheetDescription>
               <div className="pf-mobile-links">
                 {links.map((link) => <SheetClose asChild key={link.href}><Link href={link.href}>{link.label}<ArrowUpRight size={17} /></Link></SheetClose>)}
                 {github && <SheetClose asChild><a href={github} target="_blank" rel="noopener noreferrer">GitHub<ArrowUpRight size={17} /></a></SheetClose>}

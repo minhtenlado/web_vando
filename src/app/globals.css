@@ -70,6 +70,10 @@
   --border: #343a40;
   --input: #343a40;
   --ring: #8eafc3;
+  --motion-fast: 140ms;
+  --motion-normal: 200ms;
+  --motion-slow: 280ms;
+  --ease-standard: cubic-bezier(.2, .8, .2, 1);
   --sidebar: #181c20;
   --sidebar-foreground: #edeff1;
   --sidebar-primary: #8eafc3;

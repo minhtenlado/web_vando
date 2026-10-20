@@ -1,6 +1,7 @@
 'use client';
 
 import { formatContentDate,normalizeSearch,plainText } from '@/lib/cv/presentation';
+import { normalizeProjectImage } from '@/lib/cv/project-input';
 import type { SitePost } from '@/lib/cv/site-data-server';
 import { ArrowUpRight,Search } from 'lucide-react';
 import Link from 'next/link';
@@ -16,7 +17,7 @@ export function ArticleList({ posts, compact = false }: { posts: SitePost[]; com
   return <div className={'lab-article-list' + (compact ? ' lab-article-list-compact' : '')}>
     {posts.map((post) => <article className="lab-note-row" key={post.id}>
       <Link href={'/posts/' + encodeURIComponent(post.slug)}>
-        {!compact && <div className="lab-note-cover"><ContentImage src={post.coverImage} alt="" sizes="(max-width: 560px) 100vw, 200px" /></div>}
+        {!compact && normalizeProjectImage(post.coverImage) && <div className="lab-note-cover"><ContentImage src={post.coverImage} alt="" sizes="(max-width: 560px) calc(100vw - 32px), 200px" /></div>}
         <div className="lab-note-copy">
           <p className="lab-note-meta">{post.category && <span>{post.category}</span>}{formatContentDate(post.createdAt, locale) && <time dateTime={post.createdAt}>{formatContentDate(post.createdAt, locale)}</time>}</p>
           <Heading>{post.title}</Heading>

@@ -50,7 +50,7 @@ export default async function PostPage({ params }: Props) {
     <div className="lab-site">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       <Navbar /><PreviewNotice />
-      <main className="lab-container lab-article-page" id="main-content">
+      <main className="lab-container lab-article-page" id="main-content" tabIndex={-1}>
         <Link href="/notes" className="lab-detail-back">← {locale === 'vi' ? 'Tất cả bài viết' : 'All articles'}</Link>
         <div className="lab-reading-layout">
           <PostReader slug={post.slug} title={post.title} pubDate={pubDate} readingTime={Math.max(1, Math.ceil(words / 200))} coverImage={cover} pdfUrl={pdf} category={post.category} excerpt={plainText(post.excerpt)} views={post.views} likes={post.likes} preview={data.source === 'snapshot'}>

@@ -20,6 +20,6 @@ export default async function EngineeringNotesPage() {
   const locale = (await cookies()).get('cv-locale')?.value === 'en' ? 'en' : 'vi';
   const initialData = toPresentationData(await getSiteData(locale));
   return <LocaleProvider initialLocale={locale}><SiteDataProvider initialData={initialData}>
-    <div className="lab-site"><Navbar /><main id="main-content" className="lab-container lab-notes-page"><PreviewNotice /><NotesLibrary /></main><Footer /></div>
+    <div className="lab-site"><Navbar /><main id="main-content" tabIndex={-1} className="lab-container lab-notes-page"><PreviewNotice /><NotesLibrary /></main><Footer /></div>
   </SiteDataProvider></LocaleProvider>;
 }
