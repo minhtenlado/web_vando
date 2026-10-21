@@ -5,7 +5,8 @@ import { Card,CardContent,CardDescription,CardHeader,CardTitle } from "@/compone
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2,Lock,ShieldCheck,Terminal } from "lucide-react";
+import { LabMark } from "@/components/cv/lab-mark";
+import { Loader2,Lock,ShieldCheck } from "lucide-react";
 import * as React from "react";
 
 export function LoginForm({ onSuccess }: { onSuccess: () => void }) {
@@ -48,20 +49,14 @@ export function LoginForm({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden">
-      {/* Background layers matching the site */}
-      <div className="absolute inset-0 bg-grid pointer-events-none [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
-      <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
-      <div className="absolute top-1/3 -right-32 h-96 w-96 rounded-full bg-accent/20 blur-3xl pointer-events-none" />
-
       <Card className="relative w-full max-w-md bg-card/80 backdrop-blur-sm">
         <CardHeader className="space-y-3">
           <div className="flex items-center gap-2 font-mono text-xs text-muted-foreground">
-            <Terminal className="size-4 text-primary" />
-            <span>admin@portfolio:~$ ./login</span>
+            <span className="text-primary">ENGINEERING LAB / CMS</span>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex size-12 items-center justify-center rounded-xl bg-primary/15 border border-primary/30 text-primary">
-              <ShieldCheck className="size-6" />
+              <LabMark className="size-7" />
             </div>
             <div>
               <CardTitle className="text-2xl">Admin Panel</CardTitle>

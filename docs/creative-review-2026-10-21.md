@@ -32,3 +32,32 @@ Evidence is saved outside the repository in the task workspace's `qa-creative-20
 - External upload success, email/AI delivery and production CRUD writes were not exercised. Production verification uses read-only CMS inspection and ordinary login/logout.
 - No database/schema change is included. No credentials, `.env`, `.vercel`, session files or ignored QA tooling are intended for the commit. Preview protection must remain enabled; no new automation-bypass credential is required.
 - Rollback is the stable baseline deployment above (or a revert of this code-only release). No database rollback is needed.
+
+## Initial production release — `cbcd351`
+
+- Preview `dpl_4A59GY9TAEWaXbZw2r3hU57s7HEo`: Ready. Browser preview requires Vercel SSO; no protection bypass was created. Build logs passed compilation/TypeScript and skipped the preview schema rollout.
+- Production `dpl_GF9zh7vjfuXEVZkAUEqPfrmMqpZT`: Ready, original domain alias confirmed, main commit `cbcd351`. Production build log: “Publication controls ready. No schema change needed.”
+- Original domain rendered the new chip/hero, exhibition and paper Notes section. Another 60 responsive checks on the real domain passed at all six widths. One default three-second heading assertion expired during a streamed project response; the page subsequently rendered its real content and passed the completed assertion. This was not a verified HTTP 500.
+- VI and EN public API: five projects, three posts, empty error objects. Before/after comparison preserved project content and article metadata, including IDs, titles, media, technology, publication flags, URLs and results. Article view counts can increase during ordinary reader visits.
+- Unauthenticated project/post/profile/settings/message Admin GETs returned 401. Sitemap returned 200 with Notes, five project URLs and three article URLs.
+- Authenticated read-only Admin: five projects, two VI articles, one EN article. The existing YOLO tutorial opened with nine code fields, enabled save controls and no offscreen input/document overflow at 390px. No save/delete/upload was performed. The placeholder warning rendered correctly.
+- Real production mobile project search and AI filter returned three and two records respectively; English switch preserved five projects. Keyboard skip link focused `main-content`. Sampled event timing across three interaction IDs had maximum duration 72ms; this is not field INP. Temporary observers were disconnected and removed.
+
+### Measured tradeoff
+
+Unthrottled in-app Chromium, real network, varying browser/server caches. Decoded bytes are uncompressed resource sizes, not transferred bytes. The initial new font resources totalled 48,308 decoded bytes. No Lighthouse/FPS result is claimed.
+
+| Sample | LCP candidate | Decoded JS | Non-input layout-shift sum |
+| --- | ---: | ---: | ---: |
+| Stable baseline, homepage 1280px | 3,164ms | 600,034 | 0 |
+| Initial creative homepage 1280px | 4,808ms | 607,033 | 0 |
+| Creative homepage 1440px, subsequent load | 2,880ms | 607,033 | 0 |
+| Creative YOLO reader 1440px | 1,172ms | 591,015 | 0 |
+| Creative homepage 390px | 1,036ms | 607,033 | 0 |
+| Creative YOLO reader 390px | 1,104ms | 591,015 | 0 |
+
+Homepage decoded JS increased by 6,999 bytes (1.17%); CSS 236,593 → 247,764 bytes (+11,171, 4.72%) in these samples. The LCP candidate changed from a project thumbnail to the larger hero text. Entry animation and first render add visual settling time; a faster LCP is not claimed. Subsequent loads are not a controlled cold-cache comparison.
+
+### Follow-up refinement found during live review
+
+The full-screen tutorial/rich-text editors still used hard-coded colors from the previous palette. These were aligned with ink/petrol/mint, including the editor font; the login's old terminal decoration was replaced by the actual Lab mark. This follow-up changes presentation only. Its production build/TypeScript and targeted ESLint passed. Public route logic, database handlers and CMS content are unchanged. Final login/logout and editor appearance must be checked after that code reaches the original domain.

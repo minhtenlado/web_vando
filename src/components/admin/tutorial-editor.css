@@ -1,31 +1,31 @@
 /* src/components/admin/tutorial-editor.css */
 
 .tutorial-editor-root {
-  --bg: #111418;
-  --surface: #181c20;
-  --surface-2: #20252a;
-  --surface-3: #292f35;
+  --bg: #0b1215;
+  --surface: #111e23;
+  --surface-2: #17292e;
+  --surface-3: #20353b;
 
   --border: rgba(255, 255, 255, 0.075);
-  --border-hover: rgba(142, 175, 195, 0.30);
+  --border-hover: rgba(143, 224, 205, 0.30);
 
-  --text: #edeff1;
-  --muted: #a5abb2;
-  --muted-2: #929aa3;
+  --text: #f1eee7;
+  --muted: #afc0bf;
+  --muted-2: #a8b6b8;
 
-  --green: #8eafc3;
-  --green-soft: rgba(142, 175, 195, 0.09);
+  --green: #8fe0cd;
+  --green-soft: rgba(143, 224, 205, 0.09);
 
-  --blue: #8eafc3;
+  --blue: #8fe0cd;
   --yellow: #e5c86d;
   --red: #ff7b7b;
 
   --radius: 8px;
-  --bg-glow: rgba(142, 175, 195, 0.055);
-  --bg-topbar: rgba(17, 20, 24, 0.94);
+  --bg-glow: rgba(143, 224, 205, 0.055);
+  --bg-topbar: rgba(11, 18, 21, 0.94);
 
   --font:
-    Inter,
+    var(--font-lab-sans),
     ui-sans-serif,
     system-ui,
     -apple-system,
@@ -143,7 +143,7 @@
   justify-content: center;
   color: var(--green);
   background: var(--green-soft);
-  border: 1px solid rgba(142, 175, 195, 0.17);
+  border: 1px solid rgba(143, 224, 205, 0.17);
 }
 
 .tutorial-editor-root .page-title {
@@ -283,7 +283,7 @@
 .tutorial-editor-root .outline-item.active {
   background: var(--green-soft);
   color: var(--green);
-  border-color: rgba(142, 175, 195, 0.12);
+  border-color: rgba(143, 224, 205, 0.12);
 }
 
 .tutorial-editor-root .outline-number {
