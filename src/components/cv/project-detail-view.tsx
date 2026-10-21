@@ -8,6 +8,7 @@ import { ArrowLeft,ArrowUpRight,ChevronLeft,ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo,useRef,useState,type ReactNode } from 'react';
 import { ContentImage } from './content-image';
+import { ProjectVideo } from './project-video';
 import './detail-polish.css';
 import { useLocale } from './locale-context';
 
@@ -16,7 +17,6 @@ export function ProjectDetailView({ project, relatedProjects, children }: {
 }) {
   const { t } = useLocale();
   const [imageIndex, setImageIndex] = useState<number | null>(null);
-  const [videoOpen, setVideoOpen] = useState(false);
   const imageOpener = useRef<HTMLButtonElement | null>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const images = useMemo(() => Array.from(new Set([project.image, ...(project.images || [])].map(normalizeProjectImage).filter(Boolean))), [project.image, project.images]);
@@ -52,7 +52,7 @@ export function ProjectDetailView({ project, relatedProjects, children }: {
       {features.length > 0 && <section><h2>{t('Tính năng', 'Features')}</h2><ul className="lab-feature-list">{features.map((feature, index) => <li key={index}>{feature}</li>)}</ul></section>}
       {responsibilities.length > 0 && <section><h2>{t('Triển khai', 'Implementation')}</h2><dl className="lab-implementation-list">{responsibilities.map((item, index) => <div key={index}>{item.title && <dt>{item.title}</dt>}{item.subtitle && <dd>{item.subtitle}</dd>}</div>)}</dl></section>}
       {images.length > 1 && <section><h2>{project.visualsTitle || t('Hình ảnh', 'Gallery')}</h2><div className="lab-gallery">{images.slice(1).map((src, index) => <button type="button" key={src} onClick={(event) => { imageOpener.current = event.currentTarget; setImageIndex(index + 1); }} aria-label={t('Xem ảnh ', 'View image ') + (index + 2)}><ContentImage src={src} alt={project.title + ' — ' + (index + 2)} sizes="(max-width: 560px) 100vw, 540px" fit="contain" /></button>)}</div></section>}
-      {videoId && project.showVideoDemo !== false && <section><h2>{project.videoTitle || t('Video trình diễn', 'Demo video')}</h2><div className="lab-video">{videoOpen ? <iframe loading="lazy" src={'https://www.youtube-nocookie.com/embed/' + videoId} title={project.videoTitle || project.title} allow="fullscreen; encrypted-media; picture-in-picture" allowFullScreen /> : <button type="button" className="lab-button" onClick={() => setVideoOpen(true)}>{t('Tải video YouTube', 'Load YouTube video')}</button>}</div></section>}
+      {videoId && project.showVideoDemo !== false && <section><h2>{project.videoTitle || t('Video trình diễn', 'Demo video')}</h2><ProjectVideo key={videoId} videoId={videoId} title={project.videoTitle || project.title} suspended={imageIndex !== null} /></section>}
       {results.length > 0 && <section><h2>{t('Kết quả', 'Results')}</h2><dl className="lab-result-list">{results.map((item, index) => <div key={index}>{item.number && <dt>{item.number}</dt>}{item.label && <dd>{item.label}</dd>}</div>)}</dl></section>}
     </div>
     {relatedProjects.length > 0 && <section className="lab-related"><h2>{t('Dự án liên quan', 'Related projects')}</h2><ul>{relatedProjects.map((item) => <li key={item.id}><Link href={'/projects/' + encodeURIComponent(item.id)}>{item.title}<ArrowUpRight size={16} aria-hidden="true" /></Link></li>)}</ul></section>}
