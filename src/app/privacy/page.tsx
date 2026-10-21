@@ -4,13 +4,13 @@ import { LocaleProvider } from "@/components/cv/locale-context";
 import { PrivacyContent } from "./privacy-content";
 
 export const metadata: Metadata = {
-  title: "Chính sách bảo mật (Privacy Policy) — Phan Huỳnh Văn Đô",
+  title: "Chính sách bảo mật (Privacy Policy) — Engineering Lab",
   description: "Chính sách bảo mật và quyền riêng tư của website phanhuynh.id.vn. Cam kết minh bạch về thu thập dữ liệu và tuân thủ Google AdSense.",
   alternates: {
     canonical: "/privacy",
   },
   openGraph: {
-    title: "Chính sách bảo mật (Privacy Policy) — Phan Huỳnh Văn Đô",
+    title: "Chính sách bảo mật (Privacy Policy) — Engineering Lab",
     description: "Chính sách bảo mật và quyền riêng tư của website phanhuynh.id.vn",
     url: "https://phanhuynh.id.vn/privacy",
   },

@@ -49,41 +49,41 @@
 
 :root, .dark {
   color-scheme: dark;
-  --font-geist-sans: Inter, 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-geist-sans: var(--font-lab-sans), 'Segoe UI', system-ui, -apple-system, sans-serif;
   --font-jetbrains-mono: 'JetBrains Mono', Consolas, 'SFMono-Regular', monospace;
   --radius: .5rem;
-  --background: #111418;
-  --foreground: #edeff1;
-  --card: #20252a;
-  --card-foreground: #edeff1;
-  --popover: #20252a;
-  --popover-foreground: #edeff1;
-  --primary: #8eafc3;
-  --primary-foreground: #111418;
-  --secondary: #292f35;
-  --secondary-foreground: #edeff1;
-  --muted: #181c20;
-  --muted-foreground: #a5abb2;
-  --accent: #292f35;
-  --accent-foreground: #edeff1;
+  --background: #0b1215;
+  --foreground: #f1eee7;
+  --card: #17292e;
+  --card-foreground: #f1eee7;
+  --popover: #17292e;
+  --popover-foreground: #f1eee7;
+  --primary: #8fe0cd;
+  --primary-foreground: #0b1215;
+  --secondary: #20353b;
+  --secondary-foreground: #f1eee7;
+  --muted: #111e23;
+  --muted-foreground: #a8b6b8;
+  --accent: #20353b;
+  --accent-foreground: #f1eee7;
   --destructive: #d97f7f;
-  --border: #343a40;
-  --input: #343a40;
-  --ring: #8eafc3;
+  --border: #2a3a3e;
+  --input: #2a3a3e;
+  --ring: #8fe0cd;
   --motion-fast: 140ms;
   --motion-normal: 200ms;
   --motion-slow: 280ms;
   --ease-standard: cubic-bezier(.2, .8, .2, 1);
-  --sidebar: #181c20;
-  --sidebar-foreground: #edeff1;
-  --sidebar-primary: #8eafc3;
-  --sidebar-primary-foreground: #111418;
-  --sidebar-accent: #292f35;
-  --sidebar-accent-foreground: #edeff1;
-  --sidebar-border: #343a40;
-  --sidebar-ring: #8eafc3;
-  --chart-1: #8eafc3;
-  --chart-2: #a5abb2;
+  --sidebar: #111e23;
+  --sidebar-foreground: #f1eee7;
+  --sidebar-primary: #8fe0cd;
+  --sidebar-primary-foreground: #0b1215;
+  --sidebar-accent: #20353b;
+  --sidebar-accent-foreground: #f1eee7;
+  --sidebar-border: #2a3a3e;
+  --sidebar-ring: #8fe0cd;
+  --chart-1: #8fe0cd;
+  --chart-2: #a8b6b8;
   --chart-3: #a8b9a3;
   --chart-4: #c7b68c;
   --chart-5: #b9a8a8;
@@ -95,8 +95,8 @@
 }
 :focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
 ::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #181c20; }
-::-webkit-scrollbar-thumb { background: #4c535b; border: 2px solid #181c20; border-radius: 4px; }
+::-webkit-scrollbar-track { background: #111e23; }
+::-webkit-scrollbar-thumb { background: #4c535b; border: 2px solid #111e23; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #6c747d; }
 .scrollbar-hide, .hide-scrollbar { scrollbar-width: none; }
 .scrollbar-hide::-webkit-scrollbar, .hide-scrollbar::-webkit-scrollbar { display: none; }

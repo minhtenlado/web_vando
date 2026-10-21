@@ -47,8 +47,8 @@ export function TermsContent() {
           </p>
           <p className="text-base text-muted-foreground leading-relaxed">
             {t(
-              "Chào mừng bạn đến với website của Phan Huỳnh Văn Đô. Bằng việc truy cập hoặc sử dụng trang web này, bạn đồng ý tuân thủ các điều khoản và điều kiện được nêu dưới đây.",
-              "Welcome to the website of Phan Huynh Van Do. By accessing or using this website, you agree to be bound by the terms and conditions outlined below."
+              "Chào mừng bạn đến với website Engineering Lab. Bằng việc truy cập hoặc sử dụng trang web này, bạn đồng ý tuân thủ các điều khoản và điều kiện được nêu dưới đây.",
+              "Welcome to Engineering Lab. By accessing or using this website, you agree to be bound by the terms and conditions outlined below."
             )}
           </p>
         </div>

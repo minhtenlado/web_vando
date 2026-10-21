@@ -4,8 +4,11 @@ import { getSiteSettings } from "@/lib/cv/site-data-server";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Script from "next/script";
+import { Manrope } from "next/font/google";
 import "../components/cv/engineering-lab.css";
 import "./globals.css";
+
+const manrope = Manrope({ subsets: ["latin", "vietnamese"], display: "swap", variable: "--font-lab-sans" });
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
@@ -79,6 +82,7 @@ export default async function RootLayout({
   const settings = await getSiteSettings();
   return (
     <html
+      className={manrope.variable}
       lang={(await cookies()).get("cv-locale")?.value === "en" ? "en" : "vi"}
       suppressHydrationWarning
     >

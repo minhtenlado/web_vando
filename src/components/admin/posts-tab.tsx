@@ -301,7 +301,7 @@ export function PostsTab({ locale }: { locale: string }) {
           <table className="admin-content-table">
             <thead><tr><th scope="col">Bài viết</th><th scope="col">Danh mục</th><th scope="col">Xuất bản</th><th scope="col">Thao tác</th></tr></thead>
             <tbody>{filteredItems.map((post) => <tr key={post.id}>
-              <th scope="row"><span className="admin-table-title">{post.title}</span><span className="admin-table-secondary">{formatDate(post.createdAt)}</span></th>
+              <th scope="row"><span className="admin-table-title">{post.title}</span><span className="admin-table-secondary">{formatDate(post.createdAt)}</span>{/\bXX(?:\b|(?=MB|GB|ms|FPS))/i.test([post.excerpt, post.content, post.seoDescription].join(' ')) && <span className="admin-content-review">Cần rà soát: số liệu XX chưa điền</span>}</th>
               <td>{post.category || '—'}<span className="admin-table-secondary">{post.layout === 'tutorial' ? 'Tutorial' : 'Bài viết'}</span></td>
               <td>{post.published ? 'Đã xuất bản' : 'Bản nháp'}</td>
               <td><div className="admin-row-actions">

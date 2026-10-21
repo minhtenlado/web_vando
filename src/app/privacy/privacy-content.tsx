@@ -47,8 +47,8 @@ export function PrivacyContent() {
           </p>
           <p className="text-base text-muted-foreground leading-relaxed">
             {t(
-              "Chào mừng bạn đến với website thông tin cá nhân và blog công nghệ của Phan Huỳnh Văn Đô (tại địa chỉ phanhuynh.id.vn). Tôi cam kết bảo vệ quyền riêng tư và sự an toàn dữ liệu của tất cả người truy cập.",
-              "Welcome to the personal portfolio and technology blog of Phan Huynh Van Do (hosted at phanhuynh.id.vn). We are committed to protecting your privacy and ensuring the security of your personal information."
+              "Chào mừng bạn đến với Engineering Lab, nơi chia sẻ dự án và bài viết kỹ thuật (tại địa chỉ phanhuynh.id.vn). Tôi cam kết bảo vệ quyền riêng tư và sự an toàn dữ liệu của tất cả người truy cập.",
+              "Welcome to Engineering Lab, a collection of projects and technical articles (hosted at phanhuynh.id.vn). We are committed to protecting your privacy and ensuring the security of your personal information."
             )}
           </p>
         </div>

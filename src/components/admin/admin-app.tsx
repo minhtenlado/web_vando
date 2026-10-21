@@ -1,6 +1,7 @@
 "use client";
 
 import { LoginForm } from "@/components/admin/login-form";
+import { LabMark } from "@/components/cv/lab-mark";
 import { useToast } from "@/hooks/use-toast";
 import type { SiteProfile } from "@/lib/cv/site-data-server";
 import { ChevronDown,ExternalLink,Menu,X } from "lucide-react";
@@ -114,7 +115,7 @@ function Dashboard({
         )}
         <aside ref={sidebarRef} id="admin-navigation" role={sidebarOpen ? "dialog" : undefined} aria-modal={sidebarOpen || undefined} aria-label="Điều hướng quản trị" className={`admin-sidebar ${sidebarOpen ? "open" : ""}`}>
           <div className="admin-brand">
-            <div className="admin-brand-logo">&lt;/&gt;</div>
+            <div className="admin-brand-logo"><LabMark /></div>
             <div className="admin-brand-text">
               <strong>Engineering Lab</strong>
               <span>CONTROL CENTER</span>

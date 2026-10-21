@@ -4,9 +4,9 @@
 ========================================================= */
 .admin-theme {
   color-scheme: dark;
-  --admin-bg: #111418;
-  --admin-bg-2: #181c20;
-  --admin-surface: #20252a;
+  --admin-bg: #0b1215;
+  --admin-bg-2: #112126;
+  --admin-surface: #193037;
   --admin-surface-2: #292f35;
   --admin-surface-3: #292f35;
   --admin-border: rgba(142, 175, 195, .12);
@@ -14,11 +14,11 @@
   --admin-border-light: rgba(168, 181, 198, .12);
   --admin-hover: rgba(168, 181, 198, .07);
   --admin-topbar-bg: rgba(17, 20, 24, .88);
-  --admin-green: #8eafc3;
-  --admin-green-dark: #a9c4d4;
-  --admin-text: #edeff1;
-  --admin-text-2: #a5abb2;
-  --admin-text-3: #a5abb2;
+  --admin-green: #8fe0cd;
+  --admin-green-dark: #a6eddb;
+  --admin-text: #f1eee7;
+  --admin-text-2: #afc0bf;
+  --admin-text-3: #afc0bf;
   --admin-danger: #ff7777;
   --admin-warning: #e9b75c;
   --admin-radius: 14px;
@@ -367,3 +367,6 @@ body:has(.lab-post-preview) [data-slot=dialog-overlay] { z-index: 2001; }
   .admin-post-editor > footer > div:last-child { width: 100%; justify-content: flex-end; }
   .lab-post-preview { padding: 28px 18px; }
 }
+
+.admin-brand-logo { display: grid; place-items: center; background: transparent; color: #ffa67d; }
+.admin-content-review { display: block; margin-top: 6px; color: #e9b75c; font-size: 12px; font-weight: 500; }

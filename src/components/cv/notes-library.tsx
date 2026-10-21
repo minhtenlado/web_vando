@@ -15,8 +15,9 @@ export function ArticleList({ posts, compact = false }: { posts: SitePost[]; com
   const { locale } = useLocale();
   const Heading = compact ? 'h3' : 'h2';
   return <div className={'lab-article-list' + (compact ? ' lab-article-list-compact' : '')}>
-    {posts.map((post) => <article className="lab-note-row" key={post.id}>
+    {posts.map((post, index) => <article className="lab-note-row" key={post.id}>
       <Link href={'/posts/' + encodeURIComponent(post.slug)}>
+        <span className="lab-note-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
         {!compact && normalizeProjectImage(post.coverImage) && <div className="lab-note-cover"><ContentImage src={post.coverImage} alt="" sizes="(max-width: 560px) calc(100vw - 32px), 200px" /></div>}
         <div className="lab-note-copy">
           <p className="lab-note-meta">{post.category && <span>{post.category}</span>}{formatContentDate(post.createdAt, locale) && <time dateTime={post.createdAt}>{formatContentDate(post.createdAt, locale)}</time>}</p>
@@ -44,7 +45,7 @@ export function NotesLibrary() {
   const failed = Boolean(errors?.posts || requestFailed);
 
   return <>
-    <header className="lab-library-heading"><h1>{t('Bài viết kỹ thuật', 'Technical articles')}</h1><p>{t('Ghi chép kỹ thuật, hướng dẫn triển khai và kết quả thử nghiệm.', 'Technical notes, implementation guides, and experiment results.')}</p></header>
+    <header className="lab-library-heading"><p className="lab-eyebrow">The reading room / Engineering Lab</p><h1>{t('Bài viết kỹ thuật', 'Technical articles')}</h1><p>{t('Ghi chép kỹ thuật, hướng dẫn triển khai và kết quả thử nghiệm.', 'Technical notes, implementation guides, and experiment results.')}</p></header>
     <div className="lab-library-controls">
       <div className="lab-search-sort">
         <label className="lab-search"><Search size={17} aria-hidden="true" /><span className="sr-only">{t('Tìm bài viết', 'Search articles')}</span><input type="search" value={query} onChange={(e) => { setQuery(e.target.value); setLimit(9); }} placeholder={t('Tìm bài viết…', 'Search articles…')} /></label>

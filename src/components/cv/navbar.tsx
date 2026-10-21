@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLocale } from './locale-context';
 import { useSiteData } from './site-data-context';
+import { LabMark } from './lab-mark';
 
 export function Navbar() {
   const { profile, settings } = useSiteData();
@@ -22,7 +23,7 @@ export function Navbar() {
     <a href="#main-content" className="pf-skip-link">{t('Đến nội dung chính', 'Skip to content')}</a>
     <header className="pf-header">
       <nav className="lab-container pf-navigation" aria-label={t('Điều hướng chính', 'Main navigation')}>
-        <Link href="/" className="pf-brand">{name}</Link>
+        <Link href="/" className="pf-brand"><LabMark /><span>{name}</span></Link>
         <div className="pf-desktop-nav">
           {links.map((link) => <Link href={link.href} key={link.href} aria-current={link.current ? 'page' : undefined}>{link.label}</Link>)}
           {github && <a href={github} target="_blank" rel="noopener noreferrer">GitHub<ArrowUpRight size={13} aria-hidden="true" /></a>}

@@ -4,6 +4,7 @@ import { externalUrl } from '@/lib/cv/presentation';
 import Link from 'next/link';
 import { useLocale } from './locale-context';
 import { useSiteData } from './site-data-context';
+import { LabMark } from './lab-mark';
 
 export function Footer() {
   const { profile, settings } = useSiteData();
@@ -12,7 +13,7 @@ export function Footer() {
   return <footer className="pf-footer">
     <div className="lab-container">
       <div className="pf-footer-top">
-        <div><Link href="/" className="pf-brand">{settings.portfolioName || 'Engineering Lab'}</Link><p>{settings.portfolioTagline}</p></div>
+        <div><Link href="/" className="pf-brand"><LabMark /><span>{settings.portfolioName || 'Engineering Lab'}</span></Link><p>{settings.portfolioTagline}</p></div>
         <nav className="pf-footer-links" aria-label={t('Liên kết cuối trang', 'Footer links')}>
           <Link href="/notes">{t('Bài viết', 'Articles')}</Link>
           {github && <a href={github} target="_blank" rel="noopener noreferrer">GitHub</a>}
