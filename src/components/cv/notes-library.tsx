@@ -6,6 +6,7 @@ import type { SitePost } from '@/lib/cv/site-data-server';
 import { ArrowUpRight,Search } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo,useState } from 'react';
+import { CategoryFilters } from './category-filters';
 import { ContentImage } from './content-image';
 import { ContentError } from './content-state';
 import { useLocale } from './locale-context';
@@ -52,9 +53,7 @@ export function NotesLibrary() {
         <label className="lab-sort"><span>{t('Sắp xếp', 'Sort')}</span><select value={sort} onChange={(e) => { setSort(e.target.value); setLimit(9); }}><option value="newest">{t('Mới nhất', 'Newest first')}</option><option value="oldest">{t('Cũ nhất', 'Oldest first')}</option></select></label>
       </div>
       <label className="lab-mobile-category lab-sort"><span>{t('Danh mục', 'Category')}</span><select value={category} onChange={(e) => { setCategory(e.target.value); setLimit(9); }}>{['all', ...categories].map((item) => <option key={item} value={item}>{item === 'all' ? t('Tất cả', 'All') : item}</option>)}</select></label>
-      <div className="lab-filters" role="group" aria-label={t('Danh mục bài viết', 'Article categories')}>
-        {['all', ...categories].map((item) => <button type="button" key={item} aria-pressed={item === category} onClick={() => { setCategory(item); setLimit(9); }}>{item === 'all' ? t('Tất cả', 'All') : item}</button>)}
-      </div>
+      <CategoryFilters categories={categories} value={category} onChange={(value) => { setCategory(value); setLimit(9); }} label={t('Danh mục bài viết', 'Article categories')} />
     </div>
     <ContentError resource="posts" />
     {loading && !posts.length ? <p className="lab-empty" role="status">{t('Đang tải bài viết…', 'Loading articles…')}</p>

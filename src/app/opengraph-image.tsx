@@ -7,13 +7,13 @@ export const contentType = 'image/png';
 
 export default function Image() {
   return new ImageResponse(
-    <div style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '60px 68px', background: '#0b1215', color: '#f1eee7', fontFamily: 'sans-serif' }}>
-      <div style={{ fontSize: 26, fontWeight: 600, color: '#ffa67d' }}>Engineering Lab / Hardware · Software · Experiments</div>
+    <div style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '60px 68px', background: '#f2f0e7', color: '#171a1c', fontFamily: 'sans-serif' }}>
+      <div style={{ fontSize: 26, fontWeight: 600, color: '#2944d9' }}>Engineering Lab / Hardware · Software · Experiments</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div style={{ fontSize: 60, fontWeight: 600, lineHeight: 1.2 }}>Projects and technical notes</div>
-        <div style={{ fontSize: 24, color: '#a8b6b8', lineHeight: 1.6 }}>Embedded systems, hardware, AI, IoT, and robotics.</div>
+        <div style={{ fontSize: 24, color: '#5b6264', lineHeight: 1.6 }}>Embedded systems, hardware, AI, IoT, and robotics.</div>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #2a3a3e', paddingTop: 24, color: '#a8b6b8', fontSize: 19 }}><span>Project documentation and articles</span><span>phanhuynh.id.vn</span></div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #cccec5', paddingTop: 24, color: '#5b6264', fontSize: 19 }}><span>Project documentation and articles</span><span>phanhuynh.id.vn</span></div>
     </div>, size,
   );
 }

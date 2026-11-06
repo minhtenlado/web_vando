@@ -729,7 +729,7 @@ export function TutorialEditor({
                 <Switch aria-label="Xuất bản Tutorial"
                   checked={form.published}
                   onCheckedChange={(c) => setForm({ ...form, published: c })}
-                  className="data-[state=checked]:bg-[#8fe0cd]"
+                  className="data-[state=checked]:bg-[var(--gallery-blue-light)]"
                 />
               </div>
               <div className="field mt-4">

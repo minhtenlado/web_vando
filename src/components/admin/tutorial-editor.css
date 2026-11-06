@@ -1,22 +1,22 @@
 /* src/components/admin/tutorial-editor.css */
 
 .tutorial-editor-root {
-  --bg: #0b1215;
+  --bg: var(--gallery-night);
   --surface: #111e23;
-  --surface-2: #17292e;
+  --surface-2: var(--gallery-night-card);
   --surface-3: #20353b;
 
   --border: rgba(255, 255, 255, 0.075);
   --border-hover: rgba(143, 224, 205, 0.30);
 
-  --text: #f1eee7;
+  --text: var(--gallery-night-text);
   --muted: #afc0bf;
   --muted-2: #a8b6b8;
 
-  --green: #8fe0cd;
+  --green: var(--gallery-blue-light);
   --green-soft: rgba(143, 224, 205, 0.09);
 
-  --blue: #8fe0cd;
+  --blue: var(--gallery-blue-light);
   --yellow: #e5c86d;
   --red: #ff7b7b;
 

@@ -29,6 +29,12 @@ export function ProjectDetailView({ project, relatedProjects, children }: {
   const responsibilities = (project.responsibilities || []).filter((item) => item.title || item.subtitle);
   const results = (project.results || []).filter((item) => item.number || item.label);
 
+  const sections = [
+    ...(children || project.overviewQuote || project.highlight || project.projectType ? [{ id: 'overview', title: t('Tổng quan', 'Overview') }] : []),
+    ...(images.length > 1 ? [{ id: 'gallery', title: t('Hình ảnh', 'Gallery') }] : []),
+    ...(videoId && project.showVideoDemo !== false ? [{ id: 'video', title: t('Video', 'Video') }] : []),
+    ...(results.length ? [{ id: 'results', title: t('Kết quả', 'Results') }] : []),
+  ];
   return <main id="main-content" tabIndex={-1} className="lab-container lab-project-detail">
     <Link href="/#projects" className="lab-detail-back"><ArrowLeft size={15} aria-hidden="true" />{t('Tất cả dự án', 'All projects')}</Link>
     <header className="lab-project-header">
@@ -37,11 +43,12 @@ export function ProjectDetailView({ project, relatedProjects, children }: {
       {project.subtitle && <p className="lab-detail-lead">{project.subtitle}</p>}
       {project.tech?.length > 0 && <ul className="lab-tech-list" aria-label={t('Công nghệ chính', 'Key technologies')}>{project.tech.slice(0, 4).map((tech) => <li key={tech}>{tech}</li>)}</ul>}
       {(repo || resource) && <div className="lab-resource-links">{repo && <a href={repo} target="_blank" rel="noopener noreferrer">{t('Mã nguồn', 'Source code')}<ArrowUpRight size={15} /></a>}{resource && <a href={resource} target="_blank" rel="noopener noreferrer">{t('Tài nguyên dự án', 'Project resource')}<ArrowUpRight size={15} /></a>}</div>}
+      {sections.length > 1 && <nav className="lab-case-index" aria-label={t('Nội dung dự án', 'Project sections')}>{sections.map((section) => <a key={section.id} href={'#' + section.id}>{section.title}</a>)}</nav>}
     </header>
 
     {images.length > 0 && <button type="button" className="lab-project-cover" onClick={(event) => { imageOpener.current = event.currentTarget; setImageIndex(0); }} aria-label={t('Xem ảnh dự án lớn', 'Enlarge project image')}><ContentImage src={images[0]} alt={project.title} sizes="(max-width: 768px) 100vw, 1120px" priority fit="contain" /></button>}
     <div className="lab-project-document">
-      {(children || project.overviewQuote || project.highlight || project.projectType) && <section>
+      {(children || project.overviewQuote || project.highlight || project.projectType) && <section id="overview">
         <h2>{t('Tổng quan', 'Overview')}</h2>
         {project.overviewQuote && <p className="lab-detail-lead">{project.overviewQuote}</p>}
         {project.projectType && <p className="lab-detail-meta">{project.projectType}</p>}
@@ -51,9 +58,9 @@ export function ProjectDetailView({ project, relatedProjects, children }: {
       {project.tech?.length > 4 && <section><h2>{t('Công nghệ sử dụng', 'Technology stack')}</h2><ul className="lab-technical-stack">{project.tech.map((tech) => <li key={tech}>{tech}</li>)}</ul></section>}
       {features.length > 0 && <section><h2>{t('Tính năng', 'Features')}</h2><ul className="lab-feature-list">{features.map((feature, index) => <li key={index}>{feature}</li>)}</ul></section>}
       {responsibilities.length > 0 && <section><h2>{t('Triển khai', 'Implementation')}</h2><dl className="lab-implementation-list">{responsibilities.map((item, index) => <div key={index}>{item.title && <dt>{item.title}</dt>}{item.subtitle && <dd>{item.subtitle}</dd>}</div>)}</dl></section>}
-      {images.length > 1 && <section><h2>{project.visualsTitle || t('Hình ảnh', 'Gallery')}</h2><div className="lab-gallery">{images.slice(1).map((src, index) => <button type="button" key={src} onClick={(event) => { imageOpener.current = event.currentTarget; setImageIndex(index + 1); }} aria-label={t('Xem ảnh ', 'View image ') + (index + 2)}><ContentImage src={src} alt={project.title + ' — ' + (index + 2)} sizes="(max-width: 560px) 100vw, 540px" fit="contain" /></button>)}</div></section>}
-      {videoId && project.showVideoDemo !== false && <section><h2>{project.videoTitle || t('Video trình diễn', 'Demo video')}</h2><ProjectVideo key={videoId} videoId={videoId} title={project.videoTitle || project.title} suspended={imageIndex !== null} /></section>}
-      {results.length > 0 && <section><h2>{t('Kết quả', 'Results')}</h2><dl className="lab-result-list">{results.map((item, index) => <div key={index}>{item.number && <dt>{item.number}</dt>}{item.label && <dd>{item.label}</dd>}</div>)}</dl></section>}
+      {images.length > 1 && <section id="gallery"><h2>{project.visualsTitle || t('Hình ảnh', 'Gallery')}</h2><div className="lab-gallery">{images.slice(1).map((src, index) => <button type="button" key={src} onClick={(event) => { imageOpener.current = event.currentTarget; setImageIndex(index + 1); }} aria-label={t('Xem ảnh ', 'View image ') + (index + 2)}><ContentImage src={src} alt={project.title + ' — ' + (index + 2)} sizes="(max-width: 560px) 100vw, 540px" fit="contain" /></button>)}</div></section>}
+      {videoId && project.showVideoDemo !== false && <section id="video"><h2>{project.videoTitle || t('Video trình diễn', 'Demo video')}</h2><ProjectVideo key={videoId} videoId={videoId} title={project.videoTitle || project.title} suspended={imageIndex !== null} /></section>}
+      {results.length > 0 && <section id="results"><h2>{t('Kết quả', 'Results')}</h2><dl className="lab-result-list">{results.map((item, index) => <div key={index}>{item.number && <dt>{item.number}</dt>}{item.label && <dd>{item.label}</dd>}</div>)}</dl></section>}
     </div>
     {relatedProjects.length > 0 && <section className="lab-related"><h2>{t('Dự án liên quan', 'Related projects')}</h2><ul>{relatedProjects.map((item) => <li key={item.id}><Link href={'/projects/' + encodeURIComponent(item.id)}>{item.title}<ArrowUpRight size={16} aria-hidden="true" /></Link></li>)}</ul></section>}
     <Dialog open={imageIndex !== null} onOpenChange={(open) => { if (!open) setImageIndex(null); }}>

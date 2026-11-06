@@ -1,0 +1,42 @@
+/* Signal / Matter — the single palette and timing source. */
+:root {
+  --gallery-paper: #f2f0e7;
+  --gallery-surface: #e8e7de;
+  --gallery-white: #fffef9;
+  --gallery-ink: #171a1c;
+  --gallery-muted: #5b6264;
+  --gallery-line: #cccec5;
+  --gallery-cobalt: #2944d9;
+  --gallery-cobalt-hover: #2036b0;
+  --gallery-lime: #ddec82;
+  --gallery-amber: #c17836;
+  --gallery-night: #10151b;
+  --gallery-night-surface: #1a222b;
+  --gallery-night-card: #242e39;
+  --gallery-night-line: #3b4856;
+  --gallery-night-text: #f2f0e7;
+  --gallery-night-muted: #b0bac6;
+  --gallery-blue-light: #9caeff;
+  --signal-blue-rgb: 103 132 255;
+  --signal-lime-rgb: 221 236 130;
+  --motion-fast: 160ms;
+  --motion-normal: 360ms;
+  --motion-slow: 720ms;
+  --ease-standard: cubic-bezier(.16,1,.3,1);
+  --gallery-space-1: 8px;
+  --gallery-space-2: 16px;
+  --gallery-space-3: 24px;
+  --gallery-space-4: 40px;
+  --gallery-space-5: 64px;
+  --gallery-space-6: 104px;
+}
+.lab-site, .pf-mobile-sheet {
+  --lab-bg: var(--gallery-paper); --lab-surface: var(--gallery-surface);
+  --lab-card: var(--gallery-white); --lab-text: var(--gallery-ink);
+  --lab-muted: var(--gallery-muted); --lab-border: var(--gallery-line);
+  --lab-accent: var(--gallery-cobalt); --lab-copper: var(--gallery-cobalt);
+  --lab-paper: var(--gallery-paper);
+  --motion-fast: 160ms; --motion-normal: 360ms; --motion-slow: 720ms;
+  --ease-standard: cubic-bezier(.16,1,.3,1);
+  color-scheme: light;
+}
