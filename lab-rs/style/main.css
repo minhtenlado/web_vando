@@ -533,6 +533,9 @@ html:not(.js) .bar i, .revealed .bar i { transform: scaleX(1); }
 .split-reveal .word { display: inline-block; }
 .js .split-reveal .word { opacity: 0; transform: translateY(.6em); filter: blur(6px); transition: opacity var(--dur-4) var(--ease-out), transform var(--dur-4) var(--ease-out), filter var(--dur-4) var(--ease-out); transition-delay: calc(var(--i, 0) * 40ms); animation: reveal-failsafe 1ms 4s forwards; }
 .js .split-reveal.revealed .word { opacity: 1; transform: none; filter: none; animation: none; }
+/* Above the fold the hero animates with CSS alone, so first paint never waits for the WASM bundle. */
+.js .hero [data-reveal] { transition: none; animation: hero-in var(--dur-4) var(--ease-out) both; animation-delay: calc(var(--i, 0) * 70ms + 120ms); }
+.js .hero [data-reveal="scale"] { animation-name: hero-in-scale; }
 .img-fade { opacity: 0; }
 .img-fade.loaded { opacity: 1; }
 
@@ -567,6 +570,8 @@ main { animation: page-in 600ms var(--ease-out) both; }
 @keyframes vt-in { from { opacity: 0; transform: translateY(14px); } }
 @keyframes page-in { from { opacity: 0; } }
 @keyframes reveal-failsafe { to { opacity: 1; transform: none; filter: none; clip-path: none; } }
+@keyframes hero-in { from { opacity: 0; transform: translate3d(0, 28px, 0); } to { opacity: 1; transform: none; } }
+@keyframes hero-in-scale { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
 @keyframes spin-border { to { --angle: 360deg; } }
 
 /* ---------- Responsive ---------- */

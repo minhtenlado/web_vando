@@ -4,7 +4,7 @@ use crate::ui::icons::Icon;
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 
-#[island]
+#[island(lazy)]
 pub fn LoginForm() -> impl IntoView {
     let password = RwSignal::new(String::new());
     let busy = RwSignal::new(false);
@@ -36,7 +36,7 @@ pub fn LoginForm() -> impl IntoView {
     }
 }
 
-#[island]
+#[island(lazy)]
 pub fn LogoutButton() -> impl IntoView {
     let out = move |_| spawn_local(async move {
         let _ = crate::api_admin::admin_logout().await;

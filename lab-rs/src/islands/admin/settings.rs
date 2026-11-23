@@ -7,7 +7,7 @@ use crate::ui::icons::Icon;
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 
-#[island]
+#[island(lazy)]
 pub fn ContentForm(settings: ContentSettings) -> impl IntoView {
     let notice = RwSignal::new(None::<Notice>);
     let state = RwSignal::new(settings);
@@ -55,7 +55,7 @@ pub fn ContentForm(settings: ContentSettings) -> impl IntoView {
     }
 }
 
-#[island]
+#[island(lazy)]
 pub fn PasswordForm() -> impl IntoView {
     let notice = RwSignal::new(None::<Notice>);
     let (current, new, confirm_pw) = (RwSignal::new(String::new()), RwSignal::new(String::new()), RwSignal::new(String::new()));
@@ -84,7 +84,7 @@ pub fn PasswordForm() -> impl IntoView {
     }
 }
 
-#[island]
+#[island(lazy)]
 pub fn MediaLibrary() -> impl IntoView {
     let notice = RwSignal::new(None::<Notice>);
     let items = RwSignal::new(None::<Vec<MediaItem>>);
@@ -146,7 +146,7 @@ pub fn MediaLibrary() -> impl IntoView {
     }
 }
 
-#[island]
+#[island(lazy)]
 pub fn PruneActivities() -> impl IntoView {
     let notice = RwSignal::new(None::<Notice>);
     view! {

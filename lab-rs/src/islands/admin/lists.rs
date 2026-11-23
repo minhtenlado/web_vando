@@ -18,7 +18,7 @@ fn Switch(checked: bool, label: &'static str, on_toggle: Callback<bool>) -> impl
     }
 }
 
-#[island]
+#[island(lazy)]
 pub fn ProjectsTable(projects: Vec<AdminProject>) -> impl IntoView {
     let notice = RwSignal::new(None::<Notice>);
     let query = RwSignal::new(String::new());
@@ -84,7 +84,7 @@ pub fn ProjectsTable(projects: Vec<AdminProject>) -> impl IntoView {
     }
 }
 
-#[island]
+#[island(lazy)]
 pub fn PostsTable(posts: Vec<AdminPost>) -> impl IntoView {
     let notice = RwSignal::new(None::<Notice>);
     let query = RwSignal::new(String::new());

@@ -185,7 +185,10 @@ pub fn Layout(settings: SiteSettings, locale: Locale, current: &'static str, chi
     let github = settings.github_url.clone();
     let email = settings.email.clone();
     let name = settings.portfolio_name.clone();
-    let year = chrono::Utc::now().format("%Y").to_string();
+    #[cfg(feature = "ssr")]
+    let year = { use chrono::Datelike; chrono::Utc::now().year().to_string() };
+    #[cfg(not(feature = "ssr"))]
+    let year = js_sys::Date::new_0().get_full_year().to_string();
     view! {
         <a href="#main" class="skip-link">{locale.t("Đến nội dung chính", "Skip to content")}</a>
         <div class="intro-loader" aria-hidden="true">

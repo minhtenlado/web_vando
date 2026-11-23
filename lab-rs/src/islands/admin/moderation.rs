@@ -7,7 +7,7 @@ use crate::ui::icons::Icon;
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 
-#[island]
+#[island(lazy)]
 pub fn CommentsAdmin(comments: Vec<AdminComment>) -> impl IntoView {
     let notice = RwSignal::new(None::<Notice>);
     let replying = RwSignal::new(None::<String>);
@@ -68,7 +68,7 @@ pub fn CommentsAdmin(comments: Vec<AdminComment>) -> impl IntoView {
     }.into_any()
 }
 
-#[island]
+#[island(lazy)]
 pub fn Inbox(messages: Vec<AdminMessage>) -> impl IntoView {
     let notice = RwSignal::new(None::<Notice>);
     let filter = RwSignal::new("all".to_string());

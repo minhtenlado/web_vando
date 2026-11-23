@@ -92,7 +92,7 @@ fn ImageManager(images: RwSignal<Vec<String>>, notice: RwSignal<Option<Notice>>)
     }
 }
 
-#[island]
+#[island(lazy)]
 pub fn ProjectEditor(project: AdminProject) -> impl IntoView {
     let notice = RwSignal::new(None::<Notice>);
     let saving = RwSignal::new(false);
@@ -238,7 +238,7 @@ pub fn ProjectEditor(project: AdminProject) -> impl IntoView {
     }
 }
 
-#[island]
+#[island(lazy)]
 pub fn PostEditor(post: AdminPost) -> impl IntoView {
     let notice = RwSignal::new(None::<Notice>);
     let saving = RwSignal::new(false);
