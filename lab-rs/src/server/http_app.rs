@@ -41,11 +41,14 @@ async fn headers(request: Request<Body>, next: Next, dev: bool) -> Response {
         h.insert("content-security-policy", value);
     }
     if !h.contains_key(header::CACHE_CONTROL) {
-        let policy = if path.starts_with("/pkg/") && !dev {
-            "public, max-age=31536000, immutable"
+        // Asset names are stable, so browsers revalidate (cheap 304) instead of trusting a long max-age.
+        let policy = if path.starts_with("/pkg/") {
+            "public, no-cache"
+        } else if path.starts_with("/vendor/") {
+            "public, max-age=86400"
         } else if path.starts_with("/fonts/") || path == "/favicon.svg" {
             "public, max-age=2592000"
-        } else if path.starts_with("/api/") || path.starts_with("/rpc/") {
+        } else if path.starts_with("/api/") || path.starts_with("/rpc/") || path.starts_with("/admin") {
             "no-store"
         } else {
             "public, max-age=0, s-maxage=60, stale-while-revalidate=600"

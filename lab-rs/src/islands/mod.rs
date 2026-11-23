@@ -1,4 +1,5 @@
 //! Interactive islands. Everything else on a page is static server-rendered HTML.
+pub mod admin;
 pub mod article;
 pub mod contact;
 pub mod explorer;

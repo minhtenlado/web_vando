@@ -189,3 +189,143 @@ pub struct CommentView {
     #[serde(rename = "createdAt")]
     pub created_at: String,
 }
+
+// ---------- Admin ----------
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct MediaItem {
+    pub public_id: String,
+    pub url: String,
+    pub bytes: i64,
+    pub width: i64,
+    pub height: i64,
+    pub format: String,
+    pub created_at: String,
+    /// Titles of projects/posts that reference this image.
+    pub used_by: Vec<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct AdminProject {
+    pub id: String,
+    pub locale: String,
+    pub title: String,
+    pub subtitle: String,
+    pub overview_quote: String,
+    pub year: String,
+    pub role: String,
+    pub highlight: String,
+    pub project_type: String,
+    pub category: String,
+    pub description: String,
+    pub visuals_title: String,
+    pub video_title: String,
+    pub features: Vec<String>,
+    pub tech: Vec<String>,
+    pub image: String,
+    pub images: Vec<String>,
+    pub show_video_demo: bool,
+    pub published: bool,
+    pub featured: bool,
+    pub status: String,
+    pub youtube_url: String,
+    pub link: String,
+    pub repo: String,
+    pub order: i32,
+    pub responsibilities: Vec<Responsibility>,
+    pub results: Vec<ResultItem>,
+    pub updated_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct AdminPost {
+    pub id: String,
+    pub locale: String,
+    pub title: String,
+    pub slug: String,
+    pub excerpt: String,
+    pub content: String,
+    pub published: bool,
+    pub category: String,
+    pub layout: String,
+    pub cover_image: String,
+    pub pdf_url: String,
+    pub seo_title: String,
+    pub seo_description: String,
+    pub seo_keywords: String,
+    pub views: i32,
+    pub likes: i32,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct AdminComment {
+    pub comment: CommentView,
+    pub post_slug: String,
+    pub post_title: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct AdminMessage {
+    pub id: String,
+    pub name: String,
+    pub email: String,
+    pub topic: String,
+    pub message: String,
+    pub ticket: String,
+    pub read: bool,
+    pub starred: bool,
+    pub archived: bool,
+    pub created_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct Activity {
+    pub id: String,
+    pub category: String,
+    pub action: String,
+    pub title: String,
+    pub detail: String,
+    pub status: String,
+    pub created_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct DashboardStats {
+    pub projects_published: i64,
+    pub projects_draft: i64,
+    pub posts_published: i64,
+    pub posts_draft: i64,
+    pub views: i64,
+    pub likes: i64,
+    pub bookmarks: i64,
+    pub comments: i64,
+    pub messages_unread: i64,
+    pub messages_total: i64,
+    pub top_posts: Vec<(String, String, i32, i32)>,
+    pub recent: Vec<Activity>,
+    pub status_counts: Vec<(String, i64)>,
+}
+
+/// Editable public settings; stored inside `Profile.settings` JSON without touching other keys.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct ContentSettings {
+    pub portfolio_name: String,
+    pub portfolio_tagline: String,
+    pub hero_headline_vi: String,
+    pub hero_headline_en: String,
+    pub hero_description_vi: String,
+    pub hero_description_en: String,
+    pub hero_primary_label_vi: String,
+    pub hero_primary_label_en: String,
+    pub hero_secondary_label_vi: String,
+    pub hero_secondary_label_en: String,
+    pub hero_secondary_url: String,
+    pub meta_title: String,
+    pub meta_description: String,
+    pub analytics_enabled: bool,
+    pub analytics_id: String,
+    pub email: String,
+    pub github: String,
+}

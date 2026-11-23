@@ -11,6 +11,7 @@ pub struct Limits {
     pub comments: RateLimiter,
     pub stats: RateLimiter,
     pub login: RateLimiter,
+    pub login_guard: crate::server::auth::LoginGuard,
 }
 
 impl Default for Limits {
@@ -20,6 +21,7 @@ impl Default for Limits {
             comments: RateLimiter::new(10, Duration::from_secs(60)),
             stats: RateLimiter::new(60, Duration::from_secs(60)),
             login: RateLimiter::new(5, Duration::from_secs(300)),
+            login_guard: Default::default(),
         }
     }
 }

@@ -27,9 +27,21 @@ fn trusted_iframe(src: &str) -> bool {
     TRUSTED_IFRAME_HOSTS.contains(&host)
 }
 
-/// Sanitize CMS HTML. Mirrors the previous behaviour: DOMPurify defaults, `class`/`style`, `target`,
-/// and iframes only from trusted video/code hosts.
+/// Sanitized HTML for display: storage-safe HTML plus reader presentation (scrollable tables,
+/// a single page-level h1, lazy images).
 pub fn sanitize_html(raw: &str) -> String {
+    clean_html(raw)
+        .replace("<table", "<div class=\"table-wrap\"><table")
+        .replace("</table>", "</table></div>")
+        .replace("<h1>", "<h2>")
+        .replace("<h1 ", "<h2 ")
+        .replace("</h1>", "</h2>")
+        .replace("<img ", "<img loading=\"lazy\" decoding=\"async\" ")
+}
+
+/// Sanitize CMS HTML for storage. Mirrors the previous behaviour: DOMPurify defaults, `class`/`style`,
+/// `target`, and iframes only from trusted video/code hosts. Idempotent, so saving twice changes nothing.
+pub fn clean_html(raw: &str) -> String {
     if raw.trim().is_empty() {
         return String::new();
     }
@@ -39,8 +51,6 @@ pub fn sanitize_html(raw: &str) -> String {
             .replace('\u{00A0}', " ")
             .replace(['\u{00AD}', '\u{200B}'], "")
             .replace("&shy;", "")
-            .replace("<table", "<div class=\"table-wrap\"><table")
-            .replace("</table>", "</table></div>")
     } else {
         // Plain text from older records: keep paragraphs readable.
         raw.split("\n\n").map(|p| format!("<p>{}</p>", html_escape(p.trim()))).collect::<String>()
@@ -78,12 +88,7 @@ pub fn sanitize_html(raw: &str) -> String {
         });
     let clean = builder.clean(&source).to_string();
     // Iframes whose src was removed are useless boxes; drop them.
-    let clean = remove_empty_iframes(&clean);
-    clean
-        .replace("<h1>", "<h2>")
-        .replace("<h1 ", "<h2 ")
-        .replace("</h1>", "</h2>")
-        .replace("<img ", "<img loading=\"lazy\" decoding=\"async\" ")
+    remove_empty_iframes(&clean)
 }
 
 fn remove_empty_iframes(html: &str) -> String {
@@ -164,6 +169,13 @@ mod tests {
         let out = sanitize_html("<iframe src=\"https://www.youtube.com/embed/abc\"></iframe><iframe src=\"https://evil.test/x\"></iframe>");
         assert!(out.contains("youtube.com/embed/abc"));
         assert!(!out.contains("evil.test"));
+    }
+
+    #[test]
+    fn storage_cleaning_is_idempotent() {
+        let once = clean_html("<h1>T</h1><table><tr><td>1</td></tr></table><img src=\"https://res.cloudinary.com/x/a.png\">");
+        assert_eq!(clean_html(&once), once);
+        assert!(!once.contains("table-wrap") && !once.contains("loading="));
     }
 
     #[test]

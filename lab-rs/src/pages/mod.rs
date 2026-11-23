@@ -1,3 +1,4 @@
+pub mod admin;
 pub mod home;
 pub mod lab;
 pub mod legal;

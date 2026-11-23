@@ -37,6 +37,8 @@ pub fn routes() -> Router<AppState> {
         .route("/api/contact", post(contact))
         .route("/api/posts/{slug}/comments", get(list_comments).post(post_comment))
         .route("/api/posts/{slug}/stats", post(post_stats))
+        .route("/api/admin/upload-image", post(upload_image))
+        .route("/api/admin/upload-file", post(upload_file))
         .route("/robots.txt", get(robots))
         .route("/sitemap.xml", get(sitemap))
 }
@@ -152,6 +154,48 @@ async fn post_stats(State(state): State<AppState>, Path(slug): Path<String>, hea
         Err(Failure::BadRequest(_)) => (StatusCode::BAD_REQUEST, Json(json!({ "error": "Invalid action" }))).into_response(),
         Err(Failure::NotFound(_)) => (StatusCode::NOT_FOUND, Json(json!({ "error": "Post not found" }))).into_response(),
         Err(failure) => fail(failure),
+    }
+}
+
+fn image_kind(bytes: &[u8]) -> Option<&'static str> {
+    if bytes.starts_with(&[0x89, b'P', b'N', b'G']) { Some("png") }
+    else if bytes.starts_with(&[0xFF, 0xD8, 0xFF]) { Some("jpg") }
+    else if bytes.starts_with(b"GIF8") { Some("gif") }
+    else if bytes.len() > 12 && &bytes[0..4] == b"RIFF" && &bytes[8..12] == b"WEBP" { Some("webp") }
+    else { None }
+}
+
+async fn read_file(mut multipart: axum::extract::Multipart, max: usize) -> Result<(Vec<u8>, String), Failure> {
+    while let Ok(Some(field)) = multipart.next_field().await {
+        if field.name() != Some("file") { continue; }
+        let name = field.file_name().unwrap_or("upload").chars().filter(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '-' | '_')).take(80).collect::<String>();
+        let bytes = field.bytes().await.map_err(|_| Failure::Invalid("File quá lớn hoặc không đọc được.".into(), None))?;
+        if bytes.len() > max { return Err(Failure::Invalid(format!("File quá lớn (tối đa {}MB).", max / 1024 / 1024), None)); }
+        return Ok((bytes.to_vec(), if name.is_empty() { "upload".into() } else { name }));
+    }
+    Err(Failure::Invalid("Thiếu file.".into(), None))
+}
+
+async fn upload_image(State(state): State<AppState>, headers: HeaderMap, multipart: axum::extract::Multipart) -> Response {
+    if !crate::server::auth::is_authed(&state.pool, &headers).await { return (StatusCode::UNAUTHORIZED, Json(json!({ "ok": false, "message": "Unauthorized" }))).into_response(); }
+    let (bytes, name) = match read_file(multipart, 5 * 1024 * 1024).await { Ok(f) => f, Err(f) => return fail(f) };
+    if image_kind(&bytes).is_none() { return fail(Failure::Invalid("Định dạng ảnh không hợp lệ. Chỉ hỗ trợ PNG, JPEG, WebP và GIF.".into(), None)); }
+    match crate::server::cloudinary::upload(&state.http, bytes, &name, "web_vando/images", "image").await {
+        Ok(url) => {
+            crate::server::auth::log_activity(&state.pool, "media", "create", "Tải ảnh lên", &name, &url, "success").await;
+            Json(json!({ "ok": true, "url": url })).into_response()
+        }
+        Err(error) => { tracing::error!("[upload] {error}"); fail(Failure::Unavailable("Không thể tải ảnh lên bộ lưu trữ. Vui lòng thử lại.".into())) }
+    }
+}
+
+async fn upload_file(State(state): State<AppState>, headers: HeaderMap, multipart: axum::extract::Multipart) -> Response {
+    if !crate::server::auth::is_authed(&state.pool, &headers).await { return (StatusCode::UNAUTHORIZED, Json(json!({ "ok": false, "message": "Unauthorized" }))).into_response(); }
+    let (bytes, name) = match read_file(multipart, 20 * 1024 * 1024).await { Ok(f) => f, Err(f) => return fail(f) };
+    if !bytes.starts_with(b"%PDF") { return fail(Failure::Invalid("Chỉ hỗ trợ tệp PDF.".into(), None)); }
+    match crate::server::cloudinary::upload(&state.http, bytes, &name, "web_vando/files", "raw").await {
+        Ok(url) => Json(json!({ "ok": true, "url": url })).into_response(),
+        Err(error) => { tracing::error!("[upload] {error}"); fail(Failure::Unavailable("Không thể tải tệp lên. Vui lòng thử lại.".into())) }
     }
 }
 

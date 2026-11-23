@@ -1,4 +1,7 @@
 //! Server-only code: database, auth, sanitizing, HTTP routes.
+pub mod admin;
+pub mod auth;
+pub mod cloudinary;
 pub mod db;
 pub mod github;
 pub mod http_app;

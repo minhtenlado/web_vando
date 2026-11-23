@@ -1,7 +1,8 @@
 use crate::model::Locale;
+use crate::pages::admin::*;
 use crate::pages::{home::HomePage, lab::LabPage, legal::{PrivacyPage, TermsPage}, not_found::NotFound, notes::NotesPage, post::PostPage, project::ProjectPage, projects::ProjectsPage};
 use leptos::prelude::*;
-use leptos_meta::{provide_meta_context, HashedStylesheet, MetaTags};
+use leptos_meta::{provide_meta_context, MetaTags};
 use leptos_router::{
     components::{Route, Router, Routes},
     path, SsrMode,
@@ -28,7 +29,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <link rel="preconnect" href="https://res.cloudinary.com" crossorigin="" />
                 <script inner_html=BOOT></script>
                 <script type="speculationrules" inner_html=SPECULATION></script>
-                <HashedStylesheet options=options.clone() id="leptos" />
+                <link rel="stylesheet" id="leptos" href="/pkg/lab.css" />
                 <AutoReload options=options.clone() />
                 <HydrationScripts options islands=true />
                 <MetaTags />
@@ -72,6 +73,17 @@ pub fn App() -> impl IntoView {
                 <Route path=path!("/posts/:slug") view=PostPage ssr=SsrMode::Async />
                 <Route path=path!("/privacy") view=PrivacyPage ssr=SsrMode::Async />
                 <Route path=path!("/terms") view=TermsPage ssr=SsrMode::Async />
+                <Route path=path!("/admin") view=AdminDashboard ssr=SsrMode::Async />
+                <Route path=path!("/admin/projects") view=AdminProjects ssr=SsrMode::Async />
+                <Route path=path!("/admin/projects/:id") view=AdminProjectEdit ssr=SsrMode::Async />
+                <Route path=path!("/admin/posts") view=AdminPosts ssr=SsrMode::Async />
+                <Route path=path!("/admin/posts/:id") view=AdminPostEdit ssr=SsrMode::Async />
+                <Route path=path!("/admin/comments") view=AdminComments ssr=SsrMode::Async />
+                <Route path=path!("/admin/inbox") view=AdminInbox ssr=SsrMode::Async />
+                <Route path=path!("/admin/media") view=AdminMedia ssr=SsrMode::Async />
+                <Route path=path!("/admin/content") view=AdminContent ssr=SsrMode::Async />
+                <Route path=path!("/admin/account") view=AdminAccount ssr=SsrMode::Async />
+                <Route path=path!("/admin/activity") view=AdminActivity ssr=SsrMode::Async />
             </Routes>
         </Router>
     }

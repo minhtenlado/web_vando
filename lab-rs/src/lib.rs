@@ -1,5 +1,6 @@
 #![recursion_limit = "256"]
 pub mod api;
+pub mod api_admin;
 pub mod app;
 pub mod islands;
 pub mod model;
