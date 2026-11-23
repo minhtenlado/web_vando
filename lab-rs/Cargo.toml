@@ -1,0 +1,95 @@
+[package]
+name = "lab"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+description = "Engineering Lab — phanhuynh.id.vn, rebuilt with Leptos and Axum"
+publish = false
+
+[workspace]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+leptos = { version = "0.8.23", features = ["islands"] }
+leptos_router = "0.8.17"
+leptos_meta = "0.8.7"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", default-features = false, features = ["serde", "clock", "std"] }
+thiserror = "2"
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+web-sys = { version = "0.3", features = [
+  "Window", "Document", "Element", "HtmlElement", "HtmlInputElement", "Node", "NodeList", "Event", "EventTarget",
+  "PointerEvent", "MouseEvent", "KeyboardEvent", "IntersectionObserver", "IntersectionObserverEntry", "IntersectionObserverInit",
+  "CssStyleDeclaration", "DomRect", "DomTokenList", "MediaQueryList", "Storage", "Location", "Navigator", "Clipboard",
+  "HtmlCanvasElement", "WebGlRenderingContext", "WebGlProgram", "WebGlShader", "WebGlBuffer", "WebGlUniformLocation",
+  "ScrollToOptions", "ScrollBehavior", "ScrollIntoViewOptions", "ScrollLogicalPosition", "AddEventListenerOptions",
+  "HtmlDialogElement", "FormData", "HtmlFormElement", "Request", "RequestInit", "Response", "Headers", "File", "FileList",
+] }
+console_error_panic_hook = { version = "0.1", optional = true }
+
+# Server-only
+leptos_axum = { version = "0.8.10", optional = true }
+axum = { version = "0.8", optional = true, features = ["macros", "multipart"] }
+tokio = { version = "1", optional = true, features = ["rt-multi-thread", "macros", "net", "time", "signal", "sync"] }
+tower = { version = "0.5", optional = true }
+tower-http = { version = "0.6", optional = true, features = ["fs", "compression-br", "compression-gzip", "set-header", "trace", "catch-panic"] }
+sqlx = { version = "0.9", optional = true, default-features = false, features = ["runtime-tokio", "tls-rustls-ring-webpki", "postgres", "chrono", "json", "macros", "derive"] }
+reqwest = { version = "0.13", optional = true, default-features = false, features = ["json", "rustls-no-provider", "multipart"] }
+rustls = { version = "0.23", optional = true, default-features = false, features = ["ring", "std", "tls12"] }
+ammonia = { version = "4", optional = true }
+hmac = { version = "0.12", optional = true }
+sha2 = { version = "0.10", optional = true }
+sha1 = { version = "0.10", optional = true }
+scrypt = { version = "0.11", optional = true, default-features = false, features = ["std"] }
+base64 = { version = "0.22", optional = true }
+rand = { version = "0.8", optional = true }
+subtle = { version = "2", optional = true }
+hex = { version = "0.4", optional = true }
+dotenvy = { version = "0.15", optional = true }
+tracing = { version = "0.1", optional = true }
+tracing-subscriber = { version = "0.3", optional = true, features = ["env-filter", "fmt"] }
+http = { version = "1", optional = true }
+
+[features]
+default = []
+hydrate = ["leptos/hydrate", "dep:console_error_panic_hook"]
+ssr = [
+  "leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr",
+  "dep:leptos_axum", "dep:axum", "dep:tokio", "dep:tower", "dep:tower-http", "dep:sqlx", "dep:reqwest", "dep:rustls",
+  "dep:ammonia", "dep:hmac", "dep:sha2", "dep:sha1", "dep:scrypt", "dep:base64", "dep:rand", "dep:subtle", "dep:hex",
+  "dep:dotenvy", "dep:tracing", "dep:tracing-subscriber", "dep:http",
+]
+
+[profile.dev.package."*"]
+opt-level = 1
+
+[profile.release]
+codegen-units = 4
+lto = "thin"
+
+[profile.wasm-release]
+inherits = "release"
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[package.metadata.leptos]
+output-name = "lab"
+site-root = "target/site"
+site-pkg-dir = "pkg"
+style-file = "style/main.css"
+assets-dir = "public"
+site-addr = "127.0.0.1:3100"
+reload-port = 3101
+browserquery = "defaults"
+env = "DEV"
+bin-features = ["ssr"]
+bin-default-features = false
+lib-features = ["hydrate"]
+lib-default-features = false
+lib-profile-release = "wasm-release"
