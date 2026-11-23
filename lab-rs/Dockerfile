@@ -2,7 +2,10 @@
 #
 # Production image for the Rust site (Axum server + Leptos WASM islands).
 #   docker build -t phanhuynh-lab lab-rs
-#   docker run --env-file .env -p 8080:8080 phanhuynh-lab
+#   docker run --env-file .env -p 8080:80 phanhuynh-lab
+#
+# On Vercel a Dockerfile at the project root selects the Container runtime (beta, all plans);
+# set the project Root Directory to lab-rs. Vercel routes to port 80 unless PORT is set.
 #
 # Runtime environment (same names as the Next.js app):
 #   DATABASE_URL, SESSION_SECRET, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
@@ -27,9 +30,9 @@ COPY --from=build /src/target/site /app/site
 ENV LEPTOS_SITE_ROOT=/app/site \
     LEPTOS_SITE_PKG_DIR=pkg \
     LEPTOS_ENV=PROD \
-    PORT=8080 \
+    PORT=80 \
     RUST_LOG=info
 USER lab
-EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s CMD curl -fsS http://127.0.0.1:8080/api/health || exit 1
+EXPOSE 80
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s CMD curl -fsS http://127.0.0.1:${PORT}/api/health || exit 1
 CMD ["/app/lab"]
