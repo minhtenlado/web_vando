@@ -123,6 +123,18 @@ export const getSiteSettings = cache(async () => {
   }
 });
 
+/** Public GitHub profile from the CMS profile; never exposes other private profile fields. */
+export const getPublicGithubProfile = cache(async (): Promise<string> => {
+  if (!isDatabaseConfigured()) return snapshotEnabled() ? String(getSnapshot("vi").profile?.github || "") : "";
+  try {
+    const rows = await readProfiles();
+    const source = rows.find((row) => row.id === "profile-vi") || rows[0];
+    return source?.github || "";
+  } catch {
+    return "";
+  }
+});
+
 function reportReadError(resource: string, error: unknown) {
   const code = error && typeof error === "object" && "code" in error ? String(error.code) : "unknown";
   console.error("[content] " + resource + " unavailable (" + code + ")");

@@ -97,6 +97,13 @@ export default async function ProjectPage({ params }: PageProps) {
     .map(({ candidate }) => candidate)
     .slice(0, 3)
 
+  const ordered = siteData.projects.filter((p) => p.published !== false)
+  const position = ordered.findIndex((p) => p.id === project.id)
+  const adjacent = position >= 0 ? {
+    previous: ordered[(position - 1 + ordered.length) % ordered.length],
+    next: ordered[(position + 1) % ordered.length],
+  } : undefined
+
   // Schema.org structured data for SEO
   const jsonLd = {
     "@context": "https://schema.org",
@@ -129,6 +136,7 @@ export default async function ProjectPage({ params }: PageProps) {
       <ProjectDetailView
         project={{ ...project, description: "" }}
         relatedProjects={relatedProjects}
+        adjacent={adjacent && ordered.length > 1 ? adjacent : undefined}
       >{project.description.trim() ? <RichContent content={project.description} /> : null}</ProjectDetailView>
       <Footer />
     </div></SiteDataProvider></LocaleProvider>

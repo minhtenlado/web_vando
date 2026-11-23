@@ -4,7 +4,7 @@ import { Dialog,DialogContent,DialogDescription,DialogTitle } from '@/components
 import { normalizeProjectImage,normalizeProjectUrl } from '@/lib/cv/project-input';
 import { projectCategoryGroups } from '@/lib/cv/project-categories';
 import type { SiteProject } from '@/lib/cv/site-data-server';
-import { ArrowLeft,ArrowUpRight,ChevronLeft,ChevronRight } from 'lucide-react';
+import { ArrowLeft,ArrowRight,ArrowUpRight,ChevronLeft,ChevronRight,ExternalLink,Github } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo,useRef,useState,type ReactNode } from 'react';
 import { ContentImage } from './content-image';
@@ -12,8 +12,8 @@ import { ProjectVideo } from './project-video';
 import './detail-polish.css';
 import { useLocale } from './locale-context';
 
-export function ProjectDetailView({ project, relatedProjects, children }: {
-  project: SiteProject; relatedProjects: SiteProject[]; children?: ReactNode;
+export function ProjectDetailView({ project, relatedProjects, adjacent, children }: {
+  project: SiteProject; relatedProjects: SiteProject[]; adjacent?: { previous?: SiteProject; next?: SiteProject }; children?: ReactNode;
 }) {
   const { t } = useLocale();
   const [imageIndex, setImageIndex] = useState<number | null>(null);
@@ -42,7 +42,7 @@ export function ProjectDetailView({ project, relatedProjects, children }: {
       <h1>{project.title}</h1>
       {project.subtitle && <p className="lab-detail-lead">{project.subtitle}</p>}
       {project.tech?.length > 0 && <ul className="lab-tech-list" aria-label={t('Công nghệ chính', 'Key technologies')}>{project.tech.slice(0, 4).map((tech) => <li key={tech}>{tech}</li>)}</ul>}
-      {(repo || resource) && <div className="lab-resource-links">{repo && <a href={repo} target="_blank" rel="noopener noreferrer">{t('Mã nguồn', 'Source code')}<ArrowUpRight size={15} /></a>}{resource && <a href={resource} target="_blank" rel="noopener noreferrer">{t('Tài nguyên dự án', 'Project resource')}<ArrowUpRight size={15} /></a>}</div>}
+      {(repo || resource) && <div className="lab-resource-links">{repo && <a className="lab-resource-primary" href={repo} target="_blank" rel="noopener noreferrer">{/github\.com/i.test(repo) ? <Github size={17} aria-hidden="true" /> : null}{/github\.com/i.test(repo) ? t('Mã nguồn trên GitHub', 'Source on GitHub') : t('Mã nguồn', 'Source code')}<ArrowUpRight size={15} aria-hidden="true" /></a>}{resource && resource !== repo && <a href={resource} target="_blank" rel="noopener noreferrer"><ExternalLink size={16} aria-hidden="true" />{/youtu\.?be/i.test(resource) ? t('Xem video', 'Watch video') : t('Tài nguyên dự án', 'Project resource')}<ArrowUpRight size={15} aria-hidden="true" /></a>}</div>}
       {sections.length > 1 && <nav className="lab-case-index" aria-label={t('Nội dung dự án', 'Project sections')}>{sections.map((section) => <a key={section.id} href={'#' + section.id}>{section.title}</a>)}</nav>}
     </header>
 
@@ -62,6 +62,10 @@ export function ProjectDetailView({ project, relatedProjects, children }: {
       {videoId && project.showVideoDemo !== false && <section id="video"><h2>{project.videoTitle || t('Video trình diễn', 'Demo video')}</h2><ProjectVideo key={videoId} videoId={videoId} title={project.videoTitle || project.title} suspended={imageIndex !== null} /></section>}
       {results.length > 0 && <section id="results"><h2>{t('Kết quả', 'Results')}</h2><dl className="lab-result-list">{results.map((item, index) => <div key={index}>{item.number && <dt>{item.number}</dt>}{item.label && <dd>{item.label}</dd>}</div>)}</dl></section>}
     </div>
+    {(adjacent?.previous || adjacent?.next) && <nav className="lab-project-pager" aria-label={t('Dự án khác', 'More projects')}>
+      {adjacent.previous ? <Link href={'/projects/' + encodeURIComponent(adjacent.previous.id)} rel="prev"><span><ArrowLeft size={15} aria-hidden="true" />{t('Dự án trước', 'Previous project')}</span><strong>{adjacent.previous.title}</strong></Link> : <span />}
+      {adjacent.next ? <Link href={'/projects/' + encodeURIComponent(adjacent.next.id)} rel="next" data-next="true"><span>{t('Dự án tiếp theo', 'Next project')}<ArrowRight size={15} aria-hidden="true" /></span><strong>{adjacent.next.title}</strong></Link> : <span />}
+    </nav>}
     {relatedProjects.length > 0 && <section className="lab-related"><h2>{t('Dự án liên quan', 'Related projects')}</h2><ul>{relatedProjects.map((item) => <li key={item.id}><Link href={'/projects/' + encodeURIComponent(item.id)}>{item.title}<ArrowUpRight size={16} aria-hidden="true" /></Link></li>)}</ul></section>}
     <Dialog open={imageIndex !== null} onOpenChange={(open) => { if (!open) setImageIndex(null); }}>
       <DialogContent className="lab-lightbox" onCloseAutoFocus={(event) => { event.preventDefault(); imageOpener.current?.focus(); }} onKeyDown={(event) => { if (imageIndex === null) return; if (event.key === 'ArrowLeft') setImageIndex((imageIndex - 1 + images.length) % images.length); if (event.key === 'ArrowRight') setImageIndex((imageIndex + 1) % images.length); }}>

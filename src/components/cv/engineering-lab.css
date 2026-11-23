@@ -259,3 +259,71 @@
  .lab-hero h1>span { animation:none; }
  .lab-site :where(a,button,select),.lab-note-row>a { transition:none; }
 }
+
+/* Hero secondary links, project status and source markers */
+.lab-hero-links { display:flex; flex-wrap:wrap; align-items:center; gap:0 24px; }
+.lab-hero-links .lab-text-link { gap:10px; }
+.lab-hero-links .lab-text-link svg:first-child { transform:none!important; }
+.lab-project-meta>span+span { border-left:1px solid var(--lab-border); padding-left:12px; }
+.lab-project-meta>.lab-project-groups { border-left:0; padding-left:0; }
+.lab-status { display:inline-flex; align-items:center; gap:7px; }
+.lab-status::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--lab-muted); }
+.lab-status[data-status=completed]::before { background:#2f9e62; box-shadow:0 0 0 3px rgb(47 158 98 / .16); }
+.lab-status[data-status=in-development]::before { background:var(--gallery-amber); box-shadow:0 0 0 3px rgb(193 120 54 / .16); }
+.lab-status[data-status=prototype]::before { background:var(--gallery-cobalt); }
+.lab-project-source { display:inline-flex; align-items:center; gap:6px; }
+.lab-image-fallback { gap:10px; align-content:center; background:
+  linear-gradient(rgb(255 255 255 / .04) 1px,transparent 1px) 0 0/40px 40px,
+  linear-gradient(90deg,rgb(255 255 255 / .04) 1px,transparent 1px) 0 0/40px 40px,
+  var(--gallery-night); color:var(--gallery-night-muted); font:10px/1.6 var(--font-jetbrains-mono); letter-spacing:.08em; text-transform:uppercase; }
+.lab-image-fallback-mark { color:var(--gallery-lime); font-size:26px; line-height:1; }
+
+/* Open-source repository index */
+.lab-github { border-top:1px solid var(--lab-border); }
+.lab-github-summary { display:flex; justify-content:space-between; align-items:center; gap:20px 40px; flex-wrap:wrap; margin-bottom:36px; padding-bottom:28px; border-bottom:1px solid var(--lab-border); }
+.lab-github-profile { display:inline-flex; align-items:center; gap:12px; min-height:52px; padding:12px 20px; border:1px solid var(--gallery-ink); border-radius:3px; background:var(--gallery-ink); color:var(--gallery-paper)!important; font:13px var(--font-jetbrains-mono); }
+.lab-github-profile:hover { background:var(--gallery-cobalt); border-color:var(--gallery-cobalt); }
+.lab-github-profile svg:last-child { transition:transform var(--motion-normal) var(--ease-standard); }
+.lab-github-profile:hover svg:last-child { transform:translate(2px,-2px); }
+.lab-github-stats { display:flex; flex-wrap:wrap; gap:16px 44px; margin:0; }
+.lab-github-stats>div { display:flex; flex-direction:column-reverse; gap:4px; }
+.lab-github-stats dt { color:var(--lab-muted); font:10px/1.6 var(--font-jetbrains-mono); text-transform:uppercase; letter-spacing:.06em; }
+.lab-github-stats dd { margin:0; font:28px/1.1 var(--font-jetbrains-mono); color:var(--gallery-cobalt); }
+.lab-github-languages dd { display:flex; flex-wrap:wrap; gap:6px 16px; font:12px/2.2 var(--font-jetbrains-mono); color:var(--lab-text); }
+.lab-github-languages dd span,.lab-repo-language { display:inline-flex; align-items:center; gap:7px; }
+.lab-github-languages i,.lab-repo-language i { width:9px; height:9px; border-radius:50%; display:inline-block; }
+.lab-repo-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; list-style:none; padding:0; margin:0; }
+.lab-repo-card { position:relative; display:flex; flex-direction:column; min-width:0; min-height:236px; padding:24px; border:1px solid var(--lab-border); border-radius:3px; background:var(--gallery-white); transition:border-color var(--motion-normal),transform var(--motion-normal) var(--ease-standard),box-shadow var(--motion-normal); }
+.lab-repo-card[data-linked=true] { border-top:3px solid var(--gallery-cobalt); }
+.lab-repo-card:hover { border-color:var(--gallery-cobalt); transform:translateY(-3px); box-shadow:0 18px 40px -28px rgb(23 26 28 / .45); }
+.lab-repo-top { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; color:var(--lab-muted); font:10px/1.7 var(--font-jetbrains-mono); text-transform:uppercase; letter-spacing:.04em; margin-bottom:18px; }
+.lab-repo-card h3 { font-size:20px; line-height:1.35; margin-bottom:10px; overflow-wrap:anywhere; }
+.lab-repo-card h3 a { display:inline-flex; align-items:flex-start; gap:8px; }
+.lab-repo-card h3 a::after { content:''; position:absolute; inset:0; }
+.lab-repo-card h3 svg { flex:0 0 auto; margin-top:5px; color:var(--lab-accent); transition:transform var(--motion-normal) var(--ease-standard); }
+.lab-repo-card:hover h3 svg { transform:translate(2px,-2px); }
+.lab-repo-card>p { flex:1; margin-bottom:20px; color:var(--lab-muted); font-size:14px; line-height:1.7; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.lab-repo-bottom { display:flex; justify-content:space-between; align-items:center; gap:12px; padding-top:14px; border-top:1px solid var(--lab-border); color:var(--lab-muted); font:11px var(--font-jetbrains-mono); }
+.lab-repo-counts { display:flex; gap:16px; }
+.lab-repo-counts>span { display:inline-flex; align-items:center; gap:5px; }
+.lab-repo-case { position:relative; z-index:1; display:inline-flex; align-items:center; gap:8px; min-height:36px; color:var(--gallery-cobalt)!important; font-size:12px; }
+.lab-repo-case:hover svg { transform:translateX(3px); }
+.lab-repo-case svg { transition:transform var(--motion-normal) var(--ease-standard); }
+.lab-repo-skeleton { gap:14px; }
+.lab-repo-skeleton span { display:block; height:12px; width:40%; background:var(--lab-surface); border-radius:2px; animation:lab-skeleton 1.4s ease-in-out infinite; }
+.lab-repo-skeleton span:nth-child(2) { height:22px; width:70%; }
+.lab-repo-skeleton span:nth-child(3) { height:44px; width:100%; }
+@keyframes lab-skeleton { 50% { opacity:.45; } }
+.pf-back-top { gap:6px; }
+@media(max-width:1100px) { .lab-repo-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:560px) {
+ .lab-repo-grid { grid-template-columns:1fr; }
+ .lab-repo-card { min-height:0; padding:20px; }
+ .lab-github-profile { width:100%; justify-content:space-between; }
+ .lab-github-stats { gap:16px 28px; }
+ .lab-hero-links { gap:0 18px; }
+ .lab-hero-index { gap:20px; }
+ .lab-hero-index a { white-space:nowrap; }
+ .lab-hero-index>span { display:none; }
+}
+@media(prefers-reduced-motion:reduce) { .lab-repo-skeleton span { animation:none; } .lab-repo-card:hover { transform:none; } }
