@@ -28,8 +28,10 @@ web-sys = { version = "0.3", features = [
   "HtmlCanvasElement", "WebGlRenderingContext", "WebGlProgram", "WebGlShader", "WebGlBuffer", "WebGlUniformLocation",
   "ScrollToOptions", "ScrollBehavior", "ScrollIntoViewOptions", "ScrollLogicalPosition", "AddEventListenerOptions",
   "HtmlDialogElement", "FormData", "HtmlFormElement", "Request", "RequestInit", "Response", "Headers", "File", "FileList",
+  "HtmlDocument", "TouchEvent", "TouchList", "Touch", "History", "Url", "UrlSearchParams", "WebGlRenderingContext", "WebGlContextAttributes", "WebGlPowerPreference",
 ] }
 console_error_panic_hook = { version = "0.1", optional = true }
+wasm-bindgen-futures = "0.4"
 
 # Server-only
 leptos_axum = { version = "0.8.10", optional = true }
@@ -87,9 +89,9 @@ assets-dir = "public"
 site-addr = "127.0.0.1:3100"
 reload-port = 3101
 browserquery = "defaults"
-env = "DEV"
 bin-features = ["ssr"]
 bin-default-features = false
 lib-features = ["hydrate"]
 lib-default-features = false
 lib-profile-release = "wasm-release"
+hash-files = true

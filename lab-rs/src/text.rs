@@ -233,3 +233,13 @@ mod tests {
         assert_eq!(format_date("2026-08-17T00:00:00Z", Locale::En), "Aug 17, 2026");
     }
 }
+
+/// Repository name (lowercase) from a github.com URL, used to link repositories with case studies.
+pub fn github_repo_name(url: &str) -> Option<String> {
+    let rest = url.trim().strip_prefix("https://").or_else(|| url.trim().strip_prefix("http://"))?;
+    let rest = rest.strip_prefix("www.").unwrap_or(rest);
+    let path = rest.strip_prefix("github.com/")?;
+    let mut parts = path.split(['/', '?', '#']).filter(|p| !p.is_empty());
+    let (_owner, repo) = (parts.next()?, parts.next()?);
+    Some(repo.trim_end_matches(".git").to_ascii_lowercase())
+}

@@ -1,18 +1,34 @@
 use crate::model::Locale;
+use crate::pages::{home::HomePage, lab::LabPage, legal::{PrivacyPage, TermsPage}, not_found::NotFound, notes::NotesPage, post::PostPage, project::ProjectPage, projects::ProjectsPage};
 use leptos::prelude::*;
-use leptos_meta::{provide_meta_context, MetaTags};
+use leptos_meta::{provide_meta_context, HashedStylesheet, MetaTags};
 use leptos_router::{
     components::{Route, Router, Routes},
     path, SsrMode,
 };
 
+/// Runs before first paint: enables JS-only motion styles and the once-per-session intro.
+const BOOT: &str = "document.documentElement.classList.add('js');try{if(!sessionStorage.getItem('lab-intro')&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.classList.add('intro');sessionStorage.setItem('lab-intro','1')}}catch(e){}";
+/// Prefetch same-origin pages on hover (Chromium); other browsers ignore it.
+const SPECULATION: &str = r#"{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/admin*"}},{"not":{"href_matches":"/api/*"}}]},"eagerness":"moderate"}]}"#;
+
 pub fn shell(options: LeptosOptions) -> impl IntoView {
+    let locale = request_locale();
     view! {
         <!DOCTYPE html>
-        <html lang="vi">
+        <html lang=locale.code()>
             <head>
                 <meta charset="utf-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+                <meta name="theme-color" content="#080a0f" />
+                <meta name="color-scheme" content="dark" />
+                <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+                <link rel="preload" href="/fonts/inter-latin.woff2" r#as="font" type="font/woff2" crossorigin="" />
+                <link rel="preload" href="/fonts/inter-vietnamese.woff2" r#as="font" type="font/woff2" crossorigin="" />
+                <link rel="preconnect" href="https://res.cloudinary.com" crossorigin="" />
+                <script inner_html=BOOT></script>
+                <script type="speculationrules" inner_html=SPECULATION></script>
+                <HashedStylesheet options=options.clone() id="leptos" />
                 <AutoReload options=options.clone() />
                 <HydrationScripts options islands=true />
                 <MetaTags />
@@ -44,12 +60,18 @@ pub fn request_locale() -> Locale {
 #[component]
 pub fn App() -> impl IntoView {
     provide_meta_context();
-    let locale = request_locale();
-    provide_context(locale);
+    provide_context(request_locale());
     view! {
         <Router>
-            <Routes fallback=|| view! { <crate::pages::not_found::NotFound /> }>
-                <Route path=path!("/") view=crate::pages::home::HomePage ssr=SsrMode::Async />
+            <Routes fallback=|| view! { <NotFound /> }>
+                <Route path=path!("/") view=HomePage ssr=SsrMode::Async />
+                <Route path=path!("/projects") view=ProjectsPage ssr=SsrMode::Async />
+                <Route path=path!("/projects/:id") view=ProjectPage ssr=SsrMode::Async />
+                <Route path=path!("/hardware-lab") view=LabPage ssr=SsrMode::Async />
+                <Route path=path!("/notes") view=NotesPage ssr=SsrMode::Async />
+                <Route path=path!("/posts/:slug") view=PostPage ssr=SsrMode::Async />
+                <Route path=path!("/privacy") view=PrivacyPage ssr=SsrMode::Async />
+                <Route path=path!("/terms") view=TermsPage ssr=SsrMode::Async />
             </Routes>
         </Router>
     }
