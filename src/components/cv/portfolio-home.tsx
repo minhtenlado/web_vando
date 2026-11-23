@@ -1,102 +1,147 @@
 'use client';
 
+import { DOMAINS } from '@/lib/cv/domains';
+import { galleryMotion } from '@/lib/cv/motion';
 import { externalUrl,normalizeSearch } from '@/lib/cv/presentation';
-import { normalizeProjectUrl } from '@/lib/cv/project-input';
 import { projectCategoryGroups } from '@/lib/cv/project-categories';
-import type { SiteProject } from '@/lib/cv/site-data-server';
-import { ArrowRight,ArrowUpRight,Github,Search,X } from 'lucide-react';
+import { normalizeProjectUrl } from '@/lib/cv/project-input';
+import { AnimatePresence,motion,useReducedMotion } from 'framer-motion';
+import { AppWindow,ArrowRight,Bot,BrainCircuit,CircuitBoard,Cpu,Github,Radio,Search,X,type LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo,useState } from 'react';
-import { ContentImage } from './content-image';
-import { SignalArt } from './signal-art';
 import { CategoryFilters } from './category-filters';
-import { ProjectSummary } from './project-summary';
-import { ProjectExhibition } from './project-exhibition';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { galleryMotion } from '@/lib/cv/motion';
-import { Reveal } from './reveal';
 import { ContentError,PreviewNotice } from './content-state';
 import { Footer } from './footer';
 import { GithubRepositories } from './github-repositories';
 import { useLocale } from './locale-context';
 import { Navbar } from './navbar';
 import { ArticleList } from './notes-library';
+import { ProjectCard } from './project-card';
+import { SectionHeading } from './section-heading';
+import { SignalArt } from './signal-art';
 import { useSiteData } from './site-data-context';
 
-const PAGE_SIZE = 8;
-
-function ProjectRow({ project, priority = false }: { project: SiteProject; priority?: boolean }) {
-  const reduced = useReducedMotion();
-  return <motion.article layout={reduced ? false : "position"} initial={reduced ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, transition: { duration: reduced ? 0 : galleryMotion.fast } }} transition={galleryMotion.spring} className="lab-project-row"><Link href={'/projects/' + encodeURIComponent(project.id)}>
-    <div className="lab-project-image"><ContentImage src={project.image} alt="" sizes="(max-width: 760px) calc(100vw - 36px), (max-width: 1440px) 46vw, 640px" priority={priority} /></div>
-    <ProjectSummary project={project} /><ArrowUpRight className="lab-row-arrow" size={18} aria-hidden="true" />
-  </Link></motion.article>;
-}
+const PAGE_SIZE = 9;
+const DOMAIN_ICONS: Record<string, LucideIcon> = { Embedded: Cpu, Hardware: CircuitBoard, IoT: Radio, AI: BrainCircuit, Robotics: Bot, Software: AppWindow };
 
 export function PortfolioHome() {
   const { projects, posts, settings, profile, loading, errors, requestFailed } = useSiteData();
   const { t, locale } = useLocale();
+  const reduced = useReducedMotion();
   const [category, setCategory] = useState('all');
   const [query, setQuery] = useState('');
   const [limit, setLimit] = useState(PAGE_SIZE);
   const published = useMemo(() => projects.filter((project) => project.published !== false), [projects]);
-  const featured = useMemo(() => published.filter((project) => project.featured).slice(0, 3), [published]);
-  const categories = useMemo(() => Array.from(new Set(published.flatMap((project) => projectCategoryGroups(project.category)))), [published]);
-  const filtered = useMemo(() => published.filter((project) => (category === 'all' || projectCategoryGroups(project.category).includes(category))
-    && normalizeSearch([project.title, project.category, project.subtitle, project.description, ...(project.tech || [])].join(' ')).includes(normalizeSearch(query))), [published, category, query]);
+  const flagged = useMemo(() => published.filter((project) => project.featured).slice(0, 3), [published]);
+  const featured = flagged.length ? flagged : published.slice(0, 3);
+  const groupsById = useMemo(() => new Map(published.map((project) => [project.id, projectCategoryGroups(project.category)])), [published]);
+  const categories = useMemo(() => Array.from(new Set(published.flatMap((project) => groupsById.get(project.id) || []))), [published, groupsById]);
+  const counts = useMemo(() => Object.fromEntries([['all', published.length], ...categories.map((item) => [item, published.filter((project) => groupsById.get(project.id)?.includes(item)).length])]), [published, categories, groupsById]);
+  const filtered = useMemo(() => published.filter((project) => (category === 'all' || groupsById.get(project.id)?.includes(category))
+    && normalizeSearch([project.title, project.category, project.subtitle, project.description, ...(project.tech || [])].join(' ')).includes(normalizeSearch(query))), [published, category, query, groupsById]);
+  const domains = useMemo(() => DOMAINS.map((domain) => {
+    const members = published.filter((project) => groupsById.get(project.id)?.includes(domain.key));
+    const tally = new Map<string, number>();
+    members.forEach((project) => (project.tech || []).forEach((tech) => tally.set(tech, (tally.get(tech) || 0) + 1)));
+    const tech = [...tally.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([name]) => name);
+    return { ...domain, count: members.length, tech };
+  }).filter((domain) => domain.count > 0), [published, groupsById]);
   const latest = useMemo(() => posts.filter((post) => post.published).slice().sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)).slice(0, 3), [posts]);
+  const postCount = posts.filter((post) => post.published).length;
   const projectError = Boolean(errors?.projects || requestFailed);
   const postError = Boolean(errors?.posts || requestFailed);
-  const exhibition = useMemo(() => featured.length ? featured : published.slice(0, 3), [featured, published]);
-  const showFeatured = settings.sectionFeaturedEnabled !== false && exhibition.length > 0;
-  const headline = String((locale === 'vi' ? settings.heroHeadlineVi : settings.heroHeadlineEn) || '').split('\n');
-  const introLink = normalizeProjectUrl(settings.heroPrimaryUrl, { allowRelative: true }) || "#projects";
+  const showFeatured = settings.sectionFeaturedEnabled !== false && featured.length > 0;
+  const headline = String((locale === 'vi' ? settings.heroHeadlineVi : settings.heroHeadlineEn) || '').split('\n').filter(Boolean);
+  const introLink = normalizeProjectUrl(settings.heroPrimaryUrl, { allowRelative: true }) || '#projects';
   const githubLink = normalizeProjectUrl(settings.heroSecondaryUrl, { allowRelative: true }) || externalUrl(profile.github);
   const secondaryLabel = (locale === 'vi' ? settings.heroSecondaryLabelVi : settings.heroSecondaryLabelEn) || t('Mã nguồn trên GitHub', 'GitHub source code');
   const sourceCount = published.filter((project) => project.repo).length;
+  const chooseCategory = (value: string) => { setCategory(value); setLimit(PAGE_SIZE); };
+  const openDomain = (key: string) => {
+    chooseCategory(key); setQuery('');
+    document.getElementById('projects')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+  };
+  let section = 0;
+  const nextIndex = () => String(++section).padStart(2, '0');
 
   return <div className="lab-site" id="top">
     <Navbar />
     <main id="main-content" tabIndex={-1}>
       <PreviewNotice />
-      <section className="lab-hero lab-container" aria-labelledby="site-title">
-        <div className="lab-hero-copy">
-          <p className="lab-eyebrow"><span className="lab-signal-dot" />Engineering Lab <span>/</span> {t('Không gian thử nghiệm', 'An engineering collection')}</p>
-          <h1 id="site-title">{headline.map((line, index) => <span key={index}>{line}</span>)}</h1>
-          <p className="lab-hero-description">{locale === 'vi' ? settings.heroDescriptionVi : settings.heroDescriptionEn}</p>
-          <div className="lab-hero-actions"><a className="lab-button lab-button-primary" href={introLink}>{(locale === 'vi' ? settings.heroPrimaryLabelVi : settings.heroPrimaryLabelEn) || t('Khám phá dự án', 'Explore projects')}<ArrowUpRight size={19} aria-hidden="true" /></a>
-            <div className="lab-hero-links">{githubLink && <a className="lab-text-link" href={githubLink} {...(githubLink.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}><Github size={16} aria-hidden="true" />{secondaryLabel}</a>}<Link className="lab-text-link" href="/notes">Engineering Notes <ArrowRight size={16} aria-hidden="true" /></Link></div></div>
+      <section className="ui-hero" aria-labelledby="site-title">
+        <div className="ui-hero-backdrop" aria-hidden="true" />
+        <div className="lab-container ui-hero-grid">
+          <div className="ui-hero-copy">
+            <p className="ui-pill"><span className="ui-pulse" aria-hidden="true" />Engineering Lab · {t('Không gian thử nghiệm', 'An engineering collection')}</p>
+            <h1 id="site-title">{headline.map((line, index) => <span key={index} className={index === headline.length - 1 && headline.length > 1 ? 'ui-gradient-text' : undefined}>{line}</span>)}</h1>
+            <p className="ui-hero-lead">{locale === 'vi' ? settings.heroDescriptionVi : settings.heroDescriptionEn}</p>
+            <div className="ui-hero-actions">
+              <a className="lab-button lab-button-primary" href={introLink}>{(locale === 'vi' ? settings.heroPrimaryLabelVi : settings.heroPrimaryLabelEn) || t('Khám phá dự án', 'Explore projects')}<ArrowRight size={17} aria-hidden="true" /></a>
+              {githubLink && <a className="lab-button" href={githubLink} {...(githubLink.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}><Github size={17} aria-hidden="true" />{secondaryLabel}</a>}
+              <Link className="lab-text-link" href="/notes">Engineering Notes<ArrowRight size={15} aria-hidden="true" /></Link>
+            </div>
           </div>
-        <SignalArt label={t("Signal field · Đồ họa tương tác", "Signal field · Interactive graphic")}><div className="lab-hero-index"><a href="#projects"><strong>{String(published.length).padStart(2, '0')}</strong>{t('Dự án', 'Projects')}</a>{sourceCount > 0 && <a href="#github"><strong>{String(sourceCount).padStart(2, '0')}</strong>{t('Có mã nguồn', 'With source')}</a>}<Link href="/notes"><strong>{String(latest.length ? posts.filter((post) => post.published).length : 0).padStart(2, '0')}</strong>{t('Bài viết', 'Articles')}</Link><span>HARDWARE ↔ SOFTWARE</span></div>
-          </SignalArt>
+          <div className="ui-hero-panel">
+            <div className="ui-panel-bar" aria-hidden="true"><span className="ui-panel-dots"><i /><i /><i /></span><span>signal-field.live</span><span>CH1 · CH2</span></div>
+            <SignalArt label={t('Đồ họa tín hiệu tương tác', 'Interactive signal graphic')} />
+            <dl className="ui-metrics">
+              <div><dt>{t('Dự án', 'Projects')}</dt><dd><a href="#projects">{String(published.length).padStart(2, '0')}</a></dd></div>
+              <div><dt>{t('Có mã nguồn', 'With source')}</dt><dd><a href="#github">{String(sourceCount).padStart(2, '0')}</a></dd></div>
+              <div><dt>{t('Lĩnh vực', 'Domains')}</dt><dd><a href="#domains">{String(domains.length).padStart(2, '0')}</a></dd></div>
+              <div><dt>{t('Bài viết', 'Articles')}</dt><dd><Link href="/notes">{String(postCount).padStart(2, '0')}</Link></dd></div>
+            </dl>
+          </div>
+        </div>
       </section>
 
-      {showFeatured && <section className="lab-section lab-container lab-exhibition" aria-labelledby="featured-title">
-        <Reveal><div className="lab-section-heading"><div><p className="lab-eyebrow">01 / {t('Không gian trưng bày', 'In the collection')}</p><h2 id="featured-title">{featured.length ? t('Dự án nổi bật.', 'Selected work.') : t('Trong phòng lab.', 'Inside the lab.')}</h2></div><p className="lab-section-caption">{t('Những hệ thống, nguyên mẫu và ý tưởng đã được triển khai.', 'Systems, prototypes and ideas brought into practice.')}</p></div></Reveal>
-        <ProjectExhibition projects={exhibition} />
+      {domains.length > 0 && <section className="lab-container ui-section" id="domains" aria-labelledby="domains-title">
+        <SectionHeading id="domains-title" index={nextIndex()} kicker={t('Lĩnh vực', 'Domains')} title={t('Các lĩnh vực nghiên cứu', 'Areas of work')} caption={t('Dự án được phân loại theo lĩnh vực kỹ thuật. Chọn một lĩnh vực để lọc thư viện dự án.', 'Projects are grouped by engineering discipline. Choose one to filter the project index.')} />
+        <div className="ui-domain-grid">
+          {domains.map((domain) => {
+            const Icon = DOMAIN_ICONS[domain.key] || Cpu;
+            return <button type="button" key={domain.key} className="ui-domain-card" data-tone={domain.tone} onClick={() => openDomain(domain.key)} aria-label={t('Lọc dự án: ', 'Filter projects: ') + (locale === 'vi' ? domain.vi : domain.en)}>
+              <span className="ui-domain-top"><span className="ui-domain-icon"><Icon size={20} aria-hidden="true" /></span><span className="ui-domain-count"><strong>{String(domain.count).padStart(2, '0')}</strong>{t('dự án', 'projects')}</span></span>
+              <span className="ui-domain-name">{locale === 'vi' ? domain.vi : domain.en}</span>
+              <span className="ui-domain-desc">{locale === 'vi' ? domain.descriptionVi : domain.descriptionEn}</span>
+              {domain.tech.length > 0 && <span className="ui-domain-tech">{domain.tech.join(' · ')}</span>}
+            </button>;
+          })}
+        </div>
       </section>}
 
-      <section className="lab-section lab-container" id="projects" aria-labelledby="projects-title">
-        <Reveal><div className="lab-section-heading"><div><p className="lab-eyebrow">02 / {t('Khám phá dự án', 'Project explorer')}</p><h2 id="projects-title">{t('Thư viện dự án.', 'Project index.')}</h2></div><p className="lab-section-caption">{t('Khám phá theo lĩnh vực hoặc tìm công nghệ bạn quan tâm.', 'Browse by discipline or find the technology you’re interested in.')}</p></div></Reveal>
-        <div className="lab-library-controls">
-          <div className="lab-search"><Search size={17} aria-hidden="true" /><label className="sr-only" htmlFor="project-search">{t('Tìm dự án', 'Search projects')}</label><input id="project-search" type="search" value={query} onChange={(e) => { setQuery(e.target.value); setLimit(PAGE_SIZE); }} placeholder={t('Tìm tên hoặc công nghệ…', 'Search projects or technologies…')} />{query && <button type="button" onClick={() => { setQuery(''); setLimit(PAGE_SIZE); }} aria-label={t('Xóa tìm kiếm', 'Clear search')}><X size={16} /></button>}</div>
-          <label className="lab-mobile-category lab-sort"><span>{t('Danh mục', 'Category')}</span><select value={category} onChange={(e) => { setCategory(e.target.value); setLimit(PAGE_SIZE); }}>{['all', ...categories].map((item) => <option key={item} value={item}>{item === 'all' ? t('Tất cả', 'All') : item}</option>)}</select></label>
-          <CategoryFilters categories={categories} value={category} onChange={(value) => { setCategory(value); setLimit(PAGE_SIZE); }} label={t('Danh mục dự án', 'Project categories')} />
+      {showFeatured && <section className="lab-container ui-section" id="featured" aria-labelledby="featured-title">
+        <SectionHeading id="featured-title" index={nextIndex()} kicker={flagged.length ? t('Tiêu biểu', 'Featured') : t('Bộ sưu tập', 'Collection')} title={flagged.length ? t('Dự án tiêu biểu', 'Featured projects') : t('Trong phòng lab', 'Inside the lab')} caption={t('Những hệ thống, nguyên mẫu và ý tưởng đã được triển khai.', 'Systems, prototypes and ideas brought into practice.')} />
+        <div className="ui-featured-grid">{featured.map((project, index) => <ProjectCard key={project.id} project={project} feature={index === 0} priority={index === 0} />)}</div>
+      </section>}
+
+      <section className="lab-container ui-section" id="projects" aria-labelledby="projects-title">
+        <SectionHeading id="projects-title" index={nextIndex()} kicker={t('Thư viện', 'Index')} title={t('Tất cả dự án', 'All projects')} caption={t('Tìm theo tên, công nghệ hoặc lọc theo lĩnh vực.', 'Search by name or technology, or filter by domain.')} />
+        <div className="ui-toolbar">
+          <div className="ui-toolbar-row">
+            <div className="lab-search"><Search size={17} aria-hidden="true" /><label className="sr-only" htmlFor="project-search">{t('Tìm dự án', 'Search projects')}</label><input id="project-search" type="search" value={query} onChange={(e) => { setQuery(e.target.value); setLimit(PAGE_SIZE); }} placeholder={t('Tìm tên dự án hoặc công nghệ…', 'Search projects or technologies…')} />{query && <button type="button" onClick={() => { setQuery(''); setLimit(PAGE_SIZE); }} aria-label={t('Xóa tìm kiếm', 'Clear search')}><X size={16} /></button>}</div>
+            <p className="ui-result-count" role="status">{filtered.length} / {published.length} {t('dự án', 'projects')}</p>
+          </div>
+          <label className="lab-mobile-category lab-sort"><span>{t('Lĩnh vực', 'Domain')}</span><select value={category} onChange={(e) => chooseCategory(e.target.value)}>{['all', ...categories].map((item) => <option key={item} value={item}>{item === 'all' ? t('Tất cả', 'All') : item} ({counts[item] ?? 0})</option>)}</select></label>
+          <CategoryFilters categories={categories} counts={counts} value={category} onChange={chooseCategory} label={t('Lĩnh vực dự án', 'Project domains')} />
         </div>
         <ContentError resource="projects" />
         {loading && !published.length ? <p className="lab-empty" role="status">{t('Đang tải dự án…', 'Loading projects…')}</p>
-          : filtered.length ? <div className="lab-project-list" aria-busy={loading}><AnimatePresence initial={false}>{filtered.slice(0, limit).map((project, index) => <ProjectRow key={project.id} project={project} priority={!showFeatured && index === 0} />)}</AnimatePresence></div>
-          : !projectError && <div className="lab-empty" role="status"><p>{published.length ? t('Không tìm thấy dự án phù hợp.', 'No matching projects.') : t('Chưa có dự án được xuất bản.', 'No published projects yet.')}</p>{(query || category !== 'all') && <button className="lab-text-link" type="button" onClick={() => { setQuery(''); setCategory('all'); }}>{t('Xóa bộ lọc', 'Clear filters')}</button>}</div>}
-        {published.length > 0 && <div className="lab-list-footer"><p role="status">{filtered.length} {t('dự án', 'projects')}</p>{filtered.length > limit && <button type="button" className="lab-button" onClick={() => setLimit(limit + PAGE_SIZE)}>{t('Xem thêm dự án', 'Load more projects')}</button>}</div>}
+          : filtered.length ? <div className="ui-project-grid" aria-busy={loading}><AnimatePresence initial={false}>{filtered.slice(0, limit).map((project) =>
+            <motion.div key={project.id} layout={reduced ? false : 'position'} initial={reduced ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, transition: { duration: reduced ? 0 : galleryMotion.fast } }} transition={galleryMotion.spring} className="ui-grid-item">
+              <ProjectCard project={project} />
+            </motion.div>)}</AnimatePresence></div>
+          : !projectError && <div className="lab-empty" role="status"><p>{published.length ? t('Không tìm thấy dự án phù hợp.', 'No matching projects.') : t('Chưa có dự án được xuất bản.', 'No published projects yet.')}</p>{(query || category !== 'all') && <button className="lab-text-link" type="button" onClick={() => { setQuery(''); chooseCategory('all'); }}>{t('Xóa bộ lọc', 'Clear filters')}</button>}</div>}
+        {filtered.length > limit && <div className="ui-load-more"><button type="button" className="lab-button" onClick={() => setLimit(limit + PAGE_SIZE)}>{t('Xem thêm dự án', 'Load more projects')} ({filtered.length - limit})</button></div>}
       </section>
 
-      <GithubRepositories projects={published} profile={profile.github} index="03" />
+      <GithubRepositories projects={published} profile={profile.github} index={nextIndex()} />
 
-      <section className="lab-notes-island" id="notes" aria-labelledby="notes-title"><div className="lab-container lab-section">
-        <div className="lab-section-heading"><div><p className="lab-eyebrow">04 / Engineering Notes</p><h2 id="notes-title">{t('Ghi chép kỹ thuật.', 'Field notes.')}</h2></div><Link href="/notes" className="lab-text-link">{t('Tất cả bài viết', 'All articles')}<ArrowRight size={15} aria-hidden="true" /></Link></div>
+      <section className="lab-container ui-section" id="notes" aria-labelledby="notes-title">
+        <SectionHeading id="notes-title" index={nextIndex()} kicker="Engineering Notes" title={t('Ghi chép kỹ thuật', 'Field notes')} caption={t('Hướng dẫn triển khai và kết quả thử nghiệm từ các dự án.', 'Implementation guides and experiment results.')}
+          action={<Link href="/notes" className="lab-button">{t('Tất cả bài viết', 'All articles')}<ArrowRight size={16} aria-hidden="true" /></Link>} />
         <ContentError resource="posts" />
-        {latest.length ? <ArticleList posts={latest} compact /> : !postError && <p className="lab-empty" role="status">{loading ? t('Đang tải bài viết…', 'Loading articles…') : t('Chưa có bài viết được xuất bản.', 'No published articles yet.')}</p>}
-      </div></section>
+        {latest.length ? <ArticleList posts={latest} /> : !postError && <p className="lab-empty" role="status">{loading ? t('Đang tải bài viết…', 'Loading articles…') : t('Chưa có bài viết được xuất bản.', 'No published articles yet.')}</p>}
+      </section>
     </main>
     <Footer />
   </div>;

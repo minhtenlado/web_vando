@@ -30,13 +30,51 @@
   --gallery-space-5: 64px;
   --gallery-space-6: 104px;
 }
+/* Public site: semantic tokens. Dark is the default theme (next-themes adds `.dark`); light mirrors it. */
 .lab-site, .pf-mobile-sheet {
-  --lab-bg: var(--gallery-paper); --lab-surface: var(--gallery-surface);
-  --lab-card: var(--gallery-white); --lab-text: var(--gallery-ink);
-  --lab-muted: var(--gallery-muted); --lab-border: var(--gallery-line);
-  --lab-accent: var(--gallery-cobalt); --lab-copper: var(--gallery-cobalt);
-  --lab-paper: var(--gallery-paper);
-  --motion-fast: 160ms; --motion-normal: 360ms; --motion-slow: 720ms;
+  --ui-font-sans: var(--font-lab-sans), 'Segoe UI', system-ui, sans-serif;
+  --ui-font-display: var(--font-lab-display), var(--font-lab-sans), system-ui, sans-serif;
+  --ui-font-mono: var(--font-lab-mono), 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  --ui-radius-sm: 8px; --ui-radius: 12px; --ui-radius-lg: 18px;
+  --ui-bg: #f5f7fb; --ui-bg-alt: #edf1f7;
+  --ui-surface: #ffffff; --ui-surface-2: #f3f6fa; --ui-surface-3: #e7ecf3;
+  --ui-border: #e1e7ef; --ui-border-strong: #c9d3e0;
+  --ui-text: #0d1526; --ui-text-2: #33415a; --ui-muted: #5f6c80;
+  --ui-accent: #2563eb; --ui-accent-hover: #1d4ed8; --ui-accent-text: #1d4ed8;
+  --ui-accent-soft: rgb(37 99 235 / .08); --ui-accent-border: rgb(37 99 235 / .28); --ui-on-accent: #ffffff;
+  --ui-gradient: linear-gradient(100deg, #2563eb 0%, #0891b2 55%, #059669 100%);
+  --ui-cyan: #0e7490; --ui-amber: #b45309; --ui-green: #047857; --ui-violet: #6d28d9; --ui-pink: #be185d; --ui-blue: #1d4ed8;
+  --ui-media-bg: #e8edf4; --ui-grid-line: rgb(13 21 38 / .055);
+  --ui-header-bg: rgb(245 247 251 / .82);
+  --ui-shadow-sm: 0 1px 2px rgb(13 21 38 / .06);
+  --ui-shadow: 0 1px 2px rgb(13 21 38 / .05), 0 12px 32px -18px rgb(13 21 38 / .28);
+  --ui-shadow-lg: 0 2px 6px rgb(13 21 38 / .05), 0 28px 60px -30px rgb(13 21 38 / .4);
+  --ui-panel-bg: #0b111b; --ui-panel-line: #1d2838; --ui-panel-text: #dfe6f0; --ui-panel-muted: #8796ab;
+  --signal-blue-rgb: 96 165 250; --signal-lime-rgb: 52 211 153;
+  /* Article, comment and reader styles consume these legacy names. */
+  --lab-bg: var(--ui-bg); --lab-surface: var(--ui-surface-2); --lab-card: var(--ui-surface);
+  --lab-text: var(--ui-text); --lab-muted: var(--ui-muted); --lab-border: var(--ui-border);
+  --lab-accent: var(--ui-accent-text); --lab-copper: var(--ui-accent); --lab-paper: var(--ui-bg);
+  --motion-fast: 160ms; --motion-normal: 280ms; --motion-slow: 600ms;
   --ease-standard: cubic-bezier(.16,1,.3,1);
   color-scheme: light;
 }
+.dark .lab-site, .dark .pf-mobile-sheet {
+  --ui-bg: #080c13; --ui-bg-alt: #0b1019;
+  --ui-surface: #0f1520; --ui-surface-2: #131a27; --ui-surface-3: #1a2333;
+  --ui-border: #1c2636; --ui-border-strong: #2a374b;
+  --ui-text: #e8edf5; --ui-text-2: #c2ccda; --ui-muted: #8b98ab;
+  --ui-accent: #3b82f6; --ui-accent-hover: #2563eb; --ui-accent-text: #7fb1ff;
+  --ui-accent-soft: rgb(59 130 246 / .13); --ui-accent-border: rgb(96 165 250 / .38); --ui-on-accent: #ffffff;
+  --ui-gradient: linear-gradient(100deg, #60a5fa 0%, #22d3ee 55%, #34d399 100%);
+  --ui-cyan: #22d3ee; --ui-amber: #fbbf24; --ui-green: #34d399; --ui-violet: #a78bfa; --ui-pink: #f472b6; --ui-blue: #60a5fa;
+  --ui-media-bg: #0c121c; --ui-grid-line: rgb(148 163 184 / .07);
+  --ui-header-bg: rgb(8 12 19 / .78);
+  --ui-shadow-sm: 0 1px 2px rgb(0 0 0 / .4);
+  --ui-shadow: 0 1px 2px rgb(0 0 0 / .35), 0 16px 40px -22px rgb(0 0 0 / .75);
+  --ui-shadow-lg: 0 2px 8px rgb(0 0 0 / .35), 0 32px 70px -34px rgb(0 0 0 / .85);
+  --ui-panel-bg: #070b12; --ui-panel-line: #1a2434;
+  color-scheme: dark;
+}
+html:not(.dark) body:has(.lab-site) { background: #f5f7fb; }
+.dark body:has(.lab-site) { background: #080c13; }

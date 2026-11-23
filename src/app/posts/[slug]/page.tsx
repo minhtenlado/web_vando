@@ -13,6 +13,7 @@ import { getPostBySlug,getSiteData } from '@/lib/cv/site-data-server';
 import { toPresentationData } from '@/lib/cv/site-presentation';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
+import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -51,7 +52,7 @@ export default async function PostPage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       <Navbar /><PreviewNotice />
       <main className="lab-container lab-article-page" id="main-content" tabIndex={-1}>
-        <Link href="/notes" className="lab-detail-back">← {locale === 'vi' ? 'Tất cả bài viết' : 'All articles'}</Link>
+        <nav className="ui-breadcrumb" aria-label="Breadcrumb"><Link href="/">{locale === 'vi' ? 'Trang chủ' : 'Home'}</Link><ChevronRight size={14} aria-hidden="true" /><Link href="/notes">{locale === 'vi' ? 'Bài viết' : 'Articles'}</Link><ChevronRight size={14} aria-hidden="true" /><span aria-current="page">{post.title}</span></nav>
         <div className="lab-reading-layout">
           <PostReader slug={post.slug} title={post.title} pubDate={pubDate} readingTime={Math.max(1, Math.ceil(words / 200))} coverImage={cover} pdfUrl={pdf} category={post.category} excerpt={plainText(post.excerpt)} views={post.views} likes={post.likes} preview={data.source === 'snapshot'}>
             <RichContent content={post.content} />

@@ -30,11 +30,12 @@ Retain the existing Vercel environment variables for the database, admin authent
 
 The existing `/admin` CMS and API routes are retained. Projects keep their original IDs, articles keep their slugs, and language switching reloads the corresponding CMS content. Public data excludes drafts and private administration settings.
 
-The new homepage is `src/components/cv/portfolio-home.tsx`. Public layout styling is in `src/app/portfolio.css`; shared controls use tokens in `src/app/globals.css`. Contact and detail-page styles are isolated in their own stylesheets.
+The homepage is `src/components/cv/portfolio-home.tsx` (hero, domains, featured projects, project index, GitHub repositories, notes). Colour and spacing tokens for the light and dark themes are in `src/components/cv/design-tokens.css`; public layout styles are in `src/components/cv/engineering-lab.css`, and project/article pages use `src/components/cv/detail-polish.css`. Project domains and status labels are defined in `src/lib/cv/domains.ts`.
 
 ## Interface features
 
-- Responsive vertical navigation, project filters, and search
+- Responsive navigation, domain overview, project filters with counts, and search
+- Public GitHub repositories loaded through `/api/github` (cached for one hour)
 - Vietnamese and English, persistent light/dark themes
 - Keyboard search with Ctrl/Cmd+K
 - Accessible contact dialog, labelled inputs, validation, and submission feedback

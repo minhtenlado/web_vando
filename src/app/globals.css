@@ -50,7 +50,7 @@
 :root, .dark {
   color-scheme: dark;
   --font-geist-sans: var(--font-lab-sans), 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --font-jetbrains-mono: 'JetBrains Mono', Consolas, 'SFMono-Regular', monospace;
+  --font-jetbrains-mono: var(--font-lab-mono), 'JetBrains Mono', Consolas, 'SFMono-Regular', monospace;
   --radius: .5rem;
   --background: var(--gallery-night);
   --foreground: var(--gallery-night-text);

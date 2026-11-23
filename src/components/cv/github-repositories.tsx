@@ -6,7 +6,7 @@ import { ArrowRight, ArrowUpRight, GitFork, Github, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale } from './locale-context';
-import { Reveal } from './reveal';
+import { SectionHeading } from './section-heading';
 
 const LANGUAGE_COLORS: Record<string, string> = {
   C: '#555555', 'C++': '#f34b7d', Python: '#3572a5', TypeScript: '#3178c6', JavaScript: '#e0c400',
@@ -74,9 +74,8 @@ export function GithubRepositories({ projects, profile, index }: { projects: Sit
   }, [repos]);
 
   if (!profileUrl) return null;
-  return <section ref={root} className="lab-section lab-container lab-github" id="github" aria-labelledby="github-title">
-    <Reveal><div className="lab-section-heading"><div><p className="lab-eyebrow">{index} / {t('Mã nguồn mở', 'Open source')}</p><h2 id="github-title">{t('Kho mã nguồn.', 'From the repository.')}</h2></div>
-      <p className="lab-section-caption">{t('Các repository công khai trên GitHub, tự động cập nhật. Repository đã có bài giới thiệu sẽ liên kết tới trang dự án.', 'Public GitHub repositories, updated automatically. Repositories with a case study link to their project page.')}</p></div></Reveal>
+  return <section ref={root} className="lab-container ui-section lab-github" id="github" aria-labelledby="github-title">
+    <SectionHeading id="github-title" index={index} kicker={t('Mã nguồn mở', 'Open source')} title={t('Kho mã nguồn', 'Repositories')} caption={t('Các repository công khai trên GitHub, tự động cập nhật. Repository đã có bài giới thiệu sẽ liên kết tới trang dự án.', 'Public GitHub repositories, updated automatically. Repositories with a case study link to their project page.')} />
 
     <div className="lab-github-summary">
       <a className="lab-github-profile" href={profileUrl} target="_blank" rel="noopener noreferrer"><Github size={20} aria-hidden="true" /><span>github.com/{username}</span><ArrowUpRight size={16} aria-hidden="true" /></a>

@@ -4,12 +4,13 @@ import { getSiteSettings } from "@/lib/cv/site-data-server";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Script from "next/script";
-import { Manrope, Be_Vietnam_Pro } from "next/font/google";
+import { Be_Vietnam_Pro, JetBrains_Mono, Manrope } from "next/font/google";
 import "../components/cv/design-tokens.css";
 import "../components/cv/engineering-lab.css";
 import "./globals.css";
 
-const display = Be_Vietnam_Pro({ weight: ["400", "600"], subsets: ["latin", "vietnamese"], display: "swap", variable: "--font-lab-display" });
+const display = Be_Vietnam_Pro({ weight: ["500", "600", "700"], subsets: ["latin", "vietnamese"], display: "swap", variable: "--font-lab-display" });
+const mono = JetBrains_Mono({ subsets: ["latin", "vietnamese"], display: "swap", variable: "--font-lab-mono" });
 const manrope = Manrope({ subsets: ["latin", "vietnamese"], display: "swap", variable: "--font-lab-sans" });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -84,7 +85,7 @@ export default async function RootLayout({
   const settings = await getSiteSettings();
   return (
     <html
-      className={`${manrope.variable} ${display.variable}`}
+      className={`${manrope.variable} ${display.variable} ${mono.variable}`}
       lang={(await cookies()).get("cv-locale")?.value === "en" ? "en" : "vi"}
       suppressHydrationWarning
     >
