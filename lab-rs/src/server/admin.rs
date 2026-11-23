@@ -318,11 +318,12 @@ pub async fn prune_activities(pool: &PgPool) -> R<u64> {
 
 // ---------- Content settings ----------
 
-const SETTING_KEYS: [(&str, &str); 13] = [
+const SETTING_KEYS: [(&str, &str); 16] = [
     ("portfolioName", "portfolio_name"), ("portfolioTagline", "portfolio_tagline"), ("heroHeadlineVi", "hero_headline_vi"), ("heroHeadlineEn", "hero_headline_en"),
     ("heroDescriptionVi", "hero_description_vi"), ("heroDescriptionEn", "hero_description_en"), ("heroPrimaryLabelVi", "hero_primary_label_vi"),
     ("heroPrimaryLabelEn", "hero_primary_label_en"), ("heroSecondaryLabelVi", "hero_secondary_label_vi"), ("heroSecondaryLabelEn", "hero_secondary_label_en"),
     ("heroSecondaryUrl", "hero_secondary_url"), ("metaTitle", "meta_title"), ("metaDescription", "meta_description"),
+    ("heroPrimaryUrl", "hero_primary_url"), ("ogTitle", "og_title"), ("ogImageUrl", "og_image_url"),
 ];
 
 pub async fn content(pool: &PgPool) -> R<ContentSettings> {
@@ -333,6 +334,7 @@ pub async fn content(pool: &PgPool) -> R<ContentSettings> {
     for (key, field) in SETTING_KEYS { out.insert(field.into(), settings.get(key).and_then(Value::as_str).unwrap_or("").into()); }
     out.insert("analytics_enabled".into(), settings.get("analyticsEnabled").and_then(Value::as_bool).unwrap_or(false).into());
     out.insert("analytics_id".into(), settings.get("analyticsId").and_then(Value::as_str).unwrap_or("").into());
+    out.insert("section_featured_enabled".into(), (settings.get("sectionFeaturedEnabled").and_then(Value::as_bool) != Some(false)).into());
     out.insert("email".into(), email.into());
     out.insert("github".into(), github.into());
     serde_json::from_value(Value::Object(out)).map_err(|e| e.to_string())
@@ -343,6 +345,8 @@ pub async fn save_content(pool: &PgPool, input: ContentSettings) -> R<ContentSet
     let value = serde_json::to_value(&input).map_err(|e| e.to_string())?;
     if !input.analytics_id.is_empty() && !input.analytics_id.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') { return Err("Mã Analytics không hợp lệ.".into()); }
     if !input.hero_secondary_url.trim().is_empty() && safe_url(Some(&input.hero_secondary_url)).is_none() { return Err("URL nút phụ không hợp lệ.".into()); }
+    if !input.hero_primary_url.trim().is_empty() && safe_url(Some(&input.hero_primary_url)).is_none() { return Err("URL nút chính không hợp lệ.".into()); }
+    if !input.og_image_url.trim().is_empty() && safe_image(&input.og_image_url).is_empty() { return Err("Ảnh Open Graph phải là ảnh Cloudinary hoặc đường dẫn nội bộ.".into()); }
     if !input.email.trim().is_empty() && !input.email.contains('@') { return Err("Email không hợp lệ.".into()); }
     let mut tx = pool.begin().await.map_err(db_err)?;
     let rows: Vec<(String, String)> = sqlx::query_as(r#"SELECT id, settings FROM "Profile" WHERE id IN ('profile-vi', 'profile-en', 'profile') FOR UPDATE"#).fetch_all(&mut *tx).await.map_err(db_err)?;
@@ -353,6 +357,7 @@ pub async fn save_content(pool: &PgPool, input: ContentSettings) -> R<ContentSet
             for (key, field) in SETTING_KEYS { merged[key] = Value::String(clip(value[field].as_str().unwrap_or(""), 2000)); }
             merged["analyticsEnabled"] = Value::Bool(input.analytics_enabled);
             merged["analyticsId"] = Value::String(clip(&input.analytics_id, 128));
+            merged["sectionFeaturedEnabled"] = Value::Bool(input.section_featured_enabled);
         }
         sqlx::query(r#"UPDATE "Profile" SET settings = $2, email = $3, github = $4, "updatedAt" = NOW() WHERE id = $1"#)
             .bind(&id).bind(merged.to_string()).bind(clip(&input.email, 200)).bind(clip(&input.github, 200)).execute(&mut *tx).await.map_err(db_err)?;
@@ -374,11 +379,194 @@ pub async fn change_password(pool: &PgPool, current: &str, new: &str, confirm: &
     Ok(())
 }
 
+// ---------- Profile, credentials and experiences ----------
+
+fn profile_id(locale: &str) -> &'static str { if locale == "en" { "profile-en" } else { "profile-vi" } }
+
+fn locale_of(value: &str) -> &'static str { if value == "en" { "en" } else { "vi" } }
+
+/// Links that would run script when clicked are refused; everything else is stored as typed (as before).
+fn scriptable(url: &str) -> bool {
+    let lower: String = url.trim().chars().filter(|c| !c.is_whitespace()).collect::<String>().to_ascii_lowercase();
+    ["javascript:", "data:", "vbscript:"].iter().any(|scheme| lower.starts_with(scheme))
+}
+
+/// Parse a JSON list item by item so one malformed entry does not discard the rest.
+fn json_items<T: serde::de::DeserializeOwned>(text: &str) -> Vec<T> {
+    serde_json::from_str::<Vec<Value>>(text).unwrap_or_default().into_iter().filter_map(|v| serde_json::from_value(v).ok()).collect()
+}
+
+fn locale_text(value: &LocaleText, max: usize) -> LocaleText { LocaleText { vi: clip(&value.vi, max), en: clip(&value.en, max) } }
+
+#[derive(FromRow)]
+struct ProfileRow { name: String, role: String, tagline: String, location: String, phone: String, website: String, linkedin: String, avatar: String, socials: String }
+
+pub async fn profile(pool: &PgPool, locale: &str) -> R<ProfileForm> {
+    let locale = locale_of(locale);
+    let row = sqlx::query_as::<_, ProfileRow>(
+        r#"SELECT name, role, tagline, location, phone, website, linkedin, avatar, socials FROM "Profile" WHERE id IN ($1, 'profile') ORDER BY (id = $1) DESC LIMIT 1"#,
+    ).bind(profile_id(locale)).fetch_optional(pool).await.map_err(db_err)?;
+    let Some(r) = row else { return Ok(ProfileForm { locale: locale.into(), ..Default::default() }) };
+    Ok(ProfileForm {
+        locale: locale.into(), name: r.name, role: r.role, tagline: r.tagline, location: r.location, phone: r.phone,
+        website: r.website, linkedin: r.linkedin, avatar: r.avatar, socials: json_items(&r.socials),
+    })
+}
+
+/// Same limits as `PUT /api/admin/profile`: one row per language, 2000 characters per field.
+pub async fn save_profile(pool: &PgPool, input: ProfileForm) -> R<ProfileForm> {
+    let locale = locale_of(&input.locale);
+    if input.name.trim().is_empty() { return Err("Tên không được để trống.".into()); }
+    if !input.avatar.trim().is_empty() && safe_image(&input.avatar).is_empty() { return Err("Ảnh đại diện phải là ảnh trên Cloudinary.".into()); }
+    if input.socials.len() > 30 { return Err("Tối đa 30 liên kết mạng xã hội.".into()); }
+    if let Some(bad) = input.socials.iter().find(|s| scriptable(&s.url)) { return Err(format!("Liên kết {} không hợp lệ.", bad.platform)); }
+    let socials: Vec<SocialLink> = input.socials.iter().map(|s| SocialLink { platform: clip(&s.platform, 60), url: clip(&s.url, 500), enabled: s.enabled }).collect();
+    let socials = serde_json::to_string(&socials).map_err(|e| e.to_string())?;
+    let id = profile_id(locale);
+    let fields = [clip(&input.name, 2000), clip(&input.role, 2000), clip(&input.tagline, 2000), clip(&input.location, 2000), clip(&input.phone, 2000), clip(&input.website, 2000), clip(&input.linkedin, 2000), input.avatar.trim().to_string()];
+    let update = sqlx::query(r#"UPDATE "Profile" SET name = $2, role = $3, tagline = $4, location = $5, phone = $6, website = $7, linkedin = $8, avatar = $9, socials = $10, "updatedAt" = NOW() WHERE id = $1"#)
+        .bind(id).bind(&fields[0]).bind(&fields[1]).bind(&fields[2]).bind(&fields[3]).bind(&fields[4]).bind(&fields[5]).bind(&fields[6]).bind(&fields[7]).bind(&socials)
+        .execute(pool).await.map_err(db_err)?;
+    if update.rows_affected() == 0 {
+        sqlx::query(r#"INSERT INTO "Profile" (id, locale, name, role, tagline, location, phone, website, linkedin, avatar, socials, "updatedAt") VALUES ($1, $11, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())"#)
+            .bind(id).bind(&fields[0]).bind(&fields[1]).bind(&fields[2]).bind(&fields[3]).bind(&fields[4]).bind(&fields[5]).bind(&fields[6]).bind(&fields[7]).bind(&socials).bind(locale)
+            .execute(pool).await.map_err(db_err)?;
+    }
+    log_activity(pool, "content", "update", "Cập nhật hồ sơ", &format!("Hồ sơ {}", locale.to_uppercase()), id, "success").await;
+    profile(pool, locale).await
+}
+
+/// Set the avatar of one profile row (used by `/api/admin/upload-avatar`, as before).
+pub async fn set_avatar(pool: &PgPool, locale: &str, url: &str) -> R<()> {
+    let id = profile_id(locale_of(locale));
+    let update = sqlx::query(r#"UPDATE "Profile" SET avatar = $2, "updatedAt" = NOW() WHERE id = $1"#).bind(id).bind(url).execute(pool).await.map_err(db_err)?;
+    if update.rows_affected() == 0 {
+        sqlx::query(r#"INSERT INTO "Profile" (id, locale, avatar, "updatedAt") VALUES ($1, $2, $3, NOW())"#).bind(id).bind(locale_of(locale)).bind(url).execute(pool).await.map_err(db_err)?;
+    }
+    Ok(())
+}
+
+pub async fn credentials(pool: &PgPool) -> R<Credentials> {
+    let row: Option<(String, String, String)> = sqlx::query_as(r#"SELECT educations, certifications, languages FROM "Profile" WHERE id IN ('profile-vi', 'profile') ORDER BY (id = 'profile-vi') DESC LIMIT 1"#)
+        .fetch_optional(pool).await.map_err(db_err)?;
+    let (educations, certifications, languages) = row.unwrap_or_default();
+    Ok(Credentials { educations: json_items(&educations), certifications: json_items(&certifications), languages: json_items(&languages) })
+}
+
+/// Education, certifications and languages are shared, so every profile row gets the same lists (as before).
+pub async fn save_credentials(pool: &PgPool, input: Credentials) -> R<Credentials> {
+    if input.educations.len() > 50 || input.certifications.len() > 100 || input.languages.len() > 50 { return Err("Danh sách quá dài.".into()); }
+    if input.educations.iter().any(|e| !e.logo.trim().is_empty() && safe_image(&e.logo).is_empty()) { return Err("Logo phải là ảnh trên Cloudinary.".into()); }
+    let educations: Vec<EducationItem> = input.educations.iter().map(|e| EducationItem {
+        degree: locale_text(&e.degree, 300), school: locale_text(&e.school, 300), period: clip(&e.period, 100), detail: locale_text(&e.detail, 2000), logo: e.logo.trim().to_string(),
+    }).collect();
+    let certifications: Vec<CertificationItem> = input.certifications.iter().map(|c| CertificationItem { name: clip(&c.name, 300), issuer: clip(&c.issuer, 300), year: clip(&c.year, 40), enabled: c.enabled }).collect();
+    let languages: Vec<LanguageItem> = input.languages.iter().map(|l| LanguageItem { name: locale_text(&l.name, 120), level: locale_text(&l.level, 120), enabled: l.enabled }).collect();
+    let (e, c, l) = (to_json(&educations), to_json(&certifications), to_json(&languages));
+    sqlx::query(r#"UPDATE "Profile" SET educations = $1, certifications = $2, languages = $3, "updatedAt" = NOW() WHERE id IN ('profile-vi', 'profile-en', 'profile')"#)
+        .bind(e).bind(c).bind(l).execute(pool).await.map_err(db_err)?;
+    log_activity(pool, "content", "update", "Cập nhật học vấn & chứng chỉ", &format!("{} học vấn · {} chứng chỉ · {} ngôn ngữ", educations.len(), certifications.len(), languages.len()), "profile", "success").await;
+    credentials(pool).await
+}
+
+fn to_json<T: serde::Serialize>(items: &[T]) -> String { serde_json::to_string(items).unwrap_or_else(|_| "[]".into()) }
+
+#[derive(FromRow)]
+struct ExperienceRow {
+    id: String, locale: String, role: String, company: String, #[sqlx(rename = "companyUrl")] company_url: Option<String>, period: String,
+    location: String, description: String, highlights: String, stack: String, images: String, order: i32,
+}
+
+impl ExperienceRow {
+    fn admin(self) -> AdminExperience {
+        AdminExperience {
+            id: self.id, locale: self.locale, role: self.role, company: self.company, company_url: self.company_url.unwrap_or_default(), period: self.period,
+            location: self.location, description: self.description, highlights: string_list(&self.highlights), stack: string_list(&self.stack), images: string_list(&self.images), order: self.order,
+        }
+    }
+}
+
+const EXPERIENCE_COLUMNS: &str = r#"id, locale, role, company, "companyUrl", period, location, description, highlights, stack, images, "order""#;
+
+pub async fn experiences(pool: &PgPool, locale: &str) -> R<Vec<AdminExperience>> {
+    let sql = format!(r#"SELECT {EXPERIENCE_COLUMNS} FROM "Experience" WHERE locale = $1 ORDER BY "order" ASC, "createdAt" ASC"#);
+    let rows = sqlx::query_as::<_, ExperienceRow>(sqlx::AssertSqlSafe(sql)).bind(locale_of(locale)).fetch_all(pool).await.map_err(db_err)?;
+    Ok(rows.into_iter().map(ExperienceRow::admin).collect())
+}
+
+pub async fn experience(pool: &PgPool, id: &str) -> R<Option<AdminExperience>> {
+    let sql = format!(r#"SELECT {EXPERIENCE_COLUMNS} FROM "Experience" WHERE id = $1"#);
+    let row = sqlx::query_as::<_, ExperienceRow>(sqlx::AssertSqlSafe(sql)).bind(id).fetch_optional(pool).await.map_err(db_err)?;
+    Ok(row.map(ExperienceRow::admin))
+}
+
+fn clean_list(items: &[String], max_items: usize) -> Vec<String> {
+    items.iter().map(|i| clip(i, 500)).filter(|i| !i.is_empty()).take(max_items).collect()
+}
+
+/// Same rules as `/api/admin/experiences`: role and company required, same length limits.
+/// Images removed from an entry stay in the media library, where unused ones can be deleted.
+pub async fn save_experience(pool: &PgPool, input: AdminExperience) -> R<AdminExperience> {
+    if input.role.trim().is_empty() || input.company.trim().is_empty() { return Err("Vị trí và công ty là bắt buộc.".into()); }
+    if scriptable(&input.company_url) { return Err("Website công ty không hợp lệ.".into()); }
+    if input.images.iter().any(|i| safe_image(i).is_empty()) { return Err("Ảnh phải nằm trên Cloudinary.".into()); }
+    let company_url = Some(clip(&input.company_url, 500)).filter(|u| !u.is_empty());
+    let highlights = serde_json::to_string(&clean_list(&input.highlights, 50)).map_err(|e| e.to_string())?;
+    let stack = serde_json::to_string(&clean_list(&input.stack, 50)).map_err(|e| e.to_string())?;
+    let images = serde_json::to_string(&clean_list(&input.images, 30)).map_err(|e| e.to_string())?;
+    let (role, company, period, location, description) = (clip(&input.role, 300), clip(&input.company, 300), clip(&input.period, 100), clip(&input.location, 200), clip(&input.description, 4000));
+    let id = if input.id.is_empty() {
+        let locale = locale_of(&input.locale);
+        let count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "Experience" WHERE locale = $1"#).bind(locale).fetch_one(pool).await.map_err(db_err)?;
+        let id = new_id();
+        sqlx::query(r#"INSERT INTO "Experience" (id, locale, role, company, "companyUrl", period, location, description, highlights, stack, images, "order", "createdAt", "updatedAt")
+                       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), NOW())"#)
+            .bind(&id).bind(locale).bind(&role).bind(&company).bind(&company_url).bind(&period).bind(&location).bind(&description)
+            .bind(&highlights).bind(&stack).bind(&images).bind(count as i32).execute(pool).await.map_err(db_err)?;
+        log_activity(pool, "content", "create", "Thêm kinh nghiệm", &format!("{role} · {company}"), &id, "success").await;
+        id
+    } else {
+        let update = sqlx::query(r#"UPDATE "Experience" SET role = $2, company = $3, "companyUrl" = $4, period = $5, location = $6, description = $7, highlights = $8, stack = $9, images = $10, "updatedAt" = NOW() WHERE id = $1"#)
+            .bind(&input.id).bind(&role).bind(&company).bind(&company_url).bind(&period).bind(&location).bind(&description).bind(&highlights).bind(&stack).bind(&images)
+            .execute(pool).await.map_err(db_err)?;
+        if update.rows_affected() == 0 { return Err("Không tìm thấy kinh nghiệm.".into()); }
+        log_activity(pool, "content", "update", "Cập nhật kinh nghiệm", &format!("{role} · {company}"), &input.id, "success").await;
+        input.id.clone()
+    };
+    experience(pool, &id).await?.ok_or_else(|| "Không tìm thấy kinh nghiệm.".into())
+}
+
+pub async fn delete_experience(pool: &PgPool, id: &str) -> R<()> {
+    let row: Option<(String, String)> = sqlx::query_as(r#"DELETE FROM "Experience" WHERE id = $1 RETURNING role, company"#).bind(id).fetch_optional(pool).await.map_err(db_err)?;
+    let Some((role, company)) = row else { return Err("Không tìm thấy kinh nghiệm.".into()) };
+    log_activity(pool, "content", "delete", "Xóa kinh nghiệm", &format!("{role} · {company}"), id, "warning").await;
+    Ok(())
+}
+
+pub async fn move_experience(pool: &PgPool, id: &str, up: bool) -> R<()> {
+    let rows: Vec<(String,)> = sqlx::query_as(r#"SELECT id FROM "Experience" WHERE locale = (SELECT locale FROM "Experience" WHERE id = $1) ORDER BY "order" ASC, "createdAt" ASC"#)
+        .bind(id).fetch_all(pool).await.map_err(db_err)?;
+    let Some(i) = rows.iter().position(|r| r.0 == id) else { return Err("Không tìm thấy kinh nghiệm.".into()) };
+    let j = if up { i.checked_sub(1) } else { (i + 1 < rows.len()).then_some(i + 1) };
+    let Some(j) = j else { return Ok(()) };
+    let mut tx = pool.begin().await.map_err(db_err)?;
+    for (pos, row) in rows.iter().enumerate() {
+        let target = if pos == i { j } else if pos == j { i } else { pos };
+        sqlx::query(r#"UPDATE "Experience" SET "order" = $2 WHERE id = $1"#).bind(&row.0).bind(target as i32).execute(&mut *tx).await.map_err(db_err)?;
+    }
+    tx.commit().await.map_err(db_err)?;
+    Ok(())
+}
+
 /// Which projects/posts reference each media URL (by Cloudinary public id).
 pub async fn media_usage(pool: &PgPool) -> R<Vec<(String, String)>> {
     let projects: Vec<(String, String, String)> = sqlx::query_as(r#"SELECT title, image, images FROM "Project""#).fetch_all(pool).await.map_err(db_err)?;
     let posts: Vec<(String, Option<String>, String)> = sqlx::query_as(r#"SELECT title, "coverImage", content FROM "Post""#).fetch_all(pool).await.map_err(db_err)?;
+    let profiles: Vec<(String, String, String, String)> = sqlx::query_as(r#"SELECT id, avatar, educations, settings FROM "Profile""#).fetch_all(pool).await.map_err(db_err)?;
+    let experiences: Vec<(String, String, String)> = sqlx::query_as(r#"SELECT role, company, images FROM "Experience""#).fetch_all(pool).await.map_err(db_err)?;
     let mut out = Vec::new();
+    for (id, avatar, educations, settings) in profiles { out.push((format!("Hồ sơ ({id})"), format!("{avatar} {educations} {settings}"))); }
+    for (role, company, images) in experiences { out.push((format!("Kinh nghiệm: {role} · {company}"), images)); }
     for (title, image, images) in projects { out.push((title, format!("{image} {images}"))); }
     for (title, cover, content) in posts { out.push((title, format!("{} {content}", cover.unwrap_or_default()))); }
     Ok(out)
@@ -386,6 +574,17 @@ pub async fn media_usage(pool: &PgPool) -> R<Vec<(String, String)>> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn refuses_script_links_and_keeps_good_list_items() {
+        assert!(super::scriptable(" JavaScript:alert(1)") && super::scriptable("java\tscript:x") && super::scriptable("data:text/html,x"));
+        assert!(!super::scriptable("https://github.com/minhtenlado") && !super::scriptable("www.linkedin.com/in/văn-đô"));
+        let items: Vec<crate::model::CertificationItem> = super::json_items(r#"[{"name":"A","issuer":"B","year":"2024"},{"name":3},{"name":"C","enabled":false}]"#);
+        assert_eq!(items.len(), 2);
+        assert!(items[0].enabled && !items[1].enabled);
+        let socials: Vec<crate::model::SocialLink> = super::json_items("not json");
+        assert!(socials.is_empty());
+    }
+
     #[test]
     fn slugs_match_previous_rules() {
         assert_eq!(super::slugify("Lượng tử hóa mô hình AI để tối ưu!"), "luong-tu-hoa-mo-hinh-ai-de-toi-uu");

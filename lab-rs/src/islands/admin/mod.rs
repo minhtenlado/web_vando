@@ -4,4 +4,5 @@ pub mod editors;
 pub mod lists;
 pub mod login;
 pub mod moderation;
+pub mod profile;
 pub mod settings;

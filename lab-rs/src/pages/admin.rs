@@ -4,25 +4,36 @@ use crate::islands::admin::editors::{PostEditor, ProjectEditor};
 use crate::islands::admin::lists::{PostsTable, ProjectsTable};
 use crate::islands::admin::login::{LoginForm, LogoutButton};
 use crate::islands::admin::moderation::{CommentsAdmin, Inbox};
+use crate::islands::admin::profile::{CredentialsEditor, ExperienceEditor, ExperiencesTable, ProfileEditor};
 use crate::islands::admin::settings::{ContentForm, MediaLibrary, PasswordForm, PruneActivities};
-use crate::model::{AdminPost, AdminProject, DashboardStats, Locale};
+use crate::model::{AdminExperience, AdminPost, AdminProject, DashboardStats, Locale};
 use crate::text::{format_date, status_label};
 use crate::ui::icons::Icon;
 use leptos::prelude::*;
 use leptos_meta::{Link, Meta, Script, Title};
-use leptos_router::hooks::use_params_map;
+use leptos_router::hooks::{use_params_map, use_query_map};
 
-const NAV: [(&str, &str, &str, &str); 10] = [
-    ("dashboard", "/admin", "Tổng quan", "chart"),
-    ("projects", "/admin/projects", "Dự án", "cpu"),
-    ("posts", "/admin/posts", "Bài viết", "file"),
-    ("media", "/admin/media", "Thư viện ảnh", "layers"),
-    ("comments", "/admin/comments", "Bình luận", "message"),
-    ("inbox", "/admin/inbox", "Hộp thư", "mail"),
-    ("content", "/admin/content", "Nội dung trang", "globe"),
-    ("account", "/admin/account", "Tài khoản", "shieldcheck"),
-    ("activity", "/admin/activity", "Nhật ký", "clock"),
-    ("site", "/", "Xem website", "arrow-up-right"),
+/// Sidebar groups: (heading, [(key, href, label, icon)]).
+const NAV: [(&str, &[(&str, &str, &str, &str)]); 3] = [
+    ("Nội dung", &[
+        ("dashboard", "/admin", "Tổng quan", "chart"),
+        ("projects", "/admin/projects", "Dự án", "cpu"),
+        ("posts", "/admin/posts", "Bài viết", "file"),
+        ("experiences", "/admin/experiences", "Kinh nghiệm", "briefcase"),
+        ("media", "/admin/media", "Thư viện ảnh", "layers"),
+        ("comments", "/admin/comments", "Bình luận", "message"),
+        ("inbox", "/admin/inbox", "Hộp thư", "mail"),
+    ]),
+    ("Hồ sơ & trang", &[
+        ("profile", "/admin/profile", "Hồ sơ", "user"),
+        ("education", "/admin/education", "Học vấn", "award"),
+        ("content", "/admin/content", "Nội dung trang", "globe"),
+    ]),
+    ("Hệ thống", &[
+        ("account", "/admin/account", "Tài khoản", "shieldcheck"),
+        ("activity", "/admin/activity", "Nhật ký", "clock"),
+        ("site", "/", "Xem website", "arrow-up-right"),
+    ]),
 ];
 
 #[component]
@@ -43,12 +54,14 @@ fn Frame(current: &'static str, #[prop(into)] title: String, #[prop(into)] subti
                                 <aside class="admin-side">
                                     <a href="/admin" class="brand"><span class="brand-mark"><Icon name="lab" /></span><span>"Control Center"</span></a>
                                     <nav class="admin-nav" aria-label="Quản trị">
-                                        <p>"Quản lý"</p>
-                                        {NAV.iter().map(|(key, href, label, icon)| view! {
-                                            <a href=*href aria-current=(*key == current).then_some("page") target=(*key == "site").then_some("_blank")>
-                                                <Icon name=icon />{*label}
-                                                {(*key == "inbox" && unread > 0).then(|| view! { <span class="badge">{unread}</span> })}
-                                            </a>
+                                        {NAV.iter().map(|(heading, items)| view! {
+                                            <p>{*heading}</p>
+                                            {items.iter().map(|(key, href, label, icon)| view! {
+                                                <a href=*href aria-current=(*key == current).then_some("page") target=(*key == "site").then_some("_blank")>
+                                                    <Icon name=icon />{*label}
+                                                    {(*key == "inbox" && unread > 0).then(|| view! { <span class="badge">{unread}</span> })}
+                                                </a>
+                                            }).collect_view()}
                                         }).collect_view()}
                                     </nav>
                                     <div class="admin-side-foot"><LogoutButton /></div>
@@ -292,6 +305,82 @@ pub fn AdminActivity() -> impl IntoView {
                     Err(e) => fail_view(e),
                 } })}</Suspense> }
             }}
+        </Frame>
+    }
+}
+
+#[component]
+pub fn AdminProfile() -> impl IntoView {
+    view! {
+        <Frame current="profile" title="Hồ sơ" subtitle="Thông tin cá nhân, ảnh đại diện và mạng xã hội theo từng ngôn ngữ.">
+            {move || {
+                let data = Resource::new_blocking(|| (), |_| admin_profile("vi".into()));
+                view! { <Suspense fallback=|| ()>{move || Suspend::new(async move { match data.await { Ok(p) => view! { <ProfileEditor profile=p /> }.into_any(), Err(e) => fail_view(e) } })}</Suspense> }
+            }}
+        </Frame>
+    }
+}
+
+#[component]
+pub fn AdminEducation() -> impl IntoView {
+    view! {
+        <Frame current="education" title="Học vấn" subtitle="Học vấn, chứng chỉ và ngôn ngữ (song ngữ).">
+            {move || {
+                let data = Resource::new_blocking(|| (), |_| admin_credentials());
+                view! { <Suspense fallback=|| ()>{move || Suspend::new(async move { match data.await { Ok(c) => view! { <CredentialsEditor credentials=c /> }.into_any(), Err(e) => fail_view(e) } })}</Suspense> }
+            }}
+        </Frame>
+    }
+}
+
+fn query_locale() -> String {
+    let query = use_query_map();
+    if query.with_untracked(|q| q.get("locale")).as_deref() == Some("en") { "en".into() } else { "vi".into() }
+}
+
+#[component]
+pub fn AdminExperiences() -> impl IntoView {
+    let locale = query_locale();
+    view! {
+        <Frame current="experiences" title="Kinh nghiệm" subtitle="Kinh nghiệm làm việc theo từng ngôn ngữ, sắp xếp theo thứ tự hiển thị.">
+            {
+                let locale = locale.clone();
+                move || {
+                    let locale = locale.clone();
+                    let data = Resource::new_blocking(|| (), { let locale = locale.clone(); move |_| admin_experiences(locale.clone()) });
+                    view! { <Suspense fallback=|| ()>{move || { let locale = locale.clone(); Suspend::new(async move { match data.await {
+                        Ok(items) => view! { <ExperiencesTable items=items locale=locale /> }.into_any(),
+                        Err(e) => fail_view(e),
+                    } }) }}</Suspense> }
+                }
+            }
+        </Frame>
+    }
+}
+
+#[component]
+pub fn AdminExperienceEdit() -> impl IntoView {
+    let params = use_params_map();
+    let id = params.with_untracked(|p| p.get("id").unwrap_or_default());
+    let locale = query_locale();
+    let is_new = id == "new";
+    view! {
+        <Frame current="experiences" title=if is_new { "Kinh nghiệm mới" } else { "Sửa kinh nghiệm" } subtitle="Vị trí, mô tả, điểm nổi bật và hình ảnh.">
+            {
+                let (id, locale) = (id.clone(), locale.clone());
+                move || {
+                    let (id, locale) = (id.clone(), locale.clone());
+                    let data = Resource::new_blocking(|| (), move |_| {
+                        let (id, locale) = (id.clone(), locale.clone());
+                        async move { if id == "new" { Ok(Some(AdminExperience { locale, ..Default::default() })) } else { admin_get_experience(id).await } }
+                    });
+                    view! { <Suspense fallback=|| ()>{move || Suspend::new(async move { match data.await {
+                        Ok(Some(x)) => view! { <ExperienceEditor experience=x /> }.into_any(),
+                        Ok(None) => view! { <p class="alert">"Không tìm thấy kinh nghiệm."</p> }.into_any(),
+                        Err(e) => fail_view(e),
+                    } })}</Suspense> }
+                }
+            }
         </Frame>
     }
 }

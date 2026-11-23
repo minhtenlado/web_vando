@@ -23,6 +23,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
                 <meta name="theme-color" content="#080a0f" />
                 <meta name="color-scheme" content="dark" />
+                <meta name="google-adsense-account" content="ca-pub-2941183923177148" />
                 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
                 <link rel="preload" href="/fonts/inter-latin.woff2" r#as="font" type="font/woff2" crossorigin="" />
                 <link rel="preload" href="/fonts/inter-vietnamese.woff2" r#as="font" type="font/woff2" crossorigin="" />
@@ -84,6 +85,10 @@ pub fn App() -> impl IntoView {
                 <Route path=path!("/admin/content") view=AdminContent ssr=SsrMode::Async />
                 <Route path=path!("/admin/account") view=AdminAccount ssr=SsrMode::Async />
                 <Route path=path!("/admin/activity") view=AdminActivity ssr=SsrMode::Async />
+                <Route path=path!("/admin/profile") view=AdminProfile ssr=SsrMode::Async />
+                <Route path=path!("/admin/education") view=AdminEducation ssr=SsrMode::Async />
+                <Route path=path!("/admin/experiences") view=AdminExperiences ssr=SsrMode::Async />
+                <Route path=path!("/admin/experiences/:id") view=AdminExperienceEdit ssr=SsrMode::Async />
             </Routes>
         </Router>
     }

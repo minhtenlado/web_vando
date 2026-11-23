@@ -37,8 +37,10 @@ pub fn routes() -> Router<AppState> {
         .route("/api/contact", post(contact))
         .route("/api/posts/{slug}/comments", get(list_comments).post(post_comment))
         .route("/api/posts/{slug}/stats", post(post_stats))
-        .route("/api/admin/upload-image", post(upload_image))
-        .route("/api/admin/upload-file", post(upload_file))
+        // Axum caps request bodies at 2 MB by default; uploads get their own limit plus room for the multipart framing.
+        .route("/api/admin/upload-image", post(upload_image).layer(axum::extract::DefaultBodyLimit::max(UPLOAD_LIMIT_IMAGE)))
+        .route("/api/admin/upload-file", post(upload_file).layer(axum::extract::DefaultBodyLimit::max(UPLOAD_LIMIT_FILE)))
+        .route("/api/admin/upload-avatar", post(upload_avatar).layer(axum::extract::DefaultBodyLimit::max(UPLOAD_LIMIT_IMAGE)))
         .route("/robots.txt", get(robots))
         .route("/sitemap.xml", get(sitemap))
 }
@@ -157,6 +159,9 @@ async fn post_stats(State(state): State<AppState>, Path(slug): Path<String>, hea
     }
 }
 
+const UPLOAD_LIMIT_IMAGE: usize = 5 * 1024 * 1024 + 64 * 1024;
+const UPLOAD_LIMIT_FILE: usize = 20 * 1024 * 1024 + 64 * 1024;
+
 fn image_kind(bytes: &[u8]) -> Option<&'static str> {
     if bytes.starts_with(&[0x89, b'P', b'N', b'G']) { Some("png") }
     else if bytes.starts_with(&[0xFF, 0xD8, 0xFF]) { Some("jpg") }
@@ -197,6 +202,45 @@ async fn upload_file(State(state): State<AppState>, headers: HeaderMap, multipar
         Ok(url) => Json(json!({ "ok": true, "url": url })).into_response(),
         Err(error) => { tracing::error!("[upload] {error}"); fail(Failure::Unavailable("Không thể tải tệp lên. Vui lòng thử lại.".into())) }
     }
+}
+
+/// SVG is accepted for avatars only, as before; it is only ever shown through `<img>`.
+fn is_svg(bytes: &[u8]) -> bool {
+    let head = String::from_utf8_lossy(&bytes[..bytes.len().min(1024)]).to_ascii_lowercase();
+    let head = head.trim_start_matches('\u{feff}').trim_start();
+    (head.starts_with("<svg") || head.starts_with("<?xml")) && head.contains("<svg")
+}
+
+/// `POST /api/admin/upload-avatar` — form fields `file` and optional `locale` (also accepted as `?locale=`).
+/// Uploads to Cloudinary `web_vando/avatars` and stores the URL on that profile row. The previous avatar
+/// stays in the media library instead of being deleted automatically.
+async fn upload_avatar(State(state): State<AppState>, headers: HeaderMap, query: axum::extract::Query<std::collections::HashMap<String, String>>, mut multipart: axum::extract::Multipart) -> Response {
+    if !crate::server::auth::is_authed(&state.pool, &headers).await { return (StatusCode::UNAUTHORIZED, Json(json!({ "ok": false, "message": "Unauthorized" }))).into_response(); }
+    let mut locale = query.get("locale").cloned().unwrap_or_default();
+    let mut file: Option<(Vec<u8>, String)> = None;
+    while let Ok(Some(field)) = multipart.next_field().await {
+        match field.name() {
+            Some("locale") => locale = field.text().await.unwrap_or_default(),
+            Some("file") => {
+                let name = field.file_name().unwrap_or("avatar").chars().filter(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '-' | '_')).take(80).collect::<String>();
+                let Ok(bytes) = field.bytes().await else { return fail(Failure::Invalid("File quá lớn hoặc không đọc được.".into(), None)) };
+                file = Some((bytes.to_vec(), if name.is_empty() { "avatar".into() } else { name }));
+            }
+            _ => {}
+        }
+    }
+    let Some((bytes, name)) = file else { return fail(Failure::Invalid("Thiếu file ảnh.".into(), None)) };
+    if bytes.len() > 5 * 1024 * 1024 { return fail(Failure::Invalid("File quá lớn (tối đa 5MB).".into(), None)); }
+    if image_kind(&bytes).is_none() && !is_svg(&bytes) { return fail(Failure::Invalid("Định dạng không hỗ trợ (chỉ PNG/JPEG/WebP/GIF/SVG).".into(), None)); }
+    let url = match crate::server::cloudinary::upload(&state.http, bytes, &name, "web_vando/avatars", "image").await {
+        Ok(url) => url,
+        Err(error) => { tracing::error!("[upload] {error}"); return fail(Failure::Unavailable("Lỗi khi upload avatar lên Cloudinary.".into())) }
+    };
+    if let Err(error) = crate::server::admin::set_avatar(&state.pool, &locale, &url).await {
+        return fail(Failure::Unavailable(error));
+    }
+    crate::server::auth::log_activity(&state.pool, "media", "update", "Cập nhật ảnh đại diện", &name, &url, "success").await;
+    Json(json!({ "ok": true, "url": url })).into_response()
 }
 
 const SITE: &str = "https://phanhuynh.id.vn";

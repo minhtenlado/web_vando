@@ -16,20 +16,21 @@ use leptos_meta::{Link, Meta, Title};
 pub const SITE: &str = "https://phanhuynh.id.vn";
 
 #[component]
-pub fn Seo(title: String, description: String, path: String, image: Option<String>, #[prop(optional)] article: bool) -> impl IntoView {
+pub fn Seo(title: String, description: String, path: String, image: Option<String>, #[prop(optional)] article: bool, #[prop(optional_no_strip)] og_title: Option<String>) -> impl IntoView {
     let url = format!("{SITE}{path}");
+    let share_title = og_title.unwrap_or_else(|| title.clone());
     let image = image.filter(|i| !i.is_empty()).map(|i| if i.starts_with('/') { format!("{SITE}{i}") } else { cloudinary(&i, 1200) });
     view! {
         <Title text=title.clone() />
         <Meta name="description" content=description.clone() />
         <Link rel="canonical" href=url.clone() />
-        <Meta property="og:title" content=title.clone() />
+        <Meta property="og:title" content=share_title.clone() />
         <Meta property="og:description" content=description.clone() />
         <Meta property="og:url" content=url />
         <Meta property="og:type" content=if article { "article" } else { "website" } />
         <Meta property="og:site_name" content="Engineering Lab" />
         <Meta name="twitter:card" content="summary_large_image" />
-        <Meta name="twitter:title" content=title />
+        <Meta name="twitter:title" content=share_title />
         <Meta name="twitter:description" content=description />
         {image.map(|src| view! { <Meta property="og:image" content=src.clone() /><Meta name="twitter:image" content=src /> })}
     }

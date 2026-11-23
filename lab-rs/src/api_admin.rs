@@ -216,3 +216,57 @@ pub async fn admin_delete_media(public_id: String) -> Result<(), ServerFnError> 
     crate::server::auth::log_activity(&state.pool, "media", "delete", "Xóa ảnh khỏi thư viện", &public_id, &public_id, "warning").await;
     Ok(())
 }
+
+#[server(prefix = "/rpc/admin", endpoint = "profile")]
+pub async fn admin_profile(locale: String) -> Result<ProfileForm, ServerFnError> {
+    let state = require_admin().await?;
+    crate::server::admin::profile(&state.pool, &locale).await.map_err(fail)
+}
+
+#[server(prefix = "/rpc/admin", endpoint = "profile-save", input = server_fn::codec::Json)]
+pub async fn admin_save_profile(profile: ProfileForm) -> Result<ProfileForm, ServerFnError> {
+    let state = require_admin().await?;
+    crate::server::admin::save_profile(&state.pool, profile).await.map_err(fail)
+}
+
+#[server(prefix = "/rpc/admin", endpoint = "credentials")]
+pub async fn admin_credentials() -> Result<Credentials, ServerFnError> {
+    let state = require_admin().await?;
+    crate::server::admin::credentials(&state.pool).await.map_err(fail)
+}
+
+#[server(prefix = "/rpc/admin", endpoint = "credentials-save", input = server_fn::codec::Json)]
+pub async fn admin_save_credentials(credentials: Credentials) -> Result<Credentials, ServerFnError> {
+    let state = require_admin().await?;
+    crate::server::admin::save_credentials(&state.pool, credentials).await.map_err(fail)
+}
+
+#[server(prefix = "/rpc/admin", endpoint = "experiences")]
+pub async fn admin_experiences(locale: String) -> Result<Vec<AdminExperience>, ServerFnError> {
+    let state = require_admin().await?;
+    crate::server::admin::experiences(&state.pool, &locale).await.map_err(fail)
+}
+
+#[server(prefix = "/rpc/admin", endpoint = "experience")]
+pub async fn admin_get_experience(id: String) -> Result<Option<AdminExperience>, ServerFnError> {
+    let state = require_admin().await?;
+    crate::server::admin::experience(&state.pool, &id).await.map_err(fail)
+}
+
+#[server(prefix = "/rpc/admin", endpoint = "experience-save", input = server_fn::codec::Json)]
+pub async fn admin_save_experience(experience: AdminExperience) -> Result<AdminExperience, ServerFnError> {
+    let state = require_admin().await?;
+    crate::server::admin::save_experience(&state.pool, experience).await.map_err(fail)
+}
+
+#[server(prefix = "/rpc/admin", endpoint = "experience-delete")]
+pub async fn admin_delete_experience(id: String) -> Result<(), ServerFnError> {
+    let state = require_admin().await?;
+    crate::server::admin::delete_experience(&state.pool, &id).await.map_err(fail)
+}
+
+#[server(prefix = "/rpc/admin", endpoint = "experience-move")]
+pub async fn admin_move_experience(id: String, up: bool) -> Result<(), ServerFnError> {
+    let state = require_admin().await?;
+    crate::server::admin::move_experience(&state.pool, &id, up).await.map_err(fail)
+}

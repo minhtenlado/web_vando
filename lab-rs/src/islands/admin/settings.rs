@@ -40,10 +40,19 @@ pub fn ContentForm(settings: ContentSettings) -> impl IntoView {
                     {text!("Headline", hero_headline_en, area)}{text!("Description", hero_description_en, area)}
                     <div class="form-row">{text!("Primary button", hero_primary_label_en)}{text!("Secondary button", hero_secondary_label_en)}</div>
                 </section>
-                <section class="card fieldset"><h2>"SEO"</h2>{text!("Meta title", meta_title)}{text!("Meta description", meta_description, area)}</section>
+                <section class="card fieldset"><h2>"SEO & chia sẻ"</h2>
+                    {text!("Meta title", meta_title)}{text!("Meta description", meta_description, area)}
+                    <div class="form-row">{text!("Open Graph title (để trống = Meta title)", og_title)}{text!("Open Graph image URL", og_image_url)}</div>
+                    <span class="hint">"Ảnh chia sẻ phải là ảnh Cloudinary (lấy URL trong Thư viện ảnh) hoặc đường dẫn nội bộ."</span>
+                </section>
             </div>
             <aside class="editor-side">
-                <section class="card fieldset"><h2>"Liên hệ công khai"</h2>{text!("Email", email)}{text!("GitHub", github)}{text!("URL nút phụ (để trống = GitHub)", hero_secondary_url)}</section>
+                <section class="card fieldset"><h2>"Liên hệ công khai"</h2>{text!("Email", email)}{text!("GitHub", github)}</section>
+                <section class="card fieldset"><h2>"Trang chủ"</h2>
+                    {text!("URL nút chính (để trống = /projects)", hero_primary_url)}
+                    {text!("URL nút phụ (để trống = GitHub)", hero_secondary_url)}
+                    <label class="switch"><input type="checkbox" prop:checked=move || state.with(|s| s.section_featured_enabled) on:change=move |ev| state.update(|s| s.section_featured_enabled = event_target_checked(&ev)) /><span class="track"></span>"Hiện mục Dự án nổi bật"</label>
+                </section>
                 <section class="card fieldset"><h2>"Google Analytics"</h2>
                     <label class="switch"><input type="checkbox" prop:checked=move || state.with(|s| s.analytics_enabled) on:change=move |ev| state.update(|s| s.analytics_enabled = event_target_checked(&ev)) /><span class="track"></span>"Bật Analytics"</label>
                     {text!("Measurement ID", analytics_id)}

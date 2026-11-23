@@ -12,7 +12,7 @@ fn lines(text: &str) -> Vec<String> {
 }
 
 #[component]
-fn Field(#[prop(into)] label: String, value: RwSignal<String>, #[prop(optional)] multiline: bool, #[prop(optional, into)] hint: String, #[prop(optional)] rows: Option<u32>) -> impl IntoView {
+pub(crate) fn Field(#[prop(into)] label: String, value: RwSignal<String>, #[prop(optional)] multiline: bool, #[prop(optional, into)] hint: String, #[prop(optional)] rows: Option<u32>) -> impl IntoView {
     let id = format!("f-{}", crate::text::slugify(&label));
     view! {
         <div class="field">
@@ -28,7 +28,7 @@ fn Field(#[prop(into)] label: String, value: RwSignal<String>, #[prop(optional)]
 }
 
 #[component]
-fn Toggle(#[prop(into)] label: String, value: RwSignal<bool>) -> impl IntoView {
+pub(crate) fn Toggle(#[prop(into)] label: String, value: RwSignal<bool>) -> impl IntoView {
     view! {
         <label class="switch"><input type="checkbox" prop:checked=value on:change=move |ev| value.set(event_target_checked(&ev)) /><span class="track"></span>{label}</label>
     }
@@ -64,8 +64,9 @@ fn editor_html(editor: StoredValue<Option<wasm_bindgen::JsValue>, LocalStorage>)
 #[cfg(not(feature = "hydrate"))]
 fn editor_html(_: StoredValue<Option<wasm_bindgen::JsValue>, LocalStorage>) -> Option<String> { None }
 
+/// Ordered image list with upload. `gallery` drops the cover-image semantics (first image = cover).
 #[component]
-fn ImageManager(images: RwSignal<Vec<String>>, notice: RwSignal<Option<Notice>>) -> impl IntoView {
+pub(crate) fn ImageManager(images: RwSignal<Vec<String>>, notice: RwSignal<Option<Notice>>, #[prop(optional)] gallery: bool) -> impl IntoView {
     let remove = move |i: usize| images.update(|v| { if i < v.len() { v.remove(i); } });
     let first = move |i: usize| images.update(|v| { if i < v.len() { let item = v.remove(i); v.insert(0, item); } });
     let url = RwSignal::new(String::new());
@@ -74,9 +75,9 @@ fn ImageManager(images: RwSignal<Vec<String>>, notice: RwSignal<Option<Notice>>)
             {move || images.get().into_iter().enumerate().map(|(i, src)| view! {
                 <div class="image-tile">
                     <img src=cloudinary(&src, 320) alt="" loading="lazy" />
-                    {(i == 0).then(|| view! { <span class="tag">"BÌA"</span> })}
+                    {(i == 0 && !gallery).then(|| view! { <span class="tag">"BÌA"</span> })}
                     <div class="tools">
-                        <button type="button" title="Đặt làm ảnh bìa" on:click=move |_| first(i)><Icon name="star" /></button>
+                        <button type="button" title=if gallery { "Đưa lên đầu" } else { "Đặt làm ảnh bìa" } on:click=move |_| first(i)><Icon name="star" /></button>
                         <button type="button" title="Gỡ ảnh" on:click=move |_| remove(i)><Icon name="x" /></button>
                     </div>
                 </div>
@@ -88,7 +89,7 @@ fn ImageManager(images: RwSignal<Vec<String>>, notice: RwSignal<Option<Notice>>)
             <input class="input" style="flex:1;min-width:220px" placeholder="…hoặc dán URL Cloudinary" prop:value=url on:input=move |ev| url.set(event_target_value(&ev)) />
             <button class="btn btn-sm" type="button" on:click=move |_| { let u = url.get_untracked(); if !u.trim().is_empty() { images.update(|v| v.push(u.trim().to_string())); url.set(String::new()); } }>"Thêm"</button>
         </div>
-        <span class="hint">"Ảnh đầu tiên là ảnh bìa. Ảnh lưu trên Cloudinary (thư mục web_vando/images)."</span>
+        <span class="hint">{if gallery { "Ảnh lưu trên Cloudinary (thư mục web_vando/images)." } else { "Ảnh đầu tiên là ảnh bìa. Ảnh lưu trên Cloudinary (thư mục web_vando/images)." }}</span>
     }
 }
 

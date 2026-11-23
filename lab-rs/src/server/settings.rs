@@ -41,6 +41,12 @@ pub fn public_settings(source: &Value, locale: Locale, email: Option<&str>, gith
     let analytics_enabled = source.get("analyticsEnabled").and_then(Value::as_bool).unwrap_or(false);
     let analytics_id = source.get("analyticsId").and_then(Value::as_str).unwrap_or("");
     let secondary_url = source.get("heroSecondaryUrl").and_then(Value::as_str).and_then(|v| safe_url(Some(v)));
+    // The previous home page listed projects under `#projects`; here they live on /projects.
+    let primary_url = source.get("heroPrimaryUrl").and_then(Value::as_str).and_then(|v| safe_url(Some(v)))
+        .filter(|u| u != "#projects").unwrap_or_else(|| "/projects".into());
+    let og_title = source.get("ogTitle").and_then(Value::as_str).map(str::trim)
+        .filter(|t| !t.is_empty() && !has_personal_name(t)).map(str::to_string);
+    let og_image = source.get("ogImageUrl").and_then(Value::as_str).map(crate::server::db::safe_image).filter(|u| !u.is_empty());
     SiteSettings {
         portfolio_name: setting(source, "portfolioName", DEFAULT_NAME),
         tagline,
@@ -61,6 +67,10 @@ pub fn public_settings(source: &Value, locale: Locale, email: Option<&str>, gith
             && analytics_id.len() <= 128
             && analytics_id.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-'))
         .then(|| analytics_id.to_string()),
+        hero_primary_url: primary_url,
+        og_title,
+        og_image,
+        featured_enabled: source.get("sectionFeaturedEnabled").and_then(Value::as_bool) != Some(false),
     }
 }
 
@@ -76,5 +86,23 @@ mod tests {
         assert_eq!(s.portfolio_name, "Engineering Lab");
         assert_eq!(s.meta_title, "Lab");
         assert_eq!(s.github_url.as_deref(), Some("https://github.com/minhtenlado"));
+        assert_eq!(s.hero_primary_url, "/projects");
+        assert!(s.featured_enabled && s.og_title.is_none() && s.og_image.is_none());
+    }
+
+    #[test]
+    fn reads_hero_link_og_and_section_toggle() {
+        let source = serde_json::json!({
+            "heroPrimaryUrl": "/hardware-lab", "ogTitle": "Engineering Lab", "sectionFeaturedEnabled": false,
+            "ogImageUrl": "https://res.cloudinary.com/s4sbshc3/image/upload/v1/web_vando/images/og.png",
+        });
+        let s = public_settings(&source, Locale::En, None, None);
+        assert_eq!(s.hero_primary_url, "/hardware-lab");
+        assert_eq!(s.og_title.as_deref(), Some("Engineering Lab"));
+        assert!(s.og_image.is_some() && !s.featured_enabled);
+        let unsafe_image = serde_json::json!({ "ogImageUrl": "https://evil.test/a.png", "heroPrimaryUrl": "#projects" });
+        let s = public_settings(&unsafe_image, Locale::Vi, None, None);
+        assert!(s.og_image.is_none());
+        assert_eq!(s.hero_primary_url, "/projects");
     }
 }

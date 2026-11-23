@@ -50,9 +50,12 @@ fn Home(home: HomeData, locale: Locale) -> impl IntoView {
     let github = settings.github_url.clone();
     let email = settings.email.clone();
     let mut word_index = 0usize;
+    // Turning off the featured section in the CMS also renumbers the sections after it.
+    let show_featured = settings.featured_enabled && !featured.is_empty();
+    let (stack_index, notes_index) = if show_featured { ("03", "04") } else { ("02", "03") };
 
     view! {
-        <Seo title=settings.meta_title.clone() description=settings.meta_description.clone() path="/".into() image=None />
+        <Seo title=settings.meta_title.clone() description=settings.meta_description.clone() path="/".into() image=settings.og_image.clone() og_title=settings.og_title.clone() />
         <Layout settings=settings.clone() locale=locale current="home">
             <section class="hero" aria-labelledby="hero-title">
                 <div class="hero-bg" aria-hidden="true">
@@ -79,7 +82,7 @@ fn Home(home: HomeData, locale: Locale) -> impl IntoView {
                         </h1>
                         <p class="lead" data-reveal="" style="--i:3">{settings.hero_description.clone()}</p>
                         <div class="hero-actions" data-reveal="" style="--i:4">
-                            <a class="btn btn-primary" href="/projects" data-magnetic="">{settings.hero_primary_label.clone()}<Icon name="arrow-right" /></a>
+                            <a class="btn btn-primary" href=settings.hero_primary_url.clone() data-magnetic="">{settings.hero_primary_label.clone()}<Icon name="arrow-right" /></a>
                             {github.clone().map(|href| view! { <a class="btn" href=href target="_blank" rel="noopener noreferrer" data-magnetic=""><Icon name="github" />{settings.hero_secondary_label.clone()}</a> })}
                             <a class="btn btn-ghost" href="/notes">"Engineering Notes"<Icon name="arrow-right" /></a>
                         </div>
@@ -137,6 +140,7 @@ fn Home(home: HomeData, locale: Locale) -> impl IntoView {
                 </div>
             </section>
 
+            {show_featured.then(|| view! {
             <section class="section" id="featured" aria-labelledby="featured-title">
                 <div class="container">
                     <SectionHead index="02" eyebrow=locale.t("Dự án nổi bật", "Featured projects") id="featured-title"
@@ -149,10 +153,11 @@ fn Home(home: HomeData, locale: Locale) -> impl IntoView {
                     </div>
                 </div>
             </section>
+            })}
 
             <section class="section" id="stack" aria-labelledby="stack-title">
                 <div class="container">
-                    <SectionHead index="03" eyebrow="Technology Stack" id="stack-title"
+                    <SectionHead index=stack_index eyebrow="Technology Stack" id="stack-title"
                         title=locale.t("Công nghệ theo từng lĩnh vực.", "Technology, by discipline.")
                         lead=locale.t("Tổng hợp trực tiếp từ danh sách công nghệ của các dự án đã xuất bản.", "Aggregated directly from the technology lists of published projects.") />
                     <div class="stack-grid">
@@ -178,7 +183,7 @@ fn Home(home: HomeData, locale: Locale) -> impl IntoView {
 
             <section class="section" id="notes" aria-labelledby="notes-title">
                 <div class="container">
-                    <SectionHead index="04" eyebrow="Engineering Notes" id="notes-title"
+                    <SectionHead index=notes_index eyebrow="Engineering Notes" id="notes-title"
                         title=locale.t("Ghi chép kỹ thuật mới nhất.", "Latest engineering notes.")
                         lead=locale.t("Hướng dẫn triển khai và kết quả thử nghiệm rút ra từ các dự án.", "Implementation guides and experiment results from the projects.")>
                         <a class="btn" href="/notes" data-magnetic="">{locale.t("Tất cả bài viết", "All notes")}<Icon name="arrow-right" /></a>

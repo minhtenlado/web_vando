@@ -40,6 +40,10 @@ pub struct SiteSettings {
     pub github_url: Option<String>,
     pub email: Option<String>,
     pub analytics_id: Option<String>,
+    pub hero_primary_url: String,
+    pub og_title: Option<String>,
+    pub og_image: Option<String>,
+    pub featured_enabled: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
@@ -328,4 +332,98 @@ pub struct ContentSettings {
     pub analytics_id: String,
     pub email: String,
     pub github: String,
+    pub hero_primary_url: String,
+    pub og_title: String,
+    pub og_image_url: String,
+    pub section_featured_enabled: bool,
+}
+
+/// Text stored in both languages, as the CMS keeps it (`{ "vi": "…", "en": "…" }`).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+#[serde(default)]
+pub struct LocaleText {
+    pub vi: String,
+    pub en: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+#[serde(default)]
+pub struct SocialLink {
+    pub platform: String,
+    pub url: String,
+    pub enabled: bool,
+}
+
+/// Identity fields of one `Profile` row (`profile-vi` or `profile-en`).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct ProfileForm {
+    pub locale: String,
+    pub name: String,
+    pub role: String,
+    pub tagline: String,
+    pub location: String,
+    pub phone: String,
+    pub website: String,
+    pub linkedin: String,
+    pub avatar: String,
+    pub socials: Vec<SocialLink>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+#[serde(default)]
+pub struct EducationItem {
+    pub degree: LocaleText,
+    pub school: LocaleText,
+    pub period: String,
+    pub detail: LocaleText,
+    pub logo: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct CertificationItem {
+    pub name: String,
+    pub issuer: String,
+    pub year: String,
+    pub enabled: bool,
+}
+
+impl Default for CertificationItem {
+    fn default() -> Self { Self { name: String::new(), issuer: String::new(), year: String::new(), enabled: true } }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LanguageItem {
+    pub name: LocaleText,
+    pub level: LocaleText,
+    pub enabled: bool,
+}
+
+impl Default for LanguageItem {
+    fn default() -> Self { Self { name: LocaleText::default(), level: LocaleText::default(), enabled: true } }
+}
+
+/// Education, certifications and languages; shared by every profile row.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct Credentials {
+    pub educations: Vec<EducationItem>,
+    pub certifications: Vec<CertificationItem>,
+    pub languages: Vec<LanguageItem>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct AdminExperience {
+    pub id: String,
+    pub locale: String,
+    pub role: String,
+    pub company: String,
+    pub company_url: String,
+    pub period: String,
+    pub location: String,
+    pub description: String,
+    pub highlights: Vec<String>,
+    pub stack: Vec<String>,
+    pub images: Vec<String>,
+    pub order: i32,
 }
